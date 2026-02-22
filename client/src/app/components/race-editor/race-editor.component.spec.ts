@@ -62,6 +62,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
     component.originalRace = JSON.parse(JSON.stringify(component.editingRace));
@@ -98,6 +110,18 @@ describe('RaceEditorComponent', () => {
           dropped_heats: 0,
           ranking_method: 'LAP_COUNT',
           tiebreaker: 'FASTEST_LAP_TIME'
+        },
+        fuel_options: {
+          enabled: false,
+          reset_fuel_at_heat_start: false,
+          end_heat_on_out_of_fuel: false,
+          capacity: 100,
+          usage_type: 'LINEAR',
+          usage_rate: 4.0,
+          start_level: 100,
+          refuel_rate: 10,
+          pit_stop_delay: 2.0,
+          reference_time: 6.0
         }
       }
     ];
@@ -130,6 +154,18 @@ describe('RaceEditorComponent', () => {
           dropped_heats: 0,
           ranking_method: 'LAP_COUNT',
           tiebreaker: 'FASTEST_LAP_TIME'
+        },
+        fuel_options: {
+          enabled: false,
+          reset_fuel_at_heat_start: false,
+          end_heat_on_out_of_fuel: false,
+          capacity: 100,
+          usage_type: 'LINEAR',
+          usage_rate: 4.0,
+          start_level: 100,
+          refuel_rate: 10,
+          pit_stop_delay: 2.0,
+          reference_time: 6.0
         }
       }
     ];
@@ -167,6 +203,18 @@ describe('RaceEditorComponent', () => {
           dropped_heats: 0,
           ranking_method: 'LAP_COUNT',
           tiebreaker: 'FASTEST_LAP_TIME'
+        },
+        fuel_options: {
+          enabled: false,
+          reset_fuel_at_heat_start: false,
+          end_heat_on_out_of_fuel: false,
+          capacity: 100,
+          usage_type: 'LINEAR',
+          usage_rate: 4.0,
+          start_level: 100,
+          refuel_rate: 10,
+          pit_stop_delay: 2.0,
+          reference_time: 6.0
         }
       }
     ];
@@ -200,6 +248,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
     component.loadHeats();
@@ -226,6 +286,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
 
@@ -249,6 +321,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
     component.editingRace = {
@@ -264,6 +348,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
     component.races = [{ entity_id: '1', name: 'Original' }];
@@ -292,6 +388,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
     spyOn(component, 'hasChanges').and.returnValue(false);
@@ -320,6 +428,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
     spyOn(component, 'hasChanges').and.returnValue(true);
@@ -349,6 +469,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     };
     mockDataService.createRace.and.returnValue(of({
@@ -366,6 +498,18 @@ describe('RaceEditorComponent', () => {
         dropped_heats: 0,
         ranking_method: 'LAP_COUNT',
         tiebreaker: 'FASTEST_LAP_TIME'
+      },
+      fuel_options: {
+        enabled: false,
+        reset_fuel_at_heat_start: false,
+        end_heat_on_out_of_fuel: false,
+        capacity: 100,
+        usage_type: 'LINEAR',
+        usage_rate: 4.0,
+        start_level: 100,
+        refuel_rate: 10,
+        pit_stop_delay: 2.0,
+        reference_time: 6.0
       }
     }));
     mockDataService.getRaces.and.returnValue(of([]));

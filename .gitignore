@@ -66,7 +66,6 @@ client/.chrome-home/
 client/browsers/
 
 # I think this is generated code on the client/server
-client/src/app/types/
 server/build_output/
 server/target_dist/
 server/target_exec/
@@ -74,3 +73,4 @@ client/tmp-karma/
 server/generated-sources/
 server/protoc_local.exe
 server/target_test/
+client/.npmrc

@@ -284,7 +284,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
         ranking_method: this.editingRace.overall_scoring.ranking_method,
         tiebreaker: this.editingRace.overall_scoring.tiebreaker
       },
-      fuel_options: {
+      fuel_options: this.editingRace.fuel_options ? {
         enabled: this.editingRace.fuel_options.enabled,
         reset_fuel_at_heat_start: this.editingRace.fuel_options.reset_fuel_at_heat_start,
         end_heat_on_out_of_fuel: this.editingRace.fuel_options.end_heat_on_out_of_fuel,
@@ -295,7 +295,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
         refuel_rate: this.editingRace.fuel_options.refuel_rate,
         pit_stop_delay: this.editingRace.fuel_options.pit_stop_delay,
         reference_time: this.editingRace.fuel_options.reference_time
-      },
+      } : undefined,
       min_lap_time: this.editingRace.min_lap_time
     };
 
@@ -358,7 +358,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
         ranking_method: this.editingRace.overall_scoring.ranking_method,
         tiebreaker: this.editingRace.overall_scoring.tiebreaker
       },
-      fuel_options: {
+      fuel_options: this.editingRace.fuel_options ? {
         enabled: this.editingRace.fuel_options.enabled,
         reset_fuel_at_heat_start: this.editingRace.fuel_options.reset_fuel_at_heat_start,
         end_heat_on_out_of_fuel: this.editingRace.fuel_options.end_heat_on_out_of_fuel,
@@ -368,7 +368,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy {
         start_level: this.editingRace.fuel_options.start_level,
         refuel_rate: this.editingRace.fuel_options.refuel_rate,
         pit_stop_delay: this.editingRace.fuel_options.pit_stop_delay
-      },
+      } : undefined,
       min_lap_time: this.editingRace.min_lap_time
     };
 
