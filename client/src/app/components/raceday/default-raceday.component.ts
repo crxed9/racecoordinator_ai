@@ -17,7 +17,7 @@ import { playSound } from 'src/app/utils/audio';
 import { com } from 'src/app/proto/message';
 import { SettingsService } from 'src/app/services/settings.service';
 import { AnchorPoint } from './column_definition';
-import { Settings } from 'src/app/models/settings';
+import { Settings, ColumnVisibility } from 'src/app/models/settings';
 import { FinishMethod } from 'src/app/models/heat_scoring';
 import InterfaceStatus = com.antigravity.InterfaceStatus;
 
@@ -224,6 +224,18 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       }
     }));
 
+    this.subscriptions.push(this.dataService.getCarData().subscribe(carData => {
+      if (this.heat && this.heat.heatDrivers && carData.lane != null) {
+        const driverData = this.heat.heatDrivers[carData.lane];
+        if (driverData && carData.fuelLevel != null) {
+          driverData.participant.fuelLevel = carData.fuelLevel as number;
+          if (!this.isDestroyed) {
+            this.cdr.detectChanges();
+          }
+        }
+      }
+    }));
+
     this.subscriptions.push(this.dataService.getReactionTimes().subscribe(rt => {
       if (this.heat && this.heat.heatDrivers && rt && rt.objectId) {
         const driver = this.heat.heatDrivers.find(d => d.objectId === rt.objectId);
@@ -259,6 +271,9 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       if (update.participants) {
         const participants = update.participants.map(p => RaceParticipantConverter.fromProto(p));
         this.raceService.setParticipants(participants);
+        if (!this.isDestroyed) {
+          this.cdr.detectChanges();
+        }
       }
     }));
 
@@ -437,6 +452,7 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       console.log('RacedayComponent: using selected race:', race);
       console.log('RacedayComponent: Race tracks/lanes:', race.track, race.track?.lanes);
       this.track = race.track;
+      this.loadColumns();
       this.initializeHeat();
     } else {
       console.log('RacedayComponent: Waiting for race data...');
@@ -1077,6 +1093,19 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       selectedColumns = Settings.DEFAULT_COLUMNS;
     }
 
+    // Filter columns based on race settings
+    const race = this.raceService.getRace();
+    const isFuelRace = race?.fuel_options?.enabled ?? false;
+    const visibilityMap = settings.columnVisibility || {};
+
+    selectedColumns = selectedColumns.filter(key => {
+      const visibility = visibilityMap[key] || ColumnVisibility.Always;
+      if (visibility === ColumnVisibility.Always) return true;
+      if (visibility === ColumnVisibility.FuelRaceOnly) return isFuelRace;
+      if (visibility === ColumnVisibility.NonFuelRaceOnly) return !isFuelRace;
+      return true;
+    });
+
     const nameKeys = ['driver.name', 'driver.nickname'];
 
     // Specific widths as per requirements
@@ -1095,7 +1124,10 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       'gapPosition': 275,
       'driver.name': 400,
       'driver.nickname': 400,
-      'participant.team.name': 275
+      'participant.team.name': 275,
+      'participant.fuelLevel': 180,
+      'fuelCapacity': 180,
+      'fuelPercentage': 180
     };
 
     let totalFixedWithoutResizingColumn = 0;
@@ -1172,6 +1204,19 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       return hd.actualDriver?.nickname || hd.driver.nickname || hd.driver.name;
     } else if (baseKey === 'participant.team.name') {
       return hd.participant?.team?.name || '';
+    } else if (baseKey === 'participant.fuelLevel') {
+      return value !== undefined ? value.toFixed(1) : '--.-';
+    } else if (baseKey === 'fuelCapacity') {
+      const capacity = this.raceService.getRace()?.fuel_options?.capacity;
+      return capacity !== undefined ? capacity.toFixed(1) : '--.-';
+    } else if (baseKey === 'fuelPercentage') {
+      const level = hd.participant?.fuelLevel;
+      const capacity = this.raceService.getRace()?.fuel_options?.capacity;
+      if (level !== undefined && capacity !== undefined && capacity > 0) {
+        const percentage = Math.round((level / capacity) * 100);
+        return percentage + '%';
+      }
+      return '--%';
     }
     return value?.toString() ?? '';
   }
@@ -1196,7 +1241,10 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       'reactionTime': 'RD_COL_REACTION_TIME',
       'participant.team.name': 'RD_COL_TEAM',
       'driver.name': 'RD_COL_NAME',
-      'driver.nickname': 'RD_COL_NICKNAME'
+      'driver.nickname': 'RD_COL_NICKNAME',
+      'participant.fuelLevel': 'RD_COL_FUEL_LEVEL',
+      'fuelCapacity': 'RD_COL_FUEL_CAPACITY',
+      'fuelPercentage': 'RD_COL_FUEL_PERCENTAGE'
     };
     return labels[baseKey] || 'UNKNOWN';
   }

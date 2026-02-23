@@ -16,6 +16,7 @@ test.describe('Asset Manager Visuals', () => {
     // Navigating and waiting for localization
     await TestSetupHelper.waitForLocalization(page, 'en', page.goto('/asset-manager'));
     await TestSetupHelper.waitForText(page, 'DATABASE STATUS');
+    await TestSetupHelper.waitForText(page, 'Mock_Database.db');
 
     // Wait for the asset list to appear
     const assetList = page.locator('.asset-grid');

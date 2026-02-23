@@ -38,9 +38,12 @@ public class ArduinoProtocol extends DefaultProtocol {
 
   private ScheduledExecutorService statusScheduler;
   private java.util.concurrent.ScheduledFuture<?> statusFuture;
+  private java.util.concurrent.ScheduledFuture<?> refuelFuture;
   protected long lastHeartbeatTimeMs = 0;
 
   // Lane specific
+  private boolean[] laneInPits;
+  private long[] lastRefuelTimeMs;
 
   // Data sent from PC to Arduino
   private static final byte[] RESET_COMMAND = { 0x52, 0x45, 0x53, 0x45, 0x54, 0x3B };
@@ -82,6 +85,11 @@ public class ArduinoProtocol extends DefaultProtocol {
       hwSegmentTime[i] = new HwTime();
     }
     hwReset = 1;
+    laneInPits = new boolean[numLanes];
+    lastRefuelTimeMs = new long[numLanes];
+    for (int i = 0; i < numLanes; i++) {
+      lastRefuelTimeMs[i] = 0;
+    }
   }
 
   protected SerialConnection createSerialConnection() {
@@ -145,6 +153,9 @@ public class ArduinoProtocol extends DefaultProtocol {
     if (statusFuture != null) {
       statusFuture.cancel(true);
     }
+    if (refuelFuture != null) {
+      refuelFuture.cancel(true);
+    }
     if (statusScheduler != null) {
       statusScheduler.shutdown();
     }
@@ -181,6 +192,28 @@ public class ArduinoProtocol extends DefaultProtocol {
         logger.error("Error in status scheduler", e);
       }
     }, 0, 1, TimeUnit.SECONDS);
+
+    refuelFuture = statusScheduler.scheduleAtFixedRate(() -> {
+      try {
+        if (listener != null) {
+          long currentTime = now();
+          for (int laneIndex = 0; laneIndex < numLanes; laneIndex++) {
+            if (laneInPits[laneIndex]) {
+              double deltaTimeSeconds = 0.0;
+              if (lastRefuelTimeMs[laneIndex] > 0) {
+                deltaTimeSeconds = (currentTime - lastRefuelTimeMs[laneIndex]) / 1000.0;
+              }
+              lastRefuelTimeMs[laneIndex] = currentTime;
+
+              listener.onCarData(new CarData(laneIndex, deltaTimeSeconds, 0, 0, true,
+                  CarLocation.PitRow, CarLocation.PitRow, -1));
+            }
+          }
+        }
+      } catch (Exception e) {
+        logger.error("Error in refuel scheduler", e);
+      }
+    }, 0, 100, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -483,6 +516,12 @@ public class ArduinoProtocol extends DefaultProtocol {
         case CALL_BUTTON:
           onCallButton(pinConfig.laneIndex, state);
           break;
+        case PIT_IN:
+          onPitIn(pinConfig.laneIndex, state);
+          break;
+        case PIT_OUT:
+          onPitOut(pinConfig.laneIndex, state);
+          break;
         case RESERVED:
           // Ignore
           break;
@@ -514,13 +553,22 @@ public class ArduinoProtocol extends DefaultProtocol {
 
         logger.info("Handling Lap - Lane: {}, Time: {}", laneIndex, time);
         if (listener != null) {
-          // TODO(aufderheide):
-          // We need to know how to hanle false starts. Maybe do not
-          // send the lap, but send a 0 time CarData?
           listener.onLap(laneIndex, time, interfaceId);
 
-          if (time > 0) {
-            listener.onCarData(new CarData(laneIndex, time, 1, 1, false, CarLocation.Main, CarLocation.Main, -1));
+          if (config.lapPinPitBehavior != ArduinoConfig.LapPinPitBehavior.NONE) {
+            if (config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_IN) {
+              onPitIn(laneIndex, state);
+            } else if (config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_OUT) {
+              onPitOut(laneIndex, state);
+            }
+          }
+        }
+      } else {
+        if (config.lapPinPitBehavior != ArduinoConfig.LapPinPitBehavior.NONE) {
+          if (config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_IN) {
+            onPitIn(laneIndex, 0);
+          } else if (config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_OUT) {
+            onPitOut(laneIndex, 0);
           }
         }
       }
@@ -540,6 +588,74 @@ public class ArduinoProtocol extends DefaultProtocol {
     logger.info("Received Call Button - Lane: {}, State: {}", laneIndex, state);
     if (listener != null) {
       listener.onCallbutton(laneIndex);
+    }
+  }
+
+  private boolean hasPitInConfigured(int laneIndex) {
+    if (config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_IN) {
+      return true;
+    }
+
+    for (PinConfig pc : pinLookup.values()) {
+      if (pc.behavior == InputBehavior.PIT_IN && (pc.laneIndex == -1 || pc.laneIndex == laneIndex)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void onPitIn(int laneIndex, int state) {
+    if (laneIndex < 0 || laneIndex >= numLanes) {
+      return;
+    }
+
+    int wantState = 1;
+    if (config.globalInvertLanes != 0) {
+      wantState = 0;
+    }
+
+    if (state == wantState) {
+      updatePitState(laneIndex, true);
+    }
+  }
+
+  private void onPitOut(int laneIndex, int state) {
+    if (laneIndex < 0 || laneIndex >= numLanes) {
+      return;
+    }
+
+    int wantState = 1;
+    if (config.globalInvertLanes != 0) {
+      wantState = 0;
+    }
+
+    if (hasPitInConfigured(laneIndex)) {
+      if (state == wantState) {
+        updatePitState(laneIndex, false);
+      }
+    } else {
+      updatePitState(laneIndex, state == wantState);
+    }
+  }
+
+  private void updatePitState(int laneIndex, boolean inPits) {
+    if (laneInPits[laneIndex] != inPits) {
+      laneInPits[laneIndex] = inPits;
+      logger.info("Lane {} {} pits", laneIndex, inPits ? "entered" : "exited");
+
+      if (inPits) {
+        lastRefuelTimeMs[laneIndex] = now();
+        if (listener != null) {
+          listener.onCarData(new CarData(laneIndex, 0.0, 0, 0, true,
+              CarLocation.PitRow, CarLocation.Main, -1));
+        }
+      } else {
+        lastRefuelTimeMs[laneIndex] = 0;
+        if (listener != null) {
+          listener.onCarData(new CarData(laneIndex, 0.0, 0, 0, false,
+              CarLocation.Main, CarLocation.PitRow, -1));
+        }
+      }
     }
   }
 
@@ -585,6 +701,14 @@ public class ArduinoProtocol extends DefaultProtocol {
           code < PinBehavior.BEHAVIOR_RELAY_BASE.getNumber() + numLanes) {
         behavior = InputBehavior.LANE_RELAY;
         laneIndex = code - PinBehavior.BEHAVIOR_RELAY_BASE.getNumber();
+      } else if (code >= PinBehavior.BEHAVIOR_PIT_IN_BASE.getNumber() &&
+          code < PinBehavior.BEHAVIOR_PIT_IN_BASE.getNumber() + numLanes) {
+        behavior = InputBehavior.PIT_IN;
+        laneIndex = code - PinBehavior.BEHAVIOR_PIT_IN_BASE.getNumber();
+      } else if (code >= PinBehavior.BEHAVIOR_PIT_OUT_BASE.getNumber() &&
+          code < PinBehavior.BEHAVIOR_PIT_OUT_BASE.getNumber() + numLanes) {
+        behavior = InputBehavior.PIT_OUT;
+        laneIndex = code - PinBehavior.BEHAVIOR_PIT_OUT_BASE.getNumber();
       }
 
       if (behavior != null) {
@@ -599,6 +723,8 @@ public class ArduinoProtocol extends DefaultProtocol {
     CALL_BUTTON,
     MAIN_RELAY,
     LANE_RELAY,
+    PIT_IN,
+    PIT_OUT,
     RESERVED
   }
 

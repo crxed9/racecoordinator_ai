@@ -1,9 +1,11 @@
+// Force refresh for unit tests
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReorderDialogComponent, ReorderDialogData } from './reorder-dialog.component';
 import { TranslationService } from '../../../services/translation.service';
 import { ChangeDetectorRef, Pipe, PipeTransform, Component, Input } from '@angular/core';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { AnchorPoint } from '../../raceday/column_definition';
+import { ColumnVisibility } from '../../../models/settings';
 import { of } from 'rxjs';
 
 @Pipe({ name: 'translate', standalone: false })
@@ -32,6 +34,9 @@ describe('ReorderDialogComponent', () => {
     ],
     columnLayouts: {
       'slot1': { [AnchorPoint.CenterCenter]: 'driver.name' }
+    },
+    columnVisibility: {
+      'slot1': ColumnVisibility.Always
     }
   };
 
@@ -142,6 +147,7 @@ describe('ReorderDialogComponent', () => {
     component.onAddColumnDrop(event);
     expect(component.columnSlots.length).toBe(2);
     expect(component.columnSlots[1].key).toBe('lapCount_1');
+    expect(component.columnVisibility['lapCount_1']).toBe(ColumnVisibility.Always);
   });
 
   it('should emit save on onSave', () => {
@@ -150,8 +156,31 @@ describe('ReorderDialogComponent', () => {
     component.onSave();
     expect(component.save.emit).toHaveBeenCalledWith({
       columns: ['slot1'],
-      columnLayouts: mockData.columnLayouts
+      columnLayouts: mockData.columnLayouts,
+      columnVisibility: mockData.columnVisibility
     });
+  });
+
+  it('should initialize visibility if missing', () => {
+    component.data = {
+      ...mockData,
+      columnVisibility: {}
+    };
+    expect(component.columnVisibility['slot1']).toBe(ColumnVisibility.Always);
+  });
+
+  it('should handle visibility changes', () => {
+    component.data = mockData;
+    component.columnVisibility['slot1'] = ColumnVisibility.FuelRaceOnly;
+    // Template would handle this via ngModel, but we check the state
+    expect(component.columnVisibility['slot1']).toBe(ColumnVisibility.FuelRaceOnly);
+  });
+
+  it('should handle remove column and delete its visibility', () => {
+    component.data = mockData;
+    expect(component.columnVisibility['slot1']).toBeDefined();
+    component.removeColumn('slot1');
+    expect(component.columnVisibility['slot1']).toBeUndefined();
   });
 
   it('should emit cancel on onCancel', () => {

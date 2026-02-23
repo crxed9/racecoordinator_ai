@@ -67,12 +67,26 @@ public class Race implements ProtocolListener {
 
     this.state = new NotStarted();
     this.state.enter(this);
+
+    initializeFuelLevels();
+  }
+
+  private void initializeFuelLevels() {
+    com.antigravity.models.AnalogFuelOptions fuelOptions = model.getFuelOptions();
+    if (fuelOptions != null && fuelOptions.isEnabled()) {
+      double initialLevel = (fuelOptions.getCapacity() * fuelOptions.getStartLevel()) / 100.0;
+      for (RaceParticipant driver : drivers) {
+        driver.setFuelLevel(initialLevel);
+      }
+    }
   }
 
   private void createProtocols(boolean isDemoMode) {
     List<IProtocol> protocols = new ArrayList<>();
     if (isDemoMode) {
-      Demo protocol = new Demo(this.track.getLanes().size());
+      com.antigravity.models.AnalogFuelOptions fuelOptions = this.model.getFuelOptions();
+      boolean isFuelRace = fuelOptions != null && fuelOptions.isEnabled();
+      Demo protocol = new Demo(this.track.getLanes().size(), isFuelRace);
       protocols.add(protocol);
     } else {
       com.antigravity.protocols.arduino.ArduinoConfig config = this.track.getArduinoConfig();
@@ -202,6 +216,41 @@ public class Race implements ProtocolListener {
 
   public java.util.List<com.antigravity.protocols.PartialTime> stopProtocols() {
     return protocols.stopTimer();
+  }
+
+  public void prepareHeat() {
+    com.antigravity.models.AnalogFuelOptions fuelOptions = model.getFuelOptions();
+    if (fuelOptions == null || !fuelOptions.isEnabled()) {
+      return;
+    }
+
+    boolean resetAtStart = fuelOptions.isResetFuelAtHeatStart();
+    double startLevel = (fuelOptions.getCapacity() * fuelOptions.getStartLevel()) / 100.0;
+
+    for (com.antigravity.race.DriverHeatData heatData : currentHeat.getDrivers()) {
+      RaceParticipant participant = heatData.getDriver();
+      if (participant == null || participant.getDriver() == null || participant.getDriver().getEntityId() == null) {
+        continue;
+      }
+
+      if (resetAtStart) {
+        participant.setFuelLevel(startLevel);
+      }
+
+      // Store the initial fuel level for this heat to support restarts
+      heatData.setInitialFuelLevel(participant.getFuelLevel());
+    }
+  }
+
+  public void restoreHeatFuel() {
+    com.antigravity.models.AnalogFuelOptions fuelOptions = model.getFuelOptions();
+    if (fuelOptions == null || !fuelOptions.isEnabled()) {
+      return;
+    }
+
+    for (com.antigravity.race.DriverHeatData heatData : currentHeat.getDrivers()) {
+      heatData.getDriver().setFuelLevel(heatData.getInitialFuelLevel());
+    }
   }
 
   public void updateAndBroadcastOverallStandings() {

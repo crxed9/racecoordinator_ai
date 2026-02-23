@@ -66,6 +66,9 @@ public class ArduinoProtocolTest {
     int lapCount = 0;
     int lastLapLane = -1;
     InterfaceStatus lastStatus = InterfaceStatus.DISCONNECTED;
+    int pitStateChanges = 0;
+    com.antigravity.protocols.CarLocation lastLocation = com.antigravity.protocols.CarLocation.Main;
+    public CarData lastCarData;
 
     @Override
     public void onLap(int lane, double lapTime, int interfaceId) {
@@ -89,7 +92,11 @@ public class ArduinoProtocolTest {
 
     @Override
     public void onCarData(CarData carData) {
-      // No-op
+      lastCarData = carData;
+      if (carData.getLocation() != lastLocation) {
+        pitStateChanges++;
+        lastLocation = carData.getLocation();
+      }
     }
   }
 
@@ -345,5 +352,135 @@ public class ArduinoProtocolTest {
     serialConnection.lastWrittenData = null;
     protocol.setLanePower(true, 2);
     org.junit.Assert.assertNull(serialConnection.lastWrittenData);
+  }
+
+  @Test
+  public void testPitDetection_PitOutOnly() {
+    // Configure D4 as Pit Out (Base + 0)
+    config.digitalIds = new ArrayList<>(
+        Collections.nCopies(10, com.antigravity.proto.PinBehavior.BEHAVIOR_UNUSED.getNumber()));
+    config.digitalIds.set(4, com.antigravity.proto.PinBehavior.BEHAVIOR_PIT_OUT_BASE.getNumber() + 0);
+    config.lapPinPitBehavior = ArduinoConfig.LapPinPitBehavior.NONE;
+
+    protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+    protocol.setListener(listener);
+    protocol.open();
+
+    // Inject Version to verify
+    byte[] versionMsg = { 0x56, 1, 0, 0, 0, 0x3B };
+    serialConnection.injectData(versionMsg);
+
+    // Trigger D4 high -> In pits
+    byte[] pitOutHigh = { 0x49, 0x44, 0x04, 0x01, 0x3B };
+    serialConnection.injectData(pitOutHigh);
+    assertEquals(com.antigravity.protocols.CarLocation.PitRow, listener.lastLocation);
+    assertEquals(1, listener.pitStateChanges);
+
+    // Trigger D4 low -> Out of pits
+    byte[] pitOutLow = { 0x49, 0x44, 0x04, 0x00, 0x3B };
+    serialConnection.injectData(pitOutLow);
+    assertEquals(com.antigravity.protocols.CarLocation.Main, listener.lastLocation);
+    assertEquals(2, listener.pitStateChanges);
+  }
+
+  @Test
+  public void testPitDetection_PitInAndOut() {
+    // Configure D4 as Pit In (Base + 0), D5 as Pit Out (Base + 0)
+    config.digitalIds = new ArrayList<>(
+        Collections.nCopies(10, com.antigravity.proto.PinBehavior.BEHAVIOR_UNUSED.getNumber()));
+    config.digitalIds.set(4, com.antigravity.proto.PinBehavior.BEHAVIOR_PIT_IN_BASE.getNumber() + 0);
+    config.digitalIds.set(5, com.antigravity.proto.PinBehavior.BEHAVIOR_PIT_OUT_BASE.getNumber() + 0);
+    config.lapPinPitBehavior = ArduinoConfig.LapPinPitBehavior.NONE;
+
+    protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+    protocol.setListener(listener);
+    protocol.open();
+
+    // Inject Version to verify
+    byte[] versionMsg = { 0x56, 1, 0, 0, 0, 0x3B };
+    serialConnection.injectData(versionMsg);
+
+    // Trigger D4 high (Pit In) -> In pits
+    byte[] pitInHigh = { 0x49, 0x44, 0x04, 0x01, 0x3B };
+    serialConnection.injectData(pitInHigh);
+    assertEquals(com.antigravity.protocols.CarLocation.PitRow, listener.lastLocation);
+
+    // Trigger D5 high (Pit Out) -> Out of pits
+    byte[] pitOutHigh = { 0x49, 0x44, 0x05, 0x01, 0x3B };
+    serialConnection.injectData(pitOutHigh);
+    assertEquals(com.antigravity.protocols.CarLocation.Main, listener.lastLocation);
+  }
+
+  @Test
+  public void testPitDetection_LapPinBehavior_PitOut() {
+    // Configure D2 as Lap (Base + 0)
+    config.digitalIds = new ArrayList<>(
+        Collections.nCopies(10, com.antigravity.proto.PinBehavior.BEHAVIOR_UNUSED.getNumber()));
+    config.digitalIds.set(2, com.antigravity.proto.PinBehavior.BEHAVIOR_LAP_BASE.getNumber() + 0);
+    config.lapPinPitBehavior = ArduinoConfig.LapPinPitBehavior.PIT_OUT;
+
+    protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+    protocol.setListener(listener);
+    protocol.open();
+
+    // Inject Version to verify
+    byte[] versionMsg = { 0x56, 1, 0, 0, 0, 0x3B };
+    serialConnection.injectData(versionMsg);
+
+    // Trigger D2 high (Lap/Pit Out) -> In pits (since no Pit In configured)
+    byte[] lapHigh = { 0x49, 0x44, 0x02, 0x01, 0x3B };
+    serialConnection.injectData(lapHigh);
+    assertEquals(com.antigravity.protocols.CarLocation.PitRow, listener.lastLocation);
+
+    // Trigger D2 low -> Out of pits
+    byte[] lapLow = { 0x49, 0x44, 0x02, 0x00, 0x3B };
+    serialConnection.injectData(lapLow);
+    assertEquals(com.antigravity.protocols.CarLocation.Main, listener.lastLocation);
+  }
+
+  @Test
+  public void testPitDeltaTime() {
+    config.digitalIds = new ArrayList<>(
+        Collections.nCopies(10, com.antigravity.proto.PinBehavior.BEHAVIOR_UNUSED.getNumber()));
+    config.digitalIds.set(4, com.antigravity.proto.PinBehavior.BEHAVIOR_PIT_IN_BASE.getNumber() + 0);
+    config.digitalIds.set(5, com.antigravity.proto.PinBehavior.BEHAVIOR_PIT_OUT_BASE.getNumber() + 0);
+    config.lapPinPitBehavior = ArduinoConfig.LapPinPitBehavior.NONE;
+
+    protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+    protocol.setListener(listener);
+    protocol.open();
+
+    byte[] versionMsg = { 0x56, 1, 0, 0, 0, 0x3B };
+    serialConnection.injectData(versionMsg);
+
+    // Enter pit via Pit In (D4 HIGH)
+    byte[] pitInHigh = { 0x49, 0x44, 0x04, 0x01, 0x3B };
+    protocol.advanceTime(1000);
+    serialConnection.injectData(pitInHigh);
+
+    org.junit.Assert.assertNotNull(listener.lastCarData);
+    assertEquals("First report should have delta 0 and true canRefuel", 0.0, listener.lastCarData.getTime(), 0.001);
+    assertEquals("Should be able to refuel on pit entry", true, listener.lastCarData.getCanRefuel());
+
+    // Advance 2.5s and tick the scheduler to simulate the 10Hz loop
+    protocol.advanceTime(2500);
+    scheduler.tick();
+
+    assertEquals("Refuel scheduler report should have elapsed time", 2.5, listener.lastCarData.getTime(), 0.001);
+    assertEquals("Still able to refuel", true, listener.lastCarData.getCanRefuel());
+
+    // Advance 0.1s and tick again
+    protocol.advanceTime(100);
+    scheduler.tick();
+
+    assertEquals("Next refuel scheduler report should have elapsed time", 0.1, listener.lastCarData.getTime(), 0.001);
+
+    // Leave the pit via Pit Out (D5 HIGH)
+    byte[] pitOutHigh = { 0x49, 0x44, 0x05, 0x01, 0x3B };
+    protocol.advanceTime(200);
+    serialConnection.injectData(pitOutHigh);
+
+    assertEquals("Exit report should have delta 0", 0.0, listener.lastCarData.getTime(), 0.001);
+    assertEquals("Cannot refuel on pit exit", false, listener.lastCarData.getCanRefuel());
   }
 }

@@ -38,4 +38,33 @@ test.describe('Reorder Dialog Visuals', () => {
     // Capture the entire modal with preview
     await expect(modal).toHaveScreenshot('reorder-dialog-preview.png');
   });
+
+  test('should show visibility selectors correctly in reorder dialog', async ({ page }) => {
+    // Inject custom settings with some visibility constraints BEFORE navigation
+    await page.addInitScript(() => {
+      const key = 'racecoordinator_settings';
+      const settings = {
+        racedayColumns: ['lapCount', 'participant.fuelLevel'],
+        columnVisibility: {
+          'lapCount': 'NonFuelRaceOnly',
+          'participant.fuelLevel': 'FuelRaceOnly'
+        }
+      };
+      localStorage.setItem(key, JSON.stringify(settings));
+    });
+
+    await TestSetupHelper.waitForLocalization(page, 'en', page.goto('/ui-editor'));
+
+    await page.getByRole('button', { name: 'CONFIGURE COLUMNS' }).click();
+
+    const modal = page.locator('.reorder-modal');
+    await expect(modal).toBeVisible();
+
+    // Verify visibility selectors are present and have correct values
+    const selectors = modal.locator('select.visibility-select');
+    await expect(selectors).toHaveCount(2);
+
+    // Take a screenshot showing the visibility selectors
+    await expect(modal).toHaveScreenshot('reorder-dialog-visibility.png');
+  });
 });

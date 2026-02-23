@@ -1,5 +1,11 @@
 import { AnchorPoint } from '../components/raceday/column_definition';
 
+export enum ColumnVisibility {
+    Always = 'Always',
+    FuelRaceOnly = 'FuelRaceOnly',
+    NonFuelRaceOnly = 'NonFuelRaceOnly'
+}
+
 export class Settings {
     static readonly DEFAULT_COLUMNS = ['driver.nickname', 'lapCount', 'lastLapTime', 'averageLapTime'];
 
@@ -26,6 +32,7 @@ export class Settings {
             [AnchorPoint.BottomCenter]: 'participant.team.name'
         }
     };
+    columnVisibility: { [columnKey: string]: ColumnVisibility } = {};
 }
 
 

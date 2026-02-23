@@ -1281,7 +1281,16 @@ export namespace com {
             BEHAVIOR_LAP_BASE = 1000,
             BEHAVIOR_SEGMENT_BASE = 2000,
             BEHAVIOR_CALL_BUTTON_BASE = 3000,
-            BEHAVIOR_RELAY_BASE = 4000
+            BEHAVIOR_RELAY_BASE = 4000,
+            BEHAVIOR_PIT_IN_BASE = 5000,
+            BEHAVIOR_PIT_OUT_BASE = 6000
+        }
+
+        /** LapPinPitBehavior enum. */
+        enum LapPinPitBehavior {
+            LAP_PIN_PIT_NONE = 0,
+            LAP_PIN_PIT_IN = 1,
+            LAP_PIN_PIT_OUT = 2
         }
 
         /** PinId enum. */
@@ -1315,12 +1324,6 @@ export namespace com {
             /** ArduinoConfig globalInvertLights */
             globalInvertLights?: (number|null);
 
-            /** ArduinoConfig useLapsForPits */
-            useLapsForPits?: (number|null);
-
-            /** ArduinoConfig useLapsForPitEnd */
-            useLapsForPitEnd?: (number|null);
-
             /** ArduinoConfig usePitsAsLaps */
             usePitsAsLaps?: (number|null);
 
@@ -1338,6 +1341,9 @@ export namespace com {
 
             /** ArduinoConfig ledLaneColorOverrides */
             ledLaneColorOverrides?: (string[]|null);
+
+            /** ArduinoConfig lapPinPitBehavior */
+            lapPinPitBehavior?: (com.antigravity.LapPinPitBehavior|null);
         }
 
         /** Represents an ArduinoConfig. */
@@ -1370,12 +1376,6 @@ export namespace com {
             /** ArduinoConfig globalInvertLights. */
             public globalInvertLights: number;
 
-            /** ArduinoConfig useLapsForPits. */
-            public useLapsForPits: number;
-
-            /** ArduinoConfig useLapsForPitEnd. */
-            public useLapsForPitEnd: number;
-
             /** ArduinoConfig usePitsAsLaps. */
             public usePitsAsLaps: number;
 
@@ -1393,6 +1393,9 @@ export namespace com {
 
             /** ArduinoConfig ledLaneColorOverrides. */
             public ledLaneColorOverrides: string[];
+
+            /** ArduinoConfig lapPinPitBehavior. */
+            public lapPinPitBehavior: com.antigravity.LapPinPitBehavior;
 
             /**
              * Creates a new ArduinoConfig instance using the specified properties.
@@ -4222,6 +4225,9 @@ export namespace com {
 
             /** Lap driverId */
             driverId?: (string|null);
+
+            /** Lap fuelLevel */
+            fuelLevel?: (number|null);
         }
 
         /** Represents a Lap. */
@@ -4256,6 +4262,9 @@ export namespace com {
 
             /** Lap driverId. */
             public driverId: string;
+
+            /** Lap fuelLevel. */
+            public fuelLevel: number;
 
             /**
              * Creates a new Lap instance using the specified properties.
@@ -4358,6 +4367,9 @@ export namespace com {
 
             /** RaceData raceState */
             raceState?: (com.antigravity.RaceState|null);
+
+            /** RaceData carData */
+            carData?: (com.antigravity.ICarData|null);
         }
 
         /** Represents a RaceData. */
@@ -4390,8 +4402,11 @@ export namespace com {
             /** RaceData raceState. */
             public raceState?: (com.antigravity.RaceState|null);
 
+            /** RaceData carData. */
+            public carData?: (com.antigravity.ICarData|null);
+
             /** RaceData data. */
-            public data?: ("raceTime"|"lap"|"race"|"reactionTime"|"standingsUpdate"|"overallStandingsUpdate"|"raceState");
+            public data?: ("raceTime"|"lap"|"race"|"reactionTime"|"standingsUpdate"|"overallStandingsUpdate"|"raceState"|"carData");
 
             /**
              * Creates a new RaceData instance using the specified properties.
@@ -4891,6 +4906,9 @@ export namespace com {
 
             /** RaceModel minLapTime */
             minLapTime?: (number|null);
+
+            /** RaceModel fuelOptions */
+            fuelOptions?: (com.antigravity.IAnalogFuelOptions|null);
         }
 
         /** Represents a RaceModel. */
@@ -4919,6 +4937,9 @@ export namespace com {
 
             /** RaceModel minLapTime. */
             public minLapTime: number;
+
+            /** RaceModel fuelOptions. */
+            public fuelOptions?: (com.antigravity.IAnalogFuelOptions|null);
 
             /**
              * Creates a new RaceModel instance using the specified properties.
@@ -4992,6 +5013,164 @@ export namespace com {
 
             /**
              * Gets the default type url for RaceModel
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** FuelUsageType enum. */
+        enum FuelUsageType {
+            LINEAR = 0,
+            QUADRATIC = 1,
+            CUBIC = 2
+        }
+
+        /** Properties of an AnalogFuelOptions. */
+        interface IAnalogFuelOptions {
+
+            /** AnalogFuelOptions enabled */
+            enabled?: (boolean|null);
+
+            /** AnalogFuelOptions resetFuelAtHeatStart */
+            resetFuelAtHeatStart?: (boolean|null);
+
+            /** AnalogFuelOptions endHeatOnOutOfFuel */
+            endHeatOnOutOfFuel?: (boolean|null);
+
+            /** AnalogFuelOptions capacity */
+            capacity?: (number|null);
+
+            /** AnalogFuelOptions usageType */
+            usageType?: (com.antigravity.FuelUsageType|null);
+
+            /** AnalogFuelOptions usageRate */
+            usageRate?: (number|null);
+
+            /** AnalogFuelOptions startLevel */
+            startLevel?: (number|null);
+
+            /** AnalogFuelOptions refuelRate */
+            refuelRate?: (number|null);
+
+            /** AnalogFuelOptions pitStopDelay */
+            pitStopDelay?: (number|null);
+
+            /** AnalogFuelOptions referenceTime */
+            referenceTime?: (number|null);
+        }
+
+        /** Represents an AnalogFuelOptions. */
+        class AnalogFuelOptions implements IAnalogFuelOptions {
+
+            /**
+             * Constructs a new AnalogFuelOptions.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: com.antigravity.IAnalogFuelOptions);
+
+            /** AnalogFuelOptions enabled. */
+            public enabled: boolean;
+
+            /** AnalogFuelOptions resetFuelAtHeatStart. */
+            public resetFuelAtHeatStart: boolean;
+
+            /** AnalogFuelOptions endHeatOnOutOfFuel. */
+            public endHeatOnOutOfFuel: boolean;
+
+            /** AnalogFuelOptions capacity. */
+            public capacity: number;
+
+            /** AnalogFuelOptions usageType. */
+            public usageType: com.antigravity.FuelUsageType;
+
+            /** AnalogFuelOptions usageRate. */
+            public usageRate: number;
+
+            /** AnalogFuelOptions startLevel. */
+            public startLevel: number;
+
+            /** AnalogFuelOptions refuelRate. */
+            public refuelRate: number;
+
+            /** AnalogFuelOptions pitStopDelay. */
+            public pitStopDelay: number;
+
+            /** AnalogFuelOptions referenceTime. */
+            public referenceTime: number;
+
+            /**
+             * Creates a new AnalogFuelOptions instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns AnalogFuelOptions instance
+             */
+            public static create(properties?: com.antigravity.IAnalogFuelOptions): com.antigravity.AnalogFuelOptions;
+
+            /**
+             * Encodes the specified AnalogFuelOptions message. Does not implicitly {@link com.antigravity.AnalogFuelOptions.verify|verify} messages.
+             * @param message AnalogFuelOptions message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: com.antigravity.IAnalogFuelOptions, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified AnalogFuelOptions message, length delimited. Does not implicitly {@link com.antigravity.AnalogFuelOptions.verify|verify} messages.
+             * @param message AnalogFuelOptions message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: com.antigravity.IAnalogFuelOptions, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes an AnalogFuelOptions message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns AnalogFuelOptions
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.antigravity.AnalogFuelOptions;
+
+            /**
+             * Decodes an AnalogFuelOptions message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns AnalogFuelOptions
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.antigravity.AnalogFuelOptions;
+
+            /**
+             * Verifies an AnalogFuelOptions message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates an AnalogFuelOptions message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns AnalogFuelOptions
+             */
+            public static fromObject(object: { [k: string]: any }): com.antigravity.AnalogFuelOptions;
+
+            /**
+             * Creates a plain object from an AnalogFuelOptions message. Also converts values to other types if specified.
+             * @param message AnalogFuelOptions
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: com.antigravity.AnalogFuelOptions, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this AnalogFuelOptions to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for AnalogFuelOptions
              * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns The default type url
              */
@@ -5499,6 +5678,9 @@ export namespace com {
 
             /** RaceParticipant team */
             team?: (com.antigravity.ITeamModel|null);
+
+            /** RaceParticipant fuelLevel */
+            fuelLevel?: (number|null);
         }
 
         /** Represents a RaceParticipant. */
@@ -5542,6 +5724,9 @@ export namespace com {
 
             /** RaceParticipant team. */
             public team?: (com.antigravity.ITeamModel|null);
+
+            /** RaceParticipant fuelLevel. */
+            public fuelLevel: number;
 
             /**
              * Creates a new RaceParticipant instance using the specified properties.
@@ -6148,6 +6333,139 @@ export namespace com {
 
             /**
              * Gets the default type url for OverallStandingsUpdate
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a CarData. */
+        interface ICarData {
+
+            /** CarData lane */
+            lane?: (number|null);
+
+            /** CarData controllerThrottlePct */
+            controllerThrottlePct?: (number|null);
+
+            /** CarData carThrottlePct */
+            carThrottlePct?: (number|null);
+
+            /** CarData location */
+            location?: (number|null);
+
+            /** CarData locationId */
+            locationId?: (number|null);
+
+            /** CarData fuelLevel */
+            fuelLevel?: (number|null);
+
+            /** CarData isRefueling */
+            isRefueling?: (boolean|null);
+        }
+
+        /** Represents a CarData. */
+        class CarData implements ICarData {
+
+            /**
+             * Constructs a new CarData.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: com.antigravity.ICarData);
+
+            /** CarData lane. */
+            public lane: number;
+
+            /** CarData controllerThrottlePct. */
+            public controllerThrottlePct: number;
+
+            /** CarData carThrottlePct. */
+            public carThrottlePct: number;
+
+            /** CarData location. */
+            public location: number;
+
+            /** CarData locationId. */
+            public locationId: number;
+
+            /** CarData fuelLevel. */
+            public fuelLevel?: (number|null);
+
+            /** CarData isRefueling. */
+            public isRefueling: boolean;
+
+            /**
+             * Creates a new CarData instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns CarData instance
+             */
+            public static create(properties?: com.antigravity.ICarData): com.antigravity.CarData;
+
+            /**
+             * Encodes the specified CarData message. Does not implicitly {@link com.antigravity.CarData.verify|verify} messages.
+             * @param message CarData message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: com.antigravity.ICarData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified CarData message, length delimited. Does not implicitly {@link com.antigravity.CarData.verify|verify} messages.
+             * @param message CarData message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: com.antigravity.ICarData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a CarData message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns CarData
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): com.antigravity.CarData;
+
+            /**
+             * Decodes a CarData message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns CarData
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): com.antigravity.CarData;
+
+            /**
+             * Verifies a CarData message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a CarData message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns CarData
+             */
+            public static fromObject(object: { [k: string]: any }): com.antigravity.CarData;
+
+            /**
+             * Creates a plain object from a CarData message. Also converts values to other types if specified.
+             * @param message CarData
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: com.antigravity.CarData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this CarData to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for CarData
              * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns The default type url
              */

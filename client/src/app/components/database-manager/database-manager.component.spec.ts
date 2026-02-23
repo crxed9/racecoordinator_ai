@@ -116,6 +116,7 @@ describe('DatabaseManagerComponent', () => {
     });
 
     it('should handle error during switch', () => {
+      spyOn(console, 'error');
       mockDataService.switchDatabase.and.returnValue(throwError(() => new Error('Error')));
       component.selectedDatabase = mockDatabases[1];
       component.useDatabase();
@@ -144,19 +145,10 @@ describe('DatabaseManagerComponent', () => {
       expect(component.selectedDatabase.name).toBe('newDB');
     });
 
-    it('should handle conflict error (409)', () => {
-      mockDataService.createDatabase.and.returnValue(throwError(() => ({ status: 409 })));
-      component.createDatabase();
-      component.inputValue = 'existingDB';
-      component.onInputConfirm();
-
-      expect(component.loading).toBeFalse();
-      expect(component.showAckModal).toBeTrue();
-      expect(component.ackModalMessage).toBe('DBM_ERR_EXISTS');
-    });
-
-    it('should handle general error', () => {
+    it('should handle general error during creation', () => {
+      spyOn(console, 'error');
       mockDataService.createDatabase.and.returnValue(throwError(() => new Error('Error')));
+
       component.createDatabase();
       component.inputValue = 'newDB';
       component.onInputConfirm();
@@ -164,6 +156,19 @@ describe('DatabaseManagerComponent', () => {
       expect(component.loading).toBeFalse();
       expect(component.showAckModal).toBeTrue();
       expect(component.ackModalMessage).toBe('DBM_ERR_CREATE');
+    });
+
+    it('should handle conflict error during creation', () => {
+      spyOn(console, 'error');
+      mockDataService.createDatabase.and.returnValue(throwError(() => ({ status: 409 })));
+
+      component.createDatabase();
+      component.inputValue = 'existingDB';
+      component.onInputConfirm();
+
+      expect(component.loading).toBeFalse();
+      expect(component.showAckModal).toBeTrue();
+      expect(component.ackModalMessage).toBe('DBM_ERR_EXISTS');
     });
   });
 
@@ -200,6 +205,7 @@ describe('DatabaseManagerComponent', () => {
     });
 
     it('should handle conflict error (409)', () => {
+      spyOn(console, 'error');
       mockDataService.copyDatabase.and.returnValue(throwError(() => ({ status: 409 })));
       component.selectedDatabase = mockDatabases[0];
       component.copyDatabase();
@@ -302,6 +308,7 @@ describe('DatabaseManagerComponent', () => {
   });
 
   it('should handle error during import', () => {
+    spyOn(console, 'error');
     mockDataService.importDatabase.and.returnValue(throwError(() => new Error('Error')));
     const event = { target: { files: [{ name: 'db.zip' }], value: 'test' } };
     component.onFileSelected(event);

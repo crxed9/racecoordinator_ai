@@ -108,4 +108,60 @@ test.describe('Race Editor Visuals', () => {
     // Screenshot the error modal
     await expect(backdrop).toHaveScreenshot('race-editor-save-error.png');
   });
+
+  test('should display fuel options when enabled', async ({ page }) => {
+    // Navigate to Race Editor
+    await TestSetupHelper.waitForLocalization(page, 'en', page.goto('/race-editor?id=r1&driverCount=4'));
+
+    // Verify Editor Form is attached
+    await page.waitForTimeout(2000);
+    await expect(page.locator('.editor-form')).toBeAttached({ timeout: 10000 });
+
+    // Toggle fuel enabled checkbox programmatically to avoid UI click flakiness
+    const enableCheckbox = page.locator('input[type="checkbox"]').first();
+    await enableCheckbox.evaluate((node: HTMLInputElement) => {
+      node.checked = true;
+      node.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await page.waitForTimeout(500);
+
+    // Ensure chart is rendered
+    await expect(page.locator('.fuel-graphs-container')).toBeVisible({ timeout: 10000 });
+
+    // Disable animations
+    await TestSetupHelper.disableAnimations(page);
+
+    // Scroll down to ensure fuel section is fully visible
+    await page.locator('.config-panel').evaluate((node) => node.scrollTop = node.scrollHeight);
+    await page.waitForTimeout(500);
+
+    // Screenshot the fuel configuration section
+    await expect(page).toHaveScreenshot('race-editor-fuel-options.png', { fullPage: true });
+  });
+
+  test('should hide fuel graphs when analog fuel is disabled', async ({ page }) => {
+    // Navigate to Race Editor
+    await TestSetupHelper.waitForLocalization(page, 'en', page.goto('/race-editor?id=r1&driverCount=4'));
+
+    // Verify Editor Form is attached
+    await page.waitForTimeout(2000);
+    await expect(page.locator('.editor-form')).toBeAttached({ timeout: 10000 });
+
+    // Ensure fuel enabled checkbox is unchecked
+    const enableCheckbox = page.locator('input[type="checkbox"]').first();
+    await expect(enableCheckbox).not.toBeChecked();
+
+    // Ensure chart is NOT rendered
+    await expect(page.locator('.fuel-graphs-container')).toBeHidden();
+
+    // Disable animations
+    await TestSetupHelper.disableAnimations(page);
+
+    // Scroll down to ensure fuel section is fully visible
+    await page.locator('.config-panel').evaluate((node) => node.scrollTop = node.scrollHeight);
+    await page.waitForTimeout(500);
+
+    // Screenshot the fuel configuration section
+    await expect(page).toHaveScreenshot('race-editor-fuel-options-disabled.png', { fullPage: true });
+  });
 });

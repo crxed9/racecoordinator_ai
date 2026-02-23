@@ -58,7 +58,7 @@ public class App {
         Paths.get(projectDir, "app_data").toString());
     appDataDir = Paths.get(appDataDir).toAbsolutePath().normalize().toString();
     System.out.println("Using app data directory: " + appDataDir);
-    String tmpDir = Paths.get(appDataDir, "server_tmp").toString();
+    String tmpDir = Paths.get(appDataDir, "server_temp").toString();
     try {
       java.nio.file.Path tmpPath = Paths.get(tmpDir);
       if (!Files.exists(tmpPath)) {

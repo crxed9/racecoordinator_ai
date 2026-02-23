@@ -49,6 +49,12 @@
   width: 100%;
   height: 100%;
   min-height: 0;
+  box-sizing: border-box;
+}
+
+.enhanced-dialog-layout>div {
+  min-width: 0;
+  /* Important: allow flex items to shrink below their content size */
 }
 
 /* Sidebar: Available Values */
@@ -99,6 +105,7 @@
 /* Main Area: Column Slots */
 .slots-container {
   flex: 1;
+  min-width: 500px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 12px;
   padding: 15px;
@@ -125,6 +132,8 @@
 .slot-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  /* Allow wrapping if visibility selector is present */
   gap: 10px;
   margin-bottom: 12px;
   padding-bottom: 8px;
@@ -165,6 +174,31 @@
   font-weight: 700;
   color: #60a5fa;
   font-size: 1rem;
+}
+
+.visibility-selector {
+  margin-left: auto;
+  /* Push to the right, but before remove-btn */
+  margin-right: 10px;
+}
+
+.visibility-selector select {
+  background: #2d3748;
+  border: 1px solid #4a5568;
+  color: #a0aec0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  max-width: 120px;
+}
+
+.visibility-selector select:hover {
+  background: #3a4a63;
+  border-color: #60a5fa;
+  color: #fff;
 }
 
 /* 3x3 Grid Editor */
@@ -258,12 +292,12 @@
   font-size: 16px;
 }
 
-/* Preview Panel */
 .preview-panel {
-  flex: 0 0 300px;
+  flex: 0 0 600px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  overflow: hidden;
 }
 
 .lane-preview-container {

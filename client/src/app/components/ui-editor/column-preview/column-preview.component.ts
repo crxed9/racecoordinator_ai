@@ -1,5 +1,6 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { AnchorPoint } from '../../raceday/column_definition';
+import { ColumnVisibility } from 'src/app/models/settings';
 
 const PREVIEW_LABELS: { [key: string]: string } = {
   'lapCount': 'RD_COL_LAP',
@@ -35,6 +36,7 @@ export class ColumnPreviewComponent {
   get columnSlots() { return this._columnSlots; }
 
   @Input() columnLayouts: { [columnKey: string]: { [A in AnchorPoint]?: string } } = {};
+  @Input() columnVisibility: { [columnKey: string]: ColumnVisibility } = {};
 
   anchorOptions = Object.values(AnchorPoint);
 
@@ -64,5 +66,10 @@ export class ColumnPreviewComponent {
     // Fallback to the slot label if center is empty
     const slot = this.columnSlotsMap.get(columnKey);
     return slot ? slot.label : columnKey;
+  }
+
+  isOptional(columnKey: string): boolean {
+    const visibility = this.columnVisibility[columnKey];
+    return visibility !== undefined && visibility !== ColumnVisibility.Always;
   }
 }

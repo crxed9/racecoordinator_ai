@@ -28,6 +28,13 @@
                   <span class="material-icons">open_with</span>
                 </div>
                 <div class="slot-title">{{ getColumnLabel(slot.key) | translate }}</div>
+                <div class="visibility-selector">
+                  <select class="visibility-select" [(ngModel)]="columnVisibility[slot.key]"
+                    (change)="cdr.markForCheck()">
+                    <option *ngFor="let opt of visibilityOptions" [value]="opt">{{ 'UE_VISIBILITY_' + opt | translate }}
+                    </option>
+                  </select>
+                </div>
                 <button class="remove-btn" (click)="removeColumn(slot.key)">
                   <span class="material-icons">delete</span>
                 </button>
@@ -72,7 +79,8 @@
         <!-- Panel 3: Lane Preview -->
         <div class="preview-panel">
           <label class="section-label">{{ 'UE_REORDER_DIALOG_PREVIEW' | translate }}</label>
-          <app-column-preview [columnSlots]="columnSlots" [columnLayouts]="columnLayouts"></app-column-preview>
+          <app-column-preview [columnSlots]="columnSlots" [columnLayouts]="columnLayouts"
+            [columnVisibility]="columnVisibility"></app-column-preview>
           <p class="hint">{{ 'UE_REORDER_HINT' | translate }}</p>
         </div>
       </div>

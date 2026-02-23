@@ -25,7 +25,7 @@ import { TranslationService } from 'src/app/services/translation.service';
 import { RaceService } from 'src/app/services/race.service';
 import { Router } from '@angular/router';
 import { SettingsService } from 'src/app/services/settings.service';
-import { Settings } from 'src/app/models/settings';
+import { Settings, ColumnVisibility } from 'src/app/models/settings';
 import { ChangeDetectorRef } from '@angular/core';
 import { of, Subject } from 'rxjs';
 import { com } from 'src/app/proto/message';
@@ -60,6 +60,8 @@ describe('DefaultRacedayComponent', () => {
   let component: DefaultRacedayComponent;
   let fixture: ComponentFixture<DefaultRacedayComponent>;
   let mockDataService: any;
+  let mockRaceService: any;
+  let mockSettings: Settings;
   let interfaceEventsSubject: Subject<com.antigravity.IInterfaceEvent>;
 
   beforeEach(async () => {
@@ -70,7 +72,7 @@ describe('DefaultRacedayComponent', () => {
       'getReactionTimes', 'getStandingsUpdate', 'getOverallStandingsUpdate',
       'getInterfaceEvents', 'getRaceState', 'getDrivers',
       'connectToInterfaceDataSocket', 'disconnectFromInterfaceDataSocket',
-      'listAssets'
+      'listAssets', 'getCarData'
     ]);
     mockDataService.getRaceUpdate.and.returnValue(of({}));
     mockDataService.listAssets.and.returnValue(of([]));
@@ -82,6 +84,7 @@ describe('DefaultRacedayComponent', () => {
     mockDataService.getInterfaceEvents.and.returnValue(interfaceEventsSubject.asObservable());
     mockDataService.getRaceState.and.returnValue(of(com.antigravity.RaceState.NOT_STARTED));
     mockDataService.getDrivers.and.returnValue(of([]));
+    mockDataService.getCarData.and.returnValue(of(null));
     mockDataService.serverUrl = 'http://localhost';
 
     const mockTranslationService = {
@@ -89,12 +92,19 @@ describe('DefaultRacedayComponent', () => {
       translate: (key: string) => key
     };
 
-    const mockRaceService = {
-      setRace: jasmine.createSpy('setRace'),
-      setParticipants: jasmine.createSpy('setParticipants'),
-      setHeats: jasmine.createSpy('setHeats'),
-      setCurrentHeat: jasmine.createSpy('setCurrentHeat')
-    };
+    mockRaceService = jasmine.createSpyObj('RaceService', [
+      'setRace', 'setParticipants', 'setHeats', 'setCurrentHeat', 'getRace', 'getHeats'
+    ]);
+    mockRaceService.getRace.and.returnValue({ fuel_options: { enabled: false } });
+    mockRaceService.getHeats.and.returnValue([]);
+
+    mockSettings = Object.assign(new Settings(), {
+      sortByStandings: true,
+      racedayColumns: ['driver.nickname', 'lapCount', 'fuelPercentage'],
+      columnVisibility: {
+        'fuelPercentage': ColumnVisibility.FuelRaceOnly
+      }
+    });
 
     const mockRouter = {
       navigate: jasmine.createSpy('navigate')
@@ -106,7 +116,12 @@ describe('DefaultRacedayComponent', () => {
         { provide: DataService, useValue: mockDataService },
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: RaceService, useValue: mockRaceService },
-        { provide: SettingsService, useValue: { getSettings: () => Object.assign(new Settings(), { sortByStandings: true }) } },
+        {
+          provide: SettingsService, useValue: {
+            getSettings: () => mockSettings,
+            saveSettings: jasmine.createSpy('saveSettings')
+          }
+        },
         { provide: Router, useValue: mockRouter },
         ChangeDetectorRef
       ]
@@ -358,5 +373,92 @@ describe('DefaultRacedayComponent', () => {
 
       expect(component.onMenuSelect).toHaveBeenCalledWith('PAUSE');
     });
+  });
+
+  describe('formatValue', () => {
+    let mockHd: any;
+
+    beforeEach(() => {
+      mockHd = {
+        participant: {
+          fuelLevel: 55.5
+        }
+      };
+
+      const mockRace = {
+        fuel_options: {
+          capacity: 100
+        }
+      };
+      (component as any).raceService.getRace = jasmine.createSpy().and.returnValue(mockRace);
+    });
+
+    it('should format participant.fuelLevel directly', () => {
+      const result = component.formatValue('participant.fuelLevel', mockHd.participant.fuelLevel, mockHd);
+      expect(result).toBe('55.5');
+    });
+
+    it('should format participant.fuelLevel as --.- if undefined', () => {
+      const result = component.formatValue('participant.fuelLevel', undefined, mockHd);
+      expect(result).toBe('--.-');
+    });
+
+    it('should format fuelCapacity from the race settings', () => {
+      const result = component.formatValue('fuelCapacity', null, mockHd);
+      expect(result).toBe('100.0');
+    });
+
+    it('should format fuelPercentage correctly based on fuelLevel and capacity', () => {
+      // 55.5 / 100 = 56% (Math.round(55.5) == 56)
+      const result = component.formatValue('fuelPercentage', null, mockHd);
+      expect(result).toBe('56%');
+    });
+
+    it('should format fuelPercentage as --% if capacity or level is undefined', () => {
+      mockHd.participant.fuelLevel = undefined;
+      const result = component.formatValue('fuelPercentage', null, mockHd);
+      expect(result).toBe('--%');
+    });
+  });
+
+  describe('loadColumns with visibility', () => {
+    it('should filter out FuelRaceOnly columns when fuel is disabled', () => {
+      const mockRace = { fuel_options: { enabled: false } };
+      mockRaceService.getRace.and.returnValue(mockRace);
+
+      (component as any).loadColumns();
+
+      expect(component['columns'].some(c => c.propertyName === 'fuelPercentage')).toBeFalse();
+    });
+
+    it('should include FuelRaceOnly columns when fuel is enabled', () => {
+      const mockRace = { fuel_options: { enabled: true } };
+      mockRaceService.getRace.and.returnValue(mockRace);
+
+      (component as any).loadColumns();
+
+      expect(component['columns'].some(c => c.propertyName === 'fuelPercentage')).toBeTrue();
+    });
+
+    it('should filter out NonFuelRaceOnly columns when fuel is enabled', () => {
+      mockSettings.columnVisibility['lapCount'] = ColumnVisibility.NonFuelRaceOnly;
+
+      const mockRace = { fuel_options: { enabled: true } };
+      mockRaceService.getRace.and.returnValue(mockRace);
+
+      (component as any).loadColumns();
+
+      expect(component['columns'].some(c => c.propertyName === 'lapCount')).toBeFalse();
+    });
+  });
+
+  it('should call loadColumns when loadRaceData is called', () => {
+    const spy = spyOn(component as any, 'loadColumns');
+    const mockRace = { track: { lanes: [] } };
+    mockRaceService.getRace.and.returnValue(mockRace);
+
+    (component as any).loadRaceData();
+
+    expect(spy).toHaveBeenCalled();
   });
 });

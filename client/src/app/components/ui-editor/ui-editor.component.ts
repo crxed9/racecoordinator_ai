@@ -9,6 +9,7 @@ import { forkJoin, Subscription } from 'rxjs';
 import { DirtyComponent } from 'src/app/interfaces/dirty-component';
 import { AnchorPoint } from '../raceday/column_definition';
 import { ReorderDialogComponent, ReorderDialogData, ReorderDialogResult } from './reorder-dialog/reorder-dialog.component';
+import { ColumnVisibility } from 'src/app/models/settings';
 
 
 @Component({
@@ -44,6 +45,9 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     { key: 'gapLeader', label: 'UI_EDITOR_COL_GAP_LEADER' },
     { key: 'gapPosition', label: 'UI_EDITOR_COL_GAP_POSITION' },
     { key: 'participant.team.name', label: 'UI_EDITOR_COL_TEAM' },
+    { key: 'participant.fuelLevel', label: 'UI_EDITOR_COL_FUEL_LEVEL' },
+    { key: 'fuelCapacity', label: 'UI_EDITOR_COL_FUEL_CAPACITY' },
+    { key: 'fuelPercentage', label: 'UI_EDITOR_COL_FUEL_PERCENTAGE' },
   ];
 
 
@@ -167,7 +171,8 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     this.reorderModalData = {
       availableValues: this.availableColumns,
       columnSlots: this.columnSlots,
-      columnLayouts: JSON.parse(JSON.stringify(this.editingSettings.columnLayouts || {}))
+      columnLayouts: JSON.parse(JSON.stringify(this.editingSettings.columnLayouts || {})),
+      columnVisibility: JSON.parse(JSON.stringify(this.editingSettings.columnVisibility || {}))
     };
     this.showReorderModal = true;
   }
@@ -175,6 +180,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   onReorderSave(result: ReorderDialogResult) {
     this.editingSettings.racedayColumns = result.columns;
     this.editingSettings.columnLayouts = result.columnLayouts;
+    this.editingSettings.columnVisibility = result.columnVisibility;
     this.showReorderModal = false;
     this.reorderModalData = null;
     this.captureState();
@@ -197,6 +203,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     clone.racedayColumns = [...(s.racedayColumns || [])];
     clone.columnAnchors = { ...(s.columnAnchors || {}) };
     clone.columnLayouts = JSON.parse(JSON.stringify(s.columnLayouts || {}));
+    clone.columnVisibility = JSON.parse(JSON.stringify(s.columnVisibility || {}));
     return clone;
   }
 
@@ -214,7 +221,8 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       a.flagCheckered === b.flagCheckered &&
       a.sortByStandings === b.sortByStandings &&
       JSON.stringify(a.racedayColumns) === JSON.stringify(b.racedayColumns) &&
-      JSON.stringify(a.columnLayouts) === JSON.stringify(b.columnLayouts);
+      JSON.stringify(a.columnLayouts) === JSON.stringify(b.columnLayouts) &&
+      JSON.stringify(a.columnVisibility) === JSON.stringify(b.columnVisibility);
   }
 
   async selectDirectory() {

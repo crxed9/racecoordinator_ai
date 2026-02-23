@@ -6,7 +6,8 @@
 SERVER_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROTO_SRC_DIR="$SERVER_DIR/../proto"
 # Use a local directory to bypass permission issues with target_dist
-GEN_SRC_DIR="$SERVER_DIR/generated-sources/protobuf/java"
+TARGET_BASE="${PROTO_DEST_DIR:-$SERVER_DIR/target_dist}"
+GEN_SRC_DIR="$TARGET_BASE/generated-sources/protobuf/java"
 
 echo "Using PROTO_SRC_DIR: $PROTO_SRC_DIR"
 echo "Using GEN_SRC_DIR: $GEN_SRC_DIR"
@@ -19,12 +20,13 @@ else
     mkdir -p "$GEN_SRC_DIR"
 fi
 
-# Find protoc (check hardcoded path from maven plugin first)
-MAVEN_PROTOC="$HOME/.m2/repository/com/google/protobuf/protoc/3.25.1/protoc-3.25.1-osx-x86_64.exe"
-# Try to find it in target_dist as well
+    # Find protoc (check hardcoded path from maven plugin first)
+    REAL_HOME=$(eval echo ~$USER)
+    MAVEN_PROTOC="$REAL_HOME/.m2/repository/com/google/protobuf/protoc/3.25.1/protoc-3.25.1-osx-x86_64.exe"
+    # Try to find it in target_dist as well
 PLUGIN_PROTOC="$SERVER_DIR/target_dist/protoc-plugins/protoc-3.25.1-osx-x86_64.exe"
 # Local writable copy
-PROTOC_EXE="$SERVER_DIR/protoc_local.exe"
+PROTOC_EXE="$TARGET_BASE/protoc_local.exe"
 
 if [ ! -f "$PROTOC_EXE" ]; then
     if [ -f "$MAVEN_PROTOC" ]; then
@@ -53,6 +55,9 @@ if [ -f "$PROTOC_EXE" ]; then
             exit 1
         fi
     done
+    # Ensure generated files are readable
+    chmod -R u+rw "$GEN_SRC_DIR"
+
     echo "Protobuf generation successful."
 else
     # Fallback to system protoc

@@ -65,6 +65,20 @@ export class TestSetupHelper {
 
     // Mock Assets API
     await this.setupAssetMocks(page);
+
+    // Mock Database Stats API
+    await page.route('**/api/databases/current*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          name: 'Mock_Database.db',
+          totalSize: '450 KB',
+          imageCount: 5,
+          soundCount: 3
+        }),
+      });
+    });
   }
 
   static async setupTeamMocks(page: Page) {

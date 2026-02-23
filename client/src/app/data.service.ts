@@ -157,8 +157,6 @@ export class DataService {
         globalInvertLanes: config.globalInvertLanes,
         normallyClosedRelays: config.normallyClosedRelays,
         globalInvertLights: config.globalInvertLights,
-        useLapsForPits: config.useLapsForPits,
-        useLapsForPitEnd: config.useLapsForPitEnd,
         usePitsAsLaps: config.usePitsAsLaps,
         useLapsForSegments: config.useLapsForSegments,
         digitalIds: config.digitalIds,
@@ -195,8 +193,6 @@ export class DataService {
         globalInvertLanes: config.globalInvertLanes,
         normallyClosedRelays: config.normallyClosedRelays,
         globalInvertLights: config.globalInvertLights,
-        useLapsForPits: config.useLapsForPits,
-        useLapsForPitEnd: config.useLapsForPitEnd,
         usePitsAsLaps: config.usePitsAsLaps,
         useLapsForSegments: config.useLapsForSegments,
         digitalIds: config.digitalIds,
@@ -511,6 +507,7 @@ export class DataService {
   private overallStandingsSubject = new Subject<com.antigravity.IOverallStandingsUpdate>();
   private raceUpdateSubject = new ReplaySubject<com.antigravity.IRace>(1);
   private interfaceEventSubject = new Subject<com.antigravity.IInterfaceEvent>();
+  private carDataSubject = new Subject<com.antigravity.ICarData>();
   private raceStateSubject = new BehaviorSubject<com.antigravity.RaceState>(com.antigravity.RaceState.UNKNOWN_STATE);
 
   private shouldSubscribeToRaceData = false;
@@ -586,6 +583,8 @@ export class DataService {
           if (raceData.race.state) {
             this.raceStateSubject.next(raceData.race.state);
           }
+        } else if (raceData.carData) {
+          this.carDataSubject.next(raceData.carData);
         }
       } catch (e) {
         console.error('Error parsing race data message', e);
@@ -679,5 +678,9 @@ export class DataService {
 
   public getRaceState(): Observable<com.antigravity.RaceState> {
     return this.raceStateSubject.asObservable();
+  }
+
+  public getCarData(): Observable<com.antigravity.ICarData> {
+    return this.carDataSubject.asObservable();
   }
 }
