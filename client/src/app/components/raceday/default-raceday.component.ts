@@ -13,7 +13,7 @@ import { HeatConverter } from 'src/app/converters/heat.converter';
 import { TrackConverter } from 'src/app/converters/track.converter';
 import { LaneConverter } from 'src/app/converters/lane.converter';
 import { RaceParticipantConverter } from 'src/app/converters/race_participant.converter';
-import { playSound } from 'src/app/utils/audio';
+import { playSound, createTTSContext } from 'src/app/utils/audio';
 import { com } from 'src/app/proto/message';
 import { SettingsService } from 'src/app/services/settings.service';
 import { AnchorPoint } from './column_definition';
@@ -194,25 +194,16 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
           const driver = driverData.driver;
           const isBestLap = lap.lapTime === lap.bestLapTime;
 
-          console.log('Lap Audio Debug:', {
-            driverName: driver.name,
-            isBestLap,
-            lapTime: lap.lapTime,
-            bestLapTime: lap.bestLapTime,
-            audioConfig: {
-              bestSound: driver.bestLapAudio,
-              lapSound: driver.lapAudio
-            }
-          });
+          const ttsContext = createTTSContext(driver, driverData);
 
           if (isBestLap && (driver.bestLapAudio.url || (driver.bestLapAudio.type === 'tts' && driver.bestLapAudio.text))) {
             // Play Best Lap Sound
             console.log('Triggering Best Lap Sound');
-            playSound(driver.bestLapAudio.type, driver.bestLapAudio.url, driver.bestLapAudio.text, this.dataService.serverUrl);
+            playSound(driver.bestLapAudio.type, driver.bestLapAudio.url, driver.bestLapAudio.text, this.dataService.serverUrl, ttsContext);
           } else if (driver.lapAudio.url || (driver.lapAudio.type === 'tts' && driver.lapAudio.text)) {
             // Play Regular Lap Sound
             console.log('Triggering Regular Lap Sound');
-            playSound(driver.lapAudio.type, driver.lapAudio.url, driver.lapAudio.text, this.dataService.serverUrl);
+            playSound(driver.lapAudio.type, driver.lapAudio.url, driver.lapAudio.text, this.dataService.serverUrl, ttsContext);
           } else {
             console.log('No audio configured for this driver/scenario');
           }

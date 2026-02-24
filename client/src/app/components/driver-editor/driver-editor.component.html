@@ -46,7 +46,8 @@
             (typeChange)="editingDriver.lapAudio.type=$event; captureState()" [url]="editingDriver.lapAudio.url"
             (urlChange)="onInputChange(); editingDriver.lapAudio.url=$event" [text]="editingDriver.lapAudio.text"
             (textChange)="onInputChange(); editingDriver.lapAudio.text=$event" [backButtonRoute]="'/driver-editor'"
-            [backButtonQueryParams]="{ id: editingDriver.entity_id }">
+            [backButtonQueryParams]="{ id: editingDriver.entity_id }"
+            [context]="ttsContext">
           </app-audio-selector>
         </div>
 
@@ -57,7 +58,8 @@
             (urlChange)="onInputChange(); editingDriver.bestLapAudio.url=$event"
             [text]="editingDriver.bestLapAudio.text"
             (textChange)="onInputChange(); editingDriver.bestLapAudio.text=$event" [backButtonRoute]="'/driver-editor'"
-            [backButtonQueryParams]="{ id: editingDriver.entity_id }">
+            [backButtonQueryParams]="{ id: editingDriver.entity_id }"
+            [context]="ttsContext">
           </app-audio-selector>
         </div>
 

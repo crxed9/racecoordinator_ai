@@ -33,6 +33,7 @@ class MockAudioSelectorComponent {
   @Input() assets: any[] = [];
   @Input() backButtonRoute: string | null = null;
   @Input() backButtonQueryParams: any = {};
+  @Input() context: any;
 }
 
 @Component({ selector: 'app-image-selector', template: '', standalone: false })
