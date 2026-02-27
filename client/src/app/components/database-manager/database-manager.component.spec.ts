@@ -308,6 +308,28 @@ describe('DatabaseManagerComponent', () => {
     expect(component.showInputModal).toBeFalse();
   });
 
+  describe('importDatabaseNaming', () => {
+    it('should default name to filename without extension', () => {
+      const event = { target: { files: [{ name: 'mybackup.zip' }], value: 'test' } };
+      component.onFileSelected(event);
+      expect(component.inputValue).toBe('mybackup');
+    });
+
+    it('should add postfix if name already exists', () => {
+      // db1 and db2 exist in mockDatabases
+      const event = { target: { files: [{ name: 'db1.zip' }], value: 'test' } };
+      component.onFileSelected(event);
+      expect(component.inputValue).toBe('db1_1');
+    });
+
+    it('should increment postfix if multiple exist', () => {
+      component.databases.push({ name: 'db1_1' });
+      const event = { target: { files: [{ name: 'db1.zip' }], value: 'test' } };
+      component.onFileSelected(event);
+      expect(component.inputValue).toBe('db1_2');
+    });
+  });
+
   it('should handle error during import', () => {
     spyOn(console, 'error');
     mockDataService.importDatabase.and.returnValue(throwError(() => new Error('Error')));

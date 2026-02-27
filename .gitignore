@@ -79,3 +79,5 @@ client/.npmrc
 server/gen-proto/
 client/node_modules_backup/
 data_v2
+client/package-lock.json
+
