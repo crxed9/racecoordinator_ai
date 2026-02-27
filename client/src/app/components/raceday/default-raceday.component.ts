@@ -1135,6 +1135,9 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       'participant.fuelLevel': 180,
       'fuelCapacity': 180,
       'fuelPercentage': 180,
+      'seed': 180,
+      'rankHeat': 180,
+      'rankOverall': 180,
       'imageset': 180
     };
 
@@ -1287,6 +1290,15 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       return '--%';
     } else if (baseKey === 'driver.avatarUrl') {
       return this.getFullUrl(value);
+    } else if (baseKey === 'seed') {
+      const seed = hd.participant?.seed;
+      return seed ? `(${seed})` : '--';
+    } else if (baseKey === 'rankHeat') {
+      const rank = this.driverRankings.get(hd.objectId);
+      return rank ? `(${rank})` : '--';
+    } else if (baseKey === 'rankOverall') {
+      const rank = hd.participant?.rank;
+      return rank ? `(${rank})` : '--';
     } else if (propertyName.startsWith('imageset_')) {
       const assetId = propertyName.replace('imageset_', '');
       const asset = this.findAssetById(assetId);
@@ -1319,6 +1331,9 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
       'participant.fuelLevel': 'RD_COL_FUEL_LEVEL',
       'fuelCapacity': 'RD_COL_FUEL_CAPACITY',
       'fuelPercentage': 'RD_COL_FUEL_PERCENTAGE',
+      'seed': 'RD_COL_SEED',
+      'rankHeat': 'RD_COL_RANK_HEAT',
+      'rankOverall': 'RD_COL_RANK_OVERALL',
       'driver.avatarUrl': 'RD_COL_AVATAR'
     };
     return labels[baseKey] ?? 'UNKNOWN';

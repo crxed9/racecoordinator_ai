@@ -425,6 +425,36 @@ describe('DefaultRacedayComponent', () => {
       const result = component.formatValue('driver.avatarUrl', avatarUrl, mockHd);
       expect(result).toBe('http://localhost/assets/avatars/driver1.png');
     });
+
+    it('should format seed in (#) format', () => {
+      mockHd.participant.seed = 5;
+      const result = component.formatValue('seed', 5, mockHd);
+      expect(result).toBe('(5)');
+    });
+
+    it('should format rankHeat in (#) format', () => {
+      component['driverRankings'].set('driverId123', 2);
+      mockHd.objectId = 'driverId123';
+      const result = component.formatValue('rankHeat', null, mockHd);
+      expect(result).toBe('(2)');
+    });
+
+    it('should format rankOverall in (#) format', () => {
+      mockHd.participant.rank = 10;
+      const result = component.formatValue('rankOverall', 10, mockHd);
+      expect(result).toBe('(10)');
+    });
+
+    it('should return -- for undefined values in (#) columns', () => {
+      mockHd.participant.seed = 0;
+      expect(component.formatValue('seed', 0, mockHd)).toBe('--');
+
+      mockHd.participant.rank = 0;
+      expect(component.formatValue('rankOverall', 0, mockHd)).toBe('--');
+
+      component['driverRankings'].clear();
+      expect(component.formatValue('rankHeat', null, mockHd)).toBe('--');
+    });
   });
 
   describe('loadColumns with visibility', () => {
