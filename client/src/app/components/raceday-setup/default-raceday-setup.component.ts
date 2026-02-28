@@ -603,6 +603,9 @@ export class DefaultRacedaySetupComponent implements OnInit, AfterViewInit {
   }
 
   onSearchChange() {
+    if (this.raceSearchQuery) {
+      this.isDropdownOpen = true;
+    }
     this.cdr.detectChanges();
   }
 
