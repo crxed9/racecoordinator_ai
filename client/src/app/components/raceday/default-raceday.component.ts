@@ -64,7 +64,11 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
   private noStatusWatchdog: any;
   private lastInterfaceStatus: InterfaceStatus | number = -1;
   private hasInitiallyConnected = false;
-  private readonly WATCHDOG_TIMEOUT = 5000;
+  // TODO(aufderheide): Test hooks like this have no business in production code.
+  // Test hook for watchdogs
+  private get WATCHDOG_TIMEOUT(): number {
+    return (window as any).WATCHDOG_TIMEOUT || 5000;
+  }
 
 
   constructor(
@@ -405,16 +409,17 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
   }
 
   private scheduleDisconnectedError(title: string = 'ACK_MODAL_TITLE_DISCONNECTED', message: string = 'ACK_MODAL_MSG_DISCONNECTED') {
-    if (this.disconnectedTimeout) return; // Already scheduled
-
+    // ALWAYS clear the generic watchdog if we are explicitly scheduling (or have already scheduled) a disconnect
     if (this.noStatusWatchdog) {
       clearTimeout(this.noStatusWatchdog);
       this.noStatusWatchdog = null;
     }
 
+    if (this.disconnectedTimeout) return; // Already scheduled
+
     this.disconnectedTimeout = setTimeout(() => {
       this.showInterfaceError(title, message);
-    }, 5000);
+    }, this.WATCHDOG_TIMEOUT);
   }
 
   private clearDisconnectedError() {
@@ -1033,8 +1038,9 @@ export class DefaultRacedayComponent implements OnInit, OnDestroy {
     }
 
     // Ultimate fallback
+    // TODO(aufderheide): Remove this fallback and just and throw an error and/or do nothing
     console.warn(`Flag resolution for ${flagType}: No asset found, using ultimate fallback.`);
-    return 'assets/crossed_racing_flags.png';
+    return 'assets/images/crossed_racing_flags.png';
   }
 
   getFullUrl(url: string | undefined): string {

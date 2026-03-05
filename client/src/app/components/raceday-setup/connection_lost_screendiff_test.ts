@@ -48,15 +48,19 @@ test.describe('Connection Loss Visuals', () => {
       }
     });
 
-    // 3. Setup LocalStorage to disable walkthrough
+    // 3. Setup standard mocks for localization and assets
+    await TestSetupHelper.setupLocalizationMocks(page);
+    await TestSetupHelper.setupAssetMocks(page);
+
+    // 4. Setup LocalStorage to disable walkthrough
     await TestSetupHelper.setupLocalStorage(page, {
       racedaySetupWalkthroughSeen: true
     });
 
-    // 4. Load the app
+    // 5. Load the app
     await page.goto('/');
 
-    // 4. Advance past splash screen (5s min time)
+    // 6. Advance past splash screen (5s min time)
     // The splash screen waits for connection (mocked success) AND 5 seconds.
     await page.clock.fastForward(5500);
 

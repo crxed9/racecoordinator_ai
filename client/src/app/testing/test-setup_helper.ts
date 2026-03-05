@@ -3,6 +3,20 @@ import { com } from '../proto/message';
 
 export class TestSetupHelper {
   static async setupStandardMocks(page: Page) {
+    // Listen for console logs from the browser and prefix them for visibility
+    page.on('console', msg => {
+      const type = msg.type();
+      const text = msg.text();
+      // Only log if it's not a noisy debug message, or if it's one of our HEARTBEAT logs
+      if (type === 'error' || type === 'warning' || text.includes('MockWebSocket')) {
+        console.log(`BROWSER [${type.toUpperCase()}]: ${text}`);
+      }
+    });
+
+    page.on('pageerror', err => console.error(`BROWSER ERROR: ${err.message}`));
+
+    // Mock WebSockets by default to avoid connection refused/watchdog issues
+    await this.setupWebSocketMock(page);
 
     // Mock Drivers API
     await page.route('**/api/drivers', async (route) => {
@@ -144,7 +158,7 @@ export class TestSetupHelper {
     // Use Regex to match the path regardless of query params (e.g. ?t=...)
     await page.route(/\/assets\/i18n\/.*\.json/, async (route) => {
       const url = route.request().url();
-      console.log('DEBUG: Route hit for:', url);
+      console.log('DEBUG: I18N Route hit for:', url);
       const match = url.match(/\/assets\/i18n\/([a-z]{2,3})\.json/);
       const lang = match ? match[1] : 'en';
 
@@ -160,7 +174,7 @@ export class TestSetupHelper {
           });
           return;
         } else {
-          console.error(`DEBUG: File not found: ${filePath}`);
+          console.error(`DEBUG: I18N File not found: ${filePath}`);
         }
       } catch (e) {
         console.warn(`Failed to mock localization for ${lang}`, e);
@@ -170,28 +184,37 @@ export class TestSetupHelper {
     });
 
     // Mock background images to avoid dev-server flakiness
-    await page.route('**/assets/images/*.png', async (route) => {
+    await page.route('**/assets/**/*.png', async (route) => {
       const url = route.request().url();
-      const match = url.match(/\/assets\/images\/(.*\.png)/);
-      if (!match) return route.continue();
+      console.log(`DEBUG: Asset request hit: ${url}`);
 
-      const fileName = match[1];
-      const imagesPath1 = path.resolve(process.cwd(), 'client/src/assets/images');
-      const imagesPath2 = path.resolve(process.cwd(), 'src/assets/images');
-      const imagesPath3 = path.resolve(process.cwd(), 'assets/images');
+      // Match anything under assets/
+      const match = url.match(/\/assets\/(.*\.png)/);
+      if (!match) {
+        console.warn(`DEBUG: Asset URL did not match regex: ${url}`);
+        return route.continue();
+      }
 
-      let finalImagesPath = imagesPath1;
-      if (!fs.existsSync(finalImagesPath)) {
-        if (fs.existsSync(imagesPath2)) {
-          finalImagesPath = imagesPath2;
-        } else if (fs.existsSync(imagesPath3)) {
-          finalImagesPath = imagesPath3;
+      const relativePath = match[1];
+
+      // Try multiple potential base paths
+      const potentialPaths = [
+        path.resolve(process.cwd(), 'src/assets'),        // Case where CWD is /client
+        path.resolve(process.cwd(), 'assets'),             // Case where CWD is /client/src
+        path.resolve(process.cwd(), 'client/src/assets'), // Case where CWD is project root
+      ];
+
+      let filePath = '';
+      for (const basePath of potentialPaths) {
+        const testPath = path.join(basePath, relativePath);
+        if (fs.existsSync(testPath)) {
+          filePath = testPath;
+          break;
         }
       }
 
-      const filePath = path.join(finalImagesPath, fileName);
-
-      if (fs.existsSync(filePath)) {
+      if (filePath) {
+        console.log(`DEBUG: Serving image from disk: ${filePath}`);
         const content = fs.readFileSync(filePath);
         await route.fulfill({
           status: 200,
@@ -199,6 +222,8 @@ export class TestSetupHelper {
           body: content
         });
         return;
+      } else {
+        console.warn(`DEBUG: Image NOT FOUND on disk. Searched in: ${potentialPaths.join(', ')} for ${relativePath}`);
       }
       await route.continue();
     });
@@ -208,11 +233,16 @@ export class TestSetupHelper {
    * Waits for the translation file to be fetched and the UI to be stable.
    */
   static async waitForLocalization(page: Page, lang: string = 'en', action?: Promise<any>) {
+    console.log(`DEBUG: Waiting for localization: ${lang}`);
+
     // Start listening for the response before performing the action
     const responsePromise = page.waitForResponse(response =>
       response.url().includes(`/assets/i18n/${lang}.json`) && response.status() === 200,
-      { timeout: 5000 } // Don't wait forever if it's cached or won't come
-    ).catch(() => null);
+      { timeout: 15000 }
+    ).catch(() => {
+      console.warn(`DEBUG: Did not see network request for ${lang}.json - it might be cached.`);
+      return null;
+    });
 
     // Perform the action (e.g., page.goto) if provided
     if (action) {
@@ -222,13 +252,38 @@ export class TestSetupHelper {
     // Wait for the translation request to complete
     await responsePromise;
 
-    // Wait until at least one representative key is translated
-    // We look for 'BACK' which is DE_BTN_BACK or DM_BTN_BACK in English
-    // Just wait for the body to be visible for now
-    await expect(page.locator('body')).toBeVisible();
+    // Wait for the Angular application to bootstrap and the first translation to be applied
+    // We look for a few common keys that represent a translated state
+    // 'BACK' -> 'Zurück' (de), 'Atrás' (es), 'Retour' (fr), etc.
+    const backTranslations: Record<string, string> = {
+      'en': 'BACK',
+      'de': 'ZURÜCK',
+      'es': 'ATRÁS',
+      'fr': 'RETOUR',
+      'it': 'INDIETRO',
+      'pt': 'VOLTAR',
+      'nl': 'TERUG'
+    };
+
+    const expectedText = backTranslations[lang] || backTranslations['en'];
+
+    console.log(`DEBUG: Waiting for representative text "${expectedText}" for locale "${lang}"`);
+
+    try {
+      // Use a broader search to find the text anywhere in the body
+      await page.waitForFunction((text) => {
+        return document.body.innerText.toUpperCase().includes(text);
+      }, expectedText, { timeout: 15000 });
+      console.log(`DEBUG: Localization confirmed for ${lang}`);
+    } catch (e) {
+      console.warn(`DEBUG: Timed out waiting for localization text "${expectedText}". Continuing anyway.`);
+    }
 
     // Ensure fonts are ready
     await page.evaluate(() => document.fonts.ready);
+
+    // Final stability wait for any Angular animations/layout to settle
+    await page.waitForTimeout(500);
   }
 
   /**
@@ -409,6 +464,108 @@ export class TestSetupHelper {
     });
   }
 
+  /**
+   * Universal WebSocket mock to avoid ERR_CONNECTION_REFUSED and watchdog timeouts.
+   */
+  static async setupWebSocketMock(page: Page) {
+    await page.addInitScript(() => {
+      // General testing disables the watchdog to prevent unstable timeouts. Tests that need it will override it.
+      if (typeof (window as any).WATCHDOG_TIMEOUT === 'undefined') {
+        (window as any).WATCHDOG_TIMEOUT = 99999999;
+      }
+
+      // @ts-ignore
+      window.allMockSockets = [];
+      // @ts-ignore
+      window.MockWebSocket = class extends EventTarget {
+        url: string;
+        readyState: number;
+        protocol: string = '';
+        extensions: string = '';
+        binaryType: BinaryType = 'blob';
+        bufferedAmount = 0;
+        onopen: any = null;
+        onmessage: any = null;
+        onclose: any = null;
+        onerror: any = null;
+        private heartbeatInterval: any;
+
+        constructor(url: string) {
+          super();
+          this.url = url;
+          this.readyState = 0; // CONNECTING
+          // @ts-ignore
+          window.allMockSockets.push(this);
+
+          setTimeout(() => {
+            this.readyState = 1; // OPEN
+            // @ts-ignore
+            window.mockSocket = this;
+            const openEvent = new Event('open');
+            this.dispatchEvent(openEvent);
+            if (this.onopen) this.onopen(openEvent);
+
+            if (url.includes('interface-data')) {
+              console.log(`MockWebSocket: Detected interface-data socket. heartbeatDisabled=${!!(window as any).disableMockHeartbeat}`);
+
+              // status 0 = CONNECTED. InterfaceEvent (Tag 3, Len 2) -> InterfaceStatusEvent (Tag 1, Val 0)
+              // Bytes: 1A 02 08 00
+              const connectedBuffer = new Uint8Array([0x1A, 0x02, 0x08, 0x00]).buffer;
+              const sendHeartbeat = () => {
+                try {
+                  const event = new MessageEvent('message', { data: connectedBuffer });
+                  this.dispatchEvent(event);
+                  if (this.onmessage) this.onmessage(event);
+                  console.debug('MockWebSocket: Sent CONNECTED heartbeat (RAW)');
+                } catch (e) {
+                  console.error('Error sending mock interface heartbeat', e);
+                }
+              };
+
+              // Initial heartbeat if not disabled
+              setTimeout(() => {
+                // @ts-ignore
+                if (!window.disableMockHeartbeat) {
+                  console.log('MockWebSocket: Sending initial pulse');
+                  sendHeartbeat();
+                } else {
+                  console.log('MockWebSocket: Initial pulse suppressed');
+                }
+              }, 500);
+
+              // Periodic heartbeat if not disabled
+              // @ts-ignore
+              if (!window.disableMockHeartbeat) {
+                // Heartbeat disabled: we rely on WATCHDOG_TIMEOUT scaling instead to avoid breaking Playwright's auto-waiting stability checks with an active running setInterval
+                console.log('MockWebSocket: Periodic heartbeat disabled by test framework to prevent auto-waiting flakes.');
+              }
+            }
+
+            // Initial race data if available
+            // @ts-ignore
+            if (url.includes('race-data') && window.mockRaceDataBuffer) {
+              // @ts-ignore
+              const event = new MessageEvent('message', { data: window.mockRaceDataBuffer });
+              this.dispatchEvent(event);
+              if (this.onmessage) this.onmessage(event);
+            }
+          }, 100);
+        }
+
+        send(data: any) { console.debug(`MockWebSocket: send called with ${data.length} bytes`); }
+        close() { if (this.heartbeatInterval) clearInterval(this.heartbeatInterval); }
+
+        static get CONNECTING() { return 0; }
+        static get OPEN() { return 1; }
+        static get CLOSING() { return 2; }
+        static get CLOSED() { return 3; }
+      };
+
+      // @ts-ignore
+      window.WebSocket = window.MockWebSocket;
+    });
+  }
+
   static async setupRaceMocks(page: Page) {
     const raceData = com.antigravity.RaceData.create({
       race: { // IRace
@@ -436,10 +593,10 @@ export class TestSetupHelper {
           heatDrivers: [
             {
               objectId: 'hd1',
-              driver: { // This MUST be named 'driver' to match IDriverHeatData.driver proto
+              driver: {
                 objectId: 'rp1',
                 fuelLevel: 75.5,
-                driver: { // This MUST be named 'driver' to match IDriverHeatData.driver proto
+                driver: {
                   model: { entityId: 'd1' },
                   name: 'Driver 1',
                   avatarUrl: '/api/assets/download?filename=img1.png'
@@ -448,10 +605,10 @@ export class TestSetupHelper {
             },
             {
               objectId: 'hd2',
-              driver: { // This MUST be named 'driver' to match IDriverHeatData.driver proto
+              driver: {
                 objectId: 'rp2',
                 fuelLevel: 42.0,
-                driver: { // This MUST be named 'driver' to match IDriverHeatData.driver proto
+                driver: {
                   model: { entityId: 'd2' },
                   name: 'Driver 2',
                   avatarUrl: '/api/assets/download?filename=img1.png'
@@ -471,63 +628,22 @@ export class TestSetupHelper {
     const dataArray = Array.from(buffer);
 
     await page.addInitScript((data) => {
-      const originalWebSocket = window.WebSocket;
-      // Initialize the array to keep track of all mock sockets
       // @ts-ignore
-      window.allMockSockets = [];
-
-      window.WebSocket = class MockWebSocket extends EventTarget {
-        constructor(url: string, protocols?: string | string[]) {
-          super();
+      window.mockRaceDataBuffer = new Uint8Array(data).buffer;
+      // Also broadcast it to any already open sockets
+      // @ts-ignore
+      if (window.allMockSockets) {
+        // @ts-ignore
+        const raceSockets = window.allMockSockets.filter((s: any) => s.url.includes('race-data'));
+        raceSockets.forEach((s: any) => {
           // @ts-ignore
-          this.url = url;
+          const event = new MessageEvent('message', { data: window.mockRaceDataBuffer });
           // @ts-ignore
-          this.readyState = 0; // CONNECTING
-
+          s.dispatchEvent(event);
           // @ts-ignore
-          window.allMockSockets.push(this);
-
-          setTimeout(() => {
-            // @ts-ignore
-            this.readyState = 1; // OPEN
-            // @ts-ignore
-            window.mockSocket = this;
-            this.dispatchEvent(new Event('open'));
-            // @ts-ignore
-            if (this.onopen) this.onopen(new Event('open'));
-
-            // Send our mock data
-            if (url.includes('race-data')) {
-              const event = new MessageEvent('message', {
-                data: new Uint8Array(data).buffer
-              });
-              this.dispatchEvent(event);
-              // @ts-ignore
-              if (this.onmessage) this.onmessage(event);
-            }
-          }, 100);
-        }
-        send() { }
-        close() { }
-        // @ts-ignore
-        onopen: ((this: WebSocket, ev: Event) => any) | null = null;
-        // @ts-ignore
-        onmessage: ((this: WebSocket, ev: MessageEvent) => any) | null = null;
-        // @ts-ignore
-        onclose: ((this: WebSocket, ev: CloseEvent) => any) | null = null;
-        // @ts-ignore
-        onerror: ((this: WebSocket, ev: Event) => any) | null = null;
-
-        // Add other required properties/methods as no-ops or basic impls
-        binaryType: BinaryType = 'blob';
-        bufferedAmount = 0;
-        extensions = '';
-        protocol = '';
-        CLOSING = 2;
-        CLOSED = 3;
-        CONNECTING = 0;
-        OPEN = 1;
-      } as any;
+          if (s.onmessage) s.onmessage(event);
+        });
+      }
     }, dataArray);
   }
 

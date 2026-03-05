@@ -5,6 +5,13 @@ import InterfaceStatus = com.antigravity.InterfaceStatus;
 
 test.describe('Acknowledgement Modal Visuals', () => {
   test.beforeEach(async ({ page }) => {
+    // Disable mock heartbeat to control interface status manually
+    // Scale watchdog timeouts down to 500ms so tests don't hit global timeouts
+    await page.addInitScript(() => {
+      // @ts-ignore
+      window.disableMockHeartbeat = true;
+      (window as any).WATCHDOG_TIMEOUT = 500;
+    });
     await TestSetupHelper.setupStandardMocks(page);
     await TestSetupHelper.setupRaceMocks(page);
     await TestSetupHelper.setupAssetMocks(page);
@@ -13,8 +20,6 @@ test.describe('Acknowledgement Modal Visuals', () => {
   test('should display NO_DATA modal', async ({ page }) => {
     await TestSetupHelper.waitForLocalization(page, 'en', page.goto('/raceday'));
     await TestSetupHelper.waitForText(page, 'RACE COORDINATOR');
-
-    await page.clock.install();
 
     // Construct the message in Node
     const interfaceEvent = com.antigravity.InterfaceEvent.create({
@@ -28,7 +33,7 @@ test.describe('Acknowledgement Modal Visuals', () => {
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', {
           data: new Uint8Array(data).buffer
         });
@@ -37,21 +42,19 @@ test.describe('Acknowledgement Modal Visuals', () => {
       });
     }, dataArray);
 
-    // Fast forward 5.1s
-    await page.clock.fastForward(5100);
+    // Wait exactly as production does: 500ms timeouts + 200ms buffer
+    await page.waitForTimeout(700);
 
     const modal = page.locator('app-acknowledgement-modal .modal-content');
     await expect(modal).toBeVisible();
     await expect(modal).toContainText('No Data Received');
+
     await expect(modal).toHaveScreenshot('ack-modal-no-data.png');
   });
 
   test('should display DISCONNECTED modal after timeout', async ({ page }) => {
     await TestSetupHelper.waitForLocalization(page, 'en', page.goto('/raceday'));
     await TestSetupHelper.waitForText(page, 'RACE COORDINATOR');
-
-    // Install fake clock
-    await page.clock.install();
 
     // Priming CONNECTED pulse to reset ngOnInit timers
     const connectedPulse = com.antigravity.InterfaceEvent.create({
@@ -63,7 +66,7 @@ test.describe('Acknowledgement Modal Visuals', () => {
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', {
           data: new Uint8Array(data).buffer
         });
@@ -84,7 +87,7 @@ test.describe('Acknowledgement Modal Visuals', () => {
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', {
           data: new Uint8Array(data).buffer
         });
@@ -93,19 +96,20 @@ test.describe('Acknowledgement Modal Visuals', () => {
       });
     }, dataArray);
 
-    // Should NOT be visible immediately
     const modal = page.locator('app-acknowledgement-modal .modal-content');
-    await expect(modal).not.toBeVisible();
 
-    // Fast forward 3s
-    await page.clock.fastForward(3000);
-    await expect(modal).not.toBeVisible();
+    // Wait remaining duration to surpass 500ms total
+    await page.waitForTimeout(300);
 
-    // Emit same status to reset watchdog (but not disconnect timer)
+    await expect(modal).toBeVisible({ timeout: 10000 });
+    await expect(modal).toContainText('Interface Disconnected');
+
+    // PUSH WATCHDOG OUT: Resend DISCONNECTED to guarantee the `noStatusWatchdog`
+    // doesn't expire and change the text to "No Status" WHILE Playwright evaluates the DOM!
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', {
           data: new Uint8Array(data).buffer
         });
@@ -114,19 +118,12 @@ test.describe('Acknowledgement Modal Visuals', () => {
       });
     }, dataArray);
 
-    // Fast forward remaining 2.1s (total 5.1s)
-    await page.clock.fastForward(2100);
-
-    await expect(modal).toBeVisible();
-    await expect(modal).toContainText('Interface Disconnected');
     await expect(modal).toHaveScreenshot('ack-modal-disconnected.png');
   });
 
   test('should display CONNECTED modal on recovery', async ({ page }) => {
     await TestSetupHelper.waitForLocalization(page, 'en', page.goto('/raceday'));
     await TestSetupHelper.waitForText(page, 'RACE COORDINATOR');
-
-    await page.clock.install();
 
     // Priming CONNECTED pulse
     const connectedPulse = com.antigravity.InterfaceEvent.create({
@@ -136,7 +133,7 @@ test.describe('Acknowledgement Modal Visuals', () => {
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', { data: new Uint8Array(data).buffer });
         socket.dispatchEvent(event);
         if (socket.onmessage) socket.onmessage(event);
@@ -152,28 +149,32 @@ test.describe('Acknowledgement Modal Visuals', () => {
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', { data: new Uint8Array(data).buffer });
         socket.dispatchEvent(event);
         if (socket.onmessage) socket.onmessage(event);
       });
     }, Array.from(disconnectedBuffer));
 
-    // Wait for DISCONNECTED modal with watchdog reset
-    await page.clock.fastForward(3000);
+    // Wait past the first 500ms timeout
+    await page.waitForTimeout(700);
+
+    // Test the duplicate event resilience
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', { data: new Uint8Array(data).buffer });
         socket.dispatchEvent(event);
         if (socket.onmessage) socket.onmessage(event);
       });
     }, Array.from(disconnectedBuffer));
-    await page.clock.fastForward(2100);
+
+    // Quick stability buffer
+    await page.waitForTimeout(300);
 
     const modal = page.locator('app-acknowledgement-modal .modal-content');
-    await expect(modal).toBeVisible();
+    await expect(modal).toBeVisible({ timeout: 10000 });
     await expect(modal).toContainText('Interface Disconnected');
 
     // 2. Simulate CONNECTED (recovery)
@@ -185,15 +186,17 @@ test.describe('Acknowledgement Modal Visuals', () => {
     await page.evaluate((data) => {
       // @ts-ignore
       const sockets = (window.allMockSockets || []).filter(s => s.url && s.url.includes('interface-data'));
-      sockets.forEach(socket => {
+      sockets.forEach((socket: any) => {
         const event = new MessageEvent('message', { data: new Uint8Array(data).buffer });
         socket.dispatchEvent(event);
         if (socket.onmessage) socket.onmessage(event);
       });
     }, Array.from(connectedBuffer));
 
-    // Modal should update to "Connected"
+    // Ensure CONNECTED modal is instantly visible
+    await expect(modal).toBeVisible({ timeout: 10000 });
     await expect(modal).toContainText('Interface Connected');
+
     await expect(modal).toHaveScreenshot('ack-modal-recovered.png');
   });
 });

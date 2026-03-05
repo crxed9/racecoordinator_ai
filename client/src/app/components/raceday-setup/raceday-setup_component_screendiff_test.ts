@@ -39,22 +39,18 @@ for (const lang of languages) {
 
       // Wait for background images to be fully loaded
       await page.waitForFunction(() => {
-        const elements = Array.from(document.querySelectorAll('.race-card, .setup-container'));
+        const elements = Array.from(document.querySelectorAll('.race-card, .setup-container, .splash-content, .progress-bar-fill'));
         const images = elements
           .map(el => getComputedStyle(el).backgroundImage)
-          .filter(bg => bg && bg !== 'none');
+          .filter(bg => bg && bg !== 'none' && bg !== 'initial' && bg !== 'inherit');
 
-        if (images.length === 0) return false;
+        // We MUST find at least one background for the wait to be valid (usually the container)
+        if (elements.length > 0 && images.length === 0) return false;
+        if (elements.length === 0) return false; // Wait for elements to appear first
 
-        // Ensure all backgrounds are actually loaded (not just specified)
-        return images.every(bg => {
-          const url = bg.match(/url\((['"]?)(.*?)\1\)/)?.[2];
-          if (!url) return true;
-          // Simple check for loaded image is hard via JS for BGs, but the waitForFunction 
-          // usually settles after layout if we wait for a bit.
-          return true;
-        });
-      });
+        // Ensure all backgrounds are actually specified with a URL
+        return images.every(bg => bg.includes('url(') && !bg.includes('undefined') && !bg.includes('null'));
+      }, { timeout: 15000 });
 
       // Wait for Alice to be visible
       await expect(page.getByText('Alice')).toBeVisible();
@@ -115,8 +111,9 @@ for (const lang of languages) {
       await expect(unselectedDrivers).toHaveCount(1, { timeout: 10000 });
       await expect(unselectedDrivers).toHaveText(/Charlie/);
 
-      // Stability wait before screenshot
+      // Stability wait before screenshot (blur to hide blinking caret)
       await page.waitForTimeout(500);
+      await page.locator('input.driver-search').blur();
 
       await expect(page).toHaveScreenshot(`driver-search-${lang}.png`, {
         maxDiffPixelRatio: 0.05,
@@ -135,8 +132,9 @@ for (const lang of languages) {
       // Confirm result count
       await expect(page.locator('.driver-item.selected')).toHaveCount(3);
 
-      // Stability wait
+      // Stability wait (blur to hide blinking caret)
       await page.waitForTimeout(500);
+      await page.locator('input.driver-search').blur();
 
       await expect(page).toHaveScreenshot(`driver-added-${lang}.png`, {
         maxDiffPixelRatio: 0.05,
