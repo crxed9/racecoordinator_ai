@@ -68,15 +68,18 @@
           {{ 'DBM_BTN_USE' | translate }}
         </button>
         <button class="btn-action" (click)="exportDatabase()">
-          <i class="fas fa-download"></i> {{ 'DBM_BTN_EXPORT' | translate }}
+          <span class="material-icons" style="font-size: 1.2rem;">download</span> {{ 'DBM_BTN_EXPORT' | translate }}
         </button>
-        <button class="btn-action" (click)="copyDatabase()" [disabled]="!selectedDatabase"><i class="fas fa-copy"></i>
+        <button class="btn-action" (click)="copyDatabase()" [disabled]="!selectedDatabase"><span class="material-icons"
+            style="font-size: 1.2rem;">content_copy</span>
           {{ 'DBM_BTN_COPY' | translate }}</button>
         <button class="btn-action btn-danger" (click)="deleteDatabase()"
-          [disabled]="!selectedDatabase || selectedDatabase.name === currentDatabaseName"><i class="fas fa-trash"></i>
+          [disabled]="!selectedDatabase || selectedDatabase.name === currentDatabaseName"><span class="material-icons"
+            style="font-size: 1.2rem;">delete</span>
           {{ 'DBM_BTN_DELETE' | translate }}</button>
         <button class="btn-action btn-danger" (click)="resetDatabase()"
-          [disabled]="selectedDatabase.name !== currentDatabaseName"><i class="fas fa-exclamation-triangle"></i> {{
+          [disabled]="selectedDatabase.name !== currentDatabaseName"><span class="material-icons"
+            style="font-size: 1.2rem;">warning</span> {{
           'DBM_BTN_RESET' | translate }}</button>
       </div>
     </div>

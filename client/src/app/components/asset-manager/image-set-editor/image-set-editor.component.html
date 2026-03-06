@@ -4,7 +4,7 @@
   <div class="drop-overlay" *ngIf="isDragging" (dragenter)="onElementDragEnter($event)"
     (dragover)="onElementDragOver($event)" (dragleave)="onElementDragLeave($event)" (drop)="onElementDrop($event)">
     <div class="drop-msg">
-      <i class="fas fa-file-upload"></i>
+      <span class="material-icons" style="font-size: 3rem; margin-bottom: 1rem;">cloud_upload</span>
       <span>{{ 'AM_SET_EDITOR_DROP_OVERLAY' | translate }}</span>
     </div>
   </div>
@@ -25,7 +25,7 @@
       </div>
       <div class="header-actions">
         <button class="btn-recalc" (click)="recalculatePercentages()" [title]="'AM_SET_EDITOR_RECALC' | translate">
-          <i class="fas fa-sync-alt"></i>
+          <span class="material-icons" style="font-size: 1.2rem;">sync</span>
         </button>
         <button class="btn-add" (click)="addEntry()">{{ 'AM_SET_EDITOR_BTN_ADD' | translate }}</button>
       </div>
@@ -44,7 +44,7 @@
           <span>%</span>
         </div>
         <button class="btn-remove" (click)="removeEntry(i)" [title]="'UE_BTN_REMOVE_IMAGE' | translate">
-          <i class="fas fa-trash"></i>
+          <span class="material-icons" style="font-size: 1.2rem;">delete</span>
         </button>
       </div>
     </div>

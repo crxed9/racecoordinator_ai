@@ -129,25 +129,24 @@
               <div class="section-content" *ngIf="sectionsExpanded.voltage">
 
                 <div
-                  style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 12px;">
+                  style="display: flex; justify-content: flex-start; align-items: center; gap: 10px; margin-bottom: 12px;">
                   <button class="link-toggle-btn" (click)="resetMaxSeenAll()"
                     title="Reset all tracked max voltage values">
-                    <i class="fas fa-undo"></i>
+                    <span class="material-icons" style="font-size: 1.2rem;">undo</span>
                     <span>{{ 'AE_RESET_MAX_SEEN' | translate }}</span>
-                  </button>
-                  <button class="link-toggle-btn" [class.linked]="isVoltageLinked"
-                    (click)="isVoltageLinked = !isVoltageLinked"
-                    [title]="isVoltageLinked ? ('AE_LANES_LINKED' | translate) : ('AE_LANES_INDEPENDENT' | translate)">
-                    <i class="fas fa-link" *ngIf="isVoltageLinked"></i>
-                    <i class="fas fa-unlink" *ngIf="!isVoltageLinked"></i>
-                    <span>{{ isVoltageLinked ? ('AE_LANES_LINKED' | translate) : ('AE_LANES_INDEPENDENT' | translate)
-                      }}</span>
                   </button>
                 </div>
 
                 <div class="pin-grid">
                   <div *ngFor="let lane of getVoltageLanes()" class="pin-item voltage-pin-item">
-                    <label>{{ 'AE_PIN_VOLTAGE_LANE' | translate:{lane: lane + 1} }}</label>
+                    <div class="voltage-lane-header">
+                      <label>{{ 'AE_PIN_VOLTAGE_LANE' | translate:{lane: lane + 1} }}</label>
+                      <span class="material-icons clickable-link-icon" [class.linked]="isVoltageLinked"
+                        (click)="isVoltageLinked = !isVoltageLinked"
+                        [title]="isVoltageLinked ? ('AE_LANES_LINKED' | translate) : ('AE_LANES_INDEPENDENT' | translate)">
+                        {{ isVoltageLinked ? 'link' : 'link_off' }}
+                      </span>
+                    </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                       <span class="unit-lowercase" style="color: #94a3b8;">{{ 'AE_VOLTAGE_MAX_VAL' | translate }}</span>
                       <input type="number" [ngModel]="getVoltageMax(lane)" (ngModelChange)="setVoltageMax(lane, $event)"
@@ -160,7 +159,8 @@
                     </div>
                     <button class="set-max-btn" (click)="setMaxToSeen(lane)"
                       [disabled]="(maxVoltagesSeen[lane] ?? 0) === 0">
-                      <i class="fas fa-arrow-circle-up" style="color: #4ade80;"></i> Set Max to: {{
+                      <span class="material-icons" style="color: #4ade80; font-size: 1.2rem;">arrow_circle_up</span>
+                      Set Max to: {{
                       maxVoltagesSeen[lane] ??
                       0 }}
                     </button>

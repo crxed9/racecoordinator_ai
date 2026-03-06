@@ -63,10 +63,10 @@
 }
 
 .check-box {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
+  border-radius: 4px;
   position: relative;
   transition: all 0.2s;
 }
@@ -79,16 +79,16 @@
 .check-box.checked::after {
   content: '';
   position: absolute;
-  left: 5px;
+  left: 6px;
   top: 2px;
-  width: 4px;
-  height: 8px;
+  width: 5px;
+  height: 10px;
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
 
 .behavior-label {
-  font-size: 14px;
+  font-size: 18px;
   color: #e2e8f0;
 }

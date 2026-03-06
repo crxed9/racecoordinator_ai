@@ -19,10 +19,9 @@
   left: 50%;
   transform-origin: center center;
   transform: translate(-50%, -50%);
-  /* Start centered, JS handles scale */
   display: flex;
   flex-direction: column;
-  background-image: url('../../../assets/images/track_framing.png');
+  background-image: url('../../../assets/images/track_manager_bg.png');
   background-size: 1600px 900px;
   background-position: center;
   background-repeat: no-repeat;
@@ -31,17 +30,18 @@
 
 /* Header */
 .header {
-  height: 80px;
+  height: 60px;
+  min-height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 30px;
   background: transparent;
   border-bottom: none;
   box-shadow: none;
-  margin-top: 120px;
-  margin-left: 160px;
-  margin-right: 60px;
+  margin: 60px 55px 40px 90px;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .header-left {
@@ -74,24 +74,28 @@
 .content-area {
   flex: 1;
   display: flex;
-  padding: 20px 40px;
-  gap: 40px;
+  gap: 20px;
   overflow: hidden;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-bottom: 40px;
+  margin: 0 55px 45px 55px;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Sidebar List */
 .sidebar-list {
-  margin-top: 100px;
-  margin-left: 135px;
-  height: 465px;
+  margin-left: 90px;
+  margin-top: 40px;
+  width: 320px;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  /* Slate 800 */
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 8px;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding-top: 10px;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .list-container {
@@ -138,16 +142,19 @@
 /* Detail Panel */
 .detail-panel {
   flex: 1;
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 8px;
-  padding: 30px;
+  border: none;
+  border-radius: 0;
+  margin-left: 160px;
+  margin-top: 20px;
+  margin-right: 85px;
+  margin-bottom: 20px;
+  padding: 25px;
   display: flex;
   flex-direction: column;
   position: relative;
-  margin-top: 70px;
-  margin-left: 170px;
-  margin-right: 125px;
-  height: 375px;
+  box-shadow: none;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .detail-header {
@@ -318,22 +325,46 @@
 .lanes-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 15px;
   overflow-y: auto;
-  padding-right: 15px;
+  padding: 10px;
   flex: 1;
 }
 
+/* Custom Scrollbar for Lanes Grid */
+.lanes-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lanes-grid::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+  /* Slate 900 semi-transparent */
+  border-radius: 10px;
+}
+
+.lanes-grid::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  /* Sky 400 semi-transparent */
+  border-radius: 10px;
+  border: 2px solid rgba(15, 23, 42, 0.5);
+}
+
+.lanes-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+  /* Sky 400 more opaque */
+}
+
 .lane-badge {
-  font-size: 1rem;
-  padding: 6px 10px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-weight: bold;
+  font-size: 1.2rem;
+  height: 60px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 700;
   display: flex;
   align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
-  min-height: 28px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
 .lane-badge:hover {

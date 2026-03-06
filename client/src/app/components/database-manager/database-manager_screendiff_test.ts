@@ -17,6 +17,7 @@ test.describe('Database Manager Visuals', () => {
     ];
 
     await TestSetupHelper.setupStandardMocks(page);
+    await TestSetupHelper.disableAnimations(page);
 
     // API Mocks for Database Manager
     await page.route('**/api/databases', async route => {

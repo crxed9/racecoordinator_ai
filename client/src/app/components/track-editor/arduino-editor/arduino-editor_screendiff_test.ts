@@ -4,6 +4,7 @@ import { TestSetupHelper } from '../../../testing/test-setup_helper';
 test.describe('Arduino Editor Component Visuals', () => {
   test.beforeEach(async ({ page }) => {
     await TestSetupHelper.setupStandardMocks(page);
+    await TestSetupHelper.disableAnimations(page);
   });
 
   test('should display editor with pin grid and assignments', async ({ page }) => {
@@ -156,6 +157,7 @@ test.describe('Arduino Editor Voltage Divider Config Visuals', () => {
 
   test.beforeEach(async ({ page }) => {
     await TestSetupHelper.setupStandardMocks(page);
+    await TestSetupHelper.disableAnimations(page);
 
     await page.route('**/api/tracks', async (route) => {
       await route.fulfill({
@@ -185,11 +187,14 @@ test.describe('Arduino Editor Voltage Divider Config Visuals', () => {
     // Confirm 3 voltage lane items are shown
     await expect(voltageSection.locator('.voltage-pin-item')).toHaveCount(3);
 
-    // Confirm Reset Max Seen and Independent toggle buttons are visible
+    // Confirm Reset Max Seen button is visible
     const buttons = voltageSection.locator('.link-toggle-btn');
-    await expect(buttons).toHaveCount(2);
-    // The link button (second) shows "Lanes Independent" by default
-    await expect(buttons.nth(1)).not.toHaveClass(/linked/);
+    await expect(buttons).toHaveCount(1);
+
+    // Confirm lane-specific link icons are visible
+    const linkIcons = voltageSection.locator('.clickable-link-icon');
+    await expect(linkIcons).toHaveCount(3);
+    await expect(linkIcons.first()).not.toHaveClass(/linked/);
 
     await expect(voltageSection).toHaveScreenshot('voltage-config-lanes-independent.png');
   });
@@ -208,10 +213,12 @@ test.describe('Arduino Editor Voltage Divider Config Visuals', () => {
       await sectionHeader.click();
     }
 
-    // Click the link lanes button (second button)
-    const linkBtn = voltageSection.locator('.link-toggle-btn').nth(1);
-    await linkBtn.click();
-    await expect(linkBtn).toHaveClass(/linked/);
+    // Click the first lane link icon
+    const linkIcon = voltageSection.locator('.clickable-link-icon').first();
+    await linkIcon.click();
+    // In linked mode, all link icons should show the 'linked' class
+    await expect(linkIcon).toHaveClass(/linked/);
+    await expect(voltageSection.locator('.clickable-link-icon').nth(1)).toHaveClass(/linked/);
 
     await expect(voltageSection).toHaveScreenshot('voltage-config-lanes-linked.png');
   });
@@ -220,6 +227,7 @@ test.describe('Arduino Editor Voltage Divider Config Visuals', () => {
 test.describe('Arduino Editor Section Expander States', () => {
   test.beforeEach(async ({ page }) => {
     await TestSetupHelper.setupStandardMocks(page);
+    await TestSetupHelper.disableAnimations(page);
   });
 
   async function waitForBoardImage(page: any, root: any) {

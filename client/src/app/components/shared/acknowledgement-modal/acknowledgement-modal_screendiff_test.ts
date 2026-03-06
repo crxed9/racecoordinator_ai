@@ -13,6 +13,7 @@ test.describe('Acknowledgement Modal Visuals', () => {
       (window as any).WATCHDOG_TIMEOUT = 500;
     });
     await TestSetupHelper.setupStandardMocks(page);
+    await TestSetupHelper.disableAnimations(page);
     await TestSetupHelper.setupRaceMocks(page);
     await TestSetupHelper.setupAssetMocks(page);
   });

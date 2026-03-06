@@ -44,17 +44,17 @@
 
                 <div class="lane-controls">
                   <div class="control-group">
-                    <label>{{ 'TE_BACKGROUND_COLOR' | translate }}</label>
                     <input type="color" [ngModel]="lane.background_color"
                       (ngModelChange)="updateLaneBackgroundColor(i, $event)" (focus)="onInputFocus()"
                       (blur)="onInputBlur()">
+                    <label>{{ 'TE_BACKGROUND_COLOR' | translate }}</label>
                   </div>
 
                   <div class="control-group">
-                    <label>{{ 'TE_FOREGROUND_COLOR' | translate }}</label>
                     <input type="color" [ngModel]="lane.foreground_color"
                       (ngModelChange)="updateLaneForegroundColor(i, $event)" (focus)="onInputFocus()"
                       (blur)="onInputBlur()">
+                    <label>{{ 'TE_FOREGROUND_COLOR' | translate }}</label>
                   </div>
                 </div>
 

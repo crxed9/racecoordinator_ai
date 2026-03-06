@@ -4,6 +4,7 @@ import { TestSetupHelper } from '../../testing/test-setup_helper';
 test.describe('Track Editor Visuals', () => {
   test.beforeEach(async ({ page }) => {
     await TestSetupHelper.setupStandardMocks(page);
+    await TestSetupHelper.disableAnimations(page);
   });
 
   test('should display track editor for existing track', async ({ page }) => {

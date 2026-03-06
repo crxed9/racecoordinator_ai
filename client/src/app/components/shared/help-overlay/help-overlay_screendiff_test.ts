@@ -5,6 +5,7 @@ test.describe('Help Overlay Visuals', () => {
   test.beforeEach(async ({ page }) => {
     // Setup standard mocks including races and drivers so the main page loads populated
     await TestSetupHelper.setupStandardMocks(page);
+    await TestSetupHelper.disableAnimations(page);
     await TestSetupHelper.setupRaceMocks(page);
 
     // Ensure we don't auto-trigger help from "first run" logic by presetting settings
