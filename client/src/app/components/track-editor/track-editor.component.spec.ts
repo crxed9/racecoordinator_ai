@@ -774,9 +774,7 @@ describe("TrackEditorComponent", () => {
 
       const trakmateBadge =
         interfaceHeaders[3].querySelector(".interface-badge");
-      expect(trakmateBadge).toBeTruthy();
-      expect(trakmateBadge.textContent.trim()).toBe("BETA");
-      expect(trakmateBadge.classList.contains("beta-badge")).toBeTrue();
+      expect(trakmateBadge).toBeNull();
     }));
   });
 
