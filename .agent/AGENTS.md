@@ -11,3 +11,25 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 ## Code Quality & Length Limits (No Length Suppressions)
 - **Do not suppress length limits**: The AI agent must NEVER add length check suppressions in Java (e.g., `@SuppressWarnings("checkstyle:FileLength")`, `@SuppressWarnings("checkstyle:MethodLength")`, `@SuppressWarnings("FileLength")`, `@SuppressWarnings("MethodLength")`) or TypeScript/JavaScript (e.g., `/* eslint-disable max-lines */`, `/* eslint-disable max-lines-per-function */`).
 - **Refactor instead**: When a file, class, method, or function exceeds length limits or triggers length linter warnings, the agent must refactor the code by decomposing large methods into helper functions, extracting classes/services/components, or splitting responsibilities into smaller modules.
+
+## Visual & Screendiff Testing (Docker Only)
+- **Run screendiffs inside Docker**: All Playwright visual / screendiff test runs and snapshot generations must be executed inside the Linux Docker container via `./run_client_screendiff_tests.sh` (or `run_client_screendiff_tests.ps1`).
+- **No host snapshots**: Never generate or commit host macOS/Windows visual snapshots (`*-darwin.png`, `*-win32.png`). All snapshot baselines must remain consistent with the Linux Docker environment used in CI.
+
+## Protobuf Synchronization
+- **Regenerate bindings on proto changes**: Whenever modifying `.proto` files in `proto/`, always run `./generate_protos.sh` (or `npm run proto`) to ensure both Java server models and Angular TypeScript bindings are regenerated and in sync before creating tests or committing code.
+
+## Cross-Platform Compatibility & Paths
+- **No hardcoded path separators**: Never hardcode `/` or `\\` path separators in Java server code or cross-platform scripts. Always use `Paths.get()`, `Path.of()`, or `File.separator`.
+- **Support all target platforms**: Code must remain fully compatible across Windows, macOS, and Linux (x86_64 and arm64).
+
+## Git Branching & Release Pipeline Discipline
+- **Develop is the default base**: Standard feature and bugfix work branches from `develop` and merges into `develop`.
+- **Main is for official releases**: Pushes to `main` automatically publish an official release (`vX.Y.Z`). Never push or merge directly into `main` unless intentionally publishing an official release.
+- **Release branches are for beta prereleases**: Pushes to `release/vX.Y.Z` automatically publish a beta prerelease (`vX.Y.Z-beta.N`).
+
+## Meaningful Test Assertions & Mutation Resistance
+- **Test real behavior, not just line coverage**: New unit and integration tests must validate outputs, state changes, and boundary conditions with explicit assertions rather than writing trivial executions that only aim to pass line coverage counters. Tests must withstand mutation testing (PIT / Stryker).
+
+## Flake-Free Async Testing
+- **Avoid arbitrary sleep timers**: In visual and unit tests, avoid arbitrary wall-clock timers (`page.waitForTimeout(ms)`, `Thread.sleep(ms)`) where deterministic alternatives exist (e.g., `waitFor({ state: 'visible' })`, `TestSetupHelper.waitForLocalization()`, or explicit event/condition polling).
