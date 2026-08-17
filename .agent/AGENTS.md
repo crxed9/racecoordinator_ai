@@ -15,6 +15,7 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 ## Visual & Screendiff Testing (Docker Only)
 - **Run screendiffs inside Docker**: All Playwright visual / screendiff test runs and snapshot generations must be executed inside the Linux Docker container via `./run_client_screendiff_tests.sh` (or `run_client_screendiff_tests.ps1`).
 - **No host snapshots**: Never generate or commit host macOS/Windows visual snapshots (`*-darwin.png`, `*-win32.png`). All snapshot baselines must remain consistent with the Linux Docker environment used in CI.
+- **Image validation only (no functional `expect` statements)**: Do not use `expect()` statements in screendiff tests unless strictly needed for test setup (e.g. ensuring an element is attached before triggering an action). Visual validation must rely solely on screenshot comparison (`expect(...).toHaveScreenshot(...)`), while behavioral and DOM value assertions belong in Angular unit tests.
 
 ## Protobuf Synchronization
 - **Regenerate bindings on proto changes**: Whenever modifying `.proto` files in `proto/`, always run `./generate_protos.sh` (or `npm run proto`) to ensure both Java server models and Angular TypeScript bindings are regenerated and in sync before creating tests or committing code.
