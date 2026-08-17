@@ -37,6 +37,16 @@ body {
   html.print-full-scroll,
   body.print-full-scroll app-root,
   body.print-full-scroll .app-route-container,
+  body.print-full-scroll app-race-results,
+  body.print-full-scroll app-default-race-results,
+  body.print-full-scroll app-heat-results,
+  body.print-full-scroll app-default-heat-results,
+  body.print-full-scroll app-driver-results,
+  body.print-full-scroll app-default-driver-results,
+  body.print-full-scroll app-season-results,
+  body.print-full-scroll app-default-season-results,
+  body.print-full-scroll app-raceday,
+  body.print-full-scroll app-default-raceday,
   body.print-full-scroll .dashboard-wrapper {
     height: auto !important;
     min-height: 0 !important;
@@ -47,7 +57,9 @@ body {
     display: none !important;
   }
 
+  html.print-no-background,
   body.print-no-background,
+  html.print-no-background *,
   body.print-no-background * {
     -webkit-print-color-adjust: economy !important;
     print-color-adjust: economy !important;
@@ -56,9 +68,20 @@ body {
     -webkit-backdrop-filter: none !important;
   }
 
+  html.print-no-background,
   body.print-no-background,
   body.print-no-background app-root,
   body.print-no-background .app-route-container,
+  body.print-no-background app-race-results,
+  body.print-no-background app-default-race-results,
+  body.print-no-background app-heat-results,
+  body.print-no-background app-default-heat-results,
+  body.print-no-background app-driver-results,
+  body.print-no-background app-default-driver-results,
+  body.print-no-background app-season-results,
+  body.print-no-background app-default-season-results,
+  body.print-no-background app-raceday,
+  body.print-no-background app-default-raceday,
   body.print-no-background .dashboard-wrapper,
   body.print-no-background .scalable-content,
   body.print-no-background .scrollable-container,
@@ -111,7 +134,6 @@ body {
   body.print-no-background .editor-scroll-content,
   body.print-no-background .summary-section,
   body.print-no-background .races-expander-section,
-  body.print-no-background app-default-raceday,
   body.print-no-background .raceday-absolute-layout-root-wrapper,
   body.print-no-background .raceday-layout-container,
   body.print-no-background .unified-grid-container,
