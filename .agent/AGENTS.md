@@ -3,7 +3,11 @@
 ## SQLite Database Engine
 Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data storage. MongoDB has been completely removed.
 
+## UI Localization
+- **Localize all UI text**: Any new text added to the UI must be localized across all supported languages (`en`, `de`, `es`, `fr`, `it`, `nl`, `pt` in `client/src/assets/i18n/`).
+
 ## Test Coverage Quality Gates
+- **Add unit tests for all changes**: For every change made, add client and/or server unit tests as appropriate to cover the modifications and new functionality.
 - **Never lower test coverage thresholds**: The AI agent must never unilaterally reduce code coverage minimum thresholds (e.g. in `server/pom.xml`, `client/karma.conf.js`, or any CI configuration) to make tests pass or resolve coverage gate failures.
 - **Add tests instead**: If coverage falls below the configured limits, the agent must write new unit or integration tests to satisfy and exceed the required coverage.
 - **Explicit user approval required**: If the coverage values are ever deemed too tight or need reduction, the agent must not reduce them automatically. The decision must be brought to the user for careful review and explicit approval first.
@@ -13,6 +17,7 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 - **Refactor instead**: When a file, class, method, or function exceeds length limits or triggers length linter warnings, the agent must refactor the code by decomposing large methods into helper functions, extracting classes/services/components, or splitting responsibilities into smaller modules.
 
 ## Visual & Screendiff Testing (Docker Only)
+- **Do not run screendiff suite by default**: Unless new screendiff tests are added or explicitly requested by the user, do not run the screendiff test suite. They take too long and require a developer to review the images before accepting new baselines. Instead, include a reminder in the manual verification / testing steps to run the screendiff tests.
 - **Run screendiffs inside Docker**: All Playwright visual / screendiff test runs and snapshot generations must be executed inside the Linux Docker container via `./run_client_screendiff_tests.sh` (or `run_client_screendiff_tests.ps1`).
 - **No host snapshots**: Never generate or commit host macOS/Windows visual snapshots (`*-darwin.png`, `*-win32.png`). All snapshot baselines must remain consistent with the Linux Docker environment used in CI.
 - **Image validation only (no functional `expect` statements)**: Do not use `expect()` statements in screendiff tests unless strictly needed for test setup (e.g. ensuring an element is attached before triggering an action). Visual validation must rely solely on screenshot comparison (`expect(...).toHaveScreenshot(...)`), while behavioral and DOM value assertions belong in Angular unit tests.
