@@ -3,30 +3,95 @@ const assert = require('node:assert');
 const { determineVersion } = require('./determine_release_version');
 
 describe('determine_release_version', () => {
-  test('should calculate daily alpha for schedule event', () => {
-    const res = determineVersion('schedule', 'refs/heads/develop', '');
-    assert.match(res.version, /^0\.0\.0-alpha\.\d{8}$/);
-    assert.strictEqual(res.tag, `v${res.version}`);
-    assert.strictEqual(res.isPrerelease, 'true');
+  describe('daily alpha releases (schedule event)', () => {
+    test('should calculate daily alpha for schedule event with default root version', () => {
+      const res = determineVersion('schedule', 'refs/heads/develop', '', [], '0.0.0');
+      assert.match(res.version, /^0\.0\.0-alpha\.\d{8}$/);
+      assert.strictEqual(res.tag, `v${res.version}`);
+      assert.strictEqual(res.isPrerelease, 'true');
+    });
+
+    test('should calculate daily alpha for schedule event with updated root version', () => {
+      const res = determineVersion('schedule', 'refs/heads/develop', '', [], '1.2.0');
+      assert.match(res.version, /^1\.2\.0-alpha\.\d{8}$/);
+      assert.strictEqual(res.tag, `v${res.version}`);
+      assert.strictEqual(res.isPrerelease, 'true');
+    });
   });
 
-  test('should use explicit tag push when tag is provided', () => {
-    const res1 = determineVersion('push', 'refs/tags/v1.0.0', '');
-    assert.strictEqual(res1.version, '1.0.0');
-    assert.strictEqual(res1.tag, 'v1.0.0');
-    assert.strictEqual(res1.isPrerelease, 'false');
+  describe('explicit tag pushes', () => {
+    test('should use explicit tag push when tag is provided', () => {
+      const res1 = determineVersion('push', 'refs/tags/v1.0.0', '');
+      assert.strictEqual(res1.version, '1.0.0');
+      assert.strictEqual(res1.tag, 'v1.0.0');
+      assert.strictEqual(res1.isPrerelease, 'false');
 
-    const res2 = determineVersion('push', 'refs/tags/v1.0.0-beta.3', '');
-    assert.strictEqual(res2.version, '1.0.0-beta.3');
-    assert.strictEqual(res2.tag, 'v1.0.0-beta.3');
-    assert.strictEqual(res2.isPrerelease, 'true');
+      const res2 = determineVersion('push', 'refs/tags/v1.0.0-beta.3', '');
+      assert.strictEqual(res2.version, '1.0.0-beta.3');
+      assert.strictEqual(res2.tag, 'v1.0.0-beta.3');
+      assert.strictEqual(res2.isPrerelease, 'true');
+    });
   });
 
-  test('should handle manual workflow_dispatch override', () => {
-    const res = determineVersion('workflow_dispatch', 'refs/heads/main', '1.5.0-beta.2');
-    assert.strictEqual(res.version, '1.5.0-beta.2');
-    assert.strictEqual(res.tag, 'v1.5.0-beta.2');
-    assert.strictEqual(res.isPrerelease, 'true');
+  describe('manual release (workflow_dispatch)', () => {
+    test('should fail when triggered on main branch', () => {
+      assert.throws(() => {
+        determineVersion('workflow_dispatch', 'refs/heads/main', '');
+      }, /Manual release is not permitted on 'main'/);
+
+      assert.throws(() => {
+        determineVersion('workflow_dispatch', 'main', '');
+      }, /Manual release is not permitted on 'main'/);
+    });
+
+    test('should fail when triggered on release branch', () => {
+      assert.throws(() => {
+        determineVersion('workflow_dispatch', 'refs/heads/release/v1.0.0', '');
+      }, /Manual release is not permitted on 'release\/v1\.0\.0'/);
+
+      assert.throws(() => {
+        determineVersion('workflow_dispatch', 'release/v1.0.0', '');
+      }, /Manual release is not permitted on 'release\/v1\.0\.0'/);
+    });
+
+    test('should generate vX.Y.Z-alpha.<hash> on develop without version input', () => {
+      const res = determineVersion(
+        'workflow_dispatch',
+        'refs/heads/develop',
+        '',
+        [],
+        '0.0.0',
+        '8d14bdb'
+      );
+      assert.strictEqual(res.version, '0.0.0-alpha.8d14bdb');
+      assert.strictEqual(res.tag, 'v0.0.0-alpha.8d14bdb');
+      assert.strictEqual(res.isPrerelease, 'true');
+    });
+
+    test('should generate vX.Y.Z-alpha.<hash> with custom root version on develop', () => {
+      const res = determineVersion(
+        'workflow_dispatch',
+        'refs/heads/develop',
+        '',
+        [],
+        '1.2.0',
+        '0356b23'
+      );
+      assert.strictEqual(res.version, '1.2.0-alpha.0356b23');
+      assert.strictEqual(res.tag, 'v1.2.0-alpha.0356b23');
+      assert.strictEqual(res.isPrerelease, 'true');
+    });
+
+    test('should handle manual workflow_dispatch override on develop', () => {
+      const res = determineVersion(
+        'workflow_dispatch',
+        'refs/heads/develop',
+        '1.5.0-beta.2'
+      );
+      assert.strictEqual(res.version, '1.5.0-beta.2');
+      assert.strictEqual(res.tag, 'v1.5.0-beta.2');
+      assert.strictEqual(res.isPrerelease, 'true');
+    });
   });
 
   describe('push to release branch (beta releases)', () => {
