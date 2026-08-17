@@ -337,6 +337,7 @@ npm run lint
 ##### Test Coverage & Quality Gates
 - **Server Quality Gates (JaCoCo)**: `LINE >= 80%`, `BRANCH >= 60%`.
 - **Policy**: Test coverage thresholds must never be reduced to accommodate missing tests. If coverage falls below quality gates, new unit or integration tests must be written to satisfy the threshold. Any change to lower coverage thresholds requires explicit review and approval.
+- **Code Length Limits**: Do not add suppressions for file length or method/function length in Java (`checkstyle:FileLength`, `checkstyle:MethodLength`) or TypeScript/JavaScript (`eslint-disable max-lines`, etc.). Instead, refactor large files and methods by decomposing them into smaller helpers, classes, or modules.
 
 ---
 
