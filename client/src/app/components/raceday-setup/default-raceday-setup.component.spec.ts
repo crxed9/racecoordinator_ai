@@ -628,6 +628,7 @@ describe("DefaultRacedaySetupComponent", () => {
     component.onCheckForUpdates();
     expect(component.requestCheckForUpdates.emit).toHaveBeenCalled();
     expect(component.isFileDropdownOpen).toBeFalse();
+    expect(component.isOptionsDropdownOpen).toBeFalse();
   });
 
   it("should not emit requestCheckForUpdates when onCheckForUpdates is called and banner is visible", () => {

@@ -128,6 +128,38 @@ public class ServerConfigService {
     saveConfig();
   }
 
+  public String getUpdateChannel() {
+    if (config.updateChannel == null || config.updateChannel.isEmpty()) {
+      return "ALPHA";
+    }
+    return config.updateChannel;
+  }
+
+  public void setUpdateChannel(String channel) {
+    config.updateChannel = channel;
+    saveConfig();
+  }
+
+  public String getSnoozedUpdateVersion() {
+    return config.snoozedUpdateVersion;
+  }
+
+  public long getSnoozedUpdateUntil() {
+    return config.snoozedUpdateUntil;
+  }
+
+  public void setSnoozedUpdate(String version, long untilTimestamp) {
+    config.snoozedUpdateVersion = version;
+    config.snoozedUpdateUntil = untilTimestamp;
+    saveConfig();
+  }
+
+  public void clearSnoozedUpdate() {
+    config.snoozedUpdateVersion = null;
+    config.snoozedUpdateUntil = 0L;
+    saveConfig();
+  }
+
   private static class Config {
 
     public String lastActiveDatabase;
@@ -144,5 +176,8 @@ public class ServerConfigService {
 
     public String directorPassword = "RC AI Director";
     public String skippedUpdateVersion;
+    public String updateChannel = "ALPHA";
+    public String snoozedUpdateVersion;
+    public long snoozedUpdateUntil = 0L;
   }
 }

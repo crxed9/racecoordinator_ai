@@ -48,5 +48,17 @@ public class ServerConfigServiceTest {
 
     service.setSkippedUpdateVersion("2.0.0");
     assertEquals("2.0.0", service.getSkippedUpdateVersion());
+
+    assertEquals("ALPHA", service.getUpdateChannel());
+    service.setUpdateChannel("PRODUCTION");
+    assertEquals("PRODUCTION", service.getUpdateChannel());
+
+    service.setSnoozedUpdate("2.0.0", 1234567890L);
+    assertEquals("2.0.0", service.getSnoozedUpdateVersion());
+    assertEquals(1234567890L, service.getSnoozedUpdateUntil());
+
+    service.clearSnoozedUpdate();
+    assertEquals(null, service.getSnoozedUpdateVersion());
+    assertEquals(0L, service.getSnoozedUpdateUntil());
   }
 }

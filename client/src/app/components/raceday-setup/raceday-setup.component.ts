@@ -437,9 +437,21 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
   }
 
   public dismissUpdateBanner() {
+    const version = this.updateResult?.latestVersion;
     this.updateBannerDismissed = true;
+    this.updateResult = null;
     this.syncChildComponentState();
     this.cdr.detectChanges();
+    if (version) {
+      this.updateService.snoozeUpdate(version, 7).subscribe({
+        next: () => {
+          this.logger.info(`Snoozed update version ${version} for 7 days`);
+        },
+        error: (err) => {
+          this.logger.warn("Failed to snooze update on server", err);
+        },
+      });
+    }
   }
 
   public installUpdate() {

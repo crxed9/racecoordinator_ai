@@ -26,6 +26,7 @@ import { ConfirmationModalComponent } from "@app/components/shared/confirmation-
 import { DemoConfigModalComponent } from "@app/components/shared/demo-config-modal/demo-config-modal.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import { LanguageSelectorComponent } from "@app/components/shared/language-selector/language-selector.component";
+import { UpdateSelectorComponent } from "@app/components/shared/update-selector/update-selector.component";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
 import { Event as EventModel } from "@app/models/event";
@@ -70,6 +71,7 @@ type Participant = Driver | Team;
     TranslatePipe,
     EditorTitleComponent,
     LanguageSelectorComponent,
+    UpdateSelectorComponent,
   ],
 })
 export class DefaultRacedaySetupComponent implements OnInit {
@@ -1655,6 +1657,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
   onCheckForUpdates() {
     if (this.isUpdateBannerVisible()) return;
     this.closeFileDropdown();
+    this.closeOptionsDropdown();
     this.closeHelpDropdown();
     this.requestCheckForUpdates.emit();
   }
