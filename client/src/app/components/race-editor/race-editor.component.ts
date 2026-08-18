@@ -2312,12 +2312,12 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         },
       },
       {
-        selector: "#season-overall-bonuses-section",
+        selector: "#season-overall-carry-over-input",
         title: this.translationService.translate(
-          "RE_HELP_SEASON_OVERALL_BONUSES_TITLE",
+          "RE_HELP_SEASON_OVERALL_CARRY_OVER_TITLE",
         ),
         content: this.translationService.translate(
-          "RE_HELP_SEASON_OVERALL_BONUSES_CONTENT",
+          "RE_HELP_SEASON_OVERALL_CARRY_OVER_CONTENT",
         ),
         position: "bottom",
         onEnter: () => {
@@ -2327,12 +2327,147 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         },
       },
       {
-        selector: "#season-heat-bonuses-section",
+        selector: "#season-overall-fastest-lap-input",
         title: this.translationService.translate(
-          "RE_HELP_SEASON_HEAT_BONUSES_TITLE",
+          "RE_HELP_SEASON_OVERALL_FASTEST_LAP_TITLE",
         ),
         content: this.translationService.translate(
-          "RE_HELP_SEASON_HEAT_BONUSES_CONTENT",
+          "RE_HELP_SEASON_OVERALL_FASTEST_LAP_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-overall-fastest-lap-lane-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_FASTEST_LAP_LANE_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_FASTEST_LAP_LANE_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-overall-most-laps-led-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_MOST_LAPS_LED_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_MOST_LAPS_LED_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-overall-led-lap-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_LED_LAP_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_LED_LAP_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-overall-one-bonus-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_ONE_BONUS_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_OVERALL_ONE_BONUS_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-heat-carry-over-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_CARRY_OVER_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_CARRY_OVER_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-heat-fastest-lap-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_FASTEST_LAP_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_FASTEST_LAP_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-heat-most-laps-led-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_MOST_LAPS_LED_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_MOST_LAPS_LED_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-heat-led-lap-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_LED_LAP_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_LED_LAP_CONTENT",
+        ),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.season_points) {
+            this.sectionsExpanded.season_points = true;
+          }
+        },
+      },
+      {
+        selector: "#season-heat-one-bonus-input",
+        title: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_ONE_BONUS_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RE_HELP_SEASON_HEAT_ONE_BONUS_CONTENT",
         ),
         position: "bottom",
         onEnter: () => {

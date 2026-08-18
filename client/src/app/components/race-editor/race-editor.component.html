@@ -802,6 +802,9 @@
                       <div class="editor-section">
                         <label>{{ "SS_CARRY_OVER_PCT" | translate }}</label>
                         <input
+                          id="season-overall-carry-over-input"
+                          class="season-overall-carry-over-input"
+                          data-testid="season-overall-carry-over-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring.overall_carry_over_pct
@@ -814,6 +817,9 @@
                       <div class="editor-section">
                         <label>{{ "SS_BONUS_FASTEST_LAP" | translate }}</label>
                         <input
+                          id="season-overall-fastest-lap-input"
+                          class="season-overall-fastest-lap-input"
+                          data-testid="season-overall-fastest-lap-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring.overall_bonus_fastest_lap
@@ -827,6 +833,9 @@
                           "SS_BONUS_FASTEST_LAP_LANE" | translate
                         }}</label>
                         <input
+                          id="season-overall-fastest-lap-lane-input"
+                          class="season-overall-fastest-lap-lane-input"
+                          data-testid="season-overall-fastest-lap-lane-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring
@@ -841,6 +850,9 @@
                           "SS_BONUS_MOST_LAPS_LED" | translate
                         }}</label>
                         <input
+                          id="season-overall-most-laps-led-input"
+                          class="season-overall-most-laps-led-input"
+                          data-testid="season-overall-most-laps-led-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring
@@ -853,6 +865,9 @@
                       <div class="editor-section">
                         <label>{{ "SS_BONUS_LED_LAP" | translate }}</label>
                         <input
+                          id="season-overall-led-lap-input"
+                          class="season-overall-led-lap-input"
+                          data-testid="season-overall-led-lap-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring.overall_bonus_led_lap
@@ -866,16 +881,19 @@
                         style="margin-top: 8px; margin-bottom: 0"
                       >
                         <label
-                          id="overall_one_bonus"
+                          id="season-overall-one-bonus-input"
                           class="checkbox-container"
                         >
                           <input
                             type="checkbox"
+                            id="overall_one_bonus"
                             [(ngModel)]="
                               editingRace.season_scoring
                                 .overall_one_bonus_per_driver
                             "
                             (ngModelChange)="captureState()"
+                            class="season-overall-one-bonus-input"
+                            data-testid="season-overall-one-bonus-input"
                           />
                           <span class="checkmark"></span>
                           <span class="checkbox-label">{{
@@ -895,6 +913,9 @@
                       <div class="editor-section">
                         <label>{{ "SS_CARRY_OVER_PCT" | translate }}</label>
                         <input
+                          id="season-heat-carry-over-input"
+                          class="season-heat-carry-over-input"
+                          data-testid="season-heat-carry-over-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring.heat_carry_over_pct
@@ -907,6 +928,9 @@
                       <div class="editor-section">
                         <label>{{ "SS_BONUS_FASTEST_LAP" | translate }}</label>
                         <input
+                          id="season-heat-fastest-lap-input"
+                          class="season-heat-fastest-lap-input"
+                          data-testid="season-heat-fastest-lap-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring.heat_bonus_fastest_lap
@@ -920,6 +944,9 @@
                           "SS_BONUS_MOST_LAPS_LED" | translate
                         }}</label>
                         <input
+                          id="season-heat-most-laps-led-input"
+                          class="season-heat-most-laps-led-input"
+                          data-testid="season-heat-most-laps-led-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring.heat_bonus_most_laps_led
@@ -931,6 +958,9 @@
                       <div class="editor-section">
                         <label>{{ "SS_BONUS_LED_LAP" | translate }}</label>
                         <input
+                          id="season-heat-led-lap-input"
+                          class="season-heat-led-lap-input"
+                          data-testid="season-heat-led-lap-input"
                           type="number"
                           [(ngModel)]="
                             editingRace.season_scoring.heat_bonus_led_lap
@@ -943,14 +973,20 @@
                         class="config-section checkbox-section"
                         style="margin-top: 8px; margin-bottom: 0"
                       >
-                        <label id="heat_one_bonus" class="checkbox-container">
+                        <label
+                          id="season-heat-one-bonus-input"
+                          class="checkbox-container"
+                        >
                           <input
                             type="checkbox"
+                            id="heat_one_bonus"
                             [(ngModel)]="
                               editingRace.season_scoring
                                 .heat_one_bonus_per_driver
                             "
                             (ngModelChange)="captureState()"
+                            class="season-heat-one-bonus-input"
+                            data-testid="season-heat-one-bonus-input"
                           />
                           <span class="checkmark"></span>
                           <span class="checkbox-label">{{
