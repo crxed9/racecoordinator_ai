@@ -891,4 +891,69 @@ describe("SeasonEditorComponent", () => {
     expect(demoBadge).toBeTruthy();
     expect(metaPill.textContent).toContain("1");
   });
+
+  describe("Guided Help", () => {
+    it("should return complete guided help steps when there are no demo races", () => {
+      component.editingSeason = {
+        name: "Pro Championship",
+        drops: 1,
+        races: [{ race_id: "r1", is_demo: false } as any],
+      };
+      const steps = component.getHelpSteps();
+      expect(steps.length).toBe(8);
+
+      // Welcome Step
+      expect(steps[0].title).toBe("SE_HELP_WELCOME_TITLE");
+      expect(steps[0].content).toBe("SE_HELP_WELCOME_CONTENT");
+      expect(steps[0].position).toBe("center");
+      expect(steps[0].selector).toBeUndefined();
+
+      // Form inputs
+      expect(steps[1].selector).toBe("#season-name");
+      expect(steps[1].title).toBe("SE_HELP_NAME_TITLE");
+      expect(steps[1].position).toBe("right");
+
+      expect(steps[2].selector).toBe("#season-drops");
+      expect(steps[2].title).toBe("SE_HELP_DROPS_TITLE");
+      expect(steps[2].position).toBe("right");
+
+      // Header summary & actions
+      expect(steps[3].selector).toBe("#season-editor-races-run");
+      expect(steps[3].title).toBe("SE_HELP_RACES_RUN_TITLE");
+      expect(steps[3].position).toBe("bottom");
+
+      expect(steps[4].selector).toBe("#season-editor-meta");
+      expect(steps[4].title).toBe("SE_HELP_DEMO_BADGE_TITLE");
+      expect(steps[4].content).toBe("SE_HELP_DEMO_BADGE_ABSENT_CONTENT");
+      expect(steps[4].position).toBe("bottom");
+
+      expect(steps[5].selector).toBe("#btn-add-race");
+      expect(steps[5].title).toBe("SE_HELP_ADD_RACE_TITLE");
+      expect(steps[5].position).toBe("bottom");
+
+      // Content sections
+      expect(steps[6].selector).toBe("#season-editor-standings");
+      expect(steps[6].title).toBe("SE_HELP_STANDINGS_TITLE");
+      expect(steps[6].position).toBe("left");
+
+      expect(steps[7].selector).toBe("#season-editor-breakdown");
+      expect(steps[7].title).toBe("SE_HELP_BREAKDOWN_TITLE");
+      expect(steps[7].position).toBe("left");
+    });
+
+    it("should point to demo badge and use present content when season has demo races", () => {
+      component.editingSeason = {
+        name: "Pro Championship",
+        drops: 1,
+        races: [{ race_id: "r1", is_demo: true } as any],
+      };
+      const steps = component.getHelpSteps();
+      expect(steps.length).toBe(8);
+
+      expect(steps[4].selector).toBe("#season-editor-demo-badge");
+      expect(steps[4].title).toBe("SE_HELP_DEMO_BADGE_TITLE");
+      expect(steps[4].content).toBe("SE_HELP_DEMO_BADGE_PRESENT_CONTENT");
+      expect(steps[4].position).toBe("bottom");
+    });
+  });
 });
