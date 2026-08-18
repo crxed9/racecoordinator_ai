@@ -42,7 +42,8 @@ if (Test-Path $LOCAL_PROTOC) {
     if (-not (Test-Path $PROTOC_M2)) {
         if (-not (Get-Command protoc -ErrorAction SilentlyContinue)) {
             Write-Host "Protoc not found. Attempting to download protoc $PROTOC_VERSION..."
-            $ProtocZipUrl = "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-win64.zip"
+            $PROTOC_RELEASE_TAG = $PROTOC_VERSION -replace '^3\.', ''
+            $ProtocZipUrl = "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_RELEASE_TAG}/protoc-${PROTOC_RELEASE_TAG}-win64.zip"
             $TempZip = Join-Path $TARGET_DIR "protoc.zip"
             $TempExtract = Join-Path $TARGET_DIR "protoc_extract"
             try {

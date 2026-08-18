@@ -105,7 +105,8 @@ else
     if ! command -v protoc >/dev/null 2>&1; then
       echo "Protoc not found. Attempting to download protoc $PROTOC_VERSION directly..."
       mkdir -p "$(dirname "$PROTOC_M2")"
-      PROTOC_ZIP_URL="https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-${PROTOC_OS}-${PROTOC_ARCH}.zip"
+      PROTOC_RELEASE_TAG="${PROTOC_VERSION#3.}"
+      PROTOC_ZIP_URL="https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_RELEASE_TAG}/protoc-${PROTOC_RELEASE_TAG}-${PROTOC_OS}-${PROTOC_ARCH_ALT}.zip"
       TMP_ZIP="/tmp/protoc-${PROTOC_VERSION}-$$.zip"
       TMP_EXTRACT="/tmp/protoc_extract_$$"
       if curl -sSL "$PROTOC_ZIP_URL" -o "$TMP_ZIP" 2>/dev/null; then
@@ -113,6 +114,10 @@ else
         if [ -f "$TMP_EXTRACT/bin/protoc" ]; then
           cp "$TMP_EXTRACT/bin/protoc" "$PROTOC_M2"
           chmod +x "$PROTOC_M2"
+          if [ "$PROTOC_M2" != "$PROTOC_M2_ALT" ]; then
+            cp "$TMP_EXTRACT/bin/protoc" "$PROTOC_M2_ALT"
+            chmod +x "$PROTOC_M2_ALT"
+          fi
         fi
         rm -rf "$TMP_ZIP" "$TMP_EXTRACT" 2>/dev/null || true
       fi
