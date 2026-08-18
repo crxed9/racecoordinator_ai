@@ -352,4 +352,70 @@ describe("SeasonManagerComponent", () => {
       expect(demoBadge).toBeTruthy();
     });
   });
+
+  describe("Guided Help", () => {
+    it("should return complete guided help steps when there are no demo races", () => {
+      component.selectedSeason = {
+        entity_id: "s1",
+        name: "Pro Season",
+        drops: 1,
+        races: [{ race_id: "r1", is_demo: false } as any],
+      } as any;
+      const steps = component.getHelpSteps();
+      expect(steps.length).toBe(8);
+
+      // Welcome Step
+      expect(steps[0].title).toBe("SM_HELP_WELCOME_TITLE");
+      expect(steps[0].content).toBe("SM_HELP_WELCOME_CONTENT");
+      expect(steps[0].position).toBe("center");
+      expect(steps[0].selector).toBeUndefined();
+
+      // LHS Steps
+      expect(steps[1].selector).toBe("#season-list-container");
+      expect(steps[1].title).toBe("SM_HELP_LIST_TITLE");
+      expect(steps[1].position).toBe("right");
+
+      expect(steps[2].selector).toBe("#season-search-bar");
+      expect(steps[2].title).toBe("SM_HELP_SEARCH_TITLE");
+      expect(steps[2].position).toBe("right");
+
+      // RHS Steps
+      expect(steps[3].selector).toBe("#season-detail-name");
+      expect(steps[3].title).toBe("SM_HELP_NAME_TITLE");
+      expect(steps[3].position).toBe("bottom");
+
+      expect(steps[4].selector).toBe("#season-detail-drops");
+      expect(steps[4].title).toBe("SM_HELP_DROPS_TITLE");
+      expect(steps[4].position).toBe("bottom");
+
+      expect(steps[5].selector).toBe("#season-detail-races");
+      expect(steps[5].title).toBe("SM_HELP_RACES_RUN_TITLE");
+      expect(steps[5].position).toBe("bottom");
+
+      expect(steps[6].selector).toBe("#season-detail-meta");
+      expect(steps[6].title).toBe("SM_HELP_DEMO_BADGE_TITLE");
+      expect(steps[6].content).toBe("SM_HELP_DEMO_BADGE_ABSENT_CONTENT");
+      expect(steps[6].position).toBe("bottom");
+
+      expect(steps[7].selector).toBe("#season-detail-standings");
+      expect(steps[7].title).toBe("SM_HELP_STANDINGS_TITLE");
+      expect(steps[7].position).toBe("left");
+    });
+
+    it("should point to demo badge and use present content when season has demo races", () => {
+      component.selectedSeason = {
+        entity_id: "s1",
+        name: "Pro Season",
+        drops: 1,
+        races: [{ race_id: "r1", is_demo: true } as any],
+      } as any;
+      const steps = component.getHelpSteps();
+      expect(steps.length).toBe(8);
+
+      expect(steps[6].selector).toBe("#season-detail-demo-badge");
+      expect(steps[6].title).toBe("SM_HELP_DEMO_BADGE_TITLE");
+      expect(steps[6].content).toBe("SM_HELP_DEMO_BADGE_PRESENT_CONTENT");
+      expect(steps[6].position).toBe("bottom");
+    });
+  });
 });
