@@ -134,9 +134,13 @@
                             <strong>{{ item.driver_name }}</strong>
                           </td>
                           <td class="col-pts net-highlight">
-                            <strong>{{ item.net_points }}</strong>
+                            <strong>{{
+                              item.net_points | number: "1.0-2"
+                            }}</strong>
                           </td>
-                          <td class="col-pts">{{ item.gross_points }}</td>
+                          <td class="col-pts">
+                            {{ item.gross_points | number: "1.0-2" }}
+                          </td>
                           <td class="col-races">{{ item.races_run }}</td>
                         </tr>
                       }

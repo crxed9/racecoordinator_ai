@@ -1,3 +1,4 @@
+import { DecimalPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -41,6 +42,7 @@ import { naturalSortCompare } from "@app/utils/sorting.utils";
     ManagerHeaderComponent,
     ConfirmationModalComponent,
     TranslatePipe,
+    DecimalPipe,
     FormsModule,
   ],
 })

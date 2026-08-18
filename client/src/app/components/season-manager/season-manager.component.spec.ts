@@ -1,4 +1,5 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
+import { DecimalPipe } from "@angular/common";
 import { Component, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
@@ -49,7 +50,12 @@ describe("SeasonManagerComponent", () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [SeasonManagerComponent, FormsModule, TranslatePipe],
+      imports: [
+        SeasonManagerComponent,
+        FormsModule,
+        TranslatePipe,
+        DecimalPipe,
+      ],
       providers: [
         { provide: DataService, useValue: mockDataService },
         { provide: TranslationService, useValue: mockTranslationService },
@@ -72,7 +78,12 @@ describe("SeasonManagerComponent", () => {
     })
       .overrideComponent(SeasonManagerComponent, {
         set: {
-          imports: [MockManagerHeaderComponent, TranslatePipe, FormsModule],
+          imports: [
+            MockManagerHeaderComponent,
+            TranslatePipe,
+            DecimalPipe,
+            FormsModule,
+          ],
           schemas: [NO_ERRORS_SCHEMA],
         },
       })
@@ -276,6 +287,69 @@ describe("SeasonManagerComponent", () => {
       expect(dataService.deleteSeason).toHaveBeenCalledWith("s1");
       expect(component.showDeleteConfirmation).toBeFalse();
       expect(component.loadData).toHaveBeenCalled();
+    });
+
+    it("should format decimal points in standings table to at most 2 decimal places and keep whole numbers without trailing zeros", () => {
+      component.selectedSeason = {
+        entity_id: "s1",
+        name: "Formula 1 Season",
+        drops: 0,
+      } as any;
+      component.standings = [
+        {
+          driver_id: "d1",
+          driver_name: "Max",
+          net_points: 33.333333333333336,
+          gross_points: 50.126,
+          races_run: 3,
+        },
+        {
+          driver_id: "d2",
+          driver_name: "Lewis",
+          net_points: 25,
+          gross_points: 25.5,
+          races_run: 2,
+        },
+      ];
+      fixture.detectChanges();
+
+      const rows = fixture.nativeElement.querySelectorAll(
+        ".standings-body-container tbody tr",
+      );
+      expect(rows.length).toBe(2);
+
+      // First driver: 33.333333333333336 -> 33.33, 50.126 -> 50.13
+      const firstRowCols = rows[0].querySelectorAll("td");
+      expect(firstRowCols[2].textContent.trim()).toBe("33.33");
+      expect(firstRowCols[3].textContent.trim()).toBe("50.13");
+
+      // Second driver: 25 -> 25, 25.5 -> 25.5
+      const secondRowCols = rows[1].querySelectorAll("td");
+      expect(secondRowCols[2].textContent.trim()).toBe("25");
+      expect(secondRowCols[3].textContent.trim()).toBe("25.5");
+    });
+
+    it("should render season metadata elements in .season-meta under the header", () => {
+      component.selectedSeason = {
+        entity_id: "s1",
+        name: "Pro Championship",
+        drops: 2,
+        races: [{ race_id: "r1", is_demo: true } as any],
+      } as any;
+      fixture.detectChanges();
+
+      const detailHeader =
+        fixture.nativeElement.querySelector(".detail-header");
+      const title = detailHeader.querySelector("h2");
+      const meta = detailHeader.querySelector(".season-meta");
+      const pills = meta.querySelectorAll(".meta-pill");
+      const demoBadge = meta.querySelector(".badge-demo");
+
+      expect(title.textContent.trim()).toBe("Pro Championship");
+      expect(pills.length).toBe(2);
+      expect(pills[0].textContent).toContain("2"); // Drops count
+      expect(pills[1].textContent).toContain("1"); // Races run count
+      expect(demoBadge).toBeTruthy();
     });
   });
 });
