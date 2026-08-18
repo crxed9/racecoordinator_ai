@@ -1,4 +1,4 @@
-import { DatePipe } from "@angular/common";
+import { DatePipe, DecimalPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -37,6 +37,7 @@ import { NavigationService } from "@app/services/navigation.service";
     FormsModule,
     ConfirmationModalComponent,
     DatePipe,
+    DecimalPipe,
   ],
 })
 export class SeasonEditorComponent

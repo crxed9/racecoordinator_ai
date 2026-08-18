@@ -72,17 +72,19 @@
         <div class="panel-header">
           <div class="header-title-group">
             <h3>{{ editingSeason.name || ("SE_TITLE_NEW" | translate) }}</h3>
-            @if (hasDemoRaces) {
-              <span class="demo-badge">{{
-                "SE_DEMO_RACES_INCLUDED" | translate
-              }}</span>
-            }
-            <span class="meta-pill">
-              {{ "SM_RACES_RUN" | translate }}:
-              <strong>{{
-                editingSeason.races ? editingSeason.races.length : 0
-              }}</strong>
-            </span>
+            <div class="season-meta">
+              @if (hasDemoRaces) {
+                <span class="demo-badge">{{
+                  "SE_DEMO_RACES_INCLUDED" | translate
+                }}</span>
+              }
+              <span class="meta-pill">
+                {{ "SM_RACES_RUN" | translate }}:
+                <strong>{{
+                  editingSeason.races ? editingSeason.races.length : 0
+                }}</strong>
+              </span>
+            </div>
           </div>
           <button class="btn-add-race" (click)="openAddRaceModal()">
             + {{ "SE_BTN_ADD_RACE" | translate }}
@@ -136,9 +138,11 @@
                         <strong>{{ item.driver_name }}</strong>
                       </td>
                       <td class="col-pts net-highlight">
-                        <strong>{{ item.net_points }}</strong>
+                        <strong>{{ item.net_points | number: "1.0-2" }}</strong>
                       </td>
-                      <td class="col-pts">{{ item.gross_points }}</td>
+                      <td class="col-pts">
+                        {{ item.gross_points | number: "1.0-2" }}
+                      </td>
                       <td class="col-races">{{ item.races_run }}</td>
                     </tr>
                   }
@@ -224,12 +228,25 @@
                                 <td>
                                   <strong>{{ res.driver_name }}</strong>
                                 </td>
-                                <td>{{ res.overall_points }}</td>
-                                <td>{{ res.overall_bonus_points ?? 0 }}</td>
-                                <td>{{ res.heat_points }}</td>
-                                <td>{{ res.heat_bonus_points ?? 0 }}</td>
                                 <td>
-                                  <strong>{{ res.total_points }}</strong>
+                                  {{ res.overall_points | number: "1.0-2" }}
+                                </td>
+                                <td>
+                                  {{
+                                    res.overall_bonus_points ?? 0
+                                      | number: "1.0-2"
+                                  }}
+                                </td>
+                                <td>{{ res.heat_points | number: "1.0-2" }}</td>
+                                <td>
+                                  {{
+                                    res.heat_bonus_points ?? 0 | number: "1.0-2"
+                                  }}
+                                </td>
+                                <td>
+                                  <strong>{{
+                                    res.total_points | number: "1.0-2"
+                                  }}</strong>
                                 </td>
                               </tr>
                             }

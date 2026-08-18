@@ -1,5 +1,5 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { DatePipe } from "@angular/common";
+import { DatePipe, DecimalPipe } from "@angular/common";
 import { Component, input, NO_ERRORS_SCHEMA, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
@@ -66,7 +66,13 @@ describe("SeasonEditorComponent", () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [SeasonEditorComponent, FormsModule, TranslatePipe, DatePipe],
+      imports: [
+        SeasonEditorComponent,
+        FormsModule,
+        TranslatePipe,
+        DatePipe,
+        DecimalPipe,
+      ],
       providers: [
         { provide: DataService, useValue: mockDataService },
         { provide: TranslationService, useValue: mockTranslationService },
@@ -90,6 +96,7 @@ describe("SeasonEditorComponent", () => {
             TranslatePipe,
             FormsModule,
             DatePipe,
+            DecimalPipe,
           ],
           schemas: [NO_ERRORS_SCHEMA],
         },
@@ -784,5 +791,104 @@ describe("SeasonEditorComponent", () => {
 
     component.openAddRaceModal();
     expect(component.availableFinishedRaces.length).toBeGreaterThan(0);
+  });
+
+  it("should format decimal points in standings table to at most 2 decimal places", () => {
+    component.editingSeason = {
+      name: "Championship 2026",
+      drops: 0,
+      races: [],
+    };
+    component.standings = [
+      {
+        driver_id: "d1",
+        driver_name: "Max",
+        net_points: 33.333333333333336,
+        gross_points: 50.126,
+        races_run: 3,
+      },
+      {
+        driver_id: "d2",
+        driver_name: "Lewis",
+        net_points: 25,
+        gross_points: 25.5,
+        races_run: 2,
+      },
+    ];
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll(
+      ".standings-table tbody tr",
+    );
+    expect(rows.length).toBe(2);
+
+    const firstRowCols = rows[0].querySelectorAll("td");
+    expect(firstRowCols[2].textContent.trim()).toBe("33.33");
+    expect(firstRowCols[3].textContent.trim()).toBe("50.13");
+
+    const secondRowCols = rows[1].querySelectorAll("td");
+    expect(secondRowCols[2].textContent.trim()).toBe("25");
+    expect(secondRowCols[3].textContent.trim()).toBe("25.5");
+  });
+
+  it("should format decimal points in race breakdown table to at most 2 decimal places", () => {
+    component.editingSeason = {
+      name: "Championship 2026",
+      drops: 0,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [
+            {
+              driver_id: "d1",
+              driver_name: "Max",
+              overall_rank: 1,
+              overall_points: 25.3333,
+              overall_bonus_points: 1.555,
+              heat_points: 10.2,
+              heat_bonus_points: 0.777,
+              total_points: 37.8653,
+            },
+          ],
+        },
+      ],
+    };
+    component.expandedRaceIds.add("r1");
+    fixture.detectChanges();
+
+    const breakdownRows = fixture.nativeElement.querySelectorAll(
+      ".race-breakdown-table tbody tr",
+    );
+    expect(breakdownRows.length).toBe(1);
+
+    const cols = breakdownRows[0].querySelectorAll("td");
+    expect(cols[2].textContent.trim()).toBe("25.33");
+    expect(cols[3].textContent.trim()).toBe("1.56");
+    expect(cols[4].textContent.trim()).toBe("10.2");
+    expect(cols[5].textContent.trim()).toBe("0.78");
+    expect(cols[6].textContent.trim()).toBe("37.87");
+  });
+
+  it("should render badges in .season-meta under the season title in the header", () => {
+    component.editingSeason = {
+      name: "Summer Cup 2026",
+      drops: 1,
+      races: [{ race_id: "r1", is_demo: true } as any],
+    };
+    fixture.detectChanges();
+
+    const headerGroup = fixture.nativeElement.querySelector(
+      ".header-title-group",
+    );
+    const title = headerGroup.querySelector("h3");
+    const meta = headerGroup.querySelector(".season-meta");
+    const demoBadge = meta.querySelector(".demo-badge");
+    const metaPill = meta.querySelector(".meta-pill");
+
+    expect(title.textContent.trim()).toBe("Summer Cup 2026");
+    expect(demoBadge).toBeTruthy();
+    expect(metaPill.textContent).toContain("1");
   });
 });
