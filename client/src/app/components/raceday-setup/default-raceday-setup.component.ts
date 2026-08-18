@@ -1733,6 +1733,28 @@ export class DefaultRacedaySetupComponent implements OnInit {
         position: "top",
       },
       {
+        selector: ".event-details-card",
+        title: this.translationService.translate(
+          "RDS_HELP_SELECTION_SUMMARY_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RDS_HELP_SELECTION_SUMMARY_CONTENT",
+        ),
+        position: "top",
+      },
+      {
+        selector: ".search-wrapper",
+        title: this.translationService.translate("RDS_HELP_SEARCH_TITLE"),
+        content: this.translationService.translate("RDS_HELP_SEARCH_CONTENT"),
+        position: "top",
+      },
+      {
+        selector: ".season-selection-wrapper",
+        title: this.translationService.translate("RDS_HELP_SEASON_TITLE"),
+        content: this.translationService.translate("RDS_HELP_SEASON_CONTENT"),
+        position: "top",
+      },
+      {
         targetId: "race-card-0",
         title: this.translationService.translate("RDS_HELP_RECENT_RACE_TITLE"),
         content: this.translationService.translate(

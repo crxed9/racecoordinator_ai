@@ -1613,4 +1613,100 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(component.selectedRace).toBeUndefined();
     }));
   });
+
+  describe("getHelpSteps", () => {
+    it("should return the complete list of guide steps in correct order", () => {
+      const steps = component.getHelpSteps();
+      expect(steps.length).toBe(13);
+
+      expect(steps[0]).toEqual({
+        title: "RDS_HELP_WELCOME_TITLE",
+        content: "RDS_HELP_WELCOME_CONTENT",
+      });
+
+      expect(steps[1]).toEqual({
+        targetId: "racing-drivers-section",
+        title: "RDS_HELP_DRIVER_RACING_TITLE",
+        content: "RDS_HELP_DRIVER_RACING_CONTENT",
+        position: "right",
+      });
+
+      expect(steps[2]).toEqual({
+        selector: "#racing-drivers-section .section-header",
+        title: "RDS_HELP_DRIVER_ACTIONS_TITLE",
+        content: "RDS_HELP_DRIVER_ACTIONS_CONTENT",
+        position: "bottom",
+      });
+
+      expect(steps[3]).toEqual({
+        targetId: "available-drivers-section",
+        title: "RDS_HELP_DRIVER_AVAILABLE_TITLE",
+        content: "RDS_HELP_DRIVER_AVAILABLE_CONTENT",
+        position: "right",
+      });
+
+      expect(steps[4]).toEqual({
+        selector: "#available-drivers-section .header-actions",
+        title: "RDS_HELP_DRIVER_TEAM_STATS_TITLE",
+        content: "RDS_HELP_DRIVER_TEAM_STATS_CONTENT",
+        position: "right",
+      });
+
+      expect(steps[5]).toEqual({
+        selector: ".custom-dropdown-container",
+        title: "RDS_HELP_RACE_SELECTION_TITLE",
+        content: "RDS_HELP_RACE_SELECTION_CONTENT",
+        position: "top",
+      });
+
+      expect(steps[6]).toEqual({
+        selector: ".event-details-card",
+        title: "RDS_HELP_SELECTION_SUMMARY_TITLE",
+        content: "RDS_HELP_SELECTION_SUMMARY_CONTENT",
+        position: "top",
+      });
+
+      expect(steps[7]).toEqual({
+        selector: ".search-wrapper",
+        title: "RDS_HELP_SEARCH_TITLE",
+        content: "RDS_HELP_SEARCH_CONTENT",
+        position: "top",
+      });
+
+      expect(steps[8]).toEqual({
+        selector: ".season-selection-wrapper",
+        title: "RDS_HELP_SEASON_TITLE",
+        content: "RDS_HELP_SEASON_CONTENT",
+        position: "top",
+      });
+
+      expect(steps[9]).toEqual({
+        targetId: "race-card-0",
+        title: "RDS_HELP_RECENT_RACE_TITLE",
+        content: "RDS_HELP_RECENT_RACE_MOST_RECENT_CONTENT",
+        position: "bottom",
+      });
+
+      expect(steps[10]).toEqual({
+        targetId: "race-card-1",
+        title: "RDS_HELP_RECENT_RACE_TITLE",
+        content: "RDS_HELP_RECENT_RACE_CONTENT",
+        position: "bottom",
+      });
+
+      expect(steps[11]).toEqual({
+        selector: ".btn-start",
+        title: "RDS_HELP_START_RACE_TITLE",
+        content: "RDS_HELP_START_RACE_CONTENT",
+        position: "top",
+      });
+
+      expect(steps[12]).toEqual({
+        selector: ".btn-demo",
+        title: "RDS_HELP_START_DEMO_TITLE",
+        content: "RDS_HELP_START_DEMO_CONTENT",
+        position: "top",
+      });
+    });
+  });
 });
