@@ -16,6 +16,10 @@ test.describe("UI Editor Visuals", () => {
       uiEditorHelpShown: true,
     });
 
+    await page.addInitScript(() => {
+      localStorage.removeItem("ui_editor_expanders");
+    });
+
     await TestSetupHelper.setupFileSystemMock(page, {});
     await TestSetupHelper.disableAnimations(page);
   });
@@ -190,10 +194,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
-    // Expand Practice Raceday Layout section
-    await page
-      .locator(".section-header", { hasText: "Raceday Layout (Practice)" })
-      .click({ force: true });
+    // Expand Practice Raceday Layout section via unique header ID
+    const practiceHeader = page.locator("#help-practice-ui");
+    await practiceHeader.waitFor({ state: "visible" });
+    await practiceHeader.click();
 
     // Wait for the practice section content to be visible
     const practiceSection = page.locator(".practice-raceday-layout-section");
@@ -203,10 +207,12 @@ test.describe("UI Editor Visuals", () => {
     const columnToolbox = page.locator(".layout-customizer-toolbox").last();
     await columnToolbox.waitFor({ state: "visible" });
     await TestSetupHelper.waitForImagesLoaded(practiceSection);
-    const configSectionPractice = page.locator(".config-section").nth(1);
-    await configSectionPractice.scrollIntoViewIfNeeded();
+
+    // Scroll header into view to position section stably within scroll container
+    await practiceHeader.scrollIntoViewIfNeeded();
     await page.mouse.move(0, 0);
 
+    const configSectionPractice = page.locator(".config-section").nth(1);
     await expect(configSectionPractice).toHaveScreenshot(
       "ui-editor-practice-layout-section.png",
       {
@@ -232,7 +238,6 @@ test.describe("UI Editor Visuals", () => {
     await section.waitFor({ state: "visible" });
 
     const layoutControls = section.locator(".layout-controls").first();
-    await layoutControls.scrollIntoViewIfNeeded();
     await layoutControls.waitFor({ state: "visible" });
     await page.mouse.move(0, 0);
 
