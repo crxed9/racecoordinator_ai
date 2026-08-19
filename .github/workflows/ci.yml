@@ -110,18 +110,6 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('client/package-lock.json') }}
       - name: Install Playwright Browsers
         run: cd client && npx playwright install
-      - name: Use JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v3
-        with:
-          version: "25.1"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Generate Protobufs
-        run: cd server && chmod +x generate_protos.sh && ./generate_protos.sh
       - name: Run visual tests
         run: cd client && npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
       - name: Upload Playwright test results
