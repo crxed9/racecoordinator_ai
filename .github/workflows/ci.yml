@@ -31,7 +31,10 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Install Protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "25.1"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Protobufs
         run: cd server && chmod +x generate_protos.sh && ./generate_protos.sh
       - name: Install root dependencies
@@ -61,7 +64,10 @@ jobs:
         with:
           chrome-version: stable
       - name: Install Protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "25.1"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Protobufs
         run: cd server && chmod +x generate_protos.sh && ./generate_protos.sh
       - name: Run client tests
@@ -110,7 +116,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Install Protoc
-        run: apt-get update && apt-get install -y protobuf-compiler
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "25.1"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Protobufs
         run: cd server && chmod +x generate_protos.sh && ./generate_protos.sh
       - name: Run visual tests
@@ -143,7 +152,10 @@ jobs:
       - name: Install dependencies
         run: cd client && npm install --legacy-peer-deps
       - name: Install Protoc
-        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "25.1"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run server tests
         run: |
           chmod +x run_server_tests.sh
