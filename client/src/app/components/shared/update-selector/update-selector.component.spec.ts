@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 import { Role } from "@app/models/role";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { AuthService } from "@app/services/auth.service";
@@ -101,6 +101,7 @@ describe("UpdateSelectorComponent", () => {
   });
 
   it("should ignore channel selection when isChannelSelectionEnabled is false", () => {
+    (component as any).isChannelSelectionEnabled = false;
     mockAuthService.currentRole = Role.ADMIN;
     component.isUpdateDropdownOpen = true;
     spyOn(component.channelSelected, "emit");
@@ -116,7 +117,6 @@ describe("UpdateSelectorComponent", () => {
   });
 
   it("should allow admin to select a channel if isChannelSelectionEnabled is true", () => {
-    (component as any).isChannelSelectionEnabled = true;
     mockAuthService.currentRole = Role.ADMIN;
     component.isUpdateDropdownOpen = true;
     spyOn(component.channelSelected, "emit");
@@ -133,7 +133,6 @@ describe("UpdateSelectorComponent", () => {
   });
 
   it("should NOT allow non-admin (VIEWER) to select a channel even if isChannelSelectionEnabled is true", () => {
-    (component as any).isChannelSelectionEnabled = true;
     mockAuthService.currentRole = Role.VIEWER;
     component.isUpdateDropdownOpen = true;
     spyOn(component.channelSelected, "emit");
@@ -148,7 +147,35 @@ describe("UpdateSelectorComponent", () => {
     expect(mockUpdateService.setUpdateChannel).not.toHaveBeenCalled();
   });
 
-  it("should display disabled styling for channel options in template", () => {
+  it("should NOT allow DIRECTOR role to select a channel even if isChannelSelectionEnabled is true", () => {
+    mockAuthService.currentRole = Role.DIRECTOR;
+    component.isUpdateDropdownOpen = true;
+    spyOn(component.channelSelected, "emit");
+
+    const event = new MouseEvent("click");
+    spyOn(event, "stopPropagation");
+
+    component.selectChannel("BETA", event);
+
+    expect(component.currentChannel).toBe("ALPHA"); // Unchanged
+    expect(component.channelSelected.emit).not.toHaveBeenCalled();
+    expect(mockUpdateService.setUpdateChannel).not.toHaveBeenCalled();
+  });
+
+  it("should log error when setUpdateChannel fails on server", () => {
+    mockAuthService.currentRole = Role.ADMIN;
+    mockUpdateService.setUpdateChannel.and.returnValue(
+      throwError(() => new Error("Server error")),
+    );
+
+    const event = new MouseEvent("click");
+    component.selectChannel("BETA", event);
+
+    expect(mockLogger.error).toHaveBeenCalled();
+  });
+
+  it("should display disabled styling and admin-required tooltip for non-admin (VIEWER)", () => {
+    mockAuthService.currentRole = Role.VIEWER;
     component.isUpdateDropdownOpen = true;
     fixture.detectChanges();
 
@@ -157,5 +184,36 @@ describe("UpdateSelectorComponent", () => {
     );
     expect(betaItem).toBeTruthy();
     expect(betaItem.nativeElement.classList.contains("disabled")).toBeTrue();
+    expect(betaItem.nativeElement.getAttribute("title")).toBe(
+      "RDS_UPDATE_ADMIN_REQUIRED",
+    );
+  });
+
+  it("should display disabled styling and admin-required tooltip for non-admin (DIRECTOR)", () => {
+    mockAuthService.currentRole = Role.DIRECTOR;
+    component.isUpdateDropdownOpen = true;
+    fixture.detectChanges();
+
+    const betaItem = fixture.debugElement.query(
+      By.css('[data-testid="channel-beta"]'),
+    );
+    expect(betaItem).toBeTruthy();
+    expect(betaItem.nativeElement.classList.contains("disabled")).toBeTrue();
+    expect(betaItem.nativeElement.getAttribute("title")).toBe(
+      "RDS_UPDATE_ADMIN_REQUIRED",
+    );
+  });
+
+  it("should display enabled styling and empty tooltip for admin", () => {
+    mockAuthService.currentRole = Role.ADMIN;
+    component.isUpdateDropdownOpen = true;
+    fixture.detectChanges();
+
+    const betaItem = fixture.debugElement.query(
+      By.css('[data-testid="channel-beta"]'),
+    );
+    expect(betaItem).toBeTruthy();
+    expect(betaItem.nativeElement.classList.contains("disabled")).toBeFalse();
+    expect(betaItem.nativeElement.getAttribute("title")).toBe("");
   });
 });

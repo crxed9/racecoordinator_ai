@@ -59,7 +59,7 @@ jobs:
           COMMIT_SHA=$(git rev-parse HEAD)
           echo "commit_sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
           if [ "${{ github.event_name }}" == "schedule" ]; then
-            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            LATEST_TAG=$(git describe --tags --match "*-alpha*" --abbrev=0 2>/dev/null || echo "")
             if [ -n "$LATEST_TAG" ]; then
               COMMITS=$(git rev-list --count "$LATEST_TAG..HEAD")
               if [ "$COMMITS" -eq 0 ]; then
