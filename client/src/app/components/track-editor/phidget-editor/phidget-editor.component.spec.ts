@@ -331,4 +331,42 @@ describe("PhidgetEditorComponent", () => {
     };
     expect(component.getDeviceKey(hubDevice)).toBe("88888_true_2");
   });
+
+  it("should expand all sections when ensureSectionsExpanded is called", () => {
+    component.sectionsExpanded = {
+      phidget: false,
+      main: false,
+      pins: false,
+      digitalIn: false,
+      digitalOut: false,
+      analogIn: false,
+    };
+    component.ensureSectionsExpanded();
+    expect(component.sectionsExpanded.phidget).toBeTrue();
+    expect(component.sectionsExpanded.main).toBeTrue();
+    expect(component.sectionsExpanded.pins).toBeTrue();
+    expect(component.sectionsExpanded.digitalIn).toBeTrue();
+    expect(component.sectionsExpanded.digitalOut).toBeTrue();
+    expect(component.sectionsExpanded.analogIn).toBeTrue();
+  });
+
+  it("should return guide steps and expand appropriate sections onEnter", () => {
+    const steps = component.getHelpSteps();
+    expect(steps.length).toBeGreaterThanOrEqual(5);
+    expect(steps[0].selector).toBe("#phidget-editor-0");
+    expect(steps[0].title).toBe("TE_HELP_PHIDGET_TITLE");
+
+    component.sectionsExpanded.phidget = false;
+    component.sectionsExpanded.main = false;
+    steps[0].onEnter!();
+    expect(component.sectionsExpanded.phidget).toBeTrue();
+    expect(component.sectionsExpanded.main).toBeTrue();
+
+    // Check digital in step onEnter if digital in pins exist
+    if (steps.length > 5) {
+      component.sectionsExpanded.digitalIn = false;
+      steps[5].onEnter!();
+      expect(component.sectionsExpanded.digitalIn).toBeTrue();
+    }
+  });
 });

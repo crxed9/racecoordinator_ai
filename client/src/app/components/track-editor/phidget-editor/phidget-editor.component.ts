@@ -19,6 +19,7 @@ import {
   IPhidgetDeviceInfo,
   PinBehavior,
 } from "@app/proto/antigravity";
+import { GuideStep } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { TranslationService } from "@app/services/translation.service";
 
@@ -824,5 +825,118 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
           },
         });
     }
+  }
+
+  ensureSectionsExpanded(): void {
+    this.sectionsExpanded.phidget = true;
+    this.sectionsExpanded.main = true;
+    this.sectionsExpanded.pins = true;
+    this.sectionsExpanded.digitalIn = true;
+    this.sectionsExpanded.digitalOut = true;
+    this.sectionsExpanded.analogIn = true;
+    this.cdr.detectChanges();
+  }
+
+  getHelpSteps(): GuideStep[] {
+    const expandMain = () => {
+      this.sectionsExpanded.phidget = true;
+      this.sectionsExpanded.main = true;
+      this.cdr.detectChanges();
+    };
+    const expandDigitalIn = () => {
+      this.sectionsExpanded.phidget = true;
+      this.sectionsExpanded.digitalIn = true;
+      this.cdr.detectChanges();
+    };
+    const expandDigitalOut = () => {
+      this.sectionsExpanded.phidget = true;
+      this.sectionsExpanded.digitalOut = true;
+      this.cdr.detectChanges();
+    };
+    const expandAnalogIn = () => {
+      this.sectionsExpanded.phidget = true;
+      this.sectionsExpanded.analogIn = true;
+      this.cdr.detectChanges();
+    };
+
+    const steps: GuideStep[] = [
+      {
+        selector: `#phidget-editor-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_TITLE",
+        content: "TE_HELP_PHIDGET_CONTENT",
+        position: "right",
+        onEnter: expandMain,
+      },
+      {
+        selector: `#device-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_DEVICE_TITLE",
+        content: "TE_HELP_PHIDGET_DEVICE_CONTENT",
+        position: "bottom",
+        onEnter: expandMain,
+      },
+      {
+        selector: `#phidget-status-badge-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_STATUS_TITLE",
+        content: "TE_HELP_PHIDGET_STATUS_CONTENT",
+        position: "right",
+        onEnter: expandMain,
+      },
+      {
+        selector: `#phidget-nc-sensors-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_NC_SENSORS_TITLE",
+        content: "TE_HELP_PHIDGET_NC_SENSORS_CONTENT",
+        position: "bottom",
+        onEnter: expandMain,
+      },
+      {
+        selector: `#phidget-nc-relays-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_NC_RELAYS_TITLE",
+        content: "TE_HELP_PHIDGET_NC_RELAYS_CONTENT",
+        position: "bottom",
+        onEnter: expandMain,
+      },
+    ];
+
+    if (this.availableDigitalInputPins.length > 0) {
+      const firstPin = this.availableDigitalInputPins[0];
+      steps.push({
+        selector: `#phidget-in-item-${firstPin}-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_DIGITAL_IN_TITLE",
+        content: "TE_HELP_PHIDGET_DIGITAL_IN_CONTENT",
+        position: "bottom",
+        onEnter: expandDigitalIn,
+      });
+      steps.push({
+        selector: `#phidget-in-status-${firstPin}`,
+        title: "TE_HELP_PHIDGET_IN_STATUS_TITLE",
+        content: "TE_HELP_PHIDGET_IN_STATUS_CONTENT",
+        position: "bottom",
+        onEnter: expandDigitalIn,
+      });
+    }
+
+    if (this.availableDigitalOutputPins.length > 0) {
+      const firstPin = this.availableDigitalOutputPins[0];
+      steps.push({
+        selector: `#phidget-out-item-${firstPin}-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_DIGITAL_OUT_TITLE",
+        content: "TE_HELP_PHIDGET_DIGITAL_OUT_CONTENT",
+        position: "bottom",
+        onEnter: expandDigitalOut,
+      });
+    }
+
+    if (this.availableAnalogInputPins.length > 0) {
+      const firstPin = this.availableAnalogInputPins[0];
+      steps.push({
+        selector: `#phidget-analog-item-${firstPin}-${this.interfaceIndex()}`,
+        title: "TE_HELP_PHIDGET_ANALOG_IN_TITLE",
+        content: "TE_HELP_PHIDGET_ANALOG_IN_CONTENT",
+        position: "bottom",
+        onEnter: expandAnalogIn,
+      });
+    }
+
+    return steps;
   }
 }
