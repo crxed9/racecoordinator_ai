@@ -48,6 +48,22 @@ function normalizeVersion(ver) {
   return parts.slice(0, 3).join('.');
 }
 
+function getReleaseTitle(version, isPrerelease) {
+  const isPre = isPrerelease === 'true' || isPrerelease === true;
+  if (!isPre) {
+    return `Race Coordinator AI v${version} (Official Release)`;
+  }
+  if (version.includes('-beta.')) {
+    const parts = version.split('-beta.');
+    return `Race Coordinator AI v${parts[0]} Beta ${parts[1]}`;
+  }
+  if (version.includes('-alpha.')) {
+    const parts = version.split('-alpha.');
+    return `Race Coordinator AI v${parts[0]} Alpha (${parts[1]})`;
+  }
+  return `Race Coordinator AI v${version}`;
+}
+
 function determineVersion(eventName, ref, overrideVersion, customTags, customRootVersion, customCommitHash) {
   // 1. Manual release (workflow_dispatch) checks
   if (eventName === 'workflow_dispatch') {
@@ -63,7 +79,8 @@ function determineVersion(eventName, ref, overrideVersion, customTags, customRoo
       return {
         version: cleanVer,
         tag: `v${cleanVer}`,
-        isPrerelease: isPrerelease ? 'true' : 'false'
+        isPrerelease: isPrerelease ? 'true' : 'false',
+        releaseTitle: getReleaseTitle(cleanVer, isPrerelease)
       };
     }
 
@@ -74,7 +91,8 @@ function determineVersion(eventName, ref, overrideVersion, customTags, customRoo
     return {
       version,
       tag: `v${version}`,
-      isPrerelease: 'true'
+      isPrerelease: 'true',
+      releaseTitle: getReleaseTitle(version, true)
     };
   }
 
@@ -85,7 +103,8 @@ function determineVersion(eventName, ref, overrideVersion, customTags, customRoo
     return {
       version: cleanVer,
       tag: `v${cleanVer}`,
-      isPrerelease: isPrerelease ? 'true' : 'false'
+      isPrerelease: isPrerelease ? 'true' : 'false',
+      releaseTitle: getReleaseTitle(cleanVer, isPrerelease)
     };
   }
 
@@ -97,7 +116,8 @@ function determineVersion(eventName, ref, overrideVersion, customTags, customRoo
     return {
       version: cleanVer,
       tag: rawTag.startsWith('v') ? rawTag : `v${rawTag}`,
-      isPrerelease: isPrerelease ? 'true' : 'false'
+      isPrerelease: isPrerelease ? 'true' : 'false',
+      releaseTitle: getReleaseTitle(cleanVer, isPrerelease)
     };
   }
 
@@ -113,7 +133,8 @@ function determineVersion(eventName, ref, overrideVersion, customTags, customRoo
     return {
       version,
       tag: `v${version}`,
-      isPrerelease: 'true'
+      isPrerelease: 'true',
+      releaseTitle: getReleaseTitle(version, true)
     };
   }
 
@@ -139,7 +160,8 @@ function determineVersion(eventName, ref, overrideVersion, customTags, customRoo
     return {
       version,
       tag: `v${version}`,
-      isPrerelease: 'true'
+      isPrerelease: 'true',
+      releaseTitle: getReleaseTitle(version, true)
     };
   }
 
@@ -167,7 +189,8 @@ function determineVersion(eventName, ref, overrideVersion, customTags, customRoo
   return {
     version,
     tag: `v${version}`,
-    isPrerelease: 'false'
+    isPrerelease: 'false',
+    releaseTitle: getReleaseTitle(version, false)
   };
 }
 
@@ -183,12 +206,14 @@ function main() {
     console.log(`  Version:       ${result.version}`);
     console.log(`  Tag:           ${result.tag}`);
     console.log(`  Is Prerelease: ${result.isPrerelease}`);
+    console.log(`  Release Title: ${result.releaseTitle}`);
 
     const githubOutput = process.env.GITHUB_OUTPUT;
     if (githubOutput) {
       fs.appendFileSync(githubOutput, `version=${result.version}\n`);
       fs.appendFileSync(githubOutput, `tag=${result.tag}\n`);
       fs.appendFileSync(githubOutput, `is_prerelease=${result.isPrerelease}\n`);
+      fs.appendFileSync(githubOutput, `release_title=${result.releaseTitle}\n`);
     }
   } catch (err) {
     console.error(`Error determining release version: ${err.message}`);
@@ -205,5 +230,6 @@ module.exports = {
   getExistingTags,
   getCommitHash,
   normalizeVersion,
-  determineVersion
+  determineVersion,
+  getReleaseTitle
 };

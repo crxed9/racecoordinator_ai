@@ -32,6 +32,7 @@ jobs:
       version: ${{ steps.check.outputs.version }}
       tag: ${{ steps.check.outputs.tag }}
       is_prerelease: ${{ steps.check.outputs.is_prerelease }}
+      release_title: ${{ steps.check.outputs.release_title }}
       commit_sha: ${{ steps.check.outputs.commit_sha }}
     steps:
       - uses: actions/checkout@v4
@@ -289,21 +290,58 @@ jobs:
             (cd final-release && zip -r "RaceCoordinatorAI_Coverage_Reports_${TAG}.zip" coverage && rm -rf coverage) || true
           fi
 
+      - name: Generate Release Body
+        run: |
+          TAG="${{ needs.check-changes.outputs.tag }}"
+          TITLE="${{ needs.check-changes.outputs.release_title }}"
+          IS_PRERELEASE="${{ needs.check-changes.outputs.is_prerelease }}"
+
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            if [[ "$TAG" == *"beta"* ]]; then
+              STATUS_BADGE="> 🟡 **Beta Prerelease** — Preview of upcoming features for testing and feedback."
+            else
+              STATUS_BADGE="> 🔵 **Nightly / Alpha Build** — Automated snapshot build from active development."
+            fi
+          else
+            STATUS_BADGE="> 🟢 **Official Stable Release** — Recommended for all general and race-day users."
+          fi
+
+          cat << EOF > release_body.md
+          ## 🏎️ ${TITLE}
+
+          ${STATUS_BADGE}
+
+          ---
+
+          ### 💻 Recommended Downloads
+
+          | Operating System | Installer File | Notes |
+          | :--- | :--- | :--- |
+          | **🪟 Windows (10 / 11)** | \`RaceCoordinatorAI_Online_Setup_${TAG}.exe\` | **Recommended** — Fast online setup that automatically downloads required components. |
+          | **🪟 Windows (8, 7, XP / Offline)** | \`RaceCoordinatorAI_Offline_Setup_${TAG}.exe\` | **Standalone** — Full installer with bundled runtime. *Required for first-time installation on Win 8 and older.* |
+          | **🍏 macOS** | \`RaceCoordinator_Mac_${TAG}.dmg\` | Disk Image for macOS (Intel & Apple Silicon). Drag to \`Applications\`. |
+          | **🐧 Linux / Raspberry Pi** | \`RaceCoordinatorAI-Linux-ARM64_${TAG}.tar.gz\` | Compressed archive for ARM64 Linux / Raspberry Pi OS. |
+
+          > **💡 Tip for Non-Technical Users**: You do **not** need to download the source code zip or test coverage files to run Race Coordinator AI.
+
+          ---
+
+          <details>
+          <summary>🔍 <b>Developer & QA Reports (Click to expand)</b></summary>
+
+          - **Automated Test Coverage**: \`RaceCoordinatorAI_Coverage_Reports_${TAG}.zip\` *(Unzip and open \`index.html\` to view the unified Client & Server coverage dashboard)*
+          </details>
+          EOF
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.TAG }}
-          name: ${{ env.TAG }}
+          name: ${{ needs.check-changes.outputs.release_title }}
           target_commitish: ${{ needs.check-changes.outputs.commit_sha }}
           prerelease: ${{ env.IS_PRERELEASE == 'true' }}
-          body: |
-            ### 🏎️ Race Coordinator AI Release ${{ env.TAG }}
-
-            #### 📦 Release Assets & Downloads
-            - **Windows**: `RaceCoordinatorAI_Online_Setup_${{ env.TAG }}.exe` / `RaceCoordinatorAI_Offline_Setup_${{ env.TAG }}.exe`
-            - **macOS**: `RaceCoordinator_Mac_${{ env.TAG }}.dmg`
-            - **Linux (ARM64)**: `RaceCoordinatorAI-Linux-ARM64_${{ env.TAG }}.tar.gz`
-            - **Test Coverage**: `RaceCoordinatorAI_Coverage_Reports_${{ env.TAG }}.zip` *(Unzip and open `index.html` to view the unified Client & Server coverage dashboard)*
+          body_path: release_body.md
           files: |
             final-release/*
+
