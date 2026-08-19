@@ -35,7 +35,7 @@ export class UpdateSelectorComponent implements OnInit {
 
   currentChannel: UpdateChannel = "ALPHA";
   isUpdateDropdownOpen = false;
-  readonly isChannelSelectionEnabled = false;
+  readonly isChannelSelectionEnabled = true;
 
   readonly channels: ChannelOption[] = [
     { id: "PRODUCTION", labelKey: "RDS_UPDATE_CHANNEL_PRODUCTION" },

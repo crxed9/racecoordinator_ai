@@ -1,5 +1,6 @@
 package com.antigravity.service;
 
+import com.antigravity.App;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -130,9 +131,26 @@ public class ServerConfigService {
 
   public String getUpdateChannel() {
     if (config.updateChannel == null || config.updateChannel.isEmpty()) {
-      return "ALPHA";
+      return getDefaultUpdateChannel();
     }
     return config.updateChannel;
+  }
+
+  public static String getDefaultUpdateChannel() {
+    return getDefaultUpdateChannel(App.SERVER_VERSION);
+  }
+
+  public static String getDefaultUpdateChannel(String version) {
+    if (version == null) {
+      return "PRODUCTION";
+    }
+    String lower = version.toLowerCase();
+    if (lower.contains("alpha") || lower.equals("0.0.0_dev")) {
+      return "ALPHA";
+    } else if (lower.contains("beta")) {
+      return "BETA";
+    }
+    return "PRODUCTION";
   }
 
   public void setUpdateChannel(String channel) {
