@@ -7,6 +7,13 @@ on:
       - "release/**"
     tags:
       - "v*"
+    paths-ignore:
+      - "README.md"
+      - "DEVELOPMENT.md"
+      - "ANALYTICS.md"
+      - "docs/**"
+      - "help_center/**"
+      - ".agent/**"
   schedule:
     - cron: '0 6 * * *' # 2 AM EDT (6 AM UTC)
   workflow_dispatch:
