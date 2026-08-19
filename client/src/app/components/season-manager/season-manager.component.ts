@@ -28,9 +28,11 @@ import {
   ConnectionMonitorService,
   ConnectionState,
 } from "@app/services/connection-monitor.service";
+import { GuideStep } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { NavigationService } from "@app/services/navigation.service";
 import { SettingsService } from "@app/services/settings.service";
+import { TranslationService } from "@app/services/translation.service";
 import { naturalSortCompare } from "@app/utils/sorting.utils";
 
 @Component({
@@ -73,6 +75,7 @@ export class SeasonManagerComponent implements OnInit, OnDestroy {
   private navigationService = inject(NavigationService);
   private settingsService = inject(SettingsService);
   private connectionMonitor = inject(ConnectionMonitorService);
+  private translationService = inject(TranslationService);
 
   private connectionSub?: Subscription;
 
@@ -355,5 +358,70 @@ export class SeasonManagerComponent implements OnInit, OnDestroy {
 
   onBack(): void {
     this.router.navigate(["/raceday-setup"]);
+  }
+
+  getHelpSteps(): GuideStep[] {
+    const demoStep: GuideStep = this.hasDemoRaces
+      ? {
+          selector: "#season-detail-demo-badge",
+          title: this.translationService.translate("SM_HELP_DEMO_BADGE_TITLE"),
+          content: this.translationService.translate(
+            "SM_HELP_DEMO_BADGE_PRESENT_CONTENT",
+          ),
+          position: "bottom",
+        }
+      : {
+          selector: "#season-detail-meta",
+          title: this.translationService.translate("SM_HELP_DEMO_BADGE_TITLE"),
+          content: this.translationService.translate(
+            "SM_HELP_DEMO_BADGE_ABSENT_CONTENT",
+          ),
+          position: "bottom",
+        };
+
+    return [
+      {
+        title: this.translationService.translate("SM_HELP_WELCOME_TITLE"),
+        content: this.translationService.translate("SM_HELP_WELCOME_CONTENT"),
+        position: "center",
+      },
+      {
+        selector: "#season-list-container",
+        title: this.translationService.translate("SM_HELP_LIST_TITLE"),
+        content: this.translationService.translate("SM_HELP_LIST_CONTENT"),
+        position: "right",
+      },
+      {
+        selector: "#season-search-bar",
+        title: this.translationService.translate("SM_HELP_SEARCH_TITLE"),
+        content: this.translationService.translate("SM_HELP_SEARCH_CONTENT"),
+        position: "right",
+      },
+      {
+        selector: "#season-detail-name",
+        title: this.translationService.translate("SM_HELP_NAME_TITLE"),
+        content: this.translationService.translate("SM_HELP_NAME_CONTENT"),
+        position: "bottom",
+      },
+      {
+        selector: "#season-detail-drops",
+        title: this.translationService.translate("SM_HELP_DROPS_TITLE"),
+        content: this.translationService.translate("SM_HELP_DROPS_CONTENT"),
+        position: "bottom",
+      },
+      {
+        selector: "#season-detail-races",
+        title: this.translationService.translate("SM_HELP_RACES_RUN_TITLE"),
+        content: this.translationService.translate("SM_HELP_RACES_RUN_CONTENT"),
+        position: "bottom",
+      },
+      demoStep,
+      {
+        selector: "#season-detail-standings",
+        title: this.translationService.translate("SM_HELP_STANDINGS_TITLE"),
+        content: this.translationService.translate("SM_HELP_STANDINGS_CONTENT"),
+        position: "left",
+      },
+    ];
   }
 }
