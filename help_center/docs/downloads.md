@@ -1,33 +1,32 @@
 # 📥 Download Race Coordinator AI
 
-Welcome to the **Race Coordinator AI** download and release portal. Download the latest installer for your operating system or explore the release archive below.
+Welcome to the **Race Coordinator AI** download and release portal. Download the latest installer for your operating system or explore available releases below.
 
 ---
 
-## 💻 Latest Release Downloads
+## 🚀 Latest Version Downloads
 
-Select the installer that matches your operating system:
+<div id="latest-release-banner" style="margin-bottom: 1em;">
+  <p><strong>Current Latest Version</strong>: <code id="latest-version-tag">v1.0.0-beta.12</code> <span id="latest-version-label"><em>(Beta Preview — Help us test upcoming features!)</em></span></p>
+</div>
 
-| Operating System | Recommended Download | Package Type | System Requirements |
-| :--- | :--- | :--- | :--- |
-| **🪟 Windows (10 / 11)** | [**⬇️ Download Windows Online Setup**](https://github.com/daufderheide/racecoordinator_ai/releases/latest/download/RaceCoordinatorAI_Online_Setup.exe){ .md-button .md-button--primary } | Online Setup *(Fast, automatic component downloader)* | Windows 10 or 11 (64-bit or 32-bit), Internet connection during install |
-| **🪟 Windows (8, 7, XP / Offline)** | [**⬇️ Download Offline Standalone**](https://github.com/daufderheide/racecoordinator_ai/releases/latest/download/RaceCoordinatorAI_Offline_Setup.exe){ .md-button } | Full Offline Installer *(Bundled runtime)* | Windows XP SP3, 7, 8, 10, or 11; No internet required |
-| **🍏 macOS** | [**⬇️ Download macOS DMG**](https://github.com/daufderheide/racecoordinator_ai/releases/latest/download/RaceCoordinator_Mac.dmg){ .md-button } | Universal Disk Image (`.dmg`) | macOS 10.15 (Catalina) through macOS 15+ (Intel & Apple Silicon) |
-| **🐧 Linux / Raspberry Pi** | [**⬇️ Download Linux ARM64**](https://github.com/daufderheide/racecoordinator_ai/releases/latest/download/RaceCoordinatorAI-Linux-ARM64.tar.gz){ .md-button } | Compressed Archive (`.tar.gz`) | Raspberry Pi OS 64-bit, Debian, Ubuntu ARM64 |
+| Operating System | ⬇️ Direct Download Link | Version | Package Type | System Requirements |
+| :--- | :--- | :--- | :--- | :--- |
+| **🪟 Windows (10 / 11)** | <a id="dl-win-online" href="https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.12/RaceCoordinatorAI_Online_Setup_v1.0.0-beta.12.exe" class="md-button md-button--primary"><strong>⬇️ Download Windows Setup</strong></a> | <code class="latest-version-str">v1.0.0-beta.12</code> | Online Setup *(Fast, automatic component downloader)* | Windows 10 or 11 (64-bit or 32-bit), Internet connection during install |
+| **🪟 Windows (8, 7, XP / Offline)** | <a id="dl-win-offline" href="https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.12/RaceCoordinatorAI_Offline_Setup_v1.0.0-beta.12.exe" class="md-button"><strong>⬇️ Download Offline Standalone</strong></a> | <code class="latest-version-str">v1.0.0-beta.12</code> | Full Offline Installer *(Bundled runtime)* | Windows XP SP3, 7, 8, 10, or 11; No internet required |
+| **🍏 macOS (Intel & Apple Silicon)** | <a id="dl-mac" href="https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.12/RaceCoordinator_Mac_v1.0.0-beta.12.dmg" class="md-button"><strong>⬇️ Download macOS DMG</strong></a> | <code class="latest-version-str">v1.0.0-beta.12</code> | Universal Disk Image (`.dmg`) | macOS 10.15 (Catalina) through macOS 15+ (Intel & Apple Silicon) |
+| **🐧 Linux / Raspberry Pi (ARM64)** | <a id="dl-linux" href="https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.12/RaceCoordinatorAI-Linux-ARM64_v1.0.0-beta.12.tar.gz" class="md-button"><strong>⬇️ Download Linux Package</strong></a> | <code class="latest-version-str">v1.0.0-beta.12</code> | Compressed Archive (`.tar.gz`) | Raspberry Pi OS 64-bit, Debian, Ubuntu ARM64 |
 
-> 💡 **Need help getting started?** Check out the [Installation & Setup Guide](installation.md) for step-by-step instructions and first-time configuration.
+> 💡 **Need help installing?** Check out the [Installation & Setup Guide](installation.md) for step-by-step installation instructions for each operating system.
 
 ---
 
-## 📦 Release Archive & Channels
+## 📦 Available Releases
 
-Race Coordinator AI uses three release channels:
+Explore all currently available releases, sorted from most recent to oldest:
 
 * 🟢 **Official Stable Releases**: Fully validated, production-ready builds recommended for all general and club race operations.
-* 🟡 **Beta Previews**: Feature-rich preview builds released during active development cycles for community testing and feedback. *(Note: Beta releases for a version are retired once that version's official release is published).*
-* 🔵 **Alpha / Nightly Builds**: Automated snapshot builds containing the latest code from the development branch.
-
----
+* 🟡 **Beta Previews**: Feature preview builds released during active development cycles for testing and feedback. *(Note: Beta releases for a version are retired once that version's official release is published).*
 
 <div id="release-loading" style="padding: 1.5em; text-align: center; color: var(--md-default-fg-color--light);">
   ⏳ <em>Loading available releases from GitHub...</em>
@@ -45,19 +44,24 @@ Race Coordinator AI uses three release channels:
       <p><em>Loading beta releases...</em></p>
     </div>
 
-=== "🔵 Alpha / Nightly Builds"
-    <div id="alpha-releases-list">
-      <p><em>Loading alpha releases...</em></p>
-    </div>
-
 </div>
 
 <noscript>
 <div class="admonition note">
-<p class="admonition-title">JavaScript Required for Live Archive</p>
-<p>JavaScript is disabled in your browser. You can view all releases and download files directly on the <a href="https://github.com/daufderheide/racecoordinator_ai/releases">GitHub Releases Page</a>.</p>
+<p class="admonition-title">JavaScript Required for Live Catalog</p>
+<p>JavaScript is disabled in your browser. You can browse all available releases directly on the <a href="https://github.com/daufderheide/racecoordinator_ai/releases">GitHub Releases Page</a>.</p>
 </div>
 </noscript>
+
+---
+
+## 🗄️ Release Archive
+
+Looking for older legacy releases, alpha snapshot builds, or complete source code archives?
+
+👉 **[Browse Full Release Archive on GitHub](https://github.com/daufderheide/racecoordinator_ai/releases)**
+
+---
 
 <script>
 (function() {
@@ -81,39 +85,75 @@ Race Coordinator AI uses three release channels:
     }
   }
 
+  function parseVersion(tag) {
+    const match = (tag || '').match(/^v?(\d+)\.(\d+)(?:\.(\d+))?(?:-([a-zA-Z]+)(?:\.(\d+))?)?/);
+    if (!match) return { major: 0, minor: 0, patch: 0, prereleaseType: null, prereleaseNum: 0, raw: tag };
+    return {
+      major: parseInt(match[1], 10) || 0,
+      minor: parseInt(match[2], 10) || 0,
+      patch: parseInt(match[3], 10) || 0,
+      prereleaseType: match[4] || null,
+      prereleaseNum: match[5] ? parseInt(match[5], 10) : 0,
+      raw: tag
+    };
+  }
+
+  function compareReleases(a, b) {
+    const vA = parseVersion(a.tag_name);
+    const vB = parseVersion(b.tag_name);
+    if (vA.major !== vB.major) return vB.major - vA.major;
+    if (vA.minor !== vB.minor) return vB.minor - vA.minor;
+    if (vA.patch !== vB.patch) return vB.patch - vA.patch;
+    
+    if (!vA.prereleaseType && vB.prereleaseType) return -1;
+    if (vA.prereleaseType && !vB.prereleaseType) return 1;
+
+    if (vA.prereleaseNum !== vB.prereleaseNum) {
+      return vB.prereleaseNum - vA.prereleaseNum;
+    }
+
+    const dateA = new Date(a.published_at || a.created_at || 0).getTime();
+    const dateB = new Date(b.published_at || b.created_at || 0).getTime();
+    return dateB - dateA;
+  }
+
+  function findAssets(rel) {
+    let winOnline = null;
+    let winOffline = null;
+    let mac = null;
+    let linux = null;
+
+    if (rel.assets && rel.assets.length > 0) {
+      for (const asset of rel.assets) {
+        const aname = asset.name.toLowerCase();
+        if (aname.includes('online') && aname.endsWith('.exe')) winOnline = asset;
+        else if (aname.includes('offline') && aname.endsWith('.exe')) winOffline = asset;
+        else if (aname.endsWith('.dmg')) mac = asset;
+        else if (aname.includes('linux') && aname.endsWith('.tar.gz')) linux = asset;
+      }
+    }
+    return { winOnline, winOffline, mac, linux };
+  }
+
   function renderReleaseCard(rel) {
     const isPre = rel.prerelease;
     const tag = rel.tag_name || '';
     const name = rel.name || tag;
     const dateStr = formatDate(rel.published_at || rel.created_at);
-    
-    let winOnlineAsset = null;
-    let winOfflineAsset = null;
-    let macAsset = null;
-    let linuxAsset = null;
-
-    if (rel.assets && rel.assets.length > 0) {
-      for (const asset of rel.assets) {
-        const aname = asset.name.toLowerCase();
-        if (aname.includes('online') && aname.endsWith('.exe')) winOnlineAsset = asset;
-        else if (aname.includes('offline') && aname.endsWith('.exe')) winOfflineAsset = asset;
-        else if (aname.endsWith('.dmg')) macAsset = asset;
-        else if (aname.includes('linux') && aname.endsWith('.tar.gz')) linuxAsset = asset;
-      }
-    }
+    const { winOnline, winOffline, mac, linux } = findAssets(rel);
 
     let downloadButtons = '';
-    if (winOnlineAsset) {
-      downloadButtons += `<a href="${winOnlineAsset.browser_download_url}" class="md-button md-button--primary" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🪟 Windows Setup (${formatBytes(winOnlineAsset.size)})</a> `;
+    if (winOnline) {
+      downloadButtons += `<a href="${winOnline.browser_download_url}" class="md-button md-button--primary" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🪟 Windows Setup (${formatBytes(winOnline.size)})</a> `;
     }
-    if (winOfflineAsset) {
-      downloadButtons += `<a href="${winOfflineAsset.browser_download_url}" class="md-button" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🪟 Offline Setup (${formatBytes(winOfflineAsset.size)})</a> `;
+    if (winOffline) {
+      downloadButtons += `<a href="${winOffline.browser_download_url}" class="md-button" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🪟 Offline Setup (${formatBytes(winOffline.size)})</a> `;
     }
-    if (macAsset) {
-      downloadButtons += `<a href="${macAsset.browser_download_url}" class="md-button" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🍏 macOS DMG (${formatBytes(macAsset.size)})</a> `;
+    if (mac) {
+      downloadButtons += `<a href="${mac.browser_download_url}" class="md-button" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🍏 macOS DMG (${formatBytes(mac.size)})</a> `;
     }
-    if (linuxAsset) {
-      downloadButtons += `<a href="${linuxAsset.browser_download_url}" class="md-button" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🐧 Linux ARM64 (${formatBytes(linuxAsset.size)})</a> `;
+    if (linux) {
+      downloadButtons += `<a href="${linux.browser_download_url}" class="md-button" style="margin: 0.25em 0.25em 0.25em 0; font-size: 0.85em;">🐧 Linux ARM64 (${formatBytes(linux.size)})</a> `;
     }
 
     if (!downloadButtons) {
@@ -139,6 +179,36 @@ Race Coordinator AI uses three release channels:
     `;
   }
 
+  function updateLatestReleaseTable(latestRel) {
+    if (!latestRel) return;
+    const tag = latestRel.tag_name || '';
+    const isPre = latestRel.prerelease || tag.includes('beta') || tag.includes('alpha');
+    const labelText = isPre
+      ? '*(Beta Preview — Help us test upcoming features!)*'
+      : '*(Official Stable Release)*';
+
+    const tagEl = document.getElementById('latest-version-tag');
+    const labelEl = document.getElementById('latest-version-label');
+    if (tagEl) tagEl.textContent = tag;
+    if (labelEl) labelEl.innerHTML = `<em>${labelText}</em>`;
+
+    const versionCells = document.querySelectorAll('.latest-version-str');
+    versionCells.forEach(cell => {
+      cell.textContent = tag;
+    });
+
+    const { winOnline, winOffline, mac, linux } = findAssets(latestRel);
+    const winOnlineBtn = document.getElementById('dl-win-online');
+    const winOfflineBtn = document.getElementById('dl-win-offline');
+    const macBtn = document.getElementById('dl-mac');
+    const linuxBtn = document.getElementById('dl-linux');
+
+    if (winOnline && winOnlineBtn) winOnlineBtn.href = winOnline.browser_download_url;
+    if (winOffline && winOfflineBtn) winOfflineBtn.href = winOffline.browser_download_url;
+    if (mac && macBtn) macBtn.href = mac.browser_download_url;
+    if (linux && linuxBtn) linuxBtn.href = linux.browser_download_url;
+  }
+
   fetch(apiUrl)
     .then(res => {
       if (!res.ok) throw new Error('Status ' + res.status);
@@ -149,7 +219,6 @@ Race Coordinator AI uses three release channels:
       const containerEl = document.getElementById('release-container');
       const officialList = document.getElementById('official-releases-list');
       const betaList = document.getElementById('beta-releases-list');
-      const alphaList = document.getElementById('alpha-releases-list');
 
       if (!Array.isArray(releases) || releases.length === 0) {
         if (loadingEl) loadingEl.innerHTML = '<p>No releases found.</p>';
@@ -158,17 +227,25 @@ Race Coordinator AI uses three release channels:
 
       const officials = [];
       const betas = [];
-      const alphas = [];
 
       for (const rel of releases) {
         const tag = (rel.tag_name || '').toLowerCase();
         if (tag.includes('alpha')) {
-          alphas.push(rel);
+          continue; // Alphas belong in Release Archive on GitHub
         } else if (tag.includes('beta') || rel.prerelease) {
           betas.push(rel);
         } else {
           officials.push(rel);
         }
+      }
+
+      officials.sort(compareReleases);
+      betas.sort(compareReleases);
+
+      // Determine latest between official and beta
+      const candidates = [...officials, ...betas].sort(compareReleases);
+      if (candidates.length > 0) {
+        updateLatestReleaseTable(candidates[0]);
       }
 
       if (officialList) {
@@ -183,24 +260,17 @@ Race Coordinator AI uses three release channels:
           : '<p style="color: var(--md-default-fg-color--light);"><em>No active beta preview releases at this time.</em></p>';
       }
 
-      if (alphaList) {
-        alphaList.innerHTML = alphas.length > 0
-          ? alphas.map(renderReleaseCard).join('')
-          : '<p style="color: var(--md-default-fg-color--light);"><em>No nightly/alpha builds found.</em></p>';
-      }
-
       if (loadingEl) loadingEl.style.display = 'none';
       if (containerEl) containerEl.style.display = 'block';
     })
     .catch(err => {
       console.warn('Failed to load GitHub releases dynamically:', err);
       const loadingEl = document.getElementById('release-loading');
-      const containerEl = document.getElementById('release-container');
       if (loadingEl) {
         loadingEl.innerHTML = `
           <div class="admonition note">
-            <p class="admonition-title">Release Archive</p>
-            <p>Direct download links are available in the table above. You can also browse the full archive on the <a href="https://github.com/daufderheide/racecoordinator_ai/releases" target="_blank" rel="noopener">GitHub Releases Page</a>.</p>
+            <p class="admonition-title">Release Catalog</p>
+            <p>Direct download links for the current release are available in the table above. You can also browse all past releases on the <a href="https://github.com/daufderheide/racecoordinator_ai/releases" target="_blank" rel="noopener">GitHub Releases Page</a>.</p>
           </div>
         `;
       }
