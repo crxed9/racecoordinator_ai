@@ -378,6 +378,7 @@ jobs:
 
       - name: Create Pull Request for README
         uses: peter-evans/create-pull-request@v6
+        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           add-paths: |
@@ -385,7 +386,7 @@ jobs:
           commit-message: "docs: update latest download links to ${{ env.TAG }} [skip ci]"
           title: "docs: update latest download links to ${{ env.TAG }}"
           body: "Automated PR to update the README with the latest download links for release ${{ env.TAG }}."
-          branch: "chore/update-readme-${{ env.TAG }}"
+          branch: "docs/update-readme-${{ env.TAG }}"
           base: "main"
 
 
