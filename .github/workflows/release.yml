@@ -372,8 +372,7 @@ jobs:
       - name: Update README on Main
         run: |
           git fetch origin main
-          git checkout main
-          git pull origin main
+          git checkout origin/main -- README.md
           node scripts/update_readme_downloads.js "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
 
       - name: Create Pull Request for README
