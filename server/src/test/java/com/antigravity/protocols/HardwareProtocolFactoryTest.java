@@ -48,4 +48,36 @@ public class HardwareProtocolFactoryTest {
     assertEquals(1, protocols.get(1).getInterfaceIndex());
     assertEquals(2, protocols.get(2).getInterfaceIndex());
   }
+
+  @Test
+  public void testCreateProtocolsForTrack_NullTrack_ReturnsEmpty() {
+    List<IProtocol> protocols = HardwareProtocolFactory.createProtocolsForTrack(null, null);
+    assertTrue(protocols.isEmpty());
+  }
+
+  @Test
+  public void testCreateProtocolsForTrack_MultiplePhidgets() {
+    List<Lane> lanes = new ArrayList<>();
+    lanes.add(new Lane("Lane 1", "#FF0000", 0));
+    lanes.add(new Lane("Lane 2", "#00FF00", 1));
+
+    PhidgetConfig phidget1 = new PhidgetConfig();
+    phidget1.name = "Phidget 1";
+    PhidgetConfig phidget2 = new PhidgetConfig();
+    phidget2.name = "Phidget 2";
+
+    Track track =
+        new Track.Builder()
+            .name("Dual Phidget Track")
+            .lanes(lanes)
+            .phidgetConfigs(java.util.Arrays.asList(phidget1, phidget2))
+            .build();
+
+    List<IProtocol> protocols = HardwareProtocolFactory.createProtocolsForTrack(track, null);
+    assertEquals(2, protocols.size());
+    assertTrue(protocols.get(0) instanceof PhidgetProtocol);
+    assertTrue(protocols.get(1) instanceof PhidgetProtocol);
+    assertEquals(0, protocols.get(0).getInterfaceIndex());
+    assertEquals(1, protocols.get(1).getInterfaceIndex());
+  }
 }

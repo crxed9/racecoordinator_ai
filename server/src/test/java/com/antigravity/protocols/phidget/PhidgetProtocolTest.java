@@ -398,6 +398,93 @@ public class PhidgetProtocolTest {
   }
 
   @Test
+  public void testNormallyClosedRelaysAndLaneSensorsGetters() {
+    config.normallyClosedLaneSensors = true;
+    config.normallyClosedRelays = true;
+    assertTrue(protocol.isNormallyClosedLaneSensors());
+    assertTrue(protocol.isNormallyClosedRelays());
+
+    config.normallyClosedLaneSensors = false;
+    config.normallyClosedRelays = false;
+    assertFalse(protocol.isNormallyClosedLaneSensors());
+    assertFalse(protocol.isNormallyClosedRelays());
+  }
+
+  @Test
+  public void testAnalogInputVoltageRatioScaling() throws Exception {
+    ProtocolListener mockListener = mock(ProtocolListener.class);
+    protocol.setListener(mockListener);
+
+    Method m =
+        PhidgetProtocol.class.getDeclaredMethod(
+            "handleAnalogInputStateChange", int.class, int.class, double.class);
+    m.setAccessible(true);
+
+    // Channel 0, voltage ratio 0.5 (should scale to 511 in 0-1023 range)
+    m.invoke(protocol, 0, PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE_VALUE, 0.5);
+
+    ArgumentCaptor<com.antigravity.proto.InterfaceEvent> captor =
+        ArgumentCaptor.forClass(com.antigravity.proto.InterfaceEvent.class);
+    verify(mockListener).onInterfaceEvent(captor.capture());
+
+    com.antigravity.proto.InterfaceEvent event = captor.getValue();
+    assertTrue(event.hasAnalogData());
+    assertEquals(0, event.getAnalogData().getPin());
+    assertEquals(511, event.getAnalogData().getValue());
+
+    // Behavior -1 should be ignored
+    org.mockito.Mockito.reset(mockListener);
+    m.invoke(protocol, 0, -1, 0.75);
+    verify(mockListener, org.mockito.Mockito.never())
+        .onInterfaceEvent(org.mockito.ArgumentMatchers.any());
+  }
+
+  @Test
+  public void testMasterAndPerLaneCallButtons() throws Exception {
+    config.normallyClosedLaneSensors = false;
+    ProtocolListener mockListener = mock(ProtocolListener.class);
+    protocol.setListener(mockListener);
+
+    Method m =
+        PhidgetProtocol.class.getDeclaredMethod(
+            "handleDigitalInputStateChange", int.class, int.class, boolean.class);
+    m.setAccessible(true);
+
+    // Initialize unpressed state (false -> sensorState 1)
+    m.invoke(protocol, 0, PinBehavior.BEHAVIOR_CALL_BUTTON_VALUE, false);
+    // Master Call Button pressed (true -> sensorState 0, triggers 1 -> 0 transition)
+    m.invoke(protocol, 0, PinBehavior.BEHAVIOR_CALL_BUTTON_VALUE, true);
+    verify(mockListener).onCallbutton(eq(-1), eq(0));
+
+    // Per-Lane Call Button Lane 2 (PinBehavior.BEHAVIOR_CALL_BUTTON_BASE_VALUE + 2)
+    m.invoke(protocol, 1, PinBehavior.BEHAVIOR_CALL_BUTTON_BASE_VALUE + 2, false);
+    m.invoke(protocol, 1, PinBehavior.BEHAVIOR_CALL_BUTTON_BASE_VALUE + 2, true);
+    verify(mockListener).onCallbutton(eq(2), eq(0));
+  }
+
+  @Test
+  public void testOpenWithZeroConfiguredPinsEvaluatesHealthy() {
+    PhidgetConfig emptyPinsConfig = new PhidgetConfig();
+    emptyPinsConfig.serialNumber = 12345;
+    emptyPinsConfig.digitalInIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+    emptyPinsConfig.digitalOutIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+    emptyPinsConfig.analogIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+
+    PhidgetProtocol emptyProtocol = new PhidgetProtocol(emptyPinsConfig, 4, null);
+    ProtocolListener mockListener = mock(ProtocolListener.class);
+    emptyProtocol.setListener(mockListener);
+
+    try {
+      boolean opened = emptyProtocol.open();
+      assertTrue(opened);
+      assertTrue(emptyProtocol.isHealthy());
+      verify(mockListener).onInterfaceStatus(InterfaceStatus.CONNECTED, 0);
+    } finally {
+      emptyProtocol.close();
+    }
+  }
+
+  @Test
   public void testPowerControlsWhenClosed() {
     protocol.setMainPower(true);
     protocol.setMainPower(false);
