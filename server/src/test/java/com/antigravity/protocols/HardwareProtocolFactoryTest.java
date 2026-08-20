@@ -80,4 +80,30 @@ public class HardwareProtocolFactoryTest {
     assertEquals(0, protocols.get(0).getInterfaceIndex());
     assertEquals(1, protocols.get(1).getInterfaceIndex());
   }
+
+  @Test
+  public void testCreateProtocolsForTrack_MultipleArduinos() {
+    List<Lane> lanes = new ArrayList<>();
+    lanes.add(new Lane("Lane 1", "#FF0000", 0));
+    lanes.add(new Lane("Lane 2", "#00FF00", 1));
+
+    ArduinoConfig arduino1 = new ArduinoConfig();
+    arduino1.name = "Arduino Mega";
+    ArduinoConfig arduino2 = new ArduinoConfig();
+    arduino2.name = "Arduino Uno";
+
+    Track track =
+        new Track.Builder()
+            .name("Dual Arduino Track")
+            .lanes(lanes)
+            .arduinoConfigs(java.util.Arrays.asList(arduino1, arduino2))
+            .build();
+
+    List<IProtocol> protocols = HardwareProtocolFactory.createProtocolsForTrack(track, null);
+    assertEquals(2, protocols.size());
+    assertTrue(protocols.get(0) instanceof ArduinoProtocol);
+    assertTrue(protocols.get(1) instanceof ArduinoProtocol);
+    assertEquals(0, protocols.get(0).getInterfaceIndex());
+    assertEquals(1, protocols.get(1).getInterfaceIndex());
+  }
 }

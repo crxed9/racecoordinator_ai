@@ -2,6 +2,7 @@ package com.antigravity.protocols.arduino;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -323,6 +324,26 @@ public class ArduinoProtocolTest {
 
     void simulatePitEntry(int laneIndex) {
       updatePitState(laneIndex, true);
+    }
+
+    public boolean testIsNormallyClosedLaneSensors() {
+      return isNormallyClosedLaneSensors();
+    }
+
+    public boolean testIsNormallyClosedRelays() {
+      return isNormallyClosedRelays();
+    }
+
+    public ArduinoConfig.LapPinPitBehavior testGetLapPinPitBehavior() {
+      return getLapPinPitBehavior();
+    }
+
+    public boolean testUseLapsForSegments() {
+      return useLapsForSegments();
+    }
+
+    public double testGetHardwareDebounceUs() {
+      return getHardwareDebounceUs();
     }
   }
 
@@ -2288,5 +2309,115 @@ public class ArduinoProtocolTest {
     TestableArduinoProtocol nullProtocol =
         new TestableArduinoProtocol(nullEntriesConfig, 4, scheduler, serialConnection);
     assertNotNull(nullProtocol);
+  }
+
+  @Test
+  public void testHasDigitalFuel_WithAndWithoutVoltageLevel() {
+    assertFalse("Default config should not have digital fuel", protocol.hasDigitalFuel());
+
+    ArduinoConfig voltageConfig = new ArduinoConfig();
+    voltageConfig.commPort = "COM1";
+    voltageConfig.analogIds.set(0, PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE.getNumber());
+    TestableArduinoProtocol vProtocol =
+        new TestableArduinoProtocol(voltageConfig, 2, scheduler, serialConnection);
+    assertTrue("Config with VOLTAGE_LEVEL should have digital fuel", vProtocol.hasDigitalFuel());
+  }
+
+  @Test
+  public void testOnAnalogData_VoltageLevel_CalculatesThrottlePercentageAndLocation() {
+    MockSerialConnection vSerial = new MockSerialConnection();
+    ArduinoConfig voltageConfig = new ArduinoConfig();
+    voltageConfig.commPort = "COM1";
+    voltageConfig.analogIds.set(0, PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE.getNumber());
+    voltageConfig.voltageConfigs.put("0", 1000);
+
+    TestableArduinoProtocol vProtocol =
+        new TestableArduinoProtocol(voltageConfig, 2, scheduler, vSerial);
+    vProtocol.setListener(listener);
+    vProtocol.open();
+
+    // Handshake
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
+    vSerial.injectData(versionMsg);
+
+    // 1. Initial analog data: value = 500 (50% throttle/fuel)
+    byte[] analogMsg1 = {0x41, 0x01, 0x00, 0x00, 0x00, 0x01, (byte) 0xF4, 0x3B};
+    vSerial.injectData(analogMsg1);
+
+    assertNotNull(listener.lastCarData);
+    assertEquals(0, listener.lastCarData.getLane());
+    assertEquals(0.5, listener.lastCarData.getControllerThrottlePCT(), 0.001);
+    assertEquals(0.5, listener.lastCarData.getCarThrottlePCT(), 0.001);
+    assertEquals(CarLocation.Main, listener.lastCarData.getLocation());
+    assertFalse(listener.lastCarData.getCanRefuel());
+    assertEquals(0.0, listener.lastCarData.getTime(), 0.001);
+
+    // 2. Advance time 250ms and send reading over max (1200 / 1000 -> clamped to 1.0)
+    vProtocol.advanceTime(250);
+    byte[] analogMsg2 = {0x41, 0x01, 0x00, 0x00, 0x00, 0x04, (byte) 0xB0, 0x3B};
+    vSerial.injectData(analogMsg2);
+
+    assertNotNull(listener.lastCarData);
+    assertEquals(1.0, listener.lastCarData.getControllerThrottlePCT(), 0.001);
+    assertEquals(0.25, listener.lastCarData.getTime(), 0.001);
+
+    // 3. Lane enters pits -> verify location becomes PitRow and canRefuel is true
+    vProtocol.simulatePitEntry(0);
+    byte[] analogMsg3 = {0x41, 0x01, 0x00, 0x00, 0x00, 0x00, (byte) 0x64, 0x3B}; // 100 -> 10%
+    vSerial.injectData(analogMsg3);
+
+    assertNotNull(listener.lastCarData);
+    assertEquals(0.1, listener.lastCarData.getControllerThrottlePCT(), 0.001);
+    assertEquals(CarLocation.PitRow, listener.lastCarData.getLocation());
+    assertTrue(listener.lastCarData.getCanRefuel());
+  }
+
+  @Test
+  public void testConfigurationHooks_PolarityDebounceAndPitBehavior() {
+    config.normallyClosedLaneSensors = true;
+    config.normallyClosedRelays = true;
+    config.debounceUs = 750;
+    config.lapPinPitBehavior = ArduinoConfig.LapPinPitBehavior.PIT_IN_OUT;
+    config.useLapsForSegments = true;
+    config.digitalIds.set(2, PinBehavior.BEHAVIOR_SEGMENT_BASE.getNumber());
+
+    TestableArduinoProtocol customProtocol =
+        new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+
+    assertTrue(customProtocol.testIsNormallyClosedLaneSensors());
+    assertTrue(customProtocol.testIsNormallyClosedRelays());
+    assertEquals(
+        ArduinoConfig.LapPinPitBehavior.PIT_IN_OUT, customProtocol.testGetLapPinPitBehavior());
+    assertTrue(customProtocol.testUseLapsForSegments());
+    assertEquals(750.0, customProtocol.testGetHardwareDebounceUs(), 0.001);
+  }
+
+  @Test
+  public void testSendPinMode_AnalogPinsConfiguredAsDigitalIO() {
+    ArduinoConfig customConfig = new ArduinoConfig();
+    customConfig.commPort = "COM1";
+    // Configure Analog pin A1 as Lap sensor (Digital Read on Analog Pin)
+    customConfig.analogIds.set(1, PinBehavior.BEHAVIOR_LAP_BASE.getNumber());
+    // Configure Analog pin A2 as Main Relay (Digital Write on Analog Pin)
+    customConfig.analogIds.set(2, PinBehavior.BEHAVIOR_RELAY.getNumber());
+
+    TestableArduinoProtocol customProtocol =
+        new TestableArduinoProtocol(customConfig, 2, scheduler, serialConnection);
+    customProtocol.open();
+
+    byte[] versionMsg = {0x56, 2, 1, 0, 0, 0x3B};
+    serialConnection.injectData(versionMsg);
+
+    // Verify PIN_MODE READ message includes opcode 0x49 and pin A1 (type 'A' = 0x41)
+    byte[] expectedRead = {0x50, 0x49, 1, 0x41, 1, 0x3B};
+    assertTrue(
+        "Should send PIN_MODE_READ with analog pin A1",
+        serialConnection.allWrittenData.stream().anyMatch(d -> Arrays.equals(expectedRead, d)));
+
+    // Verify PIN_MODE WRITE message includes opcode 0x4F and pin A2 (type 'A' = 0x41)
+    byte[] expectedWrite = {0x50, 0x4F, 1, 0x41, 2, 0x3B};
+    assertTrue(
+        "Should send PIN_MODE_WRITE with analog pin A2",
+        serialConnection.allWrittenData.stream().anyMatch(d -> Arrays.equals(expectedWrite, d)));
   }
 }
