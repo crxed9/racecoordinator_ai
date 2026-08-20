@@ -74,6 +74,7 @@ To help us resolve issues quickly, please include:
 4. **Clear Steps to Reproduce**: Provide step-by-step instructions detailing what you did before the issue occurred.
 5. **Expected vs. Actual Result**: Describe what you expected to happen versus what actually happened.
 6. **Screenshots & Logs**: Attach screenshots or relevant error messages whenever possible.
+7. **One Issue Per Bug or Feature**: Create a separate issue for each distinct bug or feature request so they can be tracked, investigated, and resolved independently.
 
 ---
 

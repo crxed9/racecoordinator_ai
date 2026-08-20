@@ -120,3 +120,4 @@ If you encounter an issue during installation or have a feature request:
    * Your Operating System and version.
    * Race Coordinator AI version (e.g., `v1.0.0` or `v1.0.0-beta.1`).
    * Steps to reproduce the problem and screenshots/logs where applicable.
+   * Please submit separate issues for each distinct bug or feature request so they can be tracked independently.
