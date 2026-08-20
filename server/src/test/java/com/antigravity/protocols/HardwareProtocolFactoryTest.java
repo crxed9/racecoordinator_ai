@@ -132,4 +132,60 @@ public class HardwareProtocolFactoryTest {
     assertEquals(0, protocols.get(0).getInterfaceIndex());
     assertEquals(1, protocols.get(1).getInterfaceIndex());
   }
+
+  @Test
+  public void testCreateProtocolsForTrack_MultipleBarts() {
+    List<Lane> lanes = new ArrayList<>();
+    lanes.add(new Lane("Lane 1", "#FF0000", 0));
+    lanes.add(new Lane("Lane 2", "#00FF00", 1));
+
+    com.antigravity.protocols.bart.BartConfig bart1 =
+        new com.antigravity.protocols.bart.BartConfig();
+    bart1.name = "BART 1";
+    com.antigravity.protocols.bart.BartConfig bart2 =
+        new com.antigravity.protocols.bart.BartConfig();
+    bart2.name = "BART 2";
+
+    Track track =
+        new Track.Builder()
+            .name("Dual BART Track")
+            .lanes(lanes)
+            .bartConfigs(java.util.Arrays.asList(bart1, bart2))
+            .build();
+
+    List<IProtocol> protocols = HardwareProtocolFactory.createProtocolsForTrack(track, null);
+    assertEquals(2, protocols.size());
+    assertTrue(protocols.get(0) instanceof com.antigravity.protocols.bart.BartProtocol);
+    assertTrue(protocols.get(1) instanceof com.antigravity.protocols.bart.BartProtocol);
+    assertEquals(0, protocols.get(0).getInterfaceIndex());
+    assertEquals(1, protocols.get(1).getInterfaceIndex());
+  }
+
+  @Test
+  public void testCreateProtocolsForTrack_MixedBartAndArduino() {
+    List<Lane> lanes = new ArrayList<>();
+    lanes.add(new Lane("Lane 1", "#FF0000", 0));
+    lanes.add(new Lane("Lane 2", "#00FF00", 1));
+
+    com.antigravity.protocols.bart.BartConfig bart =
+        new com.antigravity.protocols.bart.BartConfig();
+    bart.name = "BART Timing";
+    ArduinoConfig arduino = new ArduinoConfig();
+    arduino.name = "Arduino Relays";
+
+    Track track =
+        new Track.Builder()
+            .name("Hybrid BART and Arduino Track")
+            .lanes(lanes)
+            .bartConfigs(java.util.Collections.singletonList(bart))
+            .arduinoConfigs(java.util.Collections.singletonList(arduino))
+            .build();
+
+    List<IProtocol> protocols = HardwareProtocolFactory.createProtocolsForTrack(track, null);
+    assertEquals(2, protocols.size());
+    assertTrue(protocols.get(0) instanceof ArduinoProtocol);
+    assertTrue(protocols.get(1) instanceof com.antigravity.protocols.bart.BartProtocol);
+    assertEquals(0, protocols.get(0).getInterfaceIndex());
+    assertEquals(1, protocols.get(1).getInterfaceIndex());
+  }
 }
