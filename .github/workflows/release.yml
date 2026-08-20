@@ -30,6 +30,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   check-changes:
@@ -252,6 +253,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -363,6 +365,10 @@ jobs:
           files: |
             final-release/*
 
+      - name: Cleanup Release Artifacts
+        run: |
+          rm -rf final-release release_body.md
+
       - name: Update README on Main
         run: |
           git fetch origin main
@@ -374,6 +380,8 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: |
+            README.md
           commit-message: "docs: update latest download links to ${{ env.TAG }} [skip ci]"
           title: "docs: update latest download links to ${{ env.TAG }}"
           body: "Automated PR to update the README with the latest download links for release ${{ env.TAG }}."
