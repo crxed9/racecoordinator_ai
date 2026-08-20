@@ -369,12 +369,15 @@ jobs:
           git checkout main
           git pull origin main
           node scripts/update_readme_downloads.js "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          if ! git diff --cached --quiet; then
-            git commit -m "docs: update latest download links to ${{ env.TAG }} [skip ci]"
-            git push origin main
-          fi
+
+      - name: Create Pull Request for README
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update latest download links to ${{ env.TAG }} [skip ci]"
+          title: "docs: update latest download links to ${{ env.TAG }}"
+          body: "Automated PR to update the README with the latest download links for release ${{ env.TAG }}."
+          branch: "chore/update-readme-${{ env.TAG }}"
+          base: "main"
 
 
