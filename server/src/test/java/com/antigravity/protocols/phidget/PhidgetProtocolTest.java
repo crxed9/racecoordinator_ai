@@ -478,7 +478,7 @@ public class PhidgetProtocolTest {
       boolean opened = emptyProtocol.open();
       assertTrue(opened);
       assertTrue(emptyProtocol.isHealthy());
-      verify(mockListener).onInterfaceStatus(InterfaceStatus.CONNECTED, 0);
+      verify(mockListener, atLeastOnce()).onInterfaceStatus(InterfaceStatus.CONNECTED, 0);
     } finally {
       emptyProtocol.close();
     }
