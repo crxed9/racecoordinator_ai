@@ -232,9 +232,13 @@ public class Starting implements IRaceState {
   @Override
   public RaceFlag getFlagType(Race race) {
     if (race != null && race.hasRacedInCurrentHeat()) {
-      return RaceFlag.YELLOW;
+      return race.getTheme() != null
+          ? race.getTheme().resolveFlag("flag.restarting", RaceFlag.YELLOW)
+          : RaceFlag.YELLOW;
     }
-    return RaceFlag.RED;
+    return race.getTheme() != null
+        ? race.getTheme().resolveFlag("flag.starting", RaceFlag.RED)
+        : RaceFlag.RED;
   }
 
   @Override
@@ -243,7 +247,9 @@ public class Starting implements IRaceState {
         && race.getCurrentHeat() != null
         && lane < race.getCurrentHeat().getDrivers().size()) {
       if (race.getCurrentHeat().getDrivers().get(lane).getRemainingFalseStartTimePenalty() > 0) {
-        return RaceFlag.BLACK;
+        return race.getTheme() != null
+            ? race.getTheme().resolveFlag("flag.penalty", RaceFlag.BLACK)
+            : RaceFlag.BLACK;
       }
     }
     return getFlagType(race);

@@ -11,6 +11,7 @@ import com.antigravity.models.FuelOptions;
 import com.antigravity.models.HeatRotationType;
 import com.antigravity.models.OverallScoring.OverallRanking;
 import com.antigravity.models.RaceConfigDump;
+import com.antigravity.models.Theme;
 import com.antigravity.models.Track;
 import com.antigravity.proto.CallbuttonEvent;
 import com.antigravity.proto.DemoConfig;
@@ -39,6 +40,7 @@ import com.antigravity.race.states.Paused;
 import com.antigravity.race.states.RaceOver;
 import com.antigravity.race.states.Racing;
 import com.antigravity.race.states.Starting;
+import com.antigravity.repository.SqliteRepository;
 import com.antigravity.service.AssetService;
 import com.antigravity.service.DatabaseService;
 import com.google.protobuf.GeneratedMessageV3;
@@ -58,6 +60,7 @@ public class Race implements ProtocolListener {
 
   private final com.antigravity.models.Race model; // fqn-collision
   private final Track track;
+  private final Theme theme;
   private final List<RaceParticipant> drivers;
   private List<Heat> heats;
   private Heat currentHeat;
@@ -89,6 +92,13 @@ public class Race implements ProtocolListener {
   private Race(Builder builder) {
     this.model = builder.model;
     this.track = builder.track;
+    if (builder.theme != null) {
+      this.theme = builder.theme;
+    } else if (builder.databaseContext != null) {
+      this.theme = loadDefaultTheme(builder.databaseContext);
+    } else {
+      this.theme = null;
+    }
     this.seasonEntityId = builder.seasonEntityId;
     this.drivers = builder.drivers != null ? new ArrayList<>(builder.drivers) : new ArrayList<>();
     this.databaseContext = builder.databaseContext;
@@ -228,6 +238,20 @@ public class Race implements ProtocolListener {
     return new NotStarted();
   }
 
+  private Theme loadDefaultTheme(DatabaseContext dbCtx) {
+    try {
+      SqliteRepository<Theme> repo = new SqliteRepository<>(dbCtx, "themes", Theme.class);
+      for (Theme t : repo.findAll()) {
+        if (t.isDefault()) {
+          return t;
+        }
+      }
+    } catch (Exception e) {
+      logger.warn("Could not load default theme from database: {}", e.getMessage());
+    }
+    return null;
+  }
+
   public void init() {
     if (this.hardwareManager.getProtocols() != null) {
       if (this.hardwareManager.open()) {
@@ -254,6 +278,12 @@ public class Race implements ProtocolListener {
     private DemoConfig demoConfig;
     private RecordData existingRecords;
     private String seasonEntityId;
+    private Theme theme;
+
+    public Builder theme(Theme theme) {
+      this.theme = theme;
+      return this;
+    }
 
     public Builder seasonEntityId(String seasonEntityId) {
       this.seasonEntityId = seasonEntityId;
@@ -346,6 +376,10 @@ public class Race implements ProtocolListener {
     public Race build() {
       return new Race(this);
     }
+  }
+
+  public Theme getTheme() {
+    return theme;
   }
 
   public List<RaceParticipant> getDrivers() {

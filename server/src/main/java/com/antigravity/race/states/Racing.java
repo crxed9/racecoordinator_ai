@@ -53,13 +53,17 @@ public class Racing implements IRaceState {
         && scoring.getAllowFinish() != AllowFinish.NoneAutoSegments) {
       // For timed races, show checkered flag immediately when counter reaches 0
       if (scoring.getFinishMethod() == FinishMethod.Timed && race.getRaceTime() <= 0) {
-        return RaceFlag.CHECKERED;
+        return race.getTheme() != null
+            ? race.getTheme().resolveFlag("flag.heat_finishing", RaceFlag.CHECKERED)
+            : RaceFlag.CHECKERED;
       }
       // For lap-based races, show checkered when any driver finishes
       for (int i = 0; i < heatDrivers.size(); i++) {
         DriverHeatData hd = heatDrivers.get(i);
         if (isDriverFinished(race, i, hd)) {
-          return RaceFlag.CHECKERED;
+          return race.getTheme() != null
+              ? race.getTheme().resolveFlag("flag.heat_finishing", RaceFlag.CHECKERED)
+              : RaceFlag.CHECKERED;
         }
       }
     }
@@ -75,11 +79,15 @@ public class Racing implements IRaceState {
         }
       }
       if (anyDriverOneLapToGo) {
-        return RaceFlag.WHITE;
+        return race.getTheme() != null
+            ? race.getTheme().resolveFlag("flag.one_lap_to_go", RaceFlag.WHITE)
+            : RaceFlag.WHITE;
       }
     }
 
-    return RaceFlag.GREEN;
+    return race.getTheme() != null
+        ? race.getTheme().resolveFlag("flag.racing", RaceFlag.GREEN)
+        : RaceFlag.GREEN;
   }
 
   @Override
