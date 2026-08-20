@@ -44,7 +44,8 @@ public interface IRaceState {
     // 3) Finished in Allow Finish mode - show driver_finished instead of CHECKERED for the driver
     if (race.getRaceModel() != null && race.getRaceModel().getHeatScoring() != null) {
       HeatScoring scoring = race.getRaceModel().getHeatScoring();
-      if (scoring.getAllowFinish() != AllowFinish.None
+      if (scoring.getAllowFinish() != null
+          && scoring.getAllowFinish() != AllowFinish.None
           && scoring.getAllowFinish() != AllowFinish.NoneAutoSegments) {
         if (isDriverFinished(race, lane, dhd)) {
           return race.getTheme() != null

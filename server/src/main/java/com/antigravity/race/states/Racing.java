@@ -49,7 +49,8 @@ public class Racing implements IRaceState {
     if (heatDrivers == null) return RaceFlag.GREEN;
 
     // Checkered flag if any driver has finished (and race allows finishing)
-    if (scoring.getAllowFinish() != AllowFinish.None
+    if (scoring.getAllowFinish() != null
+        && scoring.getAllowFinish() != AllowFinish.None
         && scoring.getAllowFinish() != AllowFinish.NoneAutoSegments) {
       // For timed races, show checkered flag immediately when counter reaches 0
       if (scoring.getFinishMethod() == FinishMethod.Timed && race.getRaceTime() <= 0) {
