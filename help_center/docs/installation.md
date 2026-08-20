@@ -13,7 +13,7 @@ Race Coordinator AI is fully cross-platform and runs on modern and legacy operat
 | **🪟 Windows (Modern)** | Windows 10, Windows 11 (64-bit & 32-bit) | **Online Setup** (`RaceCoordinatorAI_Online_Setup_*.exe`) |
 | **🪟 Windows (Legacy)** | Windows 8, Windows 7, Windows XP | **Offline Full Setup** (`RaceCoordinatorAI_Offline_Setup_*.exe`) *(Required for initial install on Win 8 and older)* |
 | **🍏 macOS** | macOS 10.15 (Catalina) through macOS 15+ (Intel & Apple Silicon) | **Disk Image** (`RaceCoordinator_Mac_*.dmg`) |
-| **🐧 Linux / Raspberry Pi** | Raspberry Pi OS (64-bit), Debian, Ubuntu | **ARM64 / Linux Package** (`RaceCoordinatorAI-Linux-ARM64_*.tar.gz`) |
+| **🐧 Linux / Raspberry Pi / Arduino Uno Q** | Raspberry Pi OS (64-bit), Arduino Linux OS, Debian, Ubuntu | **ARM64 / Linux Package** (`RaceCoordinatorAI-Linux-ARM64_*.tar.gz`) |
 
 ---
 
@@ -69,7 +69,7 @@ Download `RaceCoordinator_Mac_*.dmg` from the release page.
 
 ---
 
-## 🐧 Linux & Raspberry Pi Installation
+## 🐧 Linux, Raspberry Pi & Arduino Uno Q Installation
 
 ### 1. Download the Linux Package
 Download `RaceCoordinatorAI-Linux-ARM64_*.tar.gz` from the release page.

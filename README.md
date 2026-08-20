@@ -1,6 +1,6 @@
 # 🏎️ Race Coordinator AI
 
-> **Race Coordinator AI** is a modern, cross-platform slot car race management and timing system. It provides precise lap timing, rich audio and speech race commentary, automated heat rotations, customizable race screens, driver statistics, and hardware timing support across Windows, macOS, and Linux/Raspberry Pi.
+> **Race Coordinator AI** is a modern, cross-platform slot car race management and timing system. It provides precise lap timing, rich audio and speech race commentary, automated heat rotations, customizable race screens, driver statistics, and hardware timing support across Windows, macOS, and Linux (Raspberry Pi & Arduino Uno Q).
 
 ---
 
@@ -16,7 +16,7 @@ Click your operating system below to **download directly**:
 | **🪟 Windows (10 / 11)** | [**⬇️ Download Windows Setup**](https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.11/RaceCoordinatorAI_Online_Setup_v1.0.0-beta.11.exe) | `v1.0.0-beta.11` | Online Setup *(Fast, requires internet)* |
 | **🪟 Windows (8, 7, XP / Offline)** | [**⬇️ Download Offline Setup**](https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.11/RaceCoordinatorAI_Offline_Setup_v1.0.0-beta.11.exe) | `v1.0.0-beta.11` | Full Offline Standalone *(Required for Win 8 & older)* |
 | **🍏 macOS (Intel & Apple Silicon)** | [**⬇️ Download macOS DMG**](https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.11/RaceCoordinator_Mac_v1.0.0-beta.11.dmg) | `v1.0.0-beta.11` | Disk Image (`.dmg`) |
-| **🐧 Linux / Raspberry Pi (ARM64)** | [**⬇️ Download Linux Package**](https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.11/RaceCoordinatorAI-Linux-ARM64_v1.0.0-beta.11.tar.gz) | `v1.0.0-beta.11` | Tarball (`.tar.gz`) |
+| **🐧 Linux / Raspberry Pi / Arduino Uno Q (ARM64)** | [**⬇️ Download Linux Package**](https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.11/RaceCoordinatorAI-Linux-ARM64_v1.0.0-beta.11.tar.gz) | `v1.0.0-beta.11` | Tarball (`.tar.gz`) |
 
 ---
 
@@ -32,7 +32,7 @@ When opening the release page, choose the installer that matches your computer:
 * **Windows 10 or 11**: Download `RaceCoordinatorAI_Online_Setup_*.exe` *(Recommended — fastest, lightweight installer that downloads components automatically during setup.  This requires an internet connection during installation)*.
 * **Windows 8, 7, or XP (or offline PCs)**: Download `RaceCoordinatorAI_Offline_Setup_*.exe`. Legacy Windows versions require this full offline installer for their initial installation.  After the initial installation, you can use the Online_Setup above if you have an internet connection.
 * **macOS**: Download `RaceCoordinator_Mac_*.dmg`. Open the disk image and drag **Race Coordinator AI** into your Applications folder.
-* **Linux / Raspberry Pi**: Download `RaceCoordinatorAI-Linux-ARM64_*.tar.gz`, unpack the archive, and run `./RaceCoordinatorAI`.
+* **Linux / Raspberry Pi / Arduino Uno Q**: Download `RaceCoordinatorAI-Linux-ARM64_*.tar.gz`, unpack the archive, and run `./RaceCoordinatorAI`.
 
 > [!TIP]
 > You do **not** need to download the "Source code" (`.zip` / `.tar.gz`) or "Coverage Reports" files to use Race Coordinator AI.
@@ -45,7 +45,7 @@ When opening the release page, choose the installer that matches your computer:
 2. **Launch Race Coordinator AI**:
    - **Windows**: Launch from the desktop shortcut or Start Menu.
    - **macOS**: Open **Race Coordinator AI** from your `Applications` folder.
-   - **Linux / Raspberry Pi**: Launch via `./RaceCoordinatorAI` in the extracted directory.
+   - **Linux / Raspberry Pi / Arduino Uno Q**: Launch via `./RaceCoordinatorAI` in the extracted directory.
 3. **Configure Your Track**: Navigate to **Track Manager** in the navigation menu to configure your track, lanes, and sensor hardware (Arduino Uno / Uno Q, Phidget, Trak-Mate, Webcam tracking, or Keyboard demo mode).
 4. **Set Up a Race**: Go to **Race Day Setup**, choose your race format and heat rotation, select drivers, and start racing!
 

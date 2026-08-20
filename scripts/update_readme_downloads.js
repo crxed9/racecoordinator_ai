@@ -23,7 +23,7 @@ Click your operating system below to **download directly**:
 | **🪟 Windows (10 / 11)** | [**⬇️ Download Windows Setup**](${winOnline}) | \`${tag}\` | Online Setup *(Fast, requires internet)* |
 | **🪟 Windows (8, 7, XP / Offline)** | [**⬇️ Download Offline Setup**](${winOffline}) | \`${tag}\` | Full Offline Standalone *(Required for Win 8 & older)* |
 | **🍏 macOS (Intel & Apple Silicon)** | [**⬇️ Download macOS DMG**](${macDmg}) | \`${tag}\` | Disk Image (\`.dmg\`) |
-| **🐧 Linux / Raspberry Pi (ARM64)** | [**⬇️ Download Linux Package**](${linuxTar}) | \`${tag}\` | Tarball (\`.tar.gz\`) |
+| **🐧 Linux / Raspberry Pi / Arduino Uno Q (ARM64)** | [**⬇️ Download Linux Package**](${linuxTar}) | \`${tag}\` | Tarball (\`.tar.gz\`) |
 
 ---
 
