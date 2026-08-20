@@ -195,6 +195,8 @@ public class Starting implements IRaceState {
       dhd.setRemainingFalseStartTimePenalty(timePenalty);
     }
 
+    race.setLanePower(false, lane);
+
     Lap falseStartMsg =
         Lap.newBuilder()
             .setObjectId(dhd.getObjectId())
