@@ -106,4 +106,30 @@ public class HardwareProtocolFactoryTest {
     assertEquals(0, protocols.get(0).getInterfaceIndex());
     assertEquals(1, protocols.get(1).getInterfaceIndex());
   }
+
+  @Test
+  public void testCreateProtocolsForTrack_MultipleTrackmates() {
+    List<Lane> lanes = new ArrayList<>();
+    lanes.add(new Lane("Lane 1", "#FF0000", 0));
+    lanes.add(new Lane("Lane 2", "#00FF00", 1));
+
+    TrackmateConfig tm1 = new TrackmateConfig();
+    tm1.name = "Trackmate 1";
+    TrackmateConfig tm2 = new TrackmateConfig();
+    tm2.name = "Trackmate 2";
+
+    Track track =
+        new Track.Builder()
+            .name("Dual Trackmate Track")
+            .lanes(lanes)
+            .trackmateConfigs(java.util.Arrays.asList(tm1, tm2))
+            .build();
+
+    List<IProtocol> protocols = HardwareProtocolFactory.createProtocolsForTrack(track, null);
+    assertEquals(2, protocols.size());
+    assertTrue(protocols.get(0) instanceof TrackmateProtocol);
+    assertTrue(protocols.get(1) instanceof TrackmateProtocol);
+    assertEquals(0, protocols.get(0).getInterfaceIndex());
+    assertEquals(1, protocols.get(1).getInterfaceIndex());
+  }
 }
