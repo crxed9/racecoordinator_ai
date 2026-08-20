@@ -19,12 +19,13 @@ Race Coordinator AI is fully cross-platform and runs on modern and legacy operat
 
 ## Choosing Your Release Channel
 
-Race Coordinator AI is distributed across two release channels on GitHub:
+Race Coordinator AI is distributed across three channels:
 
 * **🟢 Official Stable Releases** *(Recommended)*: Fully tested, production-ready builds recommended for regular racing, home tracks, and club events.
-  * 👉 [Download Latest Stable Release](https://github.com/daufderheide/racecoordinator_ai/releases/latest)
 * **🟡 Beta Previews**: Prerelease builds that include upcoming features, new hardware drivers, and experimental enhancements for community testing and feedback.
-  * 👉 [View Beta & Prerelease Downloads](https://github.com/daufderheide/racecoordinator_ai/releases)
+* **🔵 Alpha / Nightly Builds**: Automated snapshot builds from active development.
+
+👉 Visit the **[Downloads & Releases Portal](downloads.md)** to download any version or view the complete release archive.
 
 ---
 

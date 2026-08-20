@@ -51,17 +51,17 @@ function normalizeVersion(ver) {
 function getReleaseTitle(version, isPrerelease) {
   const isPre = isPrerelease === 'true' || isPrerelease === true;
   if (!isPre) {
-    return `Race Coordinator AI v${version} (Official Release)`;
+    return `v${version} — Official Release`;
   }
   if (version.includes('-beta.')) {
     const parts = version.split('-beta.');
-    return `Race Coordinator AI v${parts[0]} Beta ${parts[1]}`;
+    return `v${parts[0]}-beta.${parts[1]} — Beta Preview`;
   }
   if (version.includes('-alpha.')) {
     const parts = version.split('-alpha.');
-    return `Race Coordinator AI v${parts[0]} Alpha (${parts[1]})`;
+    return `v${parts[0]}-alpha.${parts[1]} — Alpha Build`;
   }
-  return `Race Coordinator AI v${version}`;
+  return `v${version}`;
 }
 
 function determineVersion(eventName, ref, overrideVersion, customTags, customRootVersion, customCommitHash) {
