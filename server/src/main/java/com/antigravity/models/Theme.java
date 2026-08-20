@@ -1,5 +1,6 @@
 package com.antigravity.models;
 
+import com.antigravity.proto.RaceFlag;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -47,5 +48,41 @@ public class Theme extends Model {
   @JsonProperty("audio_slots")
   public Map<String, AudioConfig> getAudioSlots() {
     return audioSlots;
+  }
+
+  public RaceFlag resolveFlag(String slotKey, RaceFlag fallback) {
+    if (slots == null || slotKey == null) {
+      return fallback;
+    }
+    String assetId = slots.get(slotKey);
+    if (assetId == null || assetId.isEmpty()) {
+      return fallback;
+    }
+    String lower = assetId.toLowerCase();
+    if (lower.contains("green_yellow")
+        || lower.contains("yellowgreen")
+        || lower.contains("yellow_green")
+        || lower.contains("greenyellow")) {
+      return RaceFlag.GREEN_YELLOW;
+    }
+    if (lower.contains("checkered") || lower.contains("checker")) {
+      return RaceFlag.CHECKERED;
+    }
+    if (lower.contains("green")) {
+      return RaceFlag.GREEN;
+    }
+    if (lower.contains("red")) {
+      return RaceFlag.RED;
+    }
+    if (lower.contains("yellow")) {
+      return RaceFlag.YELLOW;
+    }
+    if (lower.contains("white")) {
+      return RaceFlag.WHITE;
+    }
+    if (lower.contains("black")) {
+      return RaceFlag.BLACK;
+    }
+    return fallback;
   }
 }
