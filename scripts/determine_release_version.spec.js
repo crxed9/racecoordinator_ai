@@ -55,14 +55,27 @@ describe('determine_release_version', () => {
   });
 
   describe('manual release (workflow_dispatch)', () => {
-    test('should fail when triggered on main branch', () => {
-      assert.throws(() => {
-        determineVersion('workflow_dispatch', 'refs/heads/main', '');
-      }, /Manual release is not permitted on 'main'/);
+    test('should generate official release on main branch without version override', () => {
+      const res1 = determineVersion('workflow_dispatch', 'refs/heads/main', '', [], '1.0.0');
+      assert.strictEqual(res1.version, '1.0.0');
+      assert.strictEqual(res1.tag, 'v1.0.0');
+      assert.strictEqual(res1.isPrerelease, 'false');
+      assert.strictEqual(res1.releaseTitle, 'v1.0.0 — Official Release');
 
-      assert.throws(() => {
-        determineVersion('workflow_dispatch', 'main', '');
-      }, /Manual release is not permitted on 'main'/);
+      const existingTags = ['v1.0.0'];
+      const res2 = determineVersion('workflow_dispatch', 'main', '', existingTags, '1.0.0');
+      assert.strictEqual(res2.version, '1.0.1');
+      assert.strictEqual(res2.tag, 'v1.0.1');
+      assert.strictEqual(res2.isPrerelease, 'false');
+      assert.strictEqual(res2.releaseTitle, 'v1.0.1 — Official Release');
+    });
+
+    test('should handle manual workflow_dispatch override on main', () => {
+      const res = determineVersion('workflow_dispatch', 'refs/heads/main', '2.0.0');
+      assert.strictEqual(res.version, '2.0.0');
+      assert.strictEqual(res.tag, 'v2.0.0');
+      assert.strictEqual(res.isPrerelease, 'false');
+      assert.strictEqual(res.releaseTitle, 'v2.0.0 — Official Release');
     });
 
     test('should fail when triggered on release branch', () => {

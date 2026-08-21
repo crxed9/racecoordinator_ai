@@ -3,7 +3,6 @@ name: Release
 on:
   push:
     branches:
-      - main
       - "release/**"
     tags:
       - "v*"
@@ -382,7 +381,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           add-paths: |
             README.md
-          commit-message: "docs: update latest download links to ${{ env.TAG }} [skip ci]"
+          commit-message: "docs: update latest download links to ${{ env.TAG }}"
           title: "docs: update latest download links to ${{ env.TAG }}"
           body: "Automated PR to update the README with the latest download links for release ${{ env.TAG }}."
           branch: "docs/update-readme-${{ env.TAG }}"
