@@ -277,12 +277,19 @@
                                                 getPinAction(true, pin) ===
                                                 action.value
                                               "
+                                              [class.disabled]="action.disabled"
+                                              [title]="
+                                                action.disabled
+                                                  ? action.tooltip || ''
+                                                  : ''
+                                              "
                                               (click)="
-                                                selectPinAction(
-                                                  true,
-                                                  pin,
-                                                  action.value
-                                                )
+                                                !action.disabled &&
+                                                  selectPinAction(
+                                                    true,
+                                                    pin,
+                                                    action.value
+                                                  )
                                               "
                                             >
                                               {{ action.label }}
@@ -301,12 +308,19 @@
                                             getPinAction(true, pin) ===
                                             action.value
                                           "
+                                          [class.disabled]="action.disabled"
+                                          [title]="
+                                            action.disabled
+                                              ? action.tooltip || ''
+                                              : ''
+                                          "
                                           (click)="
-                                            selectPinAction(
-                                              true,
-                                              pin,
-                                              action.value
-                                            )
+                                            !action.disabled &&
+                                              selectPinAction(
+                                                true,
+                                                pin,
+                                                action.value
+                                              )
                                           "
                                         >
                                           {{ action.label }}
@@ -411,12 +425,19 @@
                                                 getPinAction(false, pin) ===
                                                 action.value
                                               "
+                                              [class.disabled]="action.disabled"
+                                              [title]="
+                                                action.disabled
+                                                  ? action.tooltip || ''
+                                                  : ''
+                                              "
                                               (click)="
-                                                selectPinAction(
-                                                  false,
-                                                  pin,
-                                                  action.value
-                                                )
+                                                !action.disabled &&
+                                                  selectPinAction(
+                                                    false,
+                                                    pin,
+                                                    action.value
+                                                  )
                                               "
                                             >
                                               {{ action.label }}
@@ -435,12 +456,19 @@
                                             getPinAction(false, pin) ===
                                             action.value
                                           "
+                                          [class.disabled]="action.disabled"
+                                          [title]="
+                                            action.disabled
+                                              ? action.tooltip || ''
+                                              : ''
+                                          "
                                           (click)="
-                                            selectPinAction(
-                                              false,
-                                              pin,
-                                              action.value
-                                            )
+                                            !action.disabled &&
+                                              selectPinAction(
+                                                false,
+                                                pin,
+                                                action.value
+                                              )
                                           "
                                         >
                                           {{ action.label }}

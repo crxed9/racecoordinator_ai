@@ -97,6 +97,7 @@
   "AE_PIN_UNUSED": "No usado",
   "AE_PIN_VOLTAGE_LANE": "Divisor de voltaje C{{lane}}",
   "AE_RESET_MAX_SEEN": "Restablecer max visto",
+  "AE_RGB_LEDS_DISABLED_TOOLTIP": "Actualice el sketch para habilitar los LED RGB",
   "AE_RGB_LED_CONFIG": "Configuración de LED RGB",
   "AE_SELECT_PORT": "Seleccionar puerto",
   "AE_VOLTAGE_CONFIG_HEADER": "Configuración del divisor de voltaje",

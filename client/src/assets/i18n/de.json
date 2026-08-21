@@ -97,6 +97,7 @@
   "AE_PIN_UNUSED": "Unbenutzt",
   "AE_PIN_VOLTAGE_LANE": "Spannungsteiler S{{lane}}",
   "AE_RESET_MAX_SEEN": "Max. gesehen zurücksetzen",
+  "AE_RGB_LEDS_DISABLED_TOOLTIP": "Sketch aktualisieren, um RGB-LEDs zu aktivieren",
   "AE_RGB_LED_CONFIG": "RGB-LED-Konfiguration",
   "AE_SELECT_PORT": "Anschluss auswählen",
   "AE_VOLTAGE_CONFIG_HEADER": "Spannungsteiler-Konfiguration",

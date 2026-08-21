@@ -2420,4 +2420,162 @@ public class ArduinoProtocolTest {
         "Should send PIN_MODE_WRITE with analog pin A2",
         serialConnection.allWrittenData.stream().anyMatch(d -> Arrays.equals(expectedWrite, d)));
   }
+
+  @Test
+  public void testLegacyFirmware_Version1_0_0_X_Verified_AndDisablesRgbLeds() {
+    // Configure RGB LED on D3
+    config.digitalIds.set(3, PinBehavior.BEHAVIOR_LED_RGB_STRING.getNumber());
+    LedString ledString =
+        new LedString(3, Collections.singletonList(1), 100, 0, 0, 5.0, new ArrayList<>());
+    config.ledStrings = Collections.singletonList(ledString);
+
+    protocol = new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+    protocol.setListener(listener);
+    protocol.open();
+
+    // Inject Legacy Version message: V 1.0.0.15 ; -> 56 01 00 00 0F 3B
+    byte[] versionMsg = {0x56, 1, 0, 0, 15, 0x3B};
+    serialConnection.injectData(versionMsg);
+
+    assertTrue("Protocol should be open and verified for 1.0.0.15", protocol.isOpen());
+    assertFalse("supportsRgbLeds should be false for legacy 1.0.0.15", protocol.supportsRgbLeds());
+
+    // Verify PIN_MODE_WRITE does NOT include the RGB LED pin D3
+    byte[] pinModeWrite =
+        serialConnection.allWrittenData.stream()
+            .filter(d -> d.length >= 2 && d[0] == 0x50 && d[1] == 0x4F)
+            .findFirst()
+            .orElse(null);
+    assertTrue(
+        "PIN_MODE_WRITE should have 0 pins when RGB LED pin is excluded",
+        pinModeWrite != null && pinModeWrite[2] == 0);
+
+    // Verify NO RGB LED mode (0x6C) or write (0x4C) command was sent
+    boolean hasLedMode =
+        serialConnection.allWrittenData.stream().anyMatch(d -> d.length > 0 && d[0] == 0x6C);
+    boolean hasLedWrite =
+        serialConnection.allWrittenData.stream().anyMatch(d -> d.length > 0 && d[0] == 0x4C);
+    assertFalse("Should NOT send RGB LED mode for legacy firmware", hasLedMode);
+    assertFalse("Should NOT send RGB LED write for legacy firmware", hasLedWrite);
+
+    // Test setStringRgbLedValues directly
+    serialConnection.allWrittenData.clear();
+    protocol.setStringRgbLedValues(
+        3, Collections.singletonList(RgbLedState.newBuilder().setIndex(0).setR(255).build()));
+    assertEquals(
+        "Should not send any writeData for setStringRgbLedValues on legacy firmware",
+        0,
+        serialConnection.allWrittenData.size());
+
+    // Test clearLeds directly
+    protocol.clearLeds();
+    assertEquals(
+        "Should not send any writeData for clearLeds on legacy firmware",
+        0,
+        serialConnection.allWrittenData.size());
+
+    // Test setRaceState -> sends Extended RACE_STATE (0x45) but NO RGB LED writes (0x4C / 0x6C)
+    protocol.setRaceState(RaceState.RACING, RaceFlag.GREEN, 0.0);
+    boolean hasRaceState =
+        serialConnection.allWrittenData.stream()
+            .anyMatch(d -> d.length > 0 && d[0] == 0x45 && d[1] == 0x00);
+    hasLedWrite =
+        serialConnection.allWrittenData.stream()
+            .anyMatch(d -> d.length > 0 && (d[0] == 0x4C || d[0] == 0x6C));
+    assertTrue("Should send extended race state", hasRaceState);
+    assertFalse("Should NOT send RGB LED writes for race state", hasLedWrite);
+
+    // Test setFuelLevel -> sends Extended FUEL (0x45 0x03) but NO RGB LED writes
+    serialConnection.allWrittenData.clear();
+    protocol.setFuelLevel(0, 50.0, 100.0);
+    boolean hasFuel =
+        serialConnection.allWrittenData.stream()
+            .anyMatch(d -> d.length > 0 && d[0] == 0x45 && d[1] == 0x03);
+    hasLedWrite =
+        serialConnection.allWrittenData.stream()
+            .anyMatch(d -> d.length > 0 && (d[0] == 0x4C || d[0] == 0x6C));
+    assertTrue("Should send extended fuel level", hasFuel);
+    assertFalse("Should NOT send RGB LED writes for fuel level", hasLedWrite);
+
+    // Test setHeatProgress -> does not send any RGB LED writes
+    serialConnection.allWrittenData.clear();
+    protocol.setHeatProgress(0.5);
+    assertEquals(
+        "Should not send any RGB LED writes for heat progress on legacy firmware",
+        0,
+        serialConnection.allWrittenData.size());
+
+    // Test setRefueling -> does not send any RGB LED writes
+    protocol.setRefueling(0, true);
+    assertEquals(
+        "Should not send any RGB LED writes for refueling on legacy firmware",
+        0,
+        serialConnection.allWrittenData.size());
+
+    // Test updateConfig with changed LED strings -> should not send 0x6C
+    ArduinoConfig updatedConfig = new ArduinoConfig();
+    updatedConfig.commPort = "COM1";
+    updatedConfig.digitalIds = new ArrayList<>(config.digitalIds);
+    updatedConfig.analogIds = new ArrayList<>(config.analogIds);
+    updatedConfig.ledStrings =
+        Collections.singletonList(
+            new LedString(4, Collections.singletonList(1), 200, 0, 0, 5.0, new ArrayList<>()));
+    protocol.updateConfig(updatedConfig);
+    hasLedMode =
+        serialConnection.allWrittenData.stream().anyMatch(d -> d.length > 0 && d[0] == 0x6C);
+    assertFalse("Should NOT send RGB LED mode on updateConfig for legacy firmware", hasLedMode);
+  }
+
+  @Test
+  public void testLegacyFirmware_VariousBuildNumbersAccepted() {
+    int[] builds = {0, 1, 14, 15, 99};
+    for (int build : builds) {
+      TestableArduinoProtocol p =
+          new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+      p.open();
+      byte[] msg = {0x56, 1, 0, 0, (byte) build, 0x3B};
+      serialConnection.injectData(msg);
+      assertTrue("Build " + build + " should be verified", p.isOpen());
+      assertFalse("Build " + build + " should have supportsRgbLeds=false", p.supportsRgbLeds());
+      assertEquals("1.0.0." + build, p.getVersion());
+      p.close();
+    }
+  }
+
+  @Test
+  public void testModernFirmware_VersionAndSupportsRgbLeds() {
+    protocol.open();
+    byte[] msg = {0x56, 2, 1, 0, 0, 0x3B};
+    serialConnection.injectData(msg);
+    assertTrue(protocol.isOpen());
+    assertTrue(protocol.supportsRgbLeds());
+    assertEquals("2.1.0.0", protocol.getVersion());
+
+    protocol.simulateHeartbeat();
+    scheduler.tick();
+    assertNotNull(listener.lastEvent);
+    assertTrue(listener.lastEvent.hasStatus());
+    assertTrue(listener.lastEvent.getStatus().getSupportsRgbLeds());
+    assertEquals("2.1.0.0", listener.lastEvent.getStatus().getVersion());
+  }
+
+  @Test
+  public void testInvalidFirmwareVersions_Rejected() {
+    byte[][] invalidVersions = {
+      {0x56, 3, 0, 0, 0, 0x3B}, // 3.0.0.0
+      {0x56, 1, 1, 0, 0, 0x3B}, // 1.1.0.0
+      {0x56, 2, 0, 0, 0, 0x3B}, // 2.0.0.0
+      {0x56, 0, 0, 0, 0, 0x3B}, // 0.0.0.0
+    };
+
+    for (byte[] ver : invalidVersions) {
+      TestableArduinoProtocol p =
+          new TestableArduinoProtocol(config, 2, scheduler, serialConnection);
+      p.open();
+      serialConnection.injectData(ver);
+      assertFalse(
+          "Version should be rejected: " + ver[1] + "." + ver[2] + "." + ver[3], p.isOpen());
+      p.close();
+    }
+  }
 }

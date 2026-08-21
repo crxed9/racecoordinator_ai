@@ -236,11 +236,14 @@ public abstract class DefaultProtocol implements IProtocol {
             tryAutoReconnect();
           }
         }
+        String ver = getVersion();
         InterfaceStatusEvent statusEvent =
             InterfaceStatusEvent.newBuilder()
                 .setStatus(status)
                 .setInterfaceIndex(getInterfaceIndex())
                 .setDetectedChannels(getDetectedChannels())
+                .setSupportsRgbLeds(supportsRgbLeds())
+                .setVersion(ver != null ? ver : "")
                 .build();
         listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
         listener.onInterfaceStatus(status, getInterfaceIndex());
@@ -689,6 +692,14 @@ public abstract class DefaultProtocol implements IProtocol {
   }
 
   protected abstract boolean isConnected();
+
+  public boolean supportsRgbLeds() {
+    return true;
+  }
+
+  public String getVersion() {
+    return "";
+  }
 
   @Override
   public void initializeHardwareState() {}

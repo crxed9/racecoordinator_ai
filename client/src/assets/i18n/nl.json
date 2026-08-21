@@ -97,6 +97,7 @@
   "AE_PIN_UNUSED": "Ongebruikt",
   "AE_PIN_VOLTAGE_LANE": "Spanningsdeler B{{lane}}",
   "AE_RESET_MAX_SEEN": "Max gezien resetten",
+  "AE_RGB_LEDS_DISABLED_TOOLTIP": "Werk sketch bij om RGB-LED's in te schakelen",
   "AE_RGB_LED_CONFIG": "RGB LED-configuratie",
   "AE_SELECT_PORT": "Selecteer Poort",
   "AE_VOLTAGE_CONFIG_HEADER": "Spanningsdeler configuratie",

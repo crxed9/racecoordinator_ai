@@ -33,7 +33,8 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 
 ## Git Branching & Release Pipeline Discipline
 - **Develop is the default base**: Standard feature and bugfix work branches from `develop` and merges into `develop`.
-- **Main is for official releases**: Pushes to `main` automatically publish an official release (`vX.Y.Z` derived from `VERSION`). Never push or merge directly into `main` unless intentionally publishing an official release. Manual release dispatch on `main` is blocked.
+- **Main is the stable trunk**: `main` contains stable, production-ready code and documentation. Pushes/merges to `main` do NOT trigger release builds, allowing docs, READMEs, and maintenance to land cleanly without accidental releases or `[skip ci]`.
+- **Official releases are tag-driven**: Pushing an official Git tag (`vX.Y.Z`) or manually dispatching a release on `main` publishes an official release (`vX.Y.Z` derived from the tag or `VERSION` file).
 - **Release branches are for beta prereleases**: Pushes to `release/vX.Y.Z` automatically publish an incremented beta prerelease (`vX.Y.Z-beta.N`). Manual release dispatch on `release/*` branches is blocked.
 - **Daily schedule builds**: Automatically publish daily alpha builds from `develop` named `vX.Y.Z-alpha.YYYYMMDD` (where `X.Y.Z` comes from the `VERSION` file).
 - **Manual releases from develop**: Manual workflow dispatch on `develop` without an explicit version override publishes an alpha build named `vX.Y.Z-alpha.<hash>` (using the commit SHA).

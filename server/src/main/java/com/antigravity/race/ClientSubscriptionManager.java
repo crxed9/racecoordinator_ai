@@ -280,14 +280,20 @@ public class ClientSubscriptionManager {
           } else {
             status = InterfaceStatus.DISCONNECTED;
           }
+          InterfaceStatusEvent.Builder statusBuilder =
+              InterfaceStatusEvent.newBuilder()
+                  .setStatus(status)
+                  .setInterfaceIndex(p.getInterfaceIndex());
+          if (p instanceof DefaultProtocol) {
+            DefaultProtocol dp = (DefaultProtocol) p;
+            statusBuilder.setSupportsRgbLeds(dp.supportsRgbLeds());
+            String ver = dp.getVersion();
+            if (ver != null) {
+              statusBuilder.setVersion(ver);
+            }
+          }
           InterfaceEvent event =
-              InterfaceEvent.newBuilder()
-                  .setStatus(
-                      InterfaceStatusEvent.newBuilder()
-                          .setStatus(status)
-                          .setInterfaceIndex(p.getInterfaceIndex())
-                          .build())
-                  .build();
+              InterfaceEvent.newBuilder().setStatus(statusBuilder.build()).build();
           try {
             ctx.send(ByteBuffer.wrap(event.toByteArray()));
           } catch (Exception e) {
