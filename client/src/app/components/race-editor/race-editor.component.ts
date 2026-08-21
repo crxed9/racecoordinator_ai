@@ -662,6 +662,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           };
         }
         this.enforceFuelRules();
+        this.syncHeatPositionPoints();
         this.originalRace = deepCopy(this.editingRace);
         this.undoManager.initialize(this.editingRace);
         this.syncSelectedCustomRotationAsset();
@@ -704,8 +705,11 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           this.tracks.length > 0
         ) {
           this.editingRace.track_entity_id = this.tracks[0].entity_id;
+          this.syncHeatPositionPoints();
           this.originalRace = deepCopy(this.editingRace);
           this.undoManager.initialize(this.editingRace);
+        } else if (this.editingRace) {
+          this.syncHeatPositionPoints();
         }
         this.enforceFuelRules();
         // Safe to call here - triggered by async data load, not user input
@@ -881,7 +885,12 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         rotate_group_heats: false,
         min_advancing: 0,
       },
+      season_scoring: {
+        position_points: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1],
+        heat_position_points: [3, 2, 1, 0],
+      },
     };
+    this.syncHeatPositionPoints();
     this.originalRace = deepCopy(this.editingRace);
     this.undoManager.initialize(this.editingRace);
     this.syncSelectedCustomRotationAsset();
@@ -961,6 +970,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     this.validateHeatConfigurations();
     this.enforceFuelRules();
     this.syncSelectedCustomRotationAsset();
+    this.syncHeatPositionPoints();
     this.undoManager.captureState();
     // Regenerate heats when rotation type changes (even for new races)
     if (this.driverCount > 0) {
@@ -3088,6 +3098,43 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       return;
     this.editingRace.season_scoring.position_points.splice(index, 1);
     this.captureState();
+  }
+
+  syncHeatPositionPoints(): void {
+    if (!this.editingRace) return;
+    if (!this.editingRace.season_scoring) {
+      this.editingRace.season_scoring = {
+        position_points: [25, 18, 15, 12, 10, 8, 6, 4, 2, 1],
+        heat_position_points: [],
+      };
+    }
+    if (!Array.isArray(this.editingRace.season_scoring.heat_position_points)) {
+      this.editingRace.season_scoring.heat_position_points = [];
+    }
+
+    const track = this.tracks.find(
+      (t) => t.entity_id === this.editingRace?.track_entity_id,
+    );
+    if (!track) return;
+
+    const laneCount = track.lanes ? track.lanes.length : 0;
+    const currentPoints = this.editingRace.season_scoring.heat_position_points;
+
+    if (currentPoints.length === 0 && laneCount > 0) {
+      const defaultPoints = [3, 2, 1, 0];
+      const initialPoints = defaultPoints.slice(0, laneCount);
+      while (initialPoints.length < laneCount) {
+        initialPoints.push(0);
+      }
+      this.editingRace.season_scoring.heat_position_points = initialPoints;
+    } else if (currentPoints.length < laneCount) {
+      while (currentPoints.length < laneCount) {
+        currentPoints.push(0);
+      }
+    } else if (currentPoints.length > laneCount) {
+      this.editingRace.season_scoring.heat_position_points =
+        currentPoints.slice(0, laneCount);
+    }
   }
 
   startHelp() {

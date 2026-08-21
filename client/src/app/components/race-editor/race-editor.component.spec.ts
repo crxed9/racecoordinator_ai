@@ -1685,6 +1685,119 @@ describe("RaceEditorComponent", () => {
       expect(payload.season_scoring.overall_bonus_most_laps_led).toBe(6);
       expect(payload.season_scoring.overall_one_bonus_per_driver).toBe(true);
     });
+
+    it("should sync heat position points to track lane count when creating a new race", () => {
+      component.tracks = [
+        {
+          entity_id: "track6",
+          name: "6-Lane Track",
+          lanes: [{}, {}, {}, {}, {}, {}],
+        } as any,
+      ];
+      component.createNewRace();
+      expect(
+        component.editingRace.season_scoring.heat_position_points.length,
+      ).toBe(6);
+      expect(component.editingRace.season_scoring.heat_position_points).toEqual(
+        [3, 2, 1, 0, 0, 0],
+      );
+    });
+
+    it("should expand heat position points with 0s when switching from a 4-lane to a 6-lane track", () => {
+      component.tracks = [
+        {
+          entity_id: "track4",
+          name: "4-Lane Track",
+          lanes: [{}, {}, {}, {}],
+        } as any,
+        {
+          entity_id: "track6",
+          name: "6-Lane Track",
+          lanes: [{}, {}, {}, {}, {}, {}],
+        } as any,
+      ];
+      component.editingRace.track_entity_id = "track4";
+      component.editingRace.season_scoring = {
+        position_points: [25, 18, 15, 12],
+        heat_position_points: [10, 8, 6, 4],
+      };
+      component.captureState();
+      expect(component.editingRace.season_scoring.heat_position_points).toEqual(
+        [10, 8, 6, 4],
+      );
+
+      // Switch to 6-lane track
+      component.editingRace.track_entity_id = "track6";
+      component.captureState();
+      expect(component.editingRace.season_scoring.heat_position_points).toEqual(
+        [10, 8, 6, 4, 0, 0],
+      );
+    });
+
+    it("should truncate extra heat position points when switching from a 6-lane track to a 4-lane track", () => {
+      component.tracks = [
+        {
+          entity_id: "track4",
+          name: "4-Lane Track",
+          lanes: [{}, {}, {}, {}],
+        } as any,
+        {
+          entity_id: "track6",
+          name: "6-Lane Track",
+          lanes: [{}, {}, {}, {}, {}, {}],
+        } as any,
+      ];
+      component.editingRace.track_entity_id = "track6";
+      component.editingRace.season_scoring = {
+        position_points: [25, 18, 15, 12, 10, 8],
+        heat_position_points: [10, 8, 6, 4, 2, 1],
+      };
+      component.captureState();
+      expect(component.editingRace.season_scoring.heat_position_points).toEqual(
+        [10, 8, 6, 4, 2, 1],
+      );
+
+      // Switch back to 4-lane track
+      component.editingRace.track_entity_id = "track4";
+      component.captureState();
+      expect(component.editingRace.season_scoring.heat_position_points).toEqual(
+        [10, 8, 6, 4],
+      );
+    });
+
+    it("should sync heat position points when track lane count has changed on loaded race", () => {
+      // Track now has 6 lanes but race was previously saved with 4 heat points
+      component.tracks = [
+        {
+          entity_id: "track-modified",
+          name: "Modified Track",
+          lanes: [{}, {}, {}, {}, {}, {}],
+        } as any,
+      ];
+      component.editingRace.track_entity_id = "track-modified";
+      component.editingRace.season_scoring = {
+        position_points: [25, 18, 15, 12],
+        heat_position_points: [5, 4, 3, 2],
+      };
+
+      component.syncHeatPositionPoints();
+      expect(component.editingRace.season_scoring.heat_position_points).toEqual(
+        [5, 4, 3, 2, 0, 0],
+      );
+    });
+
+    it("should handle null editingRace or missing track safely in syncHeatPositionPoints", () => {
+      component.editingRace = null as any;
+      expect(() => component.syncHeatPositionPoints()).not.toThrow();
+
+      component.editingRace = {
+        track_entity_id: "non-existent-track",
+        season_scoring: null,
+      } as any;
+      component.tracks = [];
+      expect(() => component.syncHeatPositionPoints()).not.toThrow();
+      expect(component.editingRace.season_scoring).toBeDefined();
+    });
   });
 
   describe("Guided Help", () => {
