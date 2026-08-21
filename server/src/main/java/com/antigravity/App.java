@@ -303,6 +303,13 @@ public class App {
                           });
 
                       config.jsonMapper(new JavalinJackson(new ObjectMapper()));
+                      config.server(
+                          () -> {
+                            org.eclipse.jetty.server.Server server =
+                                new org.eclipse.jetty.server.Server();
+                            server.setStopTimeout(1000);
+                            return server;
+                          });
                     })
                 .start(serverPort);
         logger.info("Javalin started successfully on port {}.", serverPort);

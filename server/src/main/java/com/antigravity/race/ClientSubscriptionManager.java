@@ -40,7 +40,13 @@ public class ClientSubscriptionManager {
       Collections.newSetFromMap(new ConcurrentHashMap<>());
   private final Set<WsContext> interfaceSubscribers =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
-  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService scheduler =
+      Executors.newSingleThreadScheduledExecutor(
+          r -> {
+            Thread t = new Thread(r, "ClientSubscriptionManager-Scheduler");
+            t.setDaemon(true);
+            return t;
+          });
   private ScheduledFuture<?> cleanupFuture;
   private long cleanupGracePeriodSeconds = 10;
   private boolean hasEverHadClient = false;
@@ -106,6 +112,23 @@ public class ClientSubscriptionManager {
       logger.info("Server shutting down. Cleaning up race and protocols...");
       setRace(null);
       setProtocol(null);
+      if (autoShutdownFuture != null) {
+        autoShutdownFuture.cancel(true);
+        autoShutdownFuture = null;
+      }
+      if (cleanupFuture != null) {
+        cleanupFuture.cancel(true);
+        cleanupFuture = null;
+      }
+      for (WsContext ctx : sessions) {
+        try {
+          ctx.session.close();
+        } catch (Exception ignored) {
+        }
+      }
+      sessions.clear();
+      raceDataSubscribers.clear();
+      interfaceSubscribers.clear();
     }
   }
 

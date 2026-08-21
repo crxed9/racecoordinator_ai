@@ -117,7 +117,12 @@ public abstract class DefaultProtocol implements IProtocol {
   }
 
   protected ScheduledExecutorService createScheduler() {
-    return Executors.newSingleThreadScheduledExecutor();
+    return Executors.newSingleThreadScheduledExecutor(
+        r -> {
+          Thread t = new Thread(r, "DefaultProtocol-Scheduler-" + getInterfaceIndex());
+          t.setDaemon(true);
+          return t;
+        });
   }
 
   protected synchronized void startStatusScheduler() {

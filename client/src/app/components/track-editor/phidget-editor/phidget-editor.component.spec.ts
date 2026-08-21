@@ -369,4 +369,82 @@ describe("PhidgetEditorComponent", () => {
       expect(component.sectionsExpanded.digitalIn).toBeTrue();
     }
   });
+
+  it("should evaluate real-time trip state for Normally Closed lane sensors", () => {
+    component.config().normallyClosedLaneSensors = true;
+
+    // NC Untripped (closed circuit, state 1)
+    eventsSubject.next({
+      digitalPin: {
+        interfaceIndex: 0,
+        pin: 0,
+        isDigital: true,
+        state: 1,
+      },
+    });
+    fixture.detectChanges();
+    expect(component.isPinActive("in", 0)).toBeFalse();
+
+    // NC Tripped (open circuit, state 0)
+    eventsSubject.next({
+      digitalPin: {
+        interfaceIndex: 0,
+        pin: 0,
+        isDigital: true,
+        state: 0,
+      },
+    });
+    fixture.detectChanges();
+    expect(component.isPinActive("in", 0)).toBeTrue();
+  });
+
+  it("should evaluate real-time trip state for Normally Open lane sensors", () => {
+    component.config().normallyClosedLaneSensors = false;
+
+    // NO Untripped (open circuit, state 0)
+    eventsSubject.next({
+      digitalPin: {
+        interfaceIndex: 0,
+        pin: 0,
+        isDigital: true,
+        state: 0,
+      },
+    });
+    fixture.detectChanges();
+    expect(component.isPinActive("in", 0)).toBeFalse();
+
+    // NO Tripped (closed circuit, state 1)
+    eventsSubject.next({
+      digitalPin: {
+        interfaceIndex: 0,
+        pin: 0,
+        isDigital: true,
+        state: 1,
+      },
+    });
+    fixture.detectChanges();
+    expect(component.isPinActive("in", 0)).toBeTrue();
+  });
+
+  it("should trigger pulse on lap and callbutton events", () => {
+    eventsSubject.next({
+      lap: {
+        interfaceIndex: 0,
+        interfaceId: 1,
+      },
+    });
+    fixture.detectChanges();
+    expect(component.isPinActive("in", 1)).toBeTrue();
+
+    // Trigger callbutton event
+    eventsSubject.next({
+      callbutton: {
+        interfaceIndex: 0,
+        lane: 0,
+      },
+    });
+    fixture.detectChanges();
+    // sampleConfig has PinBehavior.BEHAVIOR_CALL_BUTTON on pin 1
+    expect(component.isPinActive("in", 1)).toBeTrue();
+  });
 });

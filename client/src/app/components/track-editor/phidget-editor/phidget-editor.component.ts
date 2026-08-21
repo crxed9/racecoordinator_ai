@@ -95,7 +95,12 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
     }
 
     this.updateSelectedDeviceKey();
+    this.loadSavedSections();
+    this.subscribeToPhidgetDevices();
+    this.subscribeToInterfaceEvents();
+  }
 
+  private loadSavedSections(): void {
     const savedSections = localStorage.getItem(
       `rc.phidget-editor.sections.${this.interfaceIndex()}`,
     );
@@ -107,7 +112,9 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
         };
       } catch (e) {}
     }
+  }
 
+  private subscribeToPhidgetDevices(): void {
     this.subscriptions.add(
       this.dataService.getPhidgetDevices().subscribe({
         next: (devices) => {
@@ -130,45 +137,93 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
         },
       }),
     );
+  }
 
+  private subscribeToInterfaceEvents(): void {
     this.subscriptions.add(
       this.dataService.getInterfaceEvents().subscribe({
-        next: (event) => {
-          if (
-            event.status &&
-            (event.status.interfaceIndex ?? 0) === this.interfaceIndex()
-          ) {
-            const statusCode = event.status.status as number;
-            if (statusCode === InterfaceStatus.CONNECTED) {
-              this.status = "CONNECTED";
-            } else if (statusCode === InterfaceStatus.NO_DATA) {
-              this.status = "NO_DATA";
-            } else {
-              this.status = "DISCONNECTED";
-            }
-            this.cdr.detectChanges();
-          }
-
-          if (
-            event.digitalPin &&
-            (event.digitalPin.interfaceIndex ?? 0) === this.interfaceIndex()
-          ) {
-            const pin = event.digitalPin.pin ?? 0;
-            const isDigital = event.digitalPin.isDigital ?? true;
-            const key = `${isDigital ? "in" : "analog"}-${pin}`;
-            this.pinActivity[key] = true;
-            if (this.pinActivityTimers[key]) {
-              clearTimeout(this.pinActivityTimers[key]);
-            }
-            this.pinActivityTimers[key] = setTimeout(() => {
-              this.pinActivity[key] = false;
-              this.cdr.detectChanges();
-            }, 500);
-            this.cdr.detectChanges();
-          }
-        },
+        next: (event) => this.handleInterfaceEvent(event),
       }),
     );
+  }
+
+  private handleInterfaceEvent(event: any): void {
+    if (
+      event.status &&
+      (event.status.interfaceIndex ?? 0) === this.interfaceIndex()
+    ) {
+      const statusCode = event.status.status as number;
+      if (statusCode === InterfaceStatus.CONNECTED) {
+        this.status = "CONNECTED";
+      } else if (statusCode === InterfaceStatus.NO_DATA) {
+        this.status = "NO_DATA";
+      } else {
+        this.status = "DISCONNECTED";
+      }
+      this.cdr.detectChanges();
+    } else if (
+      event.lap &&
+      (event.lap.interfaceIndex ?? 0) === this.interfaceIndex()
+    ) {
+      const pin = event.lap.interfaceId ?? -1;
+      if (pin >= 0) {
+        this.triggerPinPulse(`in-${pin}`);
+      }
+    } else if (
+      event.segment &&
+      (event.segment.interfaceIndex ?? 0) === this.interfaceIndex()
+    ) {
+      const pin = event.segment.interfaceId ?? -1;
+      if (pin >= 0) {
+        this.triggerPinPulse(`in-${pin}`);
+      }
+    } else if (
+      event.callbutton &&
+      (event.callbutton.interfaceIndex ?? 0) === this.interfaceIndex()
+    ) {
+      const lane = event.callbutton.lane;
+      const c = this.config();
+      if (c?.digitalInIds) {
+        for (let i = 0; i < c.digitalInIds.length; i++) {
+          const behavior = c.digitalInIds[i];
+          if (
+            behavior === PinBehavior.BEHAVIOR_CALL_BUTTON ||
+            behavior === PinBehavior.BEHAVIOR_CALL_BUTTON_BASE + (lane ?? 0)
+          ) {
+            this.triggerPinPulse(`in-${i}`);
+          }
+        }
+      }
+    } else if (
+      event.digitalPin &&
+      (event.digitalPin.interfaceIndex ?? 0) === this.interfaceIndex()
+    ) {
+      const pin = event.digitalPin.pin ?? 0;
+      const isDigital = event.digitalPin.isDigital ?? true;
+      const state = event.digitalPin.state ?? 0;
+      const key = `${isDigital ? "in" : "analog"}-${pin}`;
+      const nc = !!this.config()?.normallyClosedLaneSensors;
+      const isTrip = nc ? state === 0 : state === 1;
+
+      this.pinActivity[key] = isTrip;
+      if (this.pinActivityTimers[key]) {
+        clearTimeout(this.pinActivityTimers[key]);
+        delete this.pinActivityTimers[key];
+      }
+      this.cdr.detectChanges();
+    }
+  }
+
+  triggerPinPulse(key: string) {
+    this.pinActivity[key] = true;
+    if (this.pinActivityTimers[key]) {
+      clearTimeout(this.pinActivityTimers[key]);
+    }
+    this.pinActivityTimers[key] = setTimeout(() => {
+      this.pinActivity[key] = false;
+      this.cdr.detectChanges();
+    }, 500);
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -784,8 +839,8 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
 
   isPinActive(type: "in" | "out" | "analog", pin: number): boolean {
     const key = `${type}-${pin}`;
-    if (this.pinState[key] !== undefined) {
-      return this.pinState[key];
+    if (type === "out") {
+      return !!this.pinState[key];
     }
     return !!this.pinActivity[key];
   }
