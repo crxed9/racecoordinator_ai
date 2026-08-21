@@ -633,6 +633,14 @@ describe("UIEditorComponent", () => {
     expect(totalTime?.label).toBe("RD_COL_TOTAL_TIME");
   });
 
+  it("should include recordLapTime column in availableColumns", () => {
+    const recordLapTime = component.availableColumns.find(
+      (c) => c.key === "recordLapTime",
+    );
+    expect(recordLapTime).toBeTruthy();
+    expect(recordLapTime?.label).toBe("RD_COL_RECORD_LAP_TIME");
+  });
+
   it("should include lapsLed column in availableColumns", () => {
     const lapsLed = component.availableColumns.find((c) => c.key === "lapsLed");
     expect(lapsLed).toBeTruthy();

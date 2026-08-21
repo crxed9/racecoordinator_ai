@@ -4,10 +4,12 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  ElementRef,
   HostListener,
   inject,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
@@ -71,6 +73,8 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   customRotationAssets: any[] = [];
   selectedCustomRotationAssetId: string = "";
   customSequenceText: string = "";
+  @ViewChild("seasonPositionPointsList")
+  seasonPositionPointsList?: ElementRef<HTMLDivElement>;
 
   heatRotationTypes = [
     "RoundRobin",
@@ -3087,6 +3091,16 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     }
     this.editingRace.season_scoring.position_points.push(0);
     this.captureState();
+    this.scrollPositionPointsToBottom();
+  }
+
+  private scrollPositionPointsToBottom(): void {
+    setTimeout(() => {
+      if (this.seasonPositionPointsList?.nativeElement) {
+        this.seasonPositionPointsList.nativeElement.scrollTop =
+          this.seasonPositionPointsList.nativeElement.scrollHeight;
+      }
+    }, 0);
   }
 
   removeSeasonPositionPoint(index: number): void {

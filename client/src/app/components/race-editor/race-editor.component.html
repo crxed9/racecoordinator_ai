@@ -694,6 +694,7 @@
                     @if (editingRace.season_scoring) {
                       <div class="config-section">
                         <div
+                          #seasonPositionPointsList
                           class="season-points-list"
                           [class.two-columns]="
                             (editingRace.season_scoring.position_points
@@ -729,16 +730,16 @@
                               </button>
                             </div>
                           }
-                          <button
-                            id="season-add-pos-btn"
-                            data-testid="season-add-pos-btn"
-                            type="button"
-                            class="btn-add-pos"
-                            (click)="addSeasonPositionPoint()"
-                          >
-                            {{ "SS_ADD_POS" | translate }}
-                          </button>
                         </div>
+                        <button
+                          id="season-add-pos-btn"
+                          data-testid="season-add-pos-btn"
+                          type="button"
+                          class="btn-add-pos"
+                          (click)="addSeasonPositionPoint()"
+                        >
+                          {{ "SS_ADD_POS" | translate }}
+                        </button>
                       </div>
                     }
                   </div>

@@ -555,6 +555,23 @@
                           </div>
                         }
                       </div>
+                    } @else if (entry.property === "recordLapTime") {
+                      <div class="record-lap-content">
+                        <div class="record-lap-time">
+                          {{ parent().getLaneRecordTime(hd, entry.anchor) }}
+                        </div>
+                        <div class="record-lap-sub">
+                          <span
+                            class="record-lap-holder"
+                            [title]="parent().getLaneRecordHolder(hd)"
+                          >
+                            {{ parent().getLaneRecordHolder(hd) }}
+                          </span>
+                          <span class="record-lap-date">
+                            {{ parent().getLaneRecordDate(hd) }}
+                          </span>
+                        </div>
+                      </div>
                     } @else if (
                       !parent().isNameProperty(entry.property) ||
                       !parent().isTeam(hd)

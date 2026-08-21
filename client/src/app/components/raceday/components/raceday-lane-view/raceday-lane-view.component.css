@@ -415,6 +415,48 @@
   white-space: nowrap;
 }
 
+.record-lap-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1.1;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 2px 4px;
+}
+
+.record-lap-time {
+  font-size: 1em;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+}
+
+.record-lap-sub {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.42em;
+  opacity: 0.85;
+  margin-top: 2px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.record-lap-holder {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+.record-lap-date {
+  opacity: 0.75;
+}
+
 /* UI Editor Mode - Column Drop Zones */
 .anchor-drop-grid {
   position: absolute;

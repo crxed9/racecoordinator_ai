@@ -3106,6 +3106,46 @@ describe("DefaultRacedayComponent", () => {
       expect(component["heatBestNickname"]).toBe("---");
       expect(component["heatBestTime"]).toBe(0);
     });
+
+    it("should get lane record entry, time, holder, and date correctly", () => {
+      const mockRecords: IRecordData = {
+        overall: {
+          laneFastestLap: [
+            {
+              value: 4.1234,
+              holderNickname: "Speedy",
+              date: new Date(2026, 7, 21).getTime(),
+            },
+            {
+              value: 5.6789,
+              holderName: "Jane Doe",
+              date: 1724212800000,
+            },
+          ],
+        },
+      };
+      recordDataSubject.next(mockRecords);
+
+      const hd0 = { laneIndex: 0 } as any;
+      const hd1 = { laneIndex: 1 } as any;
+      const hd2 = { laneIndex: 2 } as any;
+
+      expect(component.getLaneRecordEntry(hd0)?.value).toBe(4.1234);
+      expect(component.getLaneRecordEntry(hd1)?.value).toBe(5.6789);
+      expect(component.getLaneRecordEntry(hd2)).toBeUndefined();
+      expect(component.getLaneRecordEntry(0)?.value).toBe(4.1234);
+
+      expect(component.getLaneRecordTime(hd0)).toBe("4.123");
+      expect(component.getLaneRecordTime(hd1)).toBe("5.679");
+      expect(component.getLaneRecordTime(hd2)).toBe("--.---");
+
+      expect(component.getLaneRecordHolder(hd0)).toBe("Speedy");
+      expect(component.getLaneRecordHolder(hd1)).toBe("Jane Doe");
+      expect(component.getLaneRecordHolder(hd2)).toBe("---");
+
+      expect(component.getLaneRecordDate(hd0)).toBe("2026-08-21");
+      expect(component.getLaneRecordDate(hd2)).toBe("---");
+    });
   });
 
   describe("Countdown Overlay", () => {

@@ -1626,6 +1626,23 @@ describe("RaceEditorComponent", () => {
       expect(component.captureState).toHaveBeenCalled();
     });
 
+    it("should scroll points list to bottom when adding a season position point", fakeAsync(() => {
+      const mockElement = {
+        scrollTop: 0,
+        scrollHeight: 500,
+      } as any;
+      component.seasonPositionPointsList = {
+        nativeElement: mockElement,
+      } as any;
+      component.editingRace.season_scoring = {
+        position_points: [10],
+        heat_position_points: [5],
+      };
+      component.addSeasonPositionPoint();
+      tick(10);
+      expect(mockElement.scrollTop).toBe(500);
+    }));
+
     it("should call captureState when removing a season position point", () => {
       spyOn(component, "captureState");
       component.editingRace.season_scoring = {

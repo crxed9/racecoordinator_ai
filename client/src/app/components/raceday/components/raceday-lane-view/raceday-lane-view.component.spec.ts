@@ -109,6 +109,10 @@ describe("RacedayLaneViewComponent", () => {
       },
       isEmptyDriver: (hd: any) => hd?.isEmpty === true,
       getLaneRecord: (_hd: any) => 5.2,
+      getLaneRecordTime: (hd: any) => (hd.laneIndex === 0 ? "5.200" : "--.---"),
+      getLaneRecordHolder: (hd: any) => (hd.laneIndex === 0 ? "Speedy" : "---"),
+      getLaneRecordDate: (hd: any) =>
+        hd.laneIndex === 0 ? "2026-08-21" : "---",
       heatBestTime: 4.9,
       trackByLayout: (idx: number, entry: any) => entry.property,
     };
@@ -451,5 +455,41 @@ describe("RacedayLaneViewComponent", () => {
     expect(component.isPacingProperty("ghostPacingPB")).toBe(true);
     expect(component.isPacingProperty("driver.name")).toBe(false);
     expect(component.isPacingProperty(undefined)).toBe(false);
+  });
+
+  it("should render recordLapTime column with time, nickname, and date", () => {
+    mockParent.columns = [
+      {
+        propertyName: "recordLapTime",
+        labelKey: "RD_COL_RECORD_LAP_TIME",
+        layout: {
+          [AnchorPoint.CenterCenter]: "recordLapTime",
+        },
+      } as any,
+    ];
+    fixture.detectChanges();
+
+    const recordContentEls = fixture.nativeElement.querySelectorAll(
+      ".record-lap-content",
+    );
+    expect(recordContentEls.length).toBe(2);
+
+    const firstRowTime = recordContentEls[0].querySelector(".record-lap-time");
+    const firstRowHolder =
+      recordContentEls[0].querySelector(".record-lap-holder");
+    const firstRowDate = recordContentEls[0].querySelector(".record-lap-date");
+
+    expect(firstRowTime.textContent.trim()).toBe("5.200");
+    expect(firstRowHolder.textContent.trim()).toBe("Speedy");
+    expect(firstRowDate.textContent.trim()).toBe("2026-08-21");
+
+    const secondRowTime = recordContentEls[1].querySelector(".record-lap-time");
+    const secondRowHolder =
+      recordContentEls[1].querySelector(".record-lap-holder");
+    const secondRowDate = recordContentEls[1].querySelector(".record-lap-date");
+
+    expect(secondRowTime.textContent.trim()).toBe("--.---");
+    expect(secondRowHolder.textContent.trim()).toBe("---");
+    expect(secondRowDate.textContent.trim()).toBe("---");
   });
 });

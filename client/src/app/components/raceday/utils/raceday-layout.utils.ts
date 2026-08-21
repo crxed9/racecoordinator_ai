@@ -251,6 +251,7 @@ export class RacedayLayoutUtils {
       medianLapTime: "RD_COL_MEDIAN_LAP",
       averageLapTime: "RD_COL_AVG_LAP",
       bestLapTime: "RD_COL_BEST_LAP",
+      recordLapTime: "RD_COL_RECORD_LAP_TIME",
       totalTime: "RD_COL_TOTAL_TIME",
       gapLeader: "RD_COL_GAP_LEADER",
       gapPosition: "RD_COL_GAP_POSITION",
