@@ -235,11 +235,12 @@ public class Starting implements IRaceState {
   public RaceFlag getFlagType(Race race) {
     if (race != null && race.hasRacedInCurrentHeat()) {
       return race.getTheme() != null
-          ? race.getTheme().resolveFlag("flag.restarting", RaceFlag.YELLOW)
+          ? race.getTheme()
+              .resolveFlag("flag.restarting", RaceFlag.YELLOW, race.getDatabaseContext())
           : RaceFlag.YELLOW;
     }
     return race.getTheme() != null
-        ? race.getTheme().resolveFlag("flag.starting", RaceFlag.RED)
+        ? race.getTheme().resolveFlag("flag.starting", RaceFlag.RED, race.getDatabaseContext())
         : RaceFlag.RED;
   }
 
@@ -250,7 +251,7 @@ public class Starting implements IRaceState {
         && lane < race.getCurrentHeat().getDrivers().size()) {
       if (race.getCurrentHeat().getDrivers().get(lane).getRemainingFalseStartTimePenalty() > 0) {
         return race.getTheme() != null
-            ? race.getTheme().resolveFlag("flag.penalty", RaceFlag.BLACK)
+            ? race.getTheme().resolveFlag("flag.penalty", RaceFlag.BLACK, race.getDatabaseContext())
             : RaceFlag.BLACK;
       }
     }

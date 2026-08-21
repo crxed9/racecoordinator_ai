@@ -33,11 +33,12 @@ public class RaceOver implements IRaceState {
         && race.getRaceModel().getHeatScoring() != null
         && race.getRaceModel().getHeatScoring().getAllowFinish() == HeatScoring.AllowFinish.None) {
       return race.getTheme() != null
-          ? race.getTheme().resolveFlag("flag.race_over", RaceFlag.CHECKERED)
+          ? race.getTheme()
+              .resolveFlag("flag.race_over", RaceFlag.CHECKERED, race.getDatabaseContext())
           : RaceFlag.CHECKERED;
     }
     return race.getTheme() != null
-        ? race.getTheme().resolveFlag("flag.heat_over", RaceFlag.RED)
+        ? race.getTheme().resolveFlag("flag.heat_over", RaceFlag.RED, race.getDatabaseContext())
         : RaceFlag.RED;
   }
 

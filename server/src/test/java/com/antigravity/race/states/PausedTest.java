@@ -40,6 +40,17 @@ public class PausedTest {
   }
 
   @Test
+  public void testGetFlagType_CheckeredFlagResolution() {
+    java.util.Map<String, String> slots = new java.util.HashMap<>();
+    slots.put("flag.heat_paused", "default_flag_checkered");
+    com.antigravity.models.Theme theme =
+        new com.antigravity.models.Theme("Custom", false, slots, null, "theme-chk", "id-chk");
+    when(race.getTheme()).thenReturn(theme);
+
+    assertEquals(RaceFlag.CHECKERED, paused.getFlagType(race));
+  }
+
+  @Test
   public void testEnterAndExit() {
     paused.enter(race);
     verify(race).broadcastFlag(RaceFlag.YELLOW);

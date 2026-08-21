@@ -60,7 +60,7 @@ public class Race implements ProtocolListener {
 
   private final com.antigravity.models.Race model; // fqn-collision
   private final Track track;
-  private final Theme theme;
+  private Theme theme;
   private final List<RaceParticipant> drivers;
   private List<Heat> heats;
   private Heat currentHeat;
@@ -380,6 +380,11 @@ public class Race implements ProtocolListener {
 
   public Theme getTheme() {
     return theme;
+  }
+
+  public synchronized void setTheme(Theme theme) {
+    this.theme = theme;
+    syncRaceState();
   }
 
   public List<RaceParticipant> getDrivers() {

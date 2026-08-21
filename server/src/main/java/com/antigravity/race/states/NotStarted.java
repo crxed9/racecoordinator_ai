@@ -36,12 +36,13 @@ public class NotStarted implements IRaceState {
         && elapsed <= autoStartWarmupTime
         && race.getAutoStartRemaining() > 0) {
       return race.getTheme() != null
-          ? race.getTheme().resolveFlag("flag.warmup", RaceFlag.GREEN_YELLOW)
+          ? race.getTheme()
+              .resolveFlag("flag.warmup", RaceFlag.GREEN_YELLOW, race.getDatabaseContext())
           : RaceFlag.GREEN_YELLOW;
     }
 
     return race.getTheme() != null
-        ? race.getTheme().resolveFlag("flag.not_started", RaceFlag.RED)
+        ? race.getTheme().resolveFlag("flag.not_started", RaceFlag.RED, race.getDatabaseContext())
         : RaceFlag.RED;
   }
 

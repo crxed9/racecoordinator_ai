@@ -1,9 +1,14 @@
 package com.antigravity.models;
 
+import com.antigravity.context.DatabaseContext;
 import com.antigravity.proto.RaceFlag;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +16,7 @@ import java.util.Map;
 public class Theme extends Model {
 
   public static final String DEFAULT_THEME_ID = "default_classic_rc_ai";
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final String name;
   private final boolean isDefault;
@@ -51,6 +57,10 @@ public class Theme extends Model {
   }
 
   public RaceFlag resolveFlag(String slotKey, RaceFlag fallback) {
+    return resolveFlag(slotKey, fallback, null);
+  }
+
+  public RaceFlag resolveFlag(String slotKey, RaceFlag fallback, DatabaseContext dbCtx) {
     if (slots == null || slotKey == null) {
       return fallback;
     }
@@ -58,7 +68,57 @@ public class Theme extends Model {
     if (assetId == null || assetId.isEmpty()) {
       return fallback;
     }
-    String lower = assetId.toLowerCase();
+    RaceFlag matched = matchFlagString(assetId);
+    if (matched != null) {
+      return matched;
+    }
+    if (dbCtx != null) {
+      RaceFlag fromDb = lookupFlagFromDatabase(dbCtx, assetId);
+      if (fromDb != null) {
+        return fromDb;
+      }
+    }
+    return fallback;
+  }
+
+  private RaceFlag lookupFlagFromDatabase(DatabaseContext dbCtx, String assetId) {
+    try {
+      dbCtx.ensureTable("assets");
+      String sql = "SELECT json_data FROM assets WHERE entity_id = ?";
+      try (PreparedStatement pstmt = dbCtx.getConnection().prepareStatement(sql)) {
+        pstmt.setString(1, assetId);
+        try (ResultSet rs = pstmt.executeQuery()) {
+          if (rs.next()) {
+            String json = rs.getString("json_data");
+            if (json != null && !json.trim().isEmpty()) {
+              JsonNode node = OBJECT_MAPPER.readTree(json);
+              if (node.has("name")) {
+                RaceFlag fromName = matchFlagString(node.get("name").asText());
+                if (fromName != null) {
+                  return fromName;
+                }
+              }
+              if (node.has("url")) {
+                RaceFlag fromUrl = matchFlagString(node.get("url").asText());
+                if (fromUrl != null) {
+                  return fromUrl;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (Exception e) {
+      // Gracefully continue to fallback
+    }
+    return null;
+  }
+
+  private static RaceFlag matchFlagString(String str) {
+    if (str == null) {
+      return null;
+    }
+    String lower = str.toLowerCase();
     if (lower.contains("green_yellow")
         || lower.contains("yellowgreen")
         || lower.contains("yellow_green")
@@ -83,6 +143,6 @@ public class Theme extends Model {
     if (lower.contains("black")) {
       return RaceFlag.BLACK;
     }
-    return fallback;
+    return null;
   }
 }

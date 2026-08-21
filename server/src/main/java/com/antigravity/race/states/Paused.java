@@ -14,7 +14,8 @@ public class Paused implements IRaceState {
   @Override
   public RaceFlag getFlagType(Race race) {
     return race != null && race.getTheme() != null
-        ? race.getTheme().resolveFlag("flag.heat_paused", RaceFlag.YELLOW)
+        ? race.getTheme()
+            .resolveFlag("flag.heat_paused", RaceFlag.YELLOW, race.getDatabaseContext())
         : RaceFlag.YELLOW;
   }
 
