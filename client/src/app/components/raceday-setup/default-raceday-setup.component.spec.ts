@@ -26,6 +26,7 @@ import { LoggerService } from "@app/services/logger.service";
 import { ParticipantValidationService } from "@app/services/participant-validation.service";
 import { RaceService } from "@app/services/race.service";
 import { SettingsService } from "@app/services/settings.service";
+import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
 import { MOCK_DRIVERS as _MOCK_DRIVERS } from "@app/testing/data/drivers_data";
 import { MOCK_RACES as _MOCK_RACES } from "@app/testing/data/races_data";
@@ -492,6 +493,45 @@ describe("DefaultRacedaySetupComponent", () => {
       jasmine.any(Array),
       true,
       jasmine.any(Object),
+      undefined,
+      undefined,
+      undefined,
+    );
+  }));
+
+  it("should pass active theme ID and activate theme when race is selected", fakeAsync(() => {
+    const themeService = TestBed.inject(ThemeService);
+    spyOn(themeService, "activateForRace").and.callThrough();
+    spyOn(themeService, "getActiveTheme").and.returnValue({
+      entity_id: "custom-theme-123",
+    } as any);
+
+    const testRace = (component as any).races[0];
+    component.selectRace(testRace);
+    expect(themeService.activateForRace).toHaveBeenCalledWith(
+      testRace.entity_id,
+    );
+
+    component.selectedParticipants = [component.unselectedParticipants[0]];
+
+    const response = InitializeRaceResponse.fromObject({
+      success: true,
+    });
+    mockDataService.getSavedRaces.and.returnValue(of([]));
+    mockDataService.initializeRace.and.returnValue(of(response));
+
+    component.startRace(false);
+    flush();
+    fixture.detectChanges();
+
+    expect(mockDataService.initializeRace).toHaveBeenCalledWith(
+      testRace.entity_id,
+      jasmine.any(Array),
+      false,
+      undefined,
+      undefined,
+      undefined,
+      "custom-theme-123",
     );
   }));
 

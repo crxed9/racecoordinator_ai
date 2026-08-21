@@ -29,7 +29,7 @@ public interface IRaceState {
       if (race.getHeatExecutionManager().isAnalogFuelEnabled()
           || race.getHeatExecutionManager().isDigitalFuelEnabled()) {
         return race.getTheme() != null
-            ? race.getTheme().resolveFlag("flag.penalty", RaceFlag.BLACK)
+            ? race.getTheme().resolveFlag("flag.penalty", RaceFlag.BLACK, race.getDatabaseContext())
             : RaceFlag.BLACK;
       }
     }
@@ -37,7 +37,7 @@ public interface IRaceState {
     // 2) False start penalty
     if (dhd.getRemainingFalseStartTimePenalty() > 0) {
       return race.getTheme() != null
-          ? race.getTheme().resolveFlag("flag.penalty", RaceFlag.BLACK)
+          ? race.getTheme().resolveFlag("flag.penalty", RaceFlag.BLACK, race.getDatabaseContext())
           : RaceFlag.BLACK;
     }
 
@@ -49,7 +49,8 @@ public interface IRaceState {
           && scoring.getAllowFinish() != AllowFinish.NoneAutoSegments) {
         if (isDriverFinished(race, lane, dhd)) {
           return race.getTheme() != null
-              ? race.getTheme().resolveFlag("flag.driver_finished", RaceFlag.RED)
+              ? race.getTheme()
+                  .resolveFlag("flag.driver_finished", RaceFlag.RED, race.getDatabaseContext())
               : RaceFlag.RED;
         }
       }

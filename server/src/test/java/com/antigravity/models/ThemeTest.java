@@ -97,4 +97,52 @@ public class ThemeTest {
     assertNotNull(themeNoId.getSlots());
     assertNotNull(themeNoId.getAudioSlots());
   }
+
+  @Test
+  public void testResolveFlag_DatabaseLookup() throws Exception {
+    java.io.File tempDir =
+        new java.io.File(
+            System.getProperty("java.io.tmpdir"), "theme_test_" + System.currentTimeMillis());
+    tempDir.mkdirs();
+    String rootDir = tempDir.getAbsolutePath() + java.io.File.separator;
+    com.antigravity.context.DatabaseContext dbCtx =
+        new com.antigravity.context.DatabaseContext("test_db", null, rootDir);
+
+    try {
+      dbCtx.ensureTable("assets");
+      String insertSql = "INSERT INTO assets (entity_id, json_data) VALUES (?, ?)";
+      try (java.sql.PreparedStatement pstmt = dbCtx.getConnection().prepareStatement(insertSql)) {
+        pstmt.setString(1, "custom-asset-uuid-1");
+        pstmt.setString(
+            2, "{\"name\":\"custom_checker_pattern.png\",\"url\":\"/assets/custom_chk.png\"}");
+        pstmt.executeUpdate();
+      }
+
+      try (java.sql.PreparedStatement pstmt = dbCtx.getConnection().prepareStatement(insertSql)) {
+        pstmt.setString(1, "custom-asset-uuid-2");
+        pstmt.setString(2, "{\"name\":\"other.png\",\"url\":\"/assets/yellow_caution.png\"}");
+        pstmt.executeUpdate();
+      }
+
+      Map<String, String> slots = new HashMap<>();
+      slots.put("flag.heat_paused", "custom-asset-uuid-1");
+      slots.put("flag.racing", "custom-asset-uuid-2");
+      slots.put("flag.not_found", "non-existent-uuid");
+
+      Theme theme = new Theme("Custom DB Theme", false, slots, null, "theme-db", "id-db");
+
+      // Resolves to CHECKERED based on asset name in DB
+      assertEquals(
+          RaceFlag.CHECKERED, theme.resolveFlag("flag.heat_paused", RaceFlag.YELLOW, dbCtx));
+      // Resolves to YELLOW based on asset url in DB
+      assertEquals(RaceFlag.YELLOW, theme.resolveFlag("flag.racing", RaceFlag.GREEN, dbCtx));
+      // Falls back if asset not in DB
+      assertEquals(RaceFlag.RED, theme.resolveFlag("flag.not_found", RaceFlag.RED, dbCtx));
+    } finally {
+      if (dbCtx.getConnection() != null) {
+        dbCtx.getConnection().close();
+      }
+      tempDir.delete();
+    }
+  }
 }

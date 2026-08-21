@@ -10,6 +10,7 @@ describe('update_readme_downloads', () => {
       const section = generateDownloadSection('v1.0.0-beta.7', true);
       assert.ok(section.includes('v1.0.0-beta.7'));
       assert.ok(section.includes('*(Beta Preview — Help us test upcoming features!)*'));
+      assert.ok(section.includes('🐧 Linux / Raspberry Pi / Arduino Uno Q (ARM64)'));
       assert.ok(section.includes('https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.7/RaceCoordinatorAI_Online_Setup_v1.0.0-beta.7.exe'));
       assert.ok(section.includes('https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.7/RaceCoordinatorAI_Offline_Setup_v1.0.0-beta.7.exe'));
       assert.ok(section.includes('https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0-beta.7/RaceCoordinator_Mac_v1.0.0-beta.7.dmg'));
@@ -22,6 +23,7 @@ describe('update_readme_downloads', () => {
       const section = generateDownloadSection('v1.0.0', false);
       assert.ok(section.includes('v1.0.0'));
       assert.ok(section.includes('*(Official Stable Release)*'));
+      assert.ok(section.includes('🐧 Linux / Raspberry Pi / Arduino Uno Q (ARM64)'));
       assert.ok(section.includes('https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0/RaceCoordinatorAI_Online_Setup_v1.0.0.exe'));
       assert.ok(section.includes('https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0/RaceCoordinatorAI_Offline_Setup_v1.0.0.exe'));
       assert.ok(section.includes('https://github.com/daufderheide/racecoordinator_ai/releases/download/v1.0.0/RaceCoordinator_Mac_v1.0.0.dmg'));

@@ -12,6 +12,7 @@ import com.antigravity.models.Lane;
 import com.antigravity.models.OverallScoring;
 import com.antigravity.models.Race;
 import com.antigravity.models.Team;
+import com.antigravity.models.Theme;
 import com.antigravity.models.Track;
 import com.antigravity.proto.RaceData;
 import com.antigravity.proto.RaceFlag;
@@ -127,6 +128,38 @@ public class RaceTest {
               .build();
 
       assertNotNull(race);
+    }
+
+    @Test
+    public void testSetTheme_UpdatesTheme() {
+      Race model = mock(Race.class);
+      when(model.getHeatRotationType()).thenReturn(HeatRotationType.RoundRobin);
+      Track track = mock(Track.class);
+      List<RaceParticipant> drivers = new ArrayList<>();
+
+      java.util.Map<String, String> slots = new java.util.HashMap<>();
+      slots.put("flag.heat_paused", "default_flag_checkered");
+      Theme theme1 = new Theme("Theme 1", false, slots, null, "theme-1", null);
+
+      List<Heat> heats = new ArrayList<>();
+      heats.add(mock(Heat.class));
+
+      com.antigravity.race.Race race =
+          new com.antigravity.race.Race.Builder()
+              .model(model)
+              .drivers(drivers)
+              .track(track)
+              .theme(theme1)
+              .databaseContext(dbContext)
+              .heats(heats)
+              .isDemoMode(true)
+              .build();
+
+      assertEquals(theme1, race.getTheme());
+
+      Theme theme2 = new Theme("Theme 2", false, new java.util.HashMap<>(), null, "theme-2", null);
+      race.setTheme(theme2);
+      assertEquals(theme2, race.getTheme());
     }
   }
 
@@ -327,6 +360,52 @@ public class RaceTest {
       race.stop();
       verify(mockProtocols).clearLeds();
       verify(mockProtocols).close();
+    }
+
+    @Test
+    public void testStopSetsStoppedAndIgnoresHardwareDisconnect() {
+      assertFalse(race.isStopped());
+      race.changeState(new Racing());
+      assertTrue(race.getState() instanceof Racing);
+
+      race.stop();
+      assertTrue(race.isStopped());
+      verify(mockProtocols).clearLeds();
+      verify(mockProtocols).close();
+
+      // Trigger disconnect that occurs during hardware close
+      race.onInterfaceStatus(com.antigravity.proto.InterfaceStatus.DISCONNECTED, 0);
+      race.stopRaceOperationsOnHardwareDisconnect();
+
+      // Ensure state was not transitioned to Paused or altered
+      assertFalse(race.getState() instanceof Paused);
+
+      // Verify that commands are safely no-op when stopped
+      assertFalse(race.startRace());
+      race.pauseRace();
+      race.restartHeat();
+      race.skipHeat();
+      race.deferHeat();
+      race.onCarData(
+          new CarData(
+              0,
+              1.0,
+              0.5,
+              0.5,
+              false,
+              com.antigravity.protocols.CarLocation.PitRow,
+              com.antigravity.protocols.CarLocation.PitRow,
+              -1));
+      race.onInterfaceEvent(
+          com.antigravity.proto.InterfaceEvent.newBuilder()
+              .setStatus(
+                  com.antigravity.proto.InterfaceStatusEvent.newBuilder()
+                      .setStatus(com.antigravity.proto.InterfaceStatus.DISCONNECTED)
+                      .setInterfaceIndex(0)
+                      .build())
+              .build());
+      race.changeState(new Paused());
+      assertFalse(race.getState() instanceof Paused);
     }
 
     @Test

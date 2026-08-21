@@ -43,6 +43,7 @@ import { LoggerService } from "@app/services/logger.service";
 import { ParticipantValidationService } from "@app/services/participant-validation.service";
 import { RaceService } from "@app/services/race.service";
 import { SettingsService } from "@app/services/settings.service";
+import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
 import { naturalSortCompare } from "@app/utils/sorting.utils";
 
@@ -183,6 +184,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
     private helpService: HelpService,
     private logger: LoggerService,
     private validationService: ParticipantValidationService,
+    private themeService: ThemeService,
   ) {}
 
   /* eslint-disable max-lines-per-function */
@@ -333,6 +335,10 @@ export class DefaultRacedaySetupComponent implements OnInit {
           ) {
             this.selectedEvent = this.events[0];
           }
+        }
+
+        if (this.selectedRace?.entity_id) {
+          this.themeService.activateForRace(this.selectedRace.entity_id);
         }
 
         // --- Participant Setup ---
@@ -798,6 +804,9 @@ export class DefaultRacedaySetupComponent implements OnInit {
   selectRace(race: Race) {
     this.selectedRace = race;
     this.selectedEvent = undefined;
+    if (race?.entity_id) {
+      this.themeService.activateForRace(race.entity_id);
+    }
     this.saveSettings();
     this.closeDropdown();
     this.cdr.detectChanges();
@@ -1021,6 +1030,12 @@ export class DefaultRacedaySetupComponent implements OnInit {
       ? this.demoConfig || this.dataService.getDefaultDemoConfig()
       : undefined;
 
+    const themeId =
+      this.themeService.getActiveTheme()?.entity_id ||
+      (raceId ? settings.raceThemeOverrides?.[raceId] : undefined) ||
+      settings.activeThemeId ||
+      undefined;
+
     const initializeObservable =
       eventId || seasonId
         ? this.dataService.initializeRace(
@@ -1030,12 +1045,16 @@ export class DefaultRacedaySetupComponent implements OnInit {
             demoConfig,
             eventId,
             seasonId,
+            themeId,
           )
         : this.dataService.initializeRace(
             raceId,
             settings.selectedDriverIds,
             isDemo,
             demoConfig,
+            undefined,
+            undefined,
+            themeId,
           );
 
     initializeObservable.subscribe({
