@@ -97,6 +97,7 @@
   "AE_PIN_UNUSED": "Unused",
   "AE_PIN_VOLTAGE_LANE": "Voltage Divider L{{lane}}",
   "AE_RESET_MAX_SEEN": "Reset Max Seen",
+  "AE_RGB_LEDS_DISABLED_TOOLTIP": "Update sketch to enable RGB LEDs",
   "AE_RGB_LED_CONFIG": "RGB LED Configuration",
   "AE_SELECT_PORT": "Select Port",
   "AE_VOLTAGE_CONFIG_HEADER": "Voltage Divider Configuration",

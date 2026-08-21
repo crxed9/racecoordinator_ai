@@ -97,6 +97,7 @@
   "AE_PIN_UNUSED": "Inutilizzato",
   "AE_PIN_VOLTAGE_LANE": "Partitore di tensione C{{lane}}",
   "AE_RESET_MAX_SEEN": "Ripristina max visto",
+  "AE_RGB_LEDS_DISABLED_TOOLTIP": "Aggiorna lo sketch per abilitare i LED RGB",
   "AE_RGB_LED_CONFIG": "Configurazione LED RGB",
   "AE_SELECT_PORT": "Seleziona porta",
   "AE_VOLTAGE_CONFIG_HEADER": "Configurazione del partitore di tensione",

@@ -1530,5 +1530,81 @@ describe("ArduinoEditorComponent", () => {
       expect(component.sectionsExpanded.voltage).toBeTrue();
       expect(component.sectionsExpanded.leds).toBeTrue();
     });
+
+    it("should disable RGB LED option with tooltip when legacy sketch without RGB support is connected", () => {
+      // Connect with supportsRgbLeds: false
+      mockDataService.interfaceEvents$.next({
+        status: {
+          interfaceIndex: 0,
+          status: 0, // CONNECTED
+          supportsRgbLeds: false,
+          version: "1.0.0.15",
+        },
+      });
+      fixture.detectChanges();
+
+      expect(component.supportsRgbLeds).toBeFalse();
+
+      // Pin D2 is eligible for LED string on Uno (hardwareType 0)
+      const actions = component.getFilteredActions(true, 2);
+      let ledAction: any = null;
+      for (const g of actions) {
+        const found = g.actions.find((a) => a.value === "led_string");
+        if (found) {
+          ledAction = found;
+          break;
+        }
+      }
+
+      expect(ledAction).toBeDefined();
+      expect(ledAction.disabled).toBeTrue();
+      expect(ledAction.tooltip).toBe("AE_RGB_LEDS_DISABLED_TOOLTIP");
+
+      // Attempting to select disabled action should not change pin behavior
+      component.selectPinAction(true, 2, "led_string");
+      expect(component.getPinAction(true, 2)).not.toBe("led_string");
+    });
+
+    it("should enable RGB LED option when modern sketch is connected or disconnected", () => {
+      // Modern sketch
+      mockDataService.interfaceEvents$.next({
+        status: {
+          interfaceIndex: 0,
+          status: 0, // CONNECTED
+          supportsRgbLeds: true,
+          version: "2.1.0.0",
+        },
+      });
+      fixture.detectChanges();
+
+      expect(component.supportsRgbLeds).toBeTrue();
+
+      const actions = component.getFilteredActions(true, 2);
+      let ledAction: any = null;
+      for (const g of actions) {
+        const found = g.actions.find((a) => a.value === "led_string");
+        if (found) {
+          ledAction = found;
+          break;
+        }
+      }
+
+      expect(ledAction).toBeDefined();
+      expect(ledAction.disabled).toBeFalsy();
+
+      component.selectPinAction(true, 2, "led_string");
+      expect(component.getPinAction(true, 2)).toBe("led_string");
+
+      // Disconnected state
+      mockDataService.interfaceEvents$.next({
+        status: {
+          interfaceIndex: 0,
+          status: 1, // DISCONNECTED
+        },
+      });
+      fixture.detectChanges();
+
+      expect(component.supportsRgbLeds).toBeTrue();
+    });
   });
 });

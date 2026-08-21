@@ -97,6 +97,7 @@
   "AE_PIN_UNUSED": "Inutilisé",
   "AE_PIN_VOLTAGE_LANE": "Diviseur de tension V{{lane}}",
   "AE_RESET_MAX_SEEN": "Réinitialiser max vu",
+  "AE_RGB_LEDS_DISABLED_TOOLTIP": "Mettre à jour le sketch pour activer les LED RVB",
   "AE_RGB_LED_CONFIG": "Configuration des LED RVB",
   "AE_SELECT_PORT": "Sélectionner le port",
   "AE_VOLTAGE_CONFIG_HEADER": "Configuration du diviseur de tension",

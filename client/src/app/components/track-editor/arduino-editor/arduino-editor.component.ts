@@ -31,6 +31,8 @@ import { TranslationService } from "@app/services/translation.service";
 interface PinAction {
   label: string;
   value: string;
+  disabled?: boolean;
+  tooltip?: string;
 }
 
 interface PinGroup {
@@ -58,6 +60,7 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
 
   availablePorts: string[] = [];
   interfaceStatus: number = 1; // 0=Connected, 1=Disconnected, 2=NoData
+  supportsRgbLeds: boolean = true;
   pinActivity: { [key: string]: boolean } = {};
   sectionsExpanded = {
     arduino: true,
@@ -112,6 +115,7 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
       // Reset status on index change
       this.index();
       this.interfaceStatus = 1;
+      this.supportsRgbLeds = true;
     });
   }
 
@@ -236,6 +240,11 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
           } else if (event.status) {
             if ((event.status.interfaceIndex ?? 0) === this.index()) {
               this.interfaceStatus = event.status.status as number;
+              if (this.interfaceStatus === 0) {
+                this.supportsRgbLeds = event.status.supportsRgbLeds ?? true;
+              } else {
+                this.supportsRgbLeds = true;
+              }
               this.cdr.detectChanges();
             }
           } else if (event.analogData) {
@@ -1608,24 +1617,37 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
         : pin >= 0 && pin <= 15 && pin % 2 === 0;
     }
 
-    if (canLed) {
-      return groups;
-    }
-
-    // If the pin currently HAS led_string assigned, we should keep it in the list
-    // so the user can see it and change it.
     const currentAction = this.getPinAction(isDigital, pin);
-    if (currentAction === "led_string") {
-      return groups;
+    let filtered = groups;
+    // If hardware doesn't physically support RGB LED on this pin AND it's not currently assigned, filter it out
+    if (!canLed && currentAction !== "led_string") {
+      filtered = groups
+        .map((g) => ({
+          ...g,
+          actions: g.actions.filter((a) => a.value !== "led_string"),
+        }))
+        .filter((g) => g.actions.length > 0);
     }
 
-    // Filter out led_string from the groups
-    return groups
-      .map((g) => ({
+    if (!this.supportsRgbLeds) {
+      filtered = filtered.map((g) => ({
         ...g,
-        actions: g.actions.filter((a) => a.value !== "led_string"),
-      }))
-      .filter((g) => g.actions.length > 0);
+        actions: g.actions.map((a) => {
+          if (a.value === "led_string") {
+            return {
+              ...a,
+              disabled: true,
+              tooltip: this.translationService.translate(
+                "AE_RGB_LEDS_DISABLED_TOOLTIP",
+              ),
+            };
+          }
+          return a;
+        }),
+      }));
+    }
+
+    return filtered;
   }
 
   private refreshLanes() {
@@ -1931,6 +1953,13 @@ export class ArduinoEditorComponent implements OnInit, OnDestroy {
   }
 
   selectPinAction(isDigital: boolean, pin: number, actionValue: string) {
+    const groups = this.getFilteredActions(isDigital, pin);
+    for (const group of groups) {
+      const action = group.actions.find((a) => a.value === actionValue);
+      if (action?.disabled) {
+        return;
+      }
+    }
     this.setPinAction(isDigital, pin, actionValue);
     this.openPinDropdown = null;
   }
