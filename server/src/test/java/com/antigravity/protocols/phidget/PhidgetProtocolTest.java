@@ -493,4 +493,75 @@ public class PhidgetProtocolTest {
       protocol.setLanePower(false, lane);
     }
   }
+
+  @Test
+  public void testNormallyClosedLapSensorTripTransition() throws Exception {
+    config.normallyClosedLaneSensors = true;
+    ProtocolListener mockListener = mock(ProtocolListener.class);
+    protocol.setListener(mockListener);
+
+    protocol.startTimer();
+    Method m =
+        PhidgetProtocol.class.getDeclaredMethod(
+            "handleDigitalInputStateChange", int.class, int.class, boolean.class);
+    m.setAccessible(true);
+
+    int lapBehavior = PinBehavior.BEHAVIOR_LAP_BASE_VALUE;
+    // NC Idle state is true (closed circuit) -> should not trigger lap
+    m.invoke(protocol, 0, lapBehavior, true);
+    verify(mockListener, org.mockito.Mockito.never()).onLap(eq(0), anyDouble(), eq(0), eq(0));
+
+    // NC Tripped state is false (open circuit) -> should trigger lap
+    m.invoke(protocol, 0, lapBehavior, false);
+    verify(mockListener).onLap(eq(0), anyDouble(), eq(0), eq(0));
+  }
+
+  @Test
+  public void testNormallyOpenLapSensorTripTransition() throws Exception {
+    config.normallyClosedLaneSensors = false;
+    ProtocolListener mockListener = mock(ProtocolListener.class);
+    protocol.setListener(mockListener);
+
+    protocol.startTimer();
+    Method m =
+        PhidgetProtocol.class.getDeclaredMethod(
+            "handleDigitalInputStateChange", int.class, int.class, boolean.class);
+    m.setAccessible(true);
+
+    int lapBehavior = PinBehavior.BEHAVIOR_LAP_BASE_VALUE;
+    // NO Idle state is false (open circuit) -> should not trigger lap
+    m.invoke(protocol, 0, lapBehavior, false);
+    verify(mockListener, org.mockito.Mockito.never()).onLap(eq(0), anyDouble(), eq(0), eq(0));
+
+    // NO Tripped state is true (closed circuit) -> should trigger lap
+    m.invoke(protocol, 0, lapBehavior, true);
+    verify(mockListener).onLap(eq(0), anyDouble(), eq(0), eq(0));
+  }
+
+  @Test
+  public void testCanReconnectLifecycle() throws Exception {
+    Method m = PhidgetProtocol.class.getDeclaredMethod("canReconnect");
+    m.setAccessible(true);
+
+    // Initially unopened -> canReconnect is true
+    assertTrue((Boolean) m.invoke(protocol));
+
+    // Set opened = true
+    java.lang.reflect.Field openedField = PhidgetProtocol.class.getDeclaredField("opened");
+    openedField.setAccessible(true);
+    openedField.set(protocol, true);
+
+    // While opened -> canReconnect is false to prevent duplicate channel creation
+    assertFalse((Boolean) m.invoke(protocol));
+
+    // After close -> canReconnect is true again
+    protocol.close();
+    assertTrue((Boolean) m.invoke(protocol));
+  }
+
+  @Test
+  public void testSyncPowerAndSyncAnalogLedsExecution() {
+    protocol.syncPower();
+    protocol.syncAnalogLeds();
+  }
 }

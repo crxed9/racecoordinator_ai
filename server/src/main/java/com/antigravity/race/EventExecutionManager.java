@@ -38,7 +38,13 @@ public class EventExecutionManager {
   private String seasonEntityId;
   private Map<String, SeasonDriverResult> eventDriverResultsMap = new HashMap<>();
 
-  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService scheduler =
+      Executors.newSingleThreadScheduledExecutor(
+          r -> {
+            Thread t = new Thread(r, "EventExecutionManager-Scheduler");
+            t.setDaemon(true);
+            return t;
+          });
   private ScheduledFuture<?> autoAdvanceFuture;
   private double autoAdvanceRemainingSeconds = 0;
 
