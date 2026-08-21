@@ -638,10 +638,6 @@
   gap: 6px 12px;
 }
 
-.season-points-list.two-columns .btn-add-pos {
-  grid-column: 1 / -1;
-}
-
 .season-points-list::-webkit-scrollbar {
   width: 8px;
 }
