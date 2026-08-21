@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 function generateDownloadSection(tag, isPrerelease) {
-  const isPre = isPrerelease === 'true' || isPrerelease === true || tag.includes('beta') || tag.includes('alpha');
+  if (tag.includes('alpha')) {
+    throw new Error(`Alpha builds (${tag}) cannot update the main README download section.`);
+  }
+  const isPre = isPrerelease === 'true' || isPrerelease === true || tag.includes('beta');
   const typeLabel = isPre ? '*(Beta Preview — Help us test upcoming features!)*' : '*(Official Stable Release)*';
   const baseUrl = `https://github.com/daufderheide/racecoordinator_ai/releases/download/${tag}`;
 
@@ -67,6 +70,11 @@ function main() {
   if (!tag) {
     console.error('Usage: node update_readme_downloads.js <tag> [isPrerelease]');
     process.exit(1);
+  }
+
+  if (tag.includes('alpha')) {
+    console.log(`Skipping README update: ${tag} is an alpha/daily build and should not update main README.`);
+    process.exit(0);
   }
 
   const readmePath = path.resolve(__dirname, '..', 'README.md');

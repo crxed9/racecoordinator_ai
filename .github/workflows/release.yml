@@ -388,12 +388,14 @@ jobs:
           rm -rf final-release release_body.md
 
       - name: Update README on Main
+        if: ${{ !contains(needs.check-changes.outputs.tag, 'alpha') }}
         run: |
           git fetch origin main
           git checkout origin/main -- README.md
           node scripts/update_readme_downloads.js "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
 
       - name: Create Pull Request for README
+        if: ${{ !contains(needs.check-changes.outputs.tag, 'alpha') }}
         uses: peter-evans/create-pull-request@v6
         continue-on-error: true
         with:

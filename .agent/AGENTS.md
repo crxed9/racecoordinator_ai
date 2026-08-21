@@ -39,6 +39,7 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 - **Automated downstream sync to develop**: Pushes to `release/vX.Y.Z` automatically merge into `develop` on release completion, ensuring `develop` always contains all fixes.
 - **Daily schedule builds**: Automatically publish daily alpha builds from `develop` named `vX.Y.Z-alpha.YYYYMMDD` (where `X.Y.Z` comes from the `VERSION` file). Daily builds pre-check active release branches to guarantee `develop` is synced before publishing.
 - **Manual releases from develop**: Manual workflow dispatch on `develop` without an explicit version override publishes an alpha build named `vX.Y.Z-alpha.<hash>` (using the commit SHA).
+- **README Updates Restricted to Beta & Official Releases**: Automated README download link updates and PRs targeting `main` are strictly restricted to official stable releases (`vX.Y.Z`) and beta prereleases (`vX.Y.Z-beta.N`). Daily alpha and manual develop builds (`*-alpha.*`) must never update the main README or open documentation PRs.
 
 ## Meaningful Test Assertions & Mutation Resistance
 - **Test real behavior, not just line coverage**: New unit and integration tests must validate outputs, state changes, and boundary conditions with explicit assertions rather than writing trivial executions that only aim to pass line coverage counters. Tests must withstand mutation testing (PIT / Stryker).

@@ -32,10 +32,10 @@ describe('update_readme_downloads', () => {
       assert.ok(section.includes('https://daufderheide.github.io/racecoordinator_ai/installation/'));
     });
 
-    test('should infer prerelease if tag contains alpha or beta even if isPrerelease is false', () => {
-      const section = generateDownloadSection('v1.0.0-alpha.20260819', false);
-      assert.ok(section.includes('v1.0.0-alpha.20260819'));
-      assert.ok(section.includes('*(Beta Preview — Help us test upcoming features!)*'));
+    test('should reject alpha tags and throw an error', () => {
+      assert.throws(() => {
+        generateDownloadSection('v1.0.0-alpha.20260819', true);
+      }, /Alpha builds \(v1\.0\.0-alpha\.20260819\) cannot update the main README/);
     });
   });
 

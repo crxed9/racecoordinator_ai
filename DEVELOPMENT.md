@@ -262,4 +262,7 @@ The repository uses automated GitHub Actions workflows for continuous delivery:
    - The workflow runs a pre-flight synchronization check against any active `release/*` branches. If unmerged fixes exist, they are merged into `develop` before building.
 3. **Official Production Releases (`main`)**:
    - Production releases are triggered by pushing official version tags (e.g. `v1.0.0`) or manually dispatching a release on `main`.
+4. **README Download Links**:
+   - Automated pull requests to update the direct download links in `README.md` on `main` are created only for Official Releases and Beta Previews (`release/*`).
+   - Daily alpha builds (`develop`) never update the `main` README.
 
