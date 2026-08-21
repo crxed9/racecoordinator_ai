@@ -363,6 +363,52 @@ public class RaceTest {
     }
 
     @Test
+    public void testStopSetsStoppedAndIgnoresHardwareDisconnect() {
+      assertFalse(race.isStopped());
+      race.changeState(new Racing());
+      assertTrue(race.getState() instanceof Racing);
+
+      race.stop();
+      assertTrue(race.isStopped());
+      verify(mockProtocols).clearLeds();
+      verify(mockProtocols).close();
+
+      // Trigger disconnect that occurs during hardware close
+      race.onInterfaceStatus(com.antigravity.proto.InterfaceStatus.DISCONNECTED, 0);
+      race.stopRaceOperationsOnHardwareDisconnect();
+
+      // Ensure state was not transitioned to Paused or altered
+      assertFalse(race.getState() instanceof Paused);
+
+      // Verify that commands are safely no-op when stopped
+      assertFalse(race.startRace());
+      race.pauseRace();
+      race.restartHeat();
+      race.skipHeat();
+      race.deferHeat();
+      race.onCarData(
+          new CarData(
+              0,
+              1.0,
+              0.5,
+              0.5,
+              false,
+              com.antigravity.protocols.CarLocation.PitRow,
+              com.antigravity.protocols.CarLocation.PitRow,
+              -1));
+      race.onInterfaceEvent(
+          com.antigravity.proto.InterfaceEvent.newBuilder()
+              .setStatus(
+                  com.antigravity.proto.InterfaceStatusEvent.newBuilder()
+                      .setStatus(com.antigravity.proto.InterfaceStatus.DISCONNECTED)
+                      .setInterfaceIndex(0)
+                      .build())
+              .build());
+      race.changeState(new Paused());
+      assertFalse(race.getState() instanceof Paused);
+    }
+
+    @Test
     public void testNotStartedInitialization() throws Exception {
       race.changeState(new NotStarted());
       verify(mockProtocols).setHeatStandings(Arrays.asList(0));
