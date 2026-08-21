@@ -55,7 +55,7 @@ import {
 import { THEME_SLOT_KEYS } from "@app/models/theme";
 import { Track } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { LapType, RaceState } from "@app/proto/antigravity";
+import { IRecordEntry, LapType, RaceState } from "@app/proto/antigravity";
 import { DriverHeatData } from "@app/race/driver_heat_data";
 import { Heat } from "@app/race/heat";
 import { AuthService } from "@app/services/auth.service";
@@ -97,7 +97,10 @@ import {
   RacedayFormatUtils,
 } from "./utils/raceday-format.utils";
 import { RacedayLayoutUtils } from "./utils/raceday-layout.utils";
-import { createMockEditorData } from "./utils/raceday-mock.utils";
+import {
+  createMockEditorData,
+  createMockLaneRecordEntries,
+} from "./utils/raceday-mock.utils";
 
 /**
  * The raceday component is the main component for the raceday screen.
@@ -1485,6 +1488,65 @@ export class DefaultRacedayComponent
     return this.raceRecordLapTime || this.currentRaceBestTime || 0;
   }
 
+  getLaneRecordEntry(hd?: DriverHeatData | number): IRecordEntry | undefined {
+    const laneIndex = typeof hd === "number" ? hd : (hd?.laneIndex ?? 0);
+    const laneFastestLap = this.recordData?.overall?.laneFastestLap;
+    if (Array.isArray(laneFastestLap) && laneFastestLap[laneIndex]) {
+      return laneFastestLap[laneIndex];
+    }
+    if (this.isUIEditorMode()) {
+      const mockEntries = createMockLaneRecordEntries();
+      return mockEntries[laneIndex];
+    }
+    return undefined;
+  }
+
+  getLaneRecordTime(hd?: DriverHeatData, anchor?: string): string {
+    const entry = this.getLaneRecordEntry(hd);
+    const isInset = anchor ? !anchor.startsWith("center-") : false;
+    const laneViewWidget = this.currentRacedayLayout?.widgets?.find(
+      (w: any) => w.widgetType === "lane-view",
+    );
+    const timeDecimals = isInset
+      ? laneViewWidget?.customSettings?.["insetTimeDecimalPlaces"] !== undefined
+        ? Number(laneViewWidget.customSettings["insetTimeDecimalPlaces"])
+        : 3
+      : laneViewWidget?.customSettings?.["timeDecimalPlaces"] !== undefined
+        ? Number(laneViewWidget.customSettings["timeDecimalPlaces"])
+        : 3;
+    const timePlaceholder =
+      timeDecimals > 0 ? "--." + "-".repeat(timeDecimals) : "--";
+    if (!entry || !entry.value || entry.value <= 0) return timePlaceholder;
+    return entry.value.toFixed(timeDecimals);
+  }
+
+  getLaneRecordHolder(hd?: DriverHeatData): string {
+    const entry = this.getLaneRecordEntry(hd);
+    if (!entry || !entry.value || entry.value <= 0) return "---";
+    return entry.holderNickname || entry.holderName || "---";
+  }
+
+  getLaneRecordDate(hd?: DriverHeatData): string {
+    const entry = this.getLaneRecordEntry(hd);
+    if (!entry?.date || !entry?.value || entry.value <= 0) return "---";
+    let ms = 0;
+    if (typeof entry.date === "number") {
+      ms = entry.date;
+    } else if ((entry.date as any).toNumber) {
+      ms = (entry.date as any).toNumber();
+    } else if (typeof entry.date === "string") {
+      ms = parseInt(entry.date, 10);
+    } else {
+      ms = Number(entry.date);
+    }
+    if (ms <= 0 || isNaN(ms)) return "---";
+    const d = new Date(ms);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
   getPersonalBest(hd?: DriverHeatData): number {
     if (!hd) return 0;
     return hd.bestLapTime > 0 ? hd.bestLapTime : 0;
@@ -1584,6 +1646,7 @@ export class DefaultRacedayComponent
     this.currentRaceBestTime = 1.955;
     this.heatBestNickname = "Peach";
     this.heatBestTime = 2.012;
+    this.recordData = mockData.recordData;
 
     this.sortHeatDrivers();
     this.updateLeaderboardEntries();
@@ -2369,6 +2432,7 @@ export class DefaultRacedayComponent
       getLaneQrCodeUrl: (laneIndex) => this.getLaneQrCodeUrl(laneIndex),
       getDriverViewQrCodeUrl: (hd) => this.getDriverViewQrCodeUrl(hd),
       isDriverFinished: (hd, scoring) => this.isDriverFinished(hd, scoring),
+      getLaneRecordEntry: (laneIndex) => this.getLaneRecordEntry(laneIndex),
     };
     return RacedayFormatUtils.formatColumnValue(
       heatDriver,
@@ -3928,6 +3992,7 @@ export class DefaultRacedayComponent
       medianLapTime: 330,
       averageLapTime: 330,
       bestLapTime: 330,
+      recordLapTime: 330,
       totalTime: 330,
       gapLeader: 330,
       gapPosition: 330,
@@ -4154,6 +4219,7 @@ export class DefaultRacedayComponent
       getLaneQrCodeUrl: (laneIndex) => this.getLaneQrCodeUrl(laneIndex),
       getDriverViewQrCodeUrl: (hd) => this.getDriverViewQrCodeUrl(hd),
       isDriverFinished: (hd, scoring) => this.isDriverFinished(hd, scoring),
+      getLaneRecordEntry: (laneIndex) => this.getLaneRecordEntry(laneIndex),
     };
     return RacedayFormatUtils.formatValue(
       propertyName,

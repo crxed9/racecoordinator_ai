@@ -330,4 +330,79 @@ describe("RacedayFormatUtils", () => {
       ).toBe("--");
     });
   });
+
+  describe("formatValue - recordLapTime", () => {
+    it("should format recordLapTime with time, nickname, and date", () => {
+      ctx.getLaneRecordEntry = (laneIndex: number) => {
+        if (laneIndex === 0) {
+          return {
+            value: 5.1234,
+            holderNickname: "Speedy",
+            date: new Date(2026, 7, 21).getTime(),
+          };
+        }
+        return undefined;
+      };
+
+      const mockHd = { laneIndex: 0 } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "recordLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("5.123 (Speedy, 2026-08-21)");
+    });
+
+    it("should fallback to holderName if nickname is not provided", () => {
+      ctx.getLaneRecordEntry = () => ({
+        value: 4.56,
+        holderName: "Alice Smith",
+        date: new Date(2025, 0, 15).getTime(),
+      });
+
+      const mockHd = { laneIndex: 1 } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "recordLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("4.560 (Alice Smith, 2025-01-15)");
+    });
+
+    it("should handle date as object with toNumber", () => {
+      ctx.getLaneRecordEntry = () => ({
+        value: 4.56,
+        holderNickname: "Racer",
+        date: { toNumber: () => new Date(2025, 5, 10).getTime() },
+      });
+
+      const mockHd = { laneIndex: 0 } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "recordLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("4.560 (Racer, 2025-06-10)");
+    });
+
+    it("should return placeholder format when no record exists", () => {
+      ctx.getLaneRecordEntry = () => undefined;
+
+      const mockHd = { laneIndex: 0 } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "recordLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("--.--- (---, ---)");
+    });
+  });
 });

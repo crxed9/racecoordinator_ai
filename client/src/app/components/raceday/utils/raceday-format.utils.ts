@@ -25,6 +25,7 @@ export interface FormatContext {
   getLaneQrCodeUrl?: (laneIndex: number) => string;
   getDriverViewQrCodeUrl?: (hd: DriverHeatData) => string;
   isDriverFinished?: (hd: DriverHeatData, scoring?: any) => boolean;
+  getLaneRecordEntry?: (laneIndex: number) => any;
 }
 
 export class RacedayFormatUtils {
@@ -128,7 +129,37 @@ export class RacedayFormatUtils {
       }
     }
 
-    if (
+    if (baseKey === "recordLapTime") {
+      const entry = ctx.getLaneRecordEntry
+        ? ctx.getLaneRecordEntry(hd?.laneIndex ?? 0)
+        : undefined;
+      if (entry && entry.value > 0) {
+        const timeStr = entry.value.toFixed(timeDecimals);
+        const nickname = entry.holderNickname || entry.holderName || "---";
+        let dateStr = "---";
+        if (entry.date) {
+          let ms = 0;
+          if (typeof entry.date === "number") {
+            ms = entry.date;
+          } else if (entry.date.toNumber) {
+            ms = entry.date.toNumber();
+          } else if (typeof entry.date === "string") {
+            ms = parseInt(entry.date, 10);
+          } else {
+            ms = Number(entry.date);
+          }
+          if (ms > 0 && !isNaN(ms)) {
+            const d = new Date(ms);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            dateStr = `${year}-${month}-${day}`;
+          }
+        }
+        return `${timeStr} (${nickname}, ${dateStr})`;
+      }
+      return `${timePlaceholder} (---, ---)`;
+    } else if (
       baseKey.includes("LapTime") ||
       baseKey === "reactionTime" ||
       baseKey === "totalTime"

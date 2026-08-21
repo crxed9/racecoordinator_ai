@@ -243,6 +243,9 @@ describe("RacedayLayoutUtils", () => {
     expect(RacedayLayoutUtils.getLabelKeyForColumn("lastLapTime")).toBe(
       "RD_COL_LAP_TIME",
     );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("recordLapTime")).toBe(
+      "RD_COL_RECORD_LAP_TIME",
+    );
     expect(RacedayLayoutUtils.getLabelKeyForColumn("ghostPacing")).toBe(
       "RD_COL_GHOST_PACING",
     );
