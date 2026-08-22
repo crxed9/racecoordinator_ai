@@ -1304,6 +1304,8 @@ public class ClientCommandTaskHandlerTest {
     org.mockito.ArgumentCaptor<byte[]> captor = org.mockito.ArgumentCaptor.forClass(byte[].class);
     doReturn(ctx).when(ctx).result(captor.capture());
 
+    doReturn(true).when(phidgetProtocol).setPinState(true, 0, true);
+
     Method m = handler.getClass().getDeclaredMethod("setInterfacePinState", Context.class);
     m.setAccessible(true);
     m.invoke(handler, ctx);

@@ -43,9 +43,13 @@ describe("PhidgetEditorComponent", () => {
       "getPhidgetDevices",
       "getInterfaceEvents",
       "setInterfacePinState",
+      "updateInterfaceConfig",
     ]);
     mockDataService.setInterfacePinState.and.returnValue(
       of(SetInterfacePinStateResponse.create({ success: true, message: "OK" })),
+    );
+    mockDataService.updateInterfaceConfig.and.returnValue(
+      of({ success: true, message: "Config updated" } as any),
     );
     mockDataService.getPhidgetDevices.and.returnValue(
       of([
@@ -446,5 +450,76 @@ describe("PhidgetEditorComponent", () => {
     fixture.detectChanges();
     // sampleConfig has PinBehavior.BEHAVIOR_CALL_BUTTON on pin 1
     expect(component.isPinActive("in", 1)).toBeTrue();
+  });
+
+  it("should not light up badge if setInterfacePinState returns success false", () => {
+    mockDataService.setInterfacePinState.and.returnValue(
+      of(
+        SetInterfacePinStateResponse.create({
+          success: false,
+          message: "Channel not attached",
+        }),
+      ),
+    );
+
+    fixture.detectChanges();
+    const outBadgeEl: HTMLElement = fixture.nativeElement.querySelector(
+      "#phidget-out-status-0",
+    );
+    expect(outBadgeEl).toBeTruthy();
+
+    outBadgeEl.click();
+    fixture.detectChanges();
+
+    expect(mockDataService.setInterfacePinState).toHaveBeenCalledWith(
+      0,
+      true,
+      true,
+      0,
+    );
+    expect(component.isPinActive("out", 0)).toBeFalse();
+    expect(outBadgeEl.classList.contains("connected")).toBeFalse();
+  });
+
+  it("should not light up badge if setInterfacePinState throws error", () => {
+    const errorSubject = new Subject<any>();
+    mockDataService.setInterfacePinState.and.returnValue(
+      errorSubject.asObservable(),
+    );
+
+    fixture.detectChanges();
+    const outBadgeEl: HTMLElement = fixture.nativeElement.querySelector(
+      "#phidget-out-status-0",
+    );
+    expect(outBadgeEl).toBeTruthy();
+
+    outBadgeEl.click();
+    fixture.detectChanges();
+
+    errorSubject.error(new Error("Network failure"));
+    fixture.detectChanges();
+
+    expect(component.isPinActive("out", 0)).toBeFalse();
+    expect(outBadgeEl.classList.contains("connected")).toBeFalse();
+  });
+
+  it("should call updateInterfaceConfig and emit change on onConfigChange", () => {
+    spyOn(component.change, "emit");
+    component.onConfigChange();
+
+    expect(mockDataService.updateInterfaceConfig).toHaveBeenCalledWith(
+      null,
+      0,
+      component.config(),
+    );
+    expect(component.change.emit).toHaveBeenCalled();
+  });
+
+  it("should clear pinState when selecting new pin behavior for output", () => {
+    component.pinState["out-0"] = true;
+    expect(component.isPinActive("out", 0)).toBeTrue();
+
+    component.selectPinAction("out", 0, "unused");
+    expect(component.isPinActive("out", 0)).toBeFalse();
   });
 });

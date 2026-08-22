@@ -1114,5 +1114,19 @@ describe("TrackEditorComponent", () => {
       component.removePhidgetConfig(0);
       expect(component.phidgetConfigs.length).toBe(0);
     });
+
+    it("should handle onPhidgetConfigChange without calling initializeInterfaces", () => {
+      const initSpy = spyOn<any>(component, "initializeInterfaces");
+      spyOn<any>(component, "captureState");
+
+      component.addPhidgetConfig();
+      expect(initSpy).toHaveBeenCalledTimes(1);
+
+      initSpy.calls.reset();
+      component.onPhidgetConfigChange();
+
+      expect((component as any).captureState).toHaveBeenCalled();
+      expect(initSpy).not.toHaveBeenCalled();
+    });
   });
 });
