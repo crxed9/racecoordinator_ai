@@ -138,6 +138,18 @@ describe('generate_changelog', () => {
       });
       assert.strictEqual(output, '### 🌟 Custom Release Notes\n\n- Highlighted feature 1');
     });
+
+    test('should pass custom toRef option when provided', () => {
+      const customCommits = [
+        { hash: '1234567', subject: 'fix: resolved edge case', author: 'Dev' }
+      ];
+      const output = generateChangelog('v1.0.0-beta.25', true, {
+        customPreviousTag: 'v1.0.0-beta.24',
+        customCommits,
+        toRef: 'v1.0.0-beta.25'
+      });
+      assert.ok(output.includes('resolved edge case'));
+    });
   });
 
   describe('updateChangelogMarkdown', () => {

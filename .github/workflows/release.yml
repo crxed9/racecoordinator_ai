@@ -451,18 +451,29 @@ jobs:
         run: |
           rm -rf final-release release_body.md changelog_snippet.md
 
-      - name: Update README on Main
+      - name: Update README and Changelog on Main
         if: ${{ !contains(needs.check-changes.outputs.tag, 'alpha') }}
         run: |
+          # Copy release scripts to temp directory so they are available when checking out main
+          SCRIPTS_DIR="${RUNNER_TEMP:-/tmp}/release_scripts"
+          rm -rf "$SCRIPTS_DIR"
+          mkdir -p "$SCRIPTS_DIR"
+          cp -r scripts/* "$SCRIPTS_DIR/"
+
+          # Fetch main and tags
           git fetch origin main
-          git checkout origin/main -- README.md CHANGELOG.md help_center/docs/changelog.md || true
-          node scripts/update_readme_downloads.js "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
-          node scripts/generate_changelog.js "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
+          git fetch --tags --force
+
+          # Switch to clean branch based directly on origin/main
+          git checkout --force -B "docs/update-readme-${{ env.TAG }}" origin/main
+
+          # Run scripts from temp directory to update main docs
+          node "$SCRIPTS_DIR/update_readme_downloads.js" "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
+          node "$SCRIPTS_DIR/generate_changelog.js" "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
 
       - name: Create Pull Request for README & Changelog
         if: ${{ !contains(needs.check-changes.outputs.tag, 'alpha') }}
         uses: peter-evans/create-pull-request@v6
-        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           add-paths: |

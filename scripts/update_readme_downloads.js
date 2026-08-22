@@ -78,7 +78,8 @@ function main() {
     process.exit(0);
   }
 
-  const readmePath = path.resolve(__dirname, '..', 'README.md');
+  const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+  const readmePath = path.resolve(repoRoot, 'README.md');
   updateReadmeFile(readmePath, tag, isPrerelease);
   console.log(`Updated README.md with download links for tag: ${tag}`);
 }
