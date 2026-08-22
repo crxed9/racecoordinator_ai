@@ -564,4 +564,77 @@ public class PhidgetProtocolTest {
     protocol.syncPower();
     protocol.syncAnalogLeds();
   }
+
+  @Test
+  public void testSetPinStateAttachedVsDetached() throws Exception {
+    config.normallyClosedRelays = false;
+    PhidgetProtocol spyProtocol = org.mockito.Mockito.spy(protocol);
+
+    // Detached -> setPinState should return false
+    org.mockito.Mockito.doReturn(false).when(spyProtocol).isOutputChannelAttached(0);
+    boolean resultDetached = spyProtocol.setPinState(true, 0, true);
+    assertFalse(resultDetached);
+
+    // Attached -> setPinState should return true and set state
+    org.mockito.Mockito.doReturn(true).when(spyProtocol).isOutputChannelAttached(0);
+    org.mockito.Mockito.doNothing()
+        .when(spyProtocol)
+        .setOutputChannelPhysicalState(eq(0), org.mockito.ArgumentMatchers.anyBoolean());
+    boolean resultAttached = spyProtocol.setPinState(true, 0, true);
+    assertTrue(resultAttached);
+    verify(spyProtocol).setOutputChannelPhysicalState(0, true);
+  }
+
+  @Test
+  public void testSetPinStateRelayPolarityNormallyOpenVsNormallyClosed() throws Exception {
+    PhidgetProtocol spyProtocol = org.mockito.Mockito.spy(protocol);
+    org.mockito.Mockito.doReturn(true).when(spyProtocol).isOutputChannelAttached(0);
+    org.mockito.Mockito.doNothing()
+        .when(spyProtocol)
+        .setOutputChannelPhysicalState(eq(0), org.mockito.ArgumentMatchers.anyBoolean());
+
+    // Pin 0 is BEHAVIOR_RELAY_VALUE (main relay)
+    // 1. Normally Open (normallyClosedRelays = false): HIGH power (true) -> coil TRUE
+    config.normallyClosedRelays = false;
+    boolean ok1 = spyProtocol.setPinState(true, 0, true);
+    assertTrue(ok1);
+    verify(spyProtocol).setOutputChannelPhysicalState(0, true);
+
+    // HIGH power false -> coil FALSE
+    boolean ok2 = spyProtocol.setPinState(true, 0, false);
+    assertTrue(ok2);
+    verify(spyProtocol).setOutputChannelPhysicalState(0, false);
+
+    // 2. Normally Closed (normallyClosedRelays = true): HIGH power (true) -> coil FALSE (inverted)
+    config.normallyClosedRelays = true;
+    boolean ok3 = spyProtocol.setPinState(true, 0, true);
+    assertTrue(ok3);
+    verify(spyProtocol, org.mockito.Mockito.times(2)).setOutputChannelPhysicalState(0, false);
+
+    // HIGH power false -> coil TRUE
+    boolean ok4 = spyProtocol.setPinState(true, 0, false);
+    assertTrue(ok4);
+    verify(spyProtocol, org.mockito.Mockito.times(2)).setOutputChannelPhysicalState(0, true);
+  }
+
+  @Test
+  public void testUpdateConfigDynamicChannelRemapAndSyncPower() throws Exception {
+    PhidgetProtocol spyProtocol = org.mockito.Mockito.spy(protocol);
+
+    // Set opened = true
+    java.lang.reflect.Field openedField = PhidgetProtocol.class.getDeclaredField("opened");
+    openedField.setAccessible(true);
+    openedField.set(spyProtocol, true);
+
+    PhidgetConfig updated = new PhidgetConfig();
+    updated.serialNumber = 12345; // Same device
+    updated.normallyClosedRelays = true;
+    updated.digitalOutIds =
+        Arrays.asList(
+            PinBehavior.BEHAVIOR_UNUSED_VALUE, PinBehavior.BEHAVIOR_RELAY_BASE_VALUE // Lane 0 relay
+            );
+
+    spyProtocol.updateConfig(updated);
+    assertEquals(updated, spyProtocol.getConfig());
+  }
 }

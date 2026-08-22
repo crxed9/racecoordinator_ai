@@ -235,7 +235,25 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
 
   onConfigChange() {
     this.updateSelectedDeviceKey();
-    this.change.emit();
+    const c = this.config();
+    if (c) {
+      this.dataService
+        .updateInterfaceConfig(null, this.interfaceIndex(), c)
+        .subscribe({
+          next: () => {
+            this.change.emit();
+          },
+          error: (err) => {
+            this.logger.error(
+              "Error calling updateInterfaceConfig for Phidget",
+              err,
+            );
+            this.change.emit();
+          },
+        });
+    } else {
+      this.change.emit();
+    }
   }
 
   updateSelectedDeviceKey() {
@@ -800,6 +818,11 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
       targetArray[channel] = val;
     }
 
+    if (type === "out") {
+      const key = `${type}-${channel}`;
+      delete this.pinState[key];
+    }
+
     this.openPinDropdown = null;
     this.onConfigChange();
   }
@@ -862,16 +885,17 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
       const currentState = !!this.pinState[key];
       const newState = !currentState;
 
-      this.pinState[key] = newState;
       this.dataService
         .setInterfacePinState(pin, true, newState, this.interfaceIndex())
         .subscribe({
           next: (response) => {
-            if (!response.success) {
+            if (response.success) {
+              this.pinState[key] = newState;
+            } else {
               this.logger.warn("Failed to set pin state", response.message);
               this.pinState[key] = currentState;
-              this.cdr.detectChanges();
             }
+            this.cdr.detectChanges();
           },
           error: (err) => {
             this.logger.error("Error setting pin state", err);

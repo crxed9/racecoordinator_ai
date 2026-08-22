@@ -348,19 +348,19 @@
         }
 
         @for (
-          config of bartConfigs;
-          track trackByBartConfig(i, config);
+          config of trackmateConfigs;
+          track trackByTrackmateConfig(i, config);
           let i = $index
         ) {
           <div class="interface-container">
-            <app-bart-editor
+            <app-trakmate-editor
               [config]="config"
               [lanes]="lanes.length"
               [interfaceIndex]="i + arduinoConfigs.length"
-              (change)="onBartConfigChange()"
-              (remove)="removeBartConfig(i)"
+              (change)="onTrackmateConfigChange()"
+              (remove)="removeTrackmateConfig(i)"
             >
-            </app-bart-editor>
+            </app-trakmate-editor>
           </div>
         }
 
@@ -374,7 +374,9 @@
               [config]="config"
               [allPhidgetConfigs]="phidgetConfigs"
               [lanes]="lanes.length"
-              [interfaceIndex]="i + arduinoConfigs.length + bartConfigs.length"
+              [interfaceIndex]="
+                i + arduinoConfigs.length + trackmateConfigs.length
+              "
               (change)="onPhidgetConfigChange()"
               (remove)="removePhidgetConfig(i)"
               (driverError)="onPhidgetDriverError()"
@@ -384,24 +386,24 @@
         }
 
         @for (
-          config of trackmateConfigs;
-          track trackByTrackmateConfig(i, config);
+          config of bartConfigs;
+          track trackByBartConfig(i, config);
           let i = $index
         ) {
           <div class="interface-container">
-            <app-trakmate-editor
+            <app-bart-editor
               [config]="config"
               [lanes]="lanes.length"
               [interfaceIndex]="
                 i +
                 arduinoConfigs.length +
-                bartConfigs.length +
+                trackmateConfigs.length +
                 phidgetConfigs.length
               "
-              (change)="onTrackmateConfigChange()"
-              (remove)="removeTrackmateConfig(i)"
+              (change)="onBartConfigChange()"
+              (remove)="removeBartConfig(i)"
             >
-            </app-trakmate-editor>
+            </app-bart-editor>
           </div>
         }
       </div>

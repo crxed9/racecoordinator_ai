@@ -369,28 +369,49 @@ public class InterfaceHardwareHandler {
 
       ProtocolDelegate current = ClientSubscriptionManager.getInstance().getProtocol();
       IProtocol target = null;
+      boolean pinSetSuccess = true;
+      String failureMessage = null;
 
       if (current != null) {
         List<IProtocol> protocols = current.getProtocols();
         if (interfaceIndex >= 0 && interfaceIndex < protocols.size()) {
           IProtocol p = protocols.get(interfaceIndex);
+          // TODO(aufderheide): Remove all the interface specific code from here.
           if (p instanceof ArduinoProtocol) {
             target = p;
             ((ArduinoProtocol) p)
                 .setPinState(request.getIsDigital(), request.getPin(), request.getIsHigh());
           } else if (p instanceof PhidgetProtocol) {
             target = p;
-            ((PhidgetProtocol) p)
-                .setPinState(request.getIsDigital(), request.getPin(), request.getIsHigh());
+            boolean ok =
+                ((PhidgetProtocol) p)
+                    .setPinState(request.getIsDigital(), request.getPin(), request.getIsHigh());
+            if (!ok) {
+              pinSetSuccess = false;
+              failureMessage =
+                  "Phidget digital output channel "
+                      + request.getPin()
+                      + " is not attached or command failed";
+            }
           }
         }
       }
 
-      if (target != null) {
+      if (target != null && pinSetSuccess) {
         SetInterfacePinStateResponse response =
             SetInterfacePinStateResponse.newBuilder()
                 .setSuccess(true)
                 .setMessage("Pin state command sent")
+                .build();
+        ctx.contentType("application/octet-stream").result(response.toByteArray());
+      } else if (target != null) {
+        SetInterfacePinStateResponse response =
+            SetInterfacePinStateResponse.newBuilder()
+                .setSuccess(false)
+                .setMessage(
+                    failureMessage != null
+                        ? failureMessage
+                        : "Failed to set pin state on interface")
                 .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       } else {
@@ -400,7 +421,7 @@ public class InterfaceHardwareHandler {
                 .setMessage(
                     "Target interface index "
                         + interfaceIndex
-                        + " is invalid or not an ArduinoProtocol")
+                        + " is invalid or unsupported protocol")
                 .build();
         ctx.contentType("application/octet-stream").result(response.toByteArray());
       }
