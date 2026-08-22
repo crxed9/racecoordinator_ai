@@ -21,6 +21,18 @@ public class LaneTest {
     assertEquals("#00ff00", simple.getBackground_color());
     assertEquals("#000000", simple.getForeground_color());
     assertEquals(50.25, simple.getLength(), 0.001);
+
+    Lane intSimple = new Lane("#0000ff", "#ffffff", 60);
+    assertEquals("#0000ff", intSimple.getBackground_color());
+    assertEquals("#ffffff", intSimple.getForeground_color());
+    assertEquals(60.0, intSimple.getLength(), 0.001);
+
+    Lane intFull = new Lane("#ffff00", "#000000", 75, "lane-2", "id-2");
+    assertEquals("#ffff00", intFull.getBackground_color());
+    assertEquals("#000000", intFull.getForeground_color());
+    assertEquals(75.0, intFull.getLength(), 0.001);
+    assertEquals("lane-2", intFull.getEntityId());
+    assertEquals("id-2", intFull.getId());
   }
 
   @Test

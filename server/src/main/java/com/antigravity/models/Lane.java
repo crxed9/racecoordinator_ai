@@ -28,6 +28,15 @@ public class Lane extends Model {
     this(background_color, foreground_color, length, null, null);
   }
 
+  public Lane(String background_color, String foreground_color, int length) {
+    this(background_color, foreground_color, (double) length, null, null);
+  }
+
+  public Lane(
+      String background_color, String foreground_color, int length, String entityId, String id) {
+    this(background_color, foreground_color, (double) length, entityId, id);
+  }
+
   public String getBackground_color() {
     return background_color;
   }
