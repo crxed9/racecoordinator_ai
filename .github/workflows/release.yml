@@ -1,4 +1,11 @@
 name: Release
+run-name: >-
+  ${{
+    github.event_name == 'schedule' && '🕒 Daily Alpha Build (develop)' ||
+    (github.event_name == 'workflow_dispatch' && format('🚀 Manual Release: {0} ({1})', inputs.version || 'auto', github.ref_name) ||
+    (startsWith(github.ref, 'refs/tags/v') && format('🏷️ Official Tag Release: {0}', github.ref_name) ||
+    format('📦 Release ({0})', github.ref_name)))
+  }}
 
 on:
   push:
@@ -95,6 +102,47 @@ jobs:
           echo "should_run=true" >> $GITHUB_OUTPUT
         env:
           INPUT_VERSION: ${{ github.event.inputs.version }}
+
+      - name: Generate Workflow Run Summary
+        if: always()
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          TAG="${{ steps.check.outputs.tag }}"
+          TITLE="${{ steps.check.outputs.release_title }}"
+          IS_PRE="${{ steps.check.outputs.is_prerelease }}"
+          SHOULD_RUN="${{ steps.check.outputs.should_run }}"
+          SHA="${{ steps.check.outputs.commit_sha }}"
+          EVENT="${{ github.event_name }}"
+          REF="${{ github.ref_name }}"
+
+          if [ "$EVENT" == "schedule" ]; then
+            EVENT_DESC="🕒 Scheduled Cron (Daily Alpha Build)"
+            BRANCH_DESC="develop (\`$SHA\`)"
+          elif [ "$EVENT" == "workflow_dispatch" ]; then
+            EVENT_DESC="🚀 Manual Workflow Dispatch"
+            BRANCH_DESC="$REF (\`$SHA\`)"
+          elif [[ "$REF" == v* ]]; then
+            EVENT_DESC="🏷️ Git Tag Push"
+            BRANCH_DESC="$REF (\`$SHA\`)"
+          else
+            EVENT_DESC="📦 Git Branch Push"
+            BRANCH_DESC="$REF (\`$SHA\`)"
+          fi
+
+          cat << EOF >> $GITHUB_STEP_SUMMARY
+          ## 🚀 Release Run Summary
+
+          | Property | Value |
+          | :--- | :--- |
+          | **Event Trigger** | $EVENT_DESC |
+          | **Target Branch / Commit** | $BRANCH_DESC |
+          | **Release Title** | **$TITLE** |
+          | **Tag** | \`$TAG\` |
+          | **Version** | \`$VERSION\` |
+          | **Prerelease** | \`$IS_PRE\` |
+          | **Should Build & Publish** | \`$SHOULD_RUN\` |
+
+          EOF
 
   run-tests:
     needs: check-changes
