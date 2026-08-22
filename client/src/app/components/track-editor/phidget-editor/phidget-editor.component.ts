@@ -40,7 +40,6 @@ export interface PhidgetEditorSections {
   pins: boolean;
   digitalIn: boolean;
   digitalOut: boolean;
-  analogIn: boolean;
 }
 
 @Component({
@@ -69,7 +68,6 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
     pins: true,
     digitalIn: true,
     digitalOut: true,
-    analogIn: true,
   };
 
   selectedDeviceKeyStr: string = "";
@@ -211,6 +209,13 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
         delete this.pinActivityTimers[key];
       }
       this.cdr.detectChanges();
+    } else if (
+      event.analogData &&
+      (event.analogData.interfaceIndex ?? 0) === this.interfaceIndex()
+    ) {
+      const pin = event.analogData.pin ?? 0;
+      const key = `analog-${pin}`;
+      this.triggerPinPulse(key);
     }
   }
 
@@ -442,11 +447,6 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
 
   get availableDigitalOutputPins(): number[] {
     const count = this.getCapabilities().digitalOutputs;
-    return Array.from({ length: count }, (_, i) => i);
-  }
-
-  get availableAnalogInputPins(): number[] {
-    const count = this.getCapabilities().analogInputs;
     return Array.from({ length: count }, (_, i) => i);
   }
 
@@ -870,40 +870,30 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
 
   togglePinState(type: "in" | "out" | "analog", pin: number) {
     if (type !== "out") return;
-    const behavior = this.getPinBehaviorVal(type, pin);
-    const isOutput =
-      behavior === PinBehavior.BEHAVIOR_RELAY ||
-      (behavior >= PinBehavior.BEHAVIOR_RELAY_BASE &&
-        behavior < PinBehavior.BEHAVIOR_RELAY_BASE + 1000) ||
-      behavior === PinBehavior.BEHAVIOR_ANALOG_LED_GREEN_FLAG ||
-      behavior === PinBehavior.BEHAVIOR_ANALOG_LED_YELLOW_FLAG ||
-      (behavior >= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_1 &&
-        behavior <= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5);
 
-    if (isOutput) {
-      const key = `${type}-${pin}`;
-      const currentState = !!this.pinState[key];
-      const newState = !currentState;
+    const key = `${type}-${pin}`;
+    const currentState = !!this.pinState[key];
+    const newState = !currentState;
 
-      this.dataService
-        .setInterfacePinState(pin, true, newState, this.interfaceIndex())
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.pinState[key] = newState;
-            } else {
-              this.logger.warn("Failed to set pin state", response.message);
-              this.pinState[key] = currentState;
-            }
-            this.cdr.detectChanges();
-          },
-          error: (err) => {
-            this.logger.error("Error setting pin state", err);
+    this.pinState[key] = newState;
+    this.cdr.detectChanges();
+
+    this.dataService
+      .setInterfacePinState(pin, true, newState, this.interfaceIndex())
+      .subscribe({
+        next: (response) => {
+          if (!response.success) {
+            this.logger.warn("Failed to set pin state", response.message);
             this.pinState[key] = currentState;
             this.cdr.detectChanges();
-          },
-        });
-    }
+          }
+        },
+        error: (err) => {
+          this.logger.error("Error setting pin state", err);
+          this.pinState[key] = currentState;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   ensureSectionsExpanded(): void {
@@ -912,7 +902,6 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
     this.sectionsExpanded.pins = true;
     this.sectionsExpanded.digitalIn = true;
     this.sectionsExpanded.digitalOut = true;
-    this.sectionsExpanded.analogIn = true;
     this.cdr.detectChanges();
   }
 
@@ -930,11 +919,6 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
     const expandDigitalOut = () => {
       this.sectionsExpanded.phidget = true;
       this.sectionsExpanded.digitalOut = true;
-      this.cdr.detectChanges();
-    };
-    const expandAnalogIn = () => {
-      this.sectionsExpanded.phidget = true;
-      this.sectionsExpanded.analogIn = true;
       this.cdr.detectChanges();
     };
 
@@ -1002,17 +986,6 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
         content: "TE_HELP_PHIDGET_DIGITAL_OUT_CONTENT",
         position: "bottom",
         onEnter: expandDigitalOut,
-      });
-    }
-
-    if (this.availableAnalogInputPins.length > 0) {
-      const firstPin = this.availableAnalogInputPins[0];
-      steps.push({
-        selector: `#phidget-analog-item-${firstPin}-${this.interfaceIndex()}`,
-        title: "TE_HELP_PHIDGET_ANALOG_IN_TITLE",
-        content: "TE_HELP_PHIDGET_ANALOG_IN_CONTENT",
-        position: "bottom",
-        onEnter: expandAnalogIn,
       });
     }
 

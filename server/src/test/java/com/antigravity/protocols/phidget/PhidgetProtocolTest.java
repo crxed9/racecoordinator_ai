@@ -11,6 +11,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import com.antigravity.proto.InterfaceEvent;
 import com.antigravity.proto.InterfaceStatus;
 import com.antigravity.proto.PinBehavior;
 import com.antigravity.proto.RaceFlag;
@@ -67,6 +68,8 @@ public class PhidgetProtocolTest {
   public void testUpdateConfig() {
     PhidgetConfig newConfig = new PhidgetConfig();
     newConfig.serialNumber = 67890;
+    newConfig.digitalInIds = Arrays.asList(PinBehavior.BEHAVIOR_CALL_BUTTON_VALUE);
+
     protocol.updateConfig(newConfig);
   }
 
@@ -98,6 +101,10 @@ public class PhidgetProtocolTest {
     // Since configured pins exist and at least one channel is attached, it should be healthy
     assertTrue(spyProtocol.isHealthy());
     verify(mockListener).onInterfaceStatus(InterfaceStatus.CONNECTED, 0);
+
+    ArgumentCaptor<InterfaceEvent> eventCaptor = ArgumentCaptor.forClass(InterfaceEvent.class);
+    verify(mockListener, atLeastOnce()).onInterfaceEvent(eventCaptor.capture());
+    assertEquals(InterfaceStatus.CONNECTED, eventCaptor.getValue().getStatus().getStatus());
   }
 
   @Test
@@ -140,6 +147,10 @@ public class PhidgetProtocolTest {
     assertFalse(protocol.hasMainRelay());
     assertFalse(protocol.isHealthy());
     verify(mockListener).onInterfaceStatus(InterfaceStatus.DISCONNECTED, 0);
+
+    ArgumentCaptor<InterfaceEvent> eventCaptor = ArgumentCaptor.forClass(InterfaceEvent.class);
+    verify(mockListener).onInterfaceEvent(eventCaptor.capture());
+    assertEquals(InterfaceStatus.DISCONNECTED, eventCaptor.getValue().getStatus().getStatus());
   }
 
   @Test

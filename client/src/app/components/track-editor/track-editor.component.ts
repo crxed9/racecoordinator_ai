@@ -1699,8 +1699,8 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       normallyClosedRelays: true,
       useLapsForSegments: false,
       lapPinPitBehavior: 0,
-      digitalInIds: Array(60).fill(0),
-      digitalOutIds: Array(60).fill(0),
+      digitalInIds: Array(32).fill(0),
+      digitalOutIds: Array(32).fill(0),
       analogIds: Array(16).fill(0),
     });
     this.phidgetConfigs = [...this.phidgetConfigs];
