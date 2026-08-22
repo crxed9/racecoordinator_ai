@@ -296,9 +296,20 @@ Or for breaking changes:
 | `style:` | Code formatting, whitespace, spotless adjustments | Internal / excluded from user release notes |
 | `build:` | Installer build scripts, Inno Setup, packaging | Internal / excluded from user release notes |
 
+### Scopes & The Special `(beta)` Scope
+
+Commit types support optional scopes in parentheses (e.g. `feat(phidget): ...`, `fix(timer): ...`).
+
+* **General scopes** (e.g. `feat(webcam): ...`, `fix(timer): ...`):
+  - Formatted into release notes with the scope highlighted (e.g. `- **webcam**: add webcam track interface`).
+* **Special `(beta)` scope** (e.g. `fix(beta): ...`, `feat(beta): ...`):
+  - **In Beta Previews**: Included in beta release notes under **🐛 Bug Fixes** or **🚀 New Features** so beta testers know their reported issue was resolved.
+  - **In Official Releases**: **Automatically omitted**. Because the underlying feature is brand new to official users, interim bug fixes made during beta testing are omitted to keep official release notes concise and noise-free.
+
 ### Examples
 - `feat(phidget): add relay output control handler`
 - `fix: resolve race day startup timer crash`
+- `fix(beta): resolve webcam frame rate drop on macOS` *(Shows in beta release notes; omitted from official release notes)*
 - `perf(ui): optimize track map rendering during live heats`
 - `docs: add troubleshooting instructions for macOS permissions`
 - `chore: update angular dependencies to latest patch`

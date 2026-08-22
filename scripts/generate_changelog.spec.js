@@ -106,6 +106,32 @@ describe('generate_changelog', () => {
       assert.ok(!output.includes('Merge branch'));
     });
 
+    test('should include fix(beta) in beta changelogs but exclude it from official changelogs', () => {
+      const customCommits = [
+        { hash: 'aaa1111', subject: 'feat(webcam): add webcam track interface', author: 'Dev' },
+        { hash: 'bbb2222', subject: 'fix(beta): correct webcam frame rate drop on macOS', author: 'Dev' },
+        { hash: 'ccc3333', subject: 'fix(timer): resolve lap rounding edge case', author: 'Dev' }
+      ];
+
+      // 1. In Beta Release: both fix(beta) and fix(timer) appear
+      const betaOutput = generateChangelog('v1.1.0-beta.2', true, {
+        customPreviousTag: 'v1.1.0-beta.1',
+        customCommits
+      });
+      assert.ok(betaOutput.includes('**webcam**: add webcam track interface'));
+      assert.ok(betaOutput.includes('**beta**: correct webcam frame rate drop on macOS'));
+      assert.ok(betaOutput.includes('**timer**: resolve lap rounding edge case'));
+
+      // 2. In Official Release: fix(beta) is excluded, feat(webcam) and fix(timer) remain
+      const officialOutput = generateChangelog('v1.1.0', false, {
+        customPreviousTag: 'v1.0.0',
+        customCommits
+      });
+      assert.ok(officialOutput.includes('**webcam**: add webcam track interface'));
+      assert.ok(officialOutput.includes('**timer**: resolve lap rounding edge case'));
+      assert.ok(!officialOutput.includes('correct webcam frame rate drop on macOS'));
+    });
+
     test('should prioritize override notes if provided', () => {
       const output = generateChangelog('v1.1.0', false, {
         overrideNotes: '### 🌟 Custom Release Notes\n\n- Highlighted feature 1'

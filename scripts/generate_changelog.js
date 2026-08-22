@@ -116,7 +116,7 @@ function formatBetaCommitList(commits, previousTag) {
   return `### 📋 Beta Changes & Commits\n\nChanges included in this preview build${prevText}:\n\n${lines.join('\n')}`;
 }
 
-function formatOfficialReleaseNotes(commits, previousTag) {
+function formatOfficialReleaseNotes(commits, previousTag, isBeta = false) {
   const features = [];
   const bugFixes = [];
   const improvements = [];
@@ -143,17 +143,29 @@ function formatOfficialReleaseNotes(commits, previousTag) {
     const perfMatch = subject.match(/^(?:perf|refactor)(?:\(([^)]+)\))?!?:\s*(.+)$/i);
 
     if (featMatch) {
-      const scope = featMatch[1] ? `**${featMatch[1]}**: ` : '';
+      const rawScope = featMatch[1] ? featMatch[1].trim() : '';
+      if (!isBeta && rawScope.toLowerCase() === 'beta') {
+        continue; // Exclude beta-scoped features from official release notes
+      }
+      const scopePrefix = rawScope ? `**${rawScope}**: ` : '';
       const text = featMatch[2].trim();
-      features.push(`- ${scope}${text} ${commitLink}`);
+      features.push(`- ${scopePrefix}${text} ${commitLink}`);
     } else if (fixMatch) {
-      const scope = fixMatch[1] ? `**${fixMatch[1]}**: ` : '';
+      const rawScope = fixMatch[1] ? fixMatch[1].trim() : '';
+      if (!isBeta && rawScope.toLowerCase() === 'beta') {
+        continue; // Exclude beta-scoped fixes from official release notes
+      }
+      const scopePrefix = rawScope ? `**${rawScope}**: ` : '';
       const text = fixMatch[2].trim();
-      bugFixes.push(`- ${scope}${text} ${commitLink}`);
+      bugFixes.push(`- ${scopePrefix}${text} ${commitLink}`);
     } else if (perfMatch) {
-      const scope = perfMatch[1] ? `**${perfMatch[1]}**: ` : '';
+      const rawScope = perfMatch[1] ? perfMatch[1].trim() : '';
+      if (!isBeta && rawScope.toLowerCase() === 'beta') {
+        continue; // Exclude beta-scoped improvements from official release notes
+      }
+      const scopePrefix = rawScope ? `**${rawScope}**: ` : '';
       const text = perfMatch[2].trim();
-      improvements.push(`- ${scope}${text} ${commitLink}`);
+      improvements.push(`- ${scopePrefix}${text} ${commitLink}`);
     } else if (/^add\s+/i.test(subject) || /^implement\s+/i.test(subject) || /^support\s+/i.test(subject)) {
       features.push(`- ${subject} ${commitLink}`);
     } else if (/^fix\s+/i.test(subject) || /^resolve\s+/i.test(subject) || /^correct\s+/i.test(subject)) {
@@ -204,7 +216,7 @@ function generateChangelog(tag, isPrerelease, options = {}) {
     ? options.customCommits
     : getCommits(previousTag, options.toRef);
 
-  let notes = formatOfficialReleaseNotes(commits, previousTag);
+  let notes = formatOfficialReleaseNotes(commits, previousTag, isPre);
 
   if (previousTag) {
     notes += `\n\n<details>\n<summary>🔍 <b>Full Commit History</b></summary>\n\nView full commit comparison on [GitHub](${REPO_URL}/compare/${previousTag}...${tag})\n</details>`;
