@@ -31,6 +31,7 @@ Click your operating system below to **download directly**:
 ---
 
 ### 🌐 Downloads & Documentation
+* 📋 **[Release Notes & Changelog](https://daufderheide.github.io/racecoordinator_ai/changelog/)** — Detailed list of features, bug fixes, and release history.
 * 📦 **[Help Center Downloads & Release Portal](https://daufderheide.github.io/racecoordinator_ai/downloads/)** — Explore all releases (Official, Beta, Alpha) and downloads.
 * 📖 **[Installation Guide & System Requirements](https://daufderheide.github.io/racecoordinator_ai/installation/)** — Detailed step-by-step setup guides for each platform.
 <!-- DOWNLOAD_SECTION_END -->`;

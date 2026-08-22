@@ -46,3 +46,7 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 
 ## Flake-Free Async Testing
 - **Avoid arbitrary sleep timers**: In visual and unit tests, avoid arbitrary wall-clock timers (`page.waitForTimeout(ms)`, `Thread.sleep(ms)`) where deterministic alternatives exist (e.g., `waitFor({ state: 'visible' })`, `TestSetupHelper.waitForLocalization()`, or explicit event/condition polling).
+
+## Conventional Commit Message Discipline
+- **Use supported conventional commit prefixes**: All git commit messages must use supported conventional prefixes (`feat:`, `fix:`, `refactor:`, `perf:`, `docs:`, `test:`, `chore:`, `ci:`, `style:`, `build:`), optional scopes (e.g. `feat(phidget): ...`), and concise descriptions to ensure automated release changelog generation remains accurate and clean.
+
