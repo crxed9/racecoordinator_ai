@@ -87,6 +87,15 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   private subscriptions: Subscription[] = [];
   trackName: string = "";
   numTrackSections: number = 100;
+  trackScale: number = 1.0;
+  readonly trackScaleOptions = [
+    { label: "1/87", value: 1 / 87 },
+    { label: "1/64", value: 1 / 64 },
+    { label: "1/43", value: 1 / 43 },
+    { label: "1/32", value: 1 / 32 },
+    { label: "1/24", value: 1 / 24 },
+    { label: "1/1", value: 1.0 },
+  ];
   lanes: Lane[] = [];
   editingTrack?: Track;
   arduinoConfigs: ArduinoConfig[] = [];
@@ -156,6 +165,9 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           if (this.editingTrack) {
             this.trackName = this.editingTrack.name;
             this.numTrackSections = this.editingTrack.num_track_sections;
+            this.trackScale = this.normalizeTrackScale(
+              this.editingTrack.track_scale,
+            );
             this.lanes = [...this.editingTrack.lanes];
 
             // Restore Arduino Configs
@@ -418,6 +430,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
                       "TM_DEFAULT_TRACK_NAME",
                     ),
                     num_track_sections: factoryTrack.num_track_sections || 100,
+                    track_scale: factoryTrack.track_scale ?? 1.0,
                     lanes: factoryTrack.lanes.map(
                       (l: any) =>
                         new Lane(
@@ -445,6 +458,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
                     entity_id: "new",
                     name: "",
                     num_track_sections: 100,
+                    track_scale: 1.0,
                     lanes: [
                       new Lane(this.generateId(), "#ef4444", "black", 100),
                       new Lane(this.generateId(), "#ffffff", "black", 100),
@@ -548,17 +562,20 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
       this.trackName = this.editingTrack.name;
       this.numTrackSections = this.editingTrack.num_track_sections;
+      this.trackScale = this.normalizeTrackScale(this.editingTrack.track_scale);
       this.lanes = [...this.editingTrack.lanes];
     } else {
       this.editingTrack = new Track({
         entity_id: "new",
         name: "",
         num_track_sections: 100,
+        track_scale: 1.0,
         lanes: [],
         has_digital_fuel: false,
       });
       this.trackName = "";
       this.numTrackSections = 100;
+      this.trackScale = 1.0;
       this.lanes = [];
       this.arduinoConfigs = [];
       this.trackmateConfigs = [];
@@ -642,6 +659,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       entity_id: track.entity_id,
       name: track.name,
       num_track_sections: track.num_track_sections,
+      track_scale: track.track_scale ?? 1.0,
       lanes: lanesCopy,
       has_digital_fuel: track.has_digital_fuel,
       arduino_configs: arduinoCopy,
@@ -659,6 +677,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         entity_id: "new",
         name: "",
         num_track_sections: 100,
+        track_scale: 1.0,
         lanes: [],
         has_digital_fuel: false,
       });
@@ -673,6 +692,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       entity_id: this.editingTrack.entity_id,
       name: this.trackName,
       num_track_sections: this.numTrackSections,
+      track_scale: this.trackScale,
       lanes: this.lanes.map(
         (l) =>
           new Lane(
@@ -695,7 +715,8 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   private areTracksEqual(t1: Track, t2: Track): boolean {
     if (
       t1.name !== t2.name ||
-      t1.num_track_sections !== t2.num_track_sections
+      t1.num_track_sections !== t2.num_track_sections ||
+      (t1.track_scale ?? 1.0) !== (t2.track_scale ?? 1.0)
     ) {
       return false;
     }
@@ -1002,6 +1023,14 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         ),
         content: this.translationService.translate(
           "TE_HELP_NUM_TRACK_SECTIONS_CONTENT",
+        ),
+        position: "bottom",
+      },
+      {
+        selector: "#track-scale-section",
+        title: this.translationService.translate("TE_HELP_TRACK_SCALE_TITLE"),
+        content: this.translationService.translate(
+          "TE_HELP_TRACK_SCALE_CONTENT",
         ),
         position: "bottom",
       },
@@ -1534,14 +1563,36 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     }, 400);
   }
 
+  onTrackScaleChange(val: any) {
+    this.trackScale = this.normalizeTrackScale(Number(val));
+    this.onInputChange();
+  }
+
+  private normalizeTrackScale(scale: number | undefined): number {
+    if (
+      scale === undefined ||
+      scale === null ||
+      isNaN(scale) ||
+      scale <= 0 ||
+      scale > 1.0
+    ) {
+      return 1.0;
+    }
+    const matched = this.trackScaleOptions.find(
+      (opt) => Math.abs(opt.value - scale) < 0.0001,
+    );
+    return matched ? matched.value : scale;
+  }
+
   updateLaneLength(index: number, length: any) {
-    const val = parseInt(length, 10);
+    const val = typeof length === "number" ? length : parseFloat(length);
+    const parsedVal = isNaN(val) ? 0 : val;
     const l = this.lanes[index];
     this.lanes[index] = new Lane(
       l.entity_id,
       l.foreground_color,
       l.background_color,
-      val,
+      parsedVal,
     );
     this.onInputChange();
   }
@@ -1813,6 +1864,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
             entity_id: result.entity_id,
             name: result.name,
             num_track_sections: result.num_track_sections ?? 100,
+            track_scale: result.track_scale ?? 1.0,
             lanes: result.lanes,
             has_digital_fuel: result.has_digital_fuel ?? false,
             arduino_configs: result.arduino_configs,

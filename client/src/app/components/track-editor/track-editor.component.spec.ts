@@ -1128,5 +1128,73 @@ describe("TrackEditorComponent", () => {
       expect((component as any).captureState).toHaveBeenCalled();
       expect(initSpy).not.toHaveBeenCalled();
     });
+
+    describe("Track Scale and Decimal Lane Length", () => {
+      it("should update track scale and mark change on onTrackScaleChange", () => {
+        spyOn(component, "onInputChange");
+        component.onTrackScaleChange(1 / 32);
+        expect(component.trackScale).toBeCloseTo(0.03125, 5);
+        expect(component.onInputChange).toHaveBeenCalled();
+      });
+
+      it("should normalize track scale properly", () => {
+        expect((component as any).normalizeTrackScale(undefined)).toBe(1.0);
+        expect((component as any).normalizeTrackScale(-1)).toBe(1.0);
+        expect((component as any).normalizeTrackScale(2.5)).toBe(1.0);
+        expect((component as any).normalizeTrackScale(0.03125)).toBe(1 / 32);
+        expect((component as any).normalizeTrackScale(0.015625)).toBe(1 / 64);
+      });
+
+      it("should allow decimal lane lengths in updateLaneLength", () => {
+        component.lanes = [new Lane("l1", "#ff0000", "#000000", 50)];
+        spyOn(component, "onInputChange");
+
+        component.updateLaneLength(0, "52.75");
+        expect(component.lanes[0].length).toBe(52.75);
+        expect(component.onInputChange).toHaveBeenCalled();
+
+        component.updateLaneLength(0, 60.5);
+        expect(component.lanes[0].length).toBe(60.5);
+
+        component.updateLaneLength(0, "invalid");
+        expect(component.lanes[0].length).toBe(0);
+      });
+
+      it("should include track scale in snapshot and track comparison", () => {
+        component.editingTrack = new Track({
+          entity_id: "t1",
+          name: "Test Track",
+          track_scale: 1 / 32,
+          lanes: [new Lane("l1", "#ff0000", "#000000", 50.5)],
+        });
+        component.trackName = "Test Track";
+        component.trackScale = 1 / 32;
+        component.lanes = [new Lane("l1", "#ff0000", "#000000", 50.5)];
+
+        const snapshot = (component as any).createSnapshot();
+        expect(snapshot.track_scale).toBeCloseTo(0.03125, 5);
+        expect(snapshot.lanes[0].length).toBe(50.5);
+
+        const clone = (component as any).cloneTrack(snapshot);
+        expect(clone.track_scale).toBeCloseTo(0.03125, 5);
+        expect((component as any).areTracksEqual(snapshot, clone)).toBeTrue();
+
+        const modified = (component as any).cloneTrack(snapshot);
+        (modified as any).track_scale = 1.0;
+        expect(
+          (component as any).areTracksEqual(snapshot, modified),
+        ).toBeFalse();
+      });
+
+      it("should include track scale help step in getBaseHelpSteps", () => {
+        const steps = (component as any).getBaseHelpSteps();
+        const scaleStep = steps.find(
+          (s: any) => s.selector === "#track-scale-section",
+        );
+        expect(scaleStep).toBeTruthy();
+        expect(scaleStep.title).toBe("TE_HELP_TRACK_SCALE_TITLE");
+        expect(scaleStep.content).toBe("TE_HELP_TRACK_SCALE_CONTENT");
+      });
+    });
   });
 });

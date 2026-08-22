@@ -2122,6 +2122,21 @@ describe("DefaultRacedayComponent", () => {
       expect(result).toBe("6.58");
     });
 
+    it("should calculate scaled speed when track_scale is set (1/32 scale)", () => {
+      component["track"] = {
+        track_scale: 1 / 32,
+        lanes: [{ length: 60 }],
+      } as any;
+      const mockHd = { laneIndex: 0, lastLapTime: 10.0 };
+      // Scaled Length = 60 / (1/32) = 1920 ft
+      // FPH = (1920 / 10) * 3600 = 691200
+      expect(component.formatValue("fph", null, mockHd as any)).toBe("691200");
+      // MPH = 691200 / 5280 = 130.90909... -> 130.91
+      expect(component.formatValue("mph", null, mockHd as any)).toBe("130.91");
+      // KPH = 130.90909... * 1.609344 = 210.6773... -> 210.68
+      expect(component.formatValue("kph", null, mockHd as any)).toBe("210.68");
+    });
+
     it("should return default placeholder if lastLapTime is 0 or missing", () => {
       const mockHd = { laneIndex: 0, lastLapTime: 0 };
       expect(component.formatValue("fph", null, mockHd as any)).toBe("--.--");

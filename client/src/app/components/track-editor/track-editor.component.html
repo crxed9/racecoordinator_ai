@@ -56,6 +56,24 @@
         />
       </div>
 
+      <div id="track-scale-section" class="editor-section">
+        <label for="track-scale-select">{{
+          "TE_TRACK_SCALE" | translate
+        }}</label>
+        <select
+          id="track-scale-select"
+          [ngModel]="trackScale"
+          (ngModelChange)="onTrackScaleChange($event)"
+          (focus)="onInputFocus()"
+          (blur)="onInputBlur()"
+          name="trackScaleSelect"
+        >
+          @for (opt of trackScaleOptions; track opt.label) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
       <div class="sections-wrapper">
         <div id="lane-editor-section" class="config-section">
           <div class="section-header" (click)="toggleSection('lanes')">
@@ -117,15 +135,21 @@
                       [style.color]="lane.foreground_color"
                     >
                       <span class="preview-number">#{{ i + 1 }}</span>
-                      <input
-                        [id]="'lane-length-' + i"
-                        type="number"
-                        class="preview-length-input"
-                        [ngModel]="lane.length"
-                        (ngModelChange)="updateLaneLength(i, $event)"
-                        (focus)="onInputFocus()"
-                        (blur)="onInputBlur()"
-                      />
+                      <div class="preview-length-wrapper">
+                        <input
+                          [id]="'lane-length-' + i"
+                          type="number"
+                          step="any"
+                          class="preview-length-input"
+                          [ngModel]="lane.length"
+                          (ngModelChange)="updateLaneLength(i, $event)"
+                          (focus)="onInputFocus()"
+                          (blur)="onInputBlur()"
+                        />
+                        <span class="preview-length-unit">{{
+                          "TE_FEET_UNIT" | translate
+                        }}</span>
+                      </div>
                     </div>
                     <div class="lane-controls">
                       <div class="control-group">
