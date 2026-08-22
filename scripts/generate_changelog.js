@@ -214,7 +214,7 @@ function generateChangelog(tag, isPrerelease, options = {}) {
   // 2. Beta & Official releases: filtered conventional changelist
   const commits = options.customCommits !== undefined
     ? options.customCommits
-    : getCommits(previousTag, options.toRef);
+    : getCommits(previousTag, options.toRef || tag);
 
   let notes = formatOfficialReleaseNotes(commits, previousTag, isPre);
 
@@ -256,25 +256,27 @@ function main() {
   const tag = process.argv[2] || process.env.TAG || 'v1.0.0';
   const isPrerelease = process.argv[3] || process.env.IS_PRERELEASE || 'false';
   const overrideNotes = process.env.RELEASE_NOTES_OVERRIDE || '';
-  const overrideFile = path.resolve(__dirname, '..', 'RELEASE_NOTES.md');
+  const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+  const overrideFile = path.resolve(repoRoot, 'RELEASE_NOTES.md');
 
   try {
     const notes = generateChangelog(tag, isPrerelease, {
       overrideNotes,
-      overrideFile
+      overrideFile,
+      toRef: tag
     });
 
     console.log(`Generated Changelog for ${tag}:\n`);
     console.log(notes);
 
     // Save changelog snippet for GitHub Action release_body.md
-    const snippetPath = path.resolve(__dirname, '..', 'changelog_snippet.md');
+    const snippetPath = path.resolve(repoRoot, 'changelog_snippet.md');
     fs.writeFileSync(snippetPath, notes, 'utf8');
 
     // Update root CHANGELOG.md and help center changelog.md if official or beta
     if (!tag.includes('alpha')) {
-      const rootChangelog = path.resolve(__dirname, '..', 'CHANGELOG.md');
-      const docsChangelog = path.resolve(__dirname, '..', 'help_center', 'docs', 'changelog.md');
+      const rootChangelog = path.resolve(repoRoot, 'CHANGELOG.md');
+      const docsChangelog = path.resolve(repoRoot, 'help_center', 'docs', 'changelog.md');
       updateChangelogMarkdown(rootChangelog, tag, notes);
       updateChangelogMarkdown(docsChangelog, tag, notes);
     }

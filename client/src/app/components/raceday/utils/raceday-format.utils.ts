@@ -391,9 +391,14 @@ export class RacedayFormatUtils {
       const track = ctx.getTrack();
       const lane = track?.lanes?.[hd.laneIndex];
       const length = lane?.length;
+      const scale =
+        track?.track_scale && track.track_scale > 0 && track.track_scale <= 1
+          ? track.track_scale
+          : 1.0;
 
       if (lastLapTime > 0 && length !== undefined && length > 0) {
-        const fph = (length / lastLapTime) * 3600;
+        const scaledLength = length / scale;
+        const fph = (scaledLength / lastLapTime) * 3600;
         if (baseKey === "fph") return fph.toFixed(0);
 
         const mph = fph / 5280;
