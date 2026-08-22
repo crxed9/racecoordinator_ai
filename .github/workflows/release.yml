@@ -464,8 +464,8 @@ jobs:
           git fetch origin main
           git fetch --tags --force
 
-          # Switch to clean branch based directly on origin/main
-          git checkout --force -B "docs/update-readme-${{ env.TAG }}" origin/main
+          # Switch to clean main branch tracking origin/main
+          git checkout --force -B main origin/main
 
           # Run scripts from temp directory to update main docs
           node "$SCRIPTS_DIR/update_readme_downloads.js" "${{ env.TAG }}" "${{ env.IS_PRERELEASE }}"
