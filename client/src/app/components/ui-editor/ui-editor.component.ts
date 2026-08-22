@@ -681,7 +681,13 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     this.updateScale();
     this.loadExpanderState();
     this.loadData();
-    this.dataService.setConnectionIntent("preview");
+    const returnUrl = this.route.snapshot.queryParamMap.get("returnUrl");
+    const isFromRace =
+      returnUrl?.includes("raceday") ||
+      this.route.snapshot.queryParamMap.get("from") === "modify-heats";
+    if (!isFromRace) {
+      this.dataService.setConnectionIntent("preview");
+    }
     this.raceConnectionService.connect();
 
     // Auto-save on changes (like Driver Editor)

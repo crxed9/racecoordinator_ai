@@ -348,7 +348,39 @@ describe("UIEditorComponent", () => {
     expect(component.isLoading).toBeFalse();
     expect(component.customDirectoryName).toBe("CustomUI");
     expect(component.assets.length).toBe(1);
+    expect(mockDataService.setConnectionIntent).toHaveBeenCalledWith("preview");
   });
+
+  it("should NOT set connection intent to preview when returnUrl contains raceday", () => {
+    mockDataService.setConnectionIntent.calls.reset();
+    const route = TestBed.inject(ActivatedRoute);
+    (route.snapshot.queryParamMap.get as jasmine.Spy).and.callFake(
+      (key: string) => (key === "returnUrl" ? "/default-raceday" : null),
+    );
+
+    const testFixture = TestBed.createComponent(UIEditorComponent);
+    testFixture.detectChanges();
+
+    expect(mockDataService.setConnectionIntent).not.toHaveBeenCalledWith(
+      "preview",
+    );
+  });
+
+  it("should NOT set connection intent to preview when from is modify-heats", () => {
+    mockDataService.setConnectionIntent.calls.reset();
+    const route = TestBed.inject(ActivatedRoute);
+    (route.snapshot.queryParamMap.get as jasmine.Spy).and.callFake(
+      (key: string) => (key === "from" ? "modify-heats" : null),
+    );
+
+    const testFixture = TestBed.createComponent(UIEditorComponent);
+    testFixture.detectChanges();
+
+    expect(mockDataService.setConnectionIntent).not.toHaveBeenCalledWith(
+      "preview",
+    );
+  });
+
   it("should handle directory selection", fakeAsync(() => {
     mockFileSystem.selectCustomFolder.and.returnValue(Promise.resolve(true));
     mockFileSystem.getCustomDirectoryHandle.and.returnValue(
