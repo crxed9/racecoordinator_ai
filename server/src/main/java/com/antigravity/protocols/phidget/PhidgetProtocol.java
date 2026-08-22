@@ -4,6 +4,7 @@ import com.antigravity.proto.InterfaceAnalogDataEvent;
 import com.antigravity.proto.InterfaceDigitalPinEvent;
 import com.antigravity.proto.InterfaceEvent;
 import com.antigravity.proto.InterfaceStatus;
+import com.antigravity.proto.InterfaceStatusEvent;
 import com.antigravity.proto.PinBehavior;
 import com.antigravity.protocols.DefaultProtocol;
 import com.antigravity.protocols.PartialTime;
@@ -18,7 +19,6 @@ import com.phidget22.DigitalInput;
 import com.phidget22.DigitalInputStateChangeEvent;
 import com.phidget22.DigitalInputStateChangeListener;
 import com.phidget22.DigitalOutput;
-import com.phidget22.ErrorCode;
 import com.phidget22.PhidgetException;
 import com.phidget22.VoltageRatioInput;
 import com.phidget22.VoltageRatioInputVoltageRatioChangeEvent;
@@ -207,7 +207,17 @@ public class PhidgetProtocol extends DefaultProtocol {
       opened = false;
       attached = false;
       if (listener != null) {
-        listener.onInterfaceStatus(InterfaceStatus.DISCONNECTED, getInterfaceIndex());
+        InterfaceStatus status = InterfaceStatus.DISCONNECTED;
+        InterfaceStatusEvent statusEvent =
+            InterfaceStatusEvent.newBuilder()
+                .setStatus(status)
+                .setInterfaceIndex(getInterfaceIndex())
+                .setDetectedChannels(getDetectedChannels())
+                .setSupportsRgbLeds(supportsRgbLeds())
+                .setVersion(getVersion() != null ? getVersion() : "")
+                .build();
+        listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
+        listener.onInterfaceStatus(status, getInterfaceIndex());
       }
       startStatusScheduler();
       return true;
@@ -220,6 +230,7 @@ public class PhidgetProtocol extends DefaultProtocol {
     }
 
     try {
+      opened = true;
       openDigitalInputs();
       openDigitalOutputs();
       openAnalogInputs();
@@ -234,7 +245,6 @@ public class PhidgetProtocol extends DefaultProtocol {
         return false;
       }
 
-      opened = true;
       checkAttachmentStatus();
       syncPower();
       syncAnalogLeds();
@@ -286,18 +296,10 @@ public class PhidgetProtocol extends DefaultProtocol {
   }
 
   private synchronized void checkAttachmentStatus() {
+    boolean anyAttached = attachedChannelCount.get() > 0 || isAnyChannelAttached();
     if (!hasConfiguredPins()) {
-      boolean wasAttached = this.attached;
-      this.attached = true;
-      if (this.attached != wasAttached && this.opened && listener != null) {
-        InterfaceStatus status =
-            isHealthy() ? InterfaceStatus.CONNECTED : InterfaceStatus.DISCONNECTED;
-        listener.onInterfaceStatus(status, getInterfaceIndex());
-      }
-      return;
+      anyAttached = anyAttached || opened;
     }
-
-    boolean anyAttached = isAnyChannelAttached();
 
     boolean wasAttached = this.attached;
     this.attached = anyAttached;
@@ -313,9 +315,18 @@ public class PhidgetProtocol extends DefaultProtocol {
         digitalOutputs.size(),
         analogInputs.size());
 
-    if (this.attached != wasAttached && this.opened && listener != null) {
+    if (this.opened && listener != null) {
       InterfaceStatus status =
           isHealthy() ? InterfaceStatus.CONNECTED : InterfaceStatus.DISCONNECTED;
+      InterfaceStatusEvent statusEvent =
+          InterfaceStatusEvent.newBuilder()
+              .setStatus(status)
+              .setInterfaceIndex(getInterfaceIndex())
+              .setDetectedChannels(getDetectedChannels())
+              .setSupportsRgbLeds(supportsRgbLeds())
+              .setVersion(getVersion() != null ? getVersion() : "")
+              .build();
+      listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
       listener.onInterfaceStatus(status, getInterfaceIndex());
     }
   }
@@ -463,25 +474,16 @@ public class PhidgetProtocol extends DefaultProtocol {
       digitalInputs.add(di);
       digitalInputsByChannel.put(channel, di);
       try {
-        di.open(500);
+        di.open();
       } catch (PhidgetException e) {
-        if (e.getErrorCode() == ErrorCode.TIMEOUT) {
-          logger.info(
-              "Phidget Digital Input channel {} opened, waiting for device attachment (serialNumber: {})",
-              channel,
-              config.serialNumber);
-        } else {
-          digitalInputs.remove(di);
-          digitalInputsByChannel.remove(channel);
-          throw e;
-        }
+        digitalInputs.remove(di);
+        digitalInputsByChannel.remove(channel);
+        throw e;
       }
       logger.info("Opened Phidget Digital Input channel {}", channel);
       return di;
     } catch (PhidgetException e) {
-      if (e.getErrorCode() != ErrorCode.TIMEOUT) {
-        logger.warn("Phidget Digital Input channel {} could not be opened", channel, e);
-      }
+      logger.warn("Phidget Digital Input channel {} could not be opened", channel, e);
     } catch (Throwable e) {
       logger.warn("Phidget Digital Input channel {} could not be opened", channel, e);
     }
@@ -535,25 +537,16 @@ public class PhidgetProtocol extends DefaultProtocol {
       digitalOutputsByChannel.put(channel, out);
 
       try {
-        out.open(500);
+        out.open();
       } catch (PhidgetException e) {
-        if (e.getErrorCode() == ErrorCode.TIMEOUT) {
-          logger.info(
-              "Phidget Digital Output channel {} opened, waiting for device attachment (serialNumber: {})",
-              channel,
-              config.serialNumber);
-        } else {
-          digitalOutputs.remove(out);
-          digitalOutputsByChannel.remove(channel);
-          throw e;
-        }
+        digitalOutputs.remove(out);
+        digitalOutputsByChannel.remove(channel);
+        throw e;
       }
       logger.info("Opened Phidget Digital Output channel {}", channel);
       return out;
     } catch (PhidgetException e) {
-      if (e.getErrorCode() != ErrorCode.TIMEOUT) {
-        logger.warn("Phidget Digital Output channel {} could not be opened", channel, e);
-      }
+      logger.warn("Phidget Digital Output channel {} could not be opened", channel, e);
     } catch (Throwable e) {
       logger.warn("Phidget Digital Output channel {} could not be opened", channel, e);
     }
@@ -677,25 +670,16 @@ public class PhidgetProtocol extends DefaultProtocol {
       analogInputs.add(vi);
       analogInputsByChannel.put(channel, vi);
       try {
-        vi.open(500);
+        vi.open();
       } catch (PhidgetException e) {
-        if (e.getErrorCode() == ErrorCode.TIMEOUT) {
-          logger.info(
-              "Phidget Analog Input channel {} opened, waiting for device attachment (serialNumber: {})",
-              channel,
-              config.serialNumber);
-        } else {
-          analogInputs.remove(vi);
-          analogInputsByChannel.remove(channel);
-          throw e;
-        }
+        analogInputs.remove(vi);
+        analogInputsByChannel.remove(channel);
+        throw e;
       }
       logger.info("Opened Phidget Analog Input channel {}", channel);
       return vi;
     } catch (PhidgetException e) {
-      if (e.getErrorCode() != ErrorCode.TIMEOUT) {
-        logger.warn("Phidget Analog Input channel {} could not be opened", channel, e);
-      }
+      logger.warn("Phidget Analog Input channel {} could not be opened", channel, e);
     } catch (Throwable e) {
       logger.warn("Phidget Analog Input channel {} could not be opened", channel, e);
     }
@@ -747,7 +731,17 @@ public class PhidgetProtocol extends DefaultProtocol {
       mainRelayOutput = null;
 
       if (listener != null) {
-        listener.onInterfaceStatus(InterfaceStatus.DISCONNECTED, getInterfaceIndex());
+        InterfaceStatus status = InterfaceStatus.DISCONNECTED;
+        InterfaceStatusEvent statusEvent =
+            InterfaceStatusEvent.newBuilder()
+                .setStatus(status)
+                .setInterfaceIndex(getInterfaceIndex())
+                .setDetectedChannels(getDetectedChannels())
+                .setSupportsRgbLeds(supportsRgbLeds())
+                .setVersion(getVersion() != null ? getVersion() : "")
+                .build();
+        listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
+        listener.onInterfaceStatus(status, getInterfaceIndex());
       }
     } catch (Throwable e) {
       String msg = e.getMessage() != null ? e.getMessage() : e.toString();

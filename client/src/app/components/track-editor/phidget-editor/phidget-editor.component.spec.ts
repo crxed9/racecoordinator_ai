@@ -1,5 +1,10 @@
 import { ComponentRef } from "@angular/core";
-import { ComponentFixture, TestBed } from "@angular/core/testing";
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from "@angular/core/testing";
 import { of, Subject } from "rxjs";
 import { DataService } from "@app/data.service";
 import { PhidgetConfig } from "@app/models/track";
@@ -120,7 +125,6 @@ describe("PhidgetEditorComponent", () => {
     expect(caps.analogInputs).toBe(8);
     expect(component.availableDigitalInputPins.length).toBe(8);
     expect(component.availableDigitalOutputPins.length).toBe(8);
-    expect(component.availableAnalogInputPins.length).toBe(8);
   });
 
   it("should correctly detect capabilities for 0/0/4 relay board", () => {
@@ -131,7 +135,6 @@ describe("PhidgetEditorComponent", () => {
     expect(caps.analogInputs).toBe(0);
     expect(component.availableDigitalInputPins.length).toBe(0);
     expect(component.availableDigitalOutputPins.length).toBe(4);
-    expect(component.availableAnalogInputPins.length).toBe(0);
   });
 
   it("should set and retrieve digital input pin behavior correctly", () => {
@@ -165,6 +168,14 @@ describe("PhidgetEditorComponent", () => {
       PinBehavior.BEHAVIOR_ANALOG_LED_GREEN_FLAG,
     );
     expect(component.getPinAction("out", 2)).toBe("analogled_green");
+  });
+
+  it("should not render analog inputs in the template", () => {
+    fixture.detectChanges();
+    const analogItem = fixture.nativeElement.querySelector(
+      "#phidget-analog-item-0-0",
+    );
+    expect(analogItem).toBeNull();
   });
 
   it("should set and retrieve analog input pin behavior correctly", () => {
@@ -343,7 +354,6 @@ describe("PhidgetEditorComponent", () => {
       pins: false,
       digitalIn: false,
       digitalOut: false,
-      analogIn: false,
     };
     component.ensureSectionsExpanded();
     expect(component.sectionsExpanded.phidget).toBeTrue();
@@ -351,7 +361,6 @@ describe("PhidgetEditorComponent", () => {
     expect(component.sectionsExpanded.pins).toBeTrue();
     expect(component.sectionsExpanded.digitalIn).toBeTrue();
     expect(component.sectionsExpanded.digitalOut).toBeTrue();
-    expect(component.sectionsExpanded.analogIn).toBeTrue();
   });
 
   it("should return guide steps and expand appropriate sections onEnter", () => {
@@ -514,6 +523,72 @@ describe("PhidgetEditorComponent", () => {
     );
     expect(component.change.emit).toHaveBeenCalled();
   });
+
+  it("should toggle output pin on and off when status badge is clicked", () => {
+    mockDataService.setInterfacePinState.and.returnValue(
+      of(
+        SetInterfacePinStateResponse.create({
+          success: true,
+          message: "Pin state updated",
+        }),
+      ),
+    );
+
+    fixture.detectChanges();
+    const outBadgeEl: HTMLElement = fixture.nativeElement.querySelector(
+      "#phidget-out-status-0",
+    );
+    expect(outBadgeEl).toBeTruthy();
+    expect(component.isPinActive("out", 0)).toBeFalse();
+    expect(outBadgeEl.classList.contains("connected")).toBeFalse();
+
+    // Click 1: Turn ON
+    outBadgeEl.click();
+    fixture.detectChanges();
+
+    expect(mockDataService.setInterfacePinState).toHaveBeenCalledWith(
+      0,
+      true,
+      true,
+      0,
+    );
+    expect(component.isPinActive("out", 0)).toBeTrue();
+    expect(outBadgeEl.classList.contains("connected")).toBeTrue();
+
+    // Click 2: Turn OFF
+    outBadgeEl.click();
+    fixture.detectChanges();
+
+    expect(mockDataService.setInterfacePinState).toHaveBeenCalledWith(
+      0,
+      true,
+      false,
+      0,
+    );
+    expect(component.isPinActive("out", 0)).toBeFalse();
+    expect(outBadgeEl.classList.contains("connected")).toBeFalse();
+  });
+
+  it("should trigger pulse on analogData event", fakeAsync(() => {
+    fixture.detectChanges();
+    expect(component.isPinActive("analog", 2)).toBeFalse();
+
+    eventsSubject.next({
+      analogData: {
+        interfaceIndex: 0,
+        pin: 2,
+        value: 512,
+      },
+    });
+    tick();
+    fixture.detectChanges();
+
+    expect(component.isPinActive("analog", 2)).toBeTrue();
+
+    tick(600);
+    fixture.detectChanges();
+    expect(component.isPinActive("analog", 2)).toBeFalse();
+  }));
 
   it("should clear pinState when selecting new pin behavior for output", () => {
     component.pinState["out-0"] = true;

@@ -1,5 +1,6 @@
 import { Locator, Page } from "@playwright/test";
 import {
+  GetPhidgetDevicesResponse,
   InitializeInterfaceResponse,
   IRaceTime,
   ListAssetsResponse,
@@ -1087,6 +1088,28 @@ export class TestSetupHelper {
         success: true,
       });
       const buffer = UpdateInterfaceConfigResponse.encode(response).finish();
+      await route.fulfill({
+        status: 200,
+        contentType: "application/octet-stream",
+        body: Buffer.from(buffer),
+      });
+    });
+
+    await page.route("**/api/phidgets", async (route) => {
+      const resp = GetPhidgetDevicesResponse.create({
+        devices: [
+          {
+            name: "Phidget 8/8/8",
+            serialNumber: 12345,
+            isHubPort: false,
+            hubPort: 0,
+            digitalInputCount: 8,
+            digitalOutputCount: 8,
+            analogInputCount: 8,
+          },
+        ],
+      });
+      const buffer = GetPhidgetDevicesResponse.encode(resp).finish();
       await route.fulfill({
         status: 200,
         contentType: "application/octet-stream",
