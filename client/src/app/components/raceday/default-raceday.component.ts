@@ -4019,6 +4019,7 @@ export class DefaultRacedayComponent
     const laneViewWidget = this.currentRacedayLayout?.widgets?.find(
       (w: any) => w.widgetType === "lane-view",
     );
+    const isVertical = laneViewWidget?.customSettings?.["isVertical"] ?? false;
     const widgetWidths = laneViewWidget?.customSettings?.["columnWidths"] || {};
     const currentWidths = this.currentColumnWidths || {};
 
@@ -4035,7 +4036,10 @@ export class DefaultRacedayComponent
       ) {
         width = Number(currentWidths[key]);
       } else {
-        width = RacedayLayoutUtils.getDefaultColumnWidth(key, layout);
+        width = RacedayLayoutUtils.getDefaultColumnWidth(key, layout, {
+          isPractice: this.isPracticeLayout,
+          isVertical,
+        });
       }
 
       configuredWidths[key] = width;

@@ -389,6 +389,34 @@ describe("RacedayLayoutUtils", () => {
       ).toBe(275);
     });
 
+    it("should return 170 for laneNumber when in practice mode and horizontal layout", () => {
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth("laneNumber", undefined, {
+          isPractice: true,
+          isVertical: false,
+        }),
+      ).toBe(170);
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth(
+          "customKey",
+          { [AnchorPoint.CenterCenter]: "laneNumber" },
+          { isPractice: true, isVertical: false },
+        ),
+      ).toBe(170);
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth("laneNumber", undefined, {
+          isPractice: true,
+          isVertical: true,
+        }),
+      ).toBe(120);
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth("laneNumber", undefined, {
+          isPractice: false,
+          isVertical: false,
+        }),
+      ).toBe(120);
+    });
+
     it("should determine width from layout CenterCenter or first anchor", () => {
       expect(
         RacedayLayoutUtils.getDefaultColumnWidth("customKey", {

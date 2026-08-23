@@ -492,4 +492,46 @@ describe("RacedayLaneViewComponent", () => {
     expect(secondRowHolder.textContent.trim()).toBe("---");
     expect(secondRowDate.textContent.trim()).toBe("---");
   });
+
+  it("should render laneNumber column in practice race with centered span and reset buttons", () => {
+    mockParent.race = { practice: true };
+    mockParent.isNameProperty = (prop: string) =>
+      prop.startsWith("driver.name") || prop.startsWith("driver.nickname");
+    mockParent.isTeam = () => false;
+    mockParent.formatColumnValue = (
+      hd: any,
+      _col: any,
+      prop: string,
+      _anchor: string,
+    ) => (prop === "laneNumber" ? String(hd.laneIndex + 1) : hd.driver?.name);
+
+    mockParent.columns = [
+      {
+        propertyName: "laneNumber",
+        labelKey: "RD_COL_LANE",
+        layout: {
+          [AnchorPoint.CenterCenter]: "laneNumber",
+        },
+      } as any,
+    ];
+    fixture.detectChanges();
+
+    // Header should have reset-all-btn
+    const resetAllBtn = fixture.nativeElement.querySelector(".reset-all-btn");
+    expect(resetAllBtn).toBeTruthy();
+
+    // Body rows should have reset-lane-btn and span with 0px padding-right
+    const resetLaneBtns =
+      fixture.nativeElement.querySelectorAll(".reset-lane-btn");
+    expect(resetLaneBtns.length).toBe(2);
+
+    const spans = fixture.nativeElement.querySelectorAll(
+      ".body-cell .anchor-center-center span",
+    );
+    expect(spans.length).toBe(2);
+    expect(spans[0].textContent.trim()).toBe("1");
+    expect(spans[0].style.paddingRight).toBe("0px");
+    expect(spans[1].textContent.trim()).toBe("2");
+    expect(spans[1].style.paddingRight).toBe("0px");
+  });
 });

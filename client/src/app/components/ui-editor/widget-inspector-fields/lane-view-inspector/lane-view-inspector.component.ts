@@ -176,7 +176,10 @@ export class LaneViewInspectorComponent {
     ) {
       return Number(widthsMap[colKey]);
     }
-    return RacedayLayoutUtils.getDefaultColumnWidth(colKey);
+    return RacedayLayoutUtils.getDefaultColumnWidth(colKey, undefined, {
+      isPractice: this.isPracticeMode(),
+      isVertical: this.settings()?.isVertical ?? false,
+    });
   }
 
   setColumnWidth(colKey: string, width: any) {

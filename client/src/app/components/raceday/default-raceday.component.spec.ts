@@ -2255,6 +2255,33 @@ describe("DefaultRacedayComponent", () => {
       expect(lapCol?.width).toBe(300);
       fixture.componentRef.setInput("isPracticeLayoutEditor", false);
     });
+
+    it("should default laneNumber width to 170 when in practice layout with horizontal layout", () => {
+      fixture.componentRef.setInput("isPracticeLayoutEditor", true);
+      mockSettings.practiceRacedayColumns = ["laneNumber", "lapCount"];
+      mockSettings.practiceColumnWidths = {};
+      mockSettings.practiceRacedayLayout = {
+        widgets: [
+          {
+            id: "lane-view-widget",
+            widgetType: "lane-view",
+            x: 0,
+            y: 0,
+            width: 1920,
+            height: 1080,
+            zIndex: 1,
+            customSettings: { isVertical: false },
+          },
+        ],
+      };
+      (component as any).loadColumns();
+
+      const laneCol = component["columns"].find(
+        (c) => c.propertyName === "laneNumber",
+      );
+      expect(laneCol?.width).toBe(170);
+      fixture.componentRef.setInput("isPracticeLayoutEditor", false);
+    });
   });
 
   describe("Leaderboard", () => {

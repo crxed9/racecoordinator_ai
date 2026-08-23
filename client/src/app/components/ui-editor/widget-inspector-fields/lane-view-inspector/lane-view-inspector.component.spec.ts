@@ -237,6 +237,15 @@ describe("LaneViewInspectorComponent", () => {
     expect(component.getColumnWidth("pcol1")).toBe(500);
   });
 
+  it("should return default width of 170 for laneNumber in practice mode with horizontal layout", () => {
+    fixture.componentRef.setInput("isPracticeMode", true);
+    fixture.componentRef.setInput("settings", { isVertical: false });
+    expect(component.getColumnWidth("laneNumber")).toBe(170);
+
+    fixture.componentRef.setInput("settings", { isVertical: true });
+    expect(component.getColumnWidth("laneNumber")).toBe(120);
+  });
+
   it("should clean up column width on deleteColumn", () => {
     fixture.componentRef.setInput("widget", {
       customSettings: { columnWidths: { col1: 300 } },

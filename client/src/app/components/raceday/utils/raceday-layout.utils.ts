@@ -316,6 +316,7 @@ export class RacedayLayoutUtils {
   static getDefaultColumnWidth(
     key: string,
     layout?: { [A in AnchorPoint]?: string },
+    options?: { isPractice?: boolean; isVertical?: boolean },
   ): number {
     const propertyKey =
       layout?.[AnchorPoint.CenterCenter] ||
@@ -323,6 +324,14 @@ export class RacedayLayoutUtils {
       key;
 
     const baseKey = (propertyKey as string).split("_")[0];
+    if (
+      (propertyKey === "laneNumber" || baseKey === "laneNumber") &&
+      options?.isPractice &&
+      !options?.isVertical
+    ) {
+      return 170;
+    }
+
     const widths: { [key: string]: number } = {
       "driver.name": 0,
       "driver.nickname": 0,

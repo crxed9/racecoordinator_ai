@@ -589,8 +589,7 @@
                         "
                         [style.padding-right]="
                           parent().race?.practice &&
-                          (parent().isNameProperty(entry.property) ||
-                            entry.property === 'laneNumber') &&
+                          parent().isNameProperty(entry.property) &&
                           (parent().authService.currentRole$ | async) !==
                             parent().Role.VIEWER
                             ? '44px'
