@@ -6,6 +6,7 @@ import {
 import { CommonModule } from "@angular/common";
 import { Component, inject, input, output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { RacedayLayoutUtils } from "@app/components/raceday/utils/raceday-layout.utils";
 import { ColumnVisibility, Settings } from "@app/models/settings";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { FontService } from "@app/services/font.service";
@@ -138,10 +139,71 @@ export class LaneViewInspectorComponent {
       global.practiceRacedayColumns = (
         global.practiceRacedayColumns || []
       ).filter((c) => c !== colKey);
+      if (global.practiceColumnWidths) {
+        delete global.practiceColumnWidths[colKey];
+      }
     } else {
       global.racedayColumns = (global.racedayColumns || []).filter(
         (c) => c !== colKey,
       );
+      if (global.columnWidths) {
+        delete global.columnWidths[colKey];
+      }
+    }
+    if (this.widget()?.customSettings?.["columnWidths"]) {
+      delete this.widget().customSettings["columnWidths"][colKey];
+    }
+    this.change.emit();
+  }
+
+  getColumnWidth(colKey: string): number {
+    const widgetWidths = this.widget()?.customSettings?.["columnWidths"];
+    if (
+      widgetWidths &&
+      widgetWidths[colKey] !== undefined &&
+      widgetWidths[colKey] !== null
+    ) {
+      return Number(widgetWidths[colKey]);
+    }
+    const global = this.globalSettings();
+    const widthsMap = this.isPracticeMode()
+      ? global?.practiceColumnWidths
+      : global?.columnWidths;
+    if (
+      widthsMap &&
+      widthsMap[colKey] !== undefined &&
+      widthsMap[colKey] !== null
+    ) {
+      return Number(widthsMap[colKey]);
+    }
+    return RacedayLayoutUtils.getDefaultColumnWidth(colKey);
+  }
+
+  setColumnWidth(colKey: string, width: any) {
+    const parsed =
+      width === "" ||
+      width === null ||
+      width === undefined ||
+      isNaN(Number(width))
+        ? 0
+        : Math.max(0, Math.round(Number(width)));
+    const global = this.globalSettings();
+    if (global) {
+      if (this.isPracticeMode()) {
+        if (!global.practiceColumnWidths) global.practiceColumnWidths = {};
+        global.practiceColumnWidths[colKey] = parsed;
+      } else {
+        if (!global.columnWidths) global.columnWidths = {};
+        global.columnWidths[colKey] = parsed;
+      }
+    }
+    const widget = this.widget();
+    if (widget) {
+      if (!widget.customSettings) widget.customSettings = {};
+      if (!widget.customSettings["columnWidths"]) {
+        widget.customSettings["columnWidths"] = {};
+      }
+      widget.customSettings["columnWidths"][colKey] = parsed;
     }
     this.change.emit();
   }

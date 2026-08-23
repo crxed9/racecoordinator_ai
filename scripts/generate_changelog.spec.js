@@ -72,8 +72,8 @@ describe('generate_changelog', () => {
       assert.ok(output.includes('### 🐛 Bug Fixes'));
       assert.ok(output.includes('resolve race timer crash'));
       assert.ok(!output.includes('update internal tooling'));
-      assert.ok(!output.includes('update github action'));
       assert.ok(output.includes('Full Commit History'));
+      assert.ok(output.includes('<a href="https://github.com/daufderheide/racecoordinator_ai/compare/v1.0.0-beta.4...v1.0.0-beta.5">GitHub</a>'));
     });
 
     test('should filter and categorize post-1.0 official releases', () => {

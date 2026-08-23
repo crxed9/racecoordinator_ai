@@ -180,6 +180,7 @@ export class Settings {
   columnVisibility: { [columnKey: string]: ColumnVisibility } = {
     "imageset_fuel-gauge-builtin": ColumnVisibility.FuelRaceOnly,
   };
+  columnWidths: { [columnKey: string]: number } = {};
 
   racedayLayout?: LayoutConfig;
 
@@ -209,6 +210,7 @@ export class Settings {
     laneNumber: ColumnVisibility.Always,
     lastLaps: ColumnVisibility.Always,
   };
+  practiceColumnWidths: { [columnKey: string]: number } = {};
 
   practiceRacedayLayout?: LayoutConfig;
 

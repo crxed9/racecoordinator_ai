@@ -827,6 +827,20 @@ export class DefaultRacedayComponent
     else settings.columnVisibility = vis;
   }
 
+  get currentColumnWidths(): { [columnKey: string]: number } {
+    const settings =
+      this.editingSettings() || this.settingsService.getSettings();
+    return this.isPracticeLayout
+      ? settings.practiceColumnWidths || {}
+      : settings.columnWidths || {};
+  }
+  set currentColumnWidths(widths: { [columnKey: string]: number }) {
+    const settings =
+      this.editingSettings() || this.settingsService.getSettings();
+    if (this.isPracticeLayout) settings.practiceColumnWidths = widths;
+    else settings.columnWidths = widths;
+  }
+
   toggleLayoutEditorMinimize(event: Event) {
     event.stopPropagation();
     this.isLayoutEditorMinimized = !this.isLayoutEditorMinimized;
@@ -3087,6 +3101,9 @@ export class DefaultRacedayComponent
     this.currentRacedayColumns = this.currentRacedayColumns.filter(
       (c) => c !== colData.propertyName,
     );
+    if (this.currentColumnWidths) {
+      delete this.currentColumnWidths[colData.propertyName];
+    }
     this.loadColumns();
     this.cdr.markForCheck();
     this.columnsChanged.emit();
@@ -3911,8 +3928,10 @@ export class DefaultRacedayComponent
       return true;
     });
 
-    const { resizingColumnKey, remainingWidth, fixedWidths } =
-      this.resolveColumnLayout(selectedColumns, settings);
+    const { calculatedWidths, zeroWidthColumnKeys } = this.resolveColumnLayout(
+      selectedColumns,
+      settings,
+    );
 
     this.columns = selectedColumns.map((key) => {
       const layout = (this.currentColumnLayouts || {})[key] || {
@@ -3920,11 +3939,10 @@ export class DefaultRacedayComponent
       };
       const primaryProp =
         layout[AnchorPoint.CenterCenter] || Object.values(layout)[0] || key;
-      const baseKey = primaryProp.split("_")[0];
 
       const labelKey = this.getLabelKeyForColumn(key, layout);
-      const isResizing = key === resizingColumnKey;
-      const width = isResizing ? remainingWidth : fixedWidths[baseKey] || 275;
+      const isResizing = zeroWidthColumnKeys.has(key);
+      const width = calculatedWidths[key] ?? 275;
       const anchor = this.currentColumnAnchors[key] || AnchorPoint.CenterCenter;
 
       const renderer = (
@@ -3950,7 +3968,7 @@ export class DefaultRacedayComponent
           "",
           key,
           width,
-          false,
+          isResizing,
           "middle",
           0,
           anchor,
@@ -3991,82 +4009,63 @@ export class DefaultRacedayComponent
     selectedColumns: string[],
     _settings: any,
   ): {
-    resizingColumnKey: string | null;
-    remainingWidth: number;
-    fixedWidths: { [key: string]: number };
+    calculatedWidths: { [key: string]: number };
+    zeroWidthColumnKeys: Set<string>;
   } {
-    const nameKeys = ["driver.name", "driver.nickname"];
-    const fixedWidths: { [key: string]: number } = {
-      lapCount: 216,
-      lapsLed: 216,
-      reactionTime: 330,
-      lastLapTime: 330,
-      lastLaps: 1650,
-      medianLapTime: 330,
-      averageLapTime: 330,
-      bestLapTime: 330,
-      recordLapTime: 330,
-      totalTime: 330,
-      gapLeader: 330,
-      gapPosition: 330,
-      gapLeaderF1: 330,
-      gapPositionF1: 330,
-      "driver.name": 480,
-      "driver.nickname": 480,
-      "driver.avatarUrl": 120,
-      "participant.team.name": 330,
-      "participant.fuelLevel": 216,
-      fuelCapacity: 216,
-      fuelPercentage: 216,
-      seed: 216,
-      rankHeat: 108,
-      rankOverall: 108,
-      rankGroup: 108,
-      mph: 330,
-      kph: 330,
-      fph: 330,
-      segmentTime: 330,
-      flag: 120,
-      laneNumber: 120,
-      imageset: 216,
-    };
-
-    let resizingColumnKey: string | null = null;
-    for (const key of selectedColumns) {
-      const layout = (this.currentColumnLayouts || {})[key] || {
-        [AnchorPoint.CenterCenter]: key,
-      };
-      const containsName = Object.values(layout).some((v) =>
-        nameKeys.includes((v as string).split("_")[0]),
-      );
-      if (containsName) {
-        resizingColumnKey = key;
-        break;
-      }
-    }
-    if (!resizingColumnKey && selectedColumns.length > 0) {
-      resizingColumnKey = selectedColumns[0];
-    }
-
+    const configuredWidths: { [key: string]: number } = {};
+    const zeroWidthColumnKeys = new Set<string>();
     let totalFixed = 0;
+
+    const laneViewWidget = this.currentRacedayLayout?.widgets?.find(
+      (w: any) => w.widgetType === "lane-view",
+    );
+    const widgetWidths = laneViewWidget?.customSettings?.["columnWidths"] || {};
+    const currentWidths = this.currentColumnWidths || {};
+
     selectedColumns.forEach((key) => {
-      if (key === resizingColumnKey) return;
       const layout = (this.currentColumnLayouts || {})[key] || {
         [AnchorPoint.CenterCenter]: key,
       };
-      const primaryProp =
-        layout[AnchorPoint.CenterCenter] || Object.values(layout)[0] || key;
-      const baseKey = (primaryProp as string).split("_")[0];
-      totalFixed += fixedWidths[baseKey] || 275;
+      let width: number | undefined = undefined;
+      if (widgetWidths[key] !== undefined && widgetWidths[key] !== null) {
+        width = Number(widgetWidths[key]);
+      } else if (
+        currentWidths[key] !== undefined &&
+        currentWidths[key] !== null
+      ) {
+        width = Number(currentWidths[key]);
+      } else {
+        width = RacedayLayoutUtils.getDefaultColumnWidth(key, layout);
+      }
+
+      configuredWidths[key] = width;
+      if (width === 0) {
+        zeroWidthColumnKeys.add(key);
+      } else {
+        totalFixed += width;
+      }
     });
 
     const totalGapsWidth = Math.max(0, selectedColumns.length - 1) * 20;
-    const remainingWidth = Math.max(
-      300,
+    const totalRemaining = Math.max(
+      0,
       this.dashboardWidth - totalFixed - totalGapsWidth,
     );
 
-    return { resizingColumnKey, remainingWidth, fixedWidths };
+    const calculatedWidths: { [key: string]: number } = {};
+    const zeroCount = zeroWidthColumnKeys.size;
+    const sharedWidth =
+      zeroCount > 0 ? Math.max(50, Math.floor(totalRemaining / zeroCount)) : 0;
+
+    selectedColumns.forEach((key) => {
+      if (zeroWidthColumnKeys.has(key)) {
+        calculatedWidths[key] = sharedWidth;
+      } else {
+        calculatedWidths[key] = configuredWidths[key];
+      }
+    });
+
+    return { calculatedWidths, zeroWidthColumnKeys };
   }
 
   private reindexColumnLayout(layout: { [A in AnchorPoint]?: string }): {
