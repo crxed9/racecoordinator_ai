@@ -883,7 +883,7 @@ describe("TrackEditorComponent", () => {
   });
 
   describe("Interface List Ordering & Badges", () => {
-    it("should render interfaces in alphabetical order with correct badges", fakeAsync(() => {
+    it("should render interfaces in alphabetical order without unexpected badges", fakeAsync(() => {
       component.sectionsExpanded.interfaces = true;
       fixture.detectChanges();
       tick();
@@ -891,25 +891,19 @@ describe("TrackEditorComponent", () => {
       const interfaceHeaders = fixture.nativeElement.querySelectorAll(
         ".config-section .section-content .editor-section .section-header",
       );
-      expect(interfaceHeaders.length).toBe(4);
+      expect(interfaceHeaders.length).toBe(3);
 
       const names = Array.from(interfaceHeaders).map((header: any) =>
         header.querySelector("span")?.textContent?.trim(),
       );
-      expect(names).toEqual(["Arduino", "BART (BLE)", "Phidget", "Trackmate"]);
-
-      // Check badges
-      const bartBadge = interfaceHeaders[1].querySelector(".interface-badge");
-      expect(bartBadge).toBeTruthy();
-      expect(bartBadge.textContent.trim()).toBe("ALPHA");
-      expect(bartBadge.classList.contains("alpha-badge")).toBeTrue();
+      expect(names).toEqual(["Arduino", "Phidget", "Trackmate"]);
 
       const phidgetBadge =
-        interfaceHeaders[2].querySelector(".interface-badge");
+        interfaceHeaders[1].querySelector(".interface-badge");
       expect(phidgetBadge).toBeNull();
 
       const trakmateBadge =
-        interfaceHeaders[3].querySelector(".interface-badge");
+        interfaceHeaders[2].querySelector(".interface-badge");
       expect(trakmateBadge).toBeNull();
     }));
   });
