@@ -553,61 +553,59 @@ public class PhidgetProtocol extends DefaultProtocol {
     return null;
   }
 
+  void applyOutputChannelState(int channel) throws PhidgetException {
+    int behavior = getDigitalOutputBehavior(channel);
+    if (behavior == PinBehavior.BEHAVIOR_RELAY_VALUE) {
+      boolean power = lastMainPower != null ? lastMainPower : false;
+      boolean state = isNormallyClosedRelays() ? power : !power;
+      setOutputChannelPhysicalState(channel, state);
+    } else if (behavior >= PinBehavior.BEHAVIOR_RELAY_BASE_VALUE
+        && behavior < PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 64) {
+      int lane = behavior - PinBehavior.BEHAVIOR_RELAY_BASE_VALUE;
+      boolean power = lastLanePower.getOrDefault(lane, false);
+      boolean state = isNormallyClosedRelays() ? power : !power;
+      setOutputChannelPhysicalState(channel, state);
+    } else if (behavior == PinBehavior.BEHAVIOR_ANALOG_LED_GREEN_FLAG_VALUE) {
+      setOutputChannelPhysicalState(channel, isGreenFlagOn);
+    } else if (behavior == PinBehavior.BEHAVIOR_ANALOG_LED_YELLOW_FLAG_VALUE) {
+      setOutputChannelPhysicalState(channel, isYellowFlagOn);
+    } else if (behavior >= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_1_VALUE
+        && behavior <= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5_VALUE) {
+      int idx = behavior - PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_1_VALUE;
+      setOutputChannelPhysicalState(channel, isCountdownOn[idx]);
+    }
+  }
+
   private void applyOutputChannelState(DigitalOutput out, int channel) {
     try {
       if (!out.getAttached()) {
         return;
       }
-      int behavior = getDigitalOutputBehavior(channel);
-      if (behavior == PinBehavior.BEHAVIOR_RELAY_VALUE) {
-        boolean power = lastMainPower != null ? lastMainPower : false;
-        boolean state = isNormallyClosedRelays() ? !power : power;
-        out.setState(state);
-      } else if (behavior >= PinBehavior.BEHAVIOR_RELAY_BASE_VALUE
-          && behavior < PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 64) {
-        int lane = behavior - PinBehavior.BEHAVIOR_RELAY_BASE_VALUE;
-        boolean power = lastLanePower.getOrDefault(lane, false);
-        boolean state = isNormallyClosedRelays() ? !power : power;
-        out.setState(state);
-      } else if (behavior == PinBehavior.BEHAVIOR_ANALOG_LED_GREEN_FLAG_VALUE) {
-        out.setState(isGreenFlagOn);
-      } else if (behavior == PinBehavior.BEHAVIOR_ANALOG_LED_YELLOW_FLAG_VALUE) {
-        out.setState(isYellowFlagOn);
-      } else if (behavior >= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_1_VALUE
-          && behavior <= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5_VALUE) {
-        int idx = behavior - PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_1_VALUE;
-        out.setState(isCountdownOn[idx]);
-      }
+      applyOutputChannelState(channel);
     } catch (PhidgetException e) {
       logger.error("Error applying output state to Phidget channel {}", channel, e);
     }
   }
 
   public void syncPower() {
-    if (mainRelayOutput != null) {
-      boolean power = lastMainPower != null ? lastMainPower : false;
+    try {
+      if (isMainRelayAttached()) {
+        boolean power = lastMainPower != null ? lastMainPower : false;
+        boolean state = isNormallyClosedRelays() ? power : !power;
+        setMainRelayPhysicalState(state);
+      }
+    } catch (PhidgetException e) {
+      logger.error("Error setting main relay state during syncPower", e);
+    }
+    for (Integer lane : relayOutputs.keySet()) {
       try {
-        if (mainRelayOutput.getAttached()) {
-          boolean state = isNormallyClosedRelays() ? !power : power;
-          mainRelayOutput.setState(state);
+        if (isLaneRelayAttached(lane)) {
+          boolean power = lastLanePower.getOrDefault(lane, false);
+          boolean state = isNormallyClosedRelays() ? power : !power;
+          setLaneRelayPhysicalState(lane, state);
         }
       } catch (PhidgetException e) {
-        logger.error("Error setting main relay state during syncPower", e);
-      }
-    }
-    for (Map.Entry<Integer, DigitalOutput> entry : relayOutputs.entrySet()) {
-      int lane = entry.getKey();
-      DigitalOutput out = entry.getValue();
-      if (out != null) {
-        boolean power = lastLanePower.getOrDefault(lane, false);
-        try {
-          if (out.getAttached()) {
-            boolean state = isNormallyClosedRelays() ? !power : power;
-            out.setState(state);
-          }
-        } catch (PhidgetException e) {
-          logger.error("Error setting lane relay state for lane {} during syncPower", lane + 1, e);
-        }
+        logger.error("Error setting lane relay state for lane {} during syncPower", lane + 1, e);
       }
     }
   }
@@ -837,8 +835,38 @@ public class PhidgetProtocol extends DefaultProtocol {
     }
   }
 
+  boolean isMainRelayAttached() {
+    try {
+      return mainRelayOutput != null && mainRelayOutput.getAttached();
+    } catch (Throwable e) {
+      return false;
+    }
+  }
+
+  boolean isLaneRelayAttached(int lane) {
+    DigitalOutput out = relayOutputs.get(lane);
+    try {
+      return out != null && out.getAttached();
+    } catch (Throwable e) {
+      return false;
+    }
+  }
+
   void setOutputChannelPhysicalState(int pin, boolean state) throws PhidgetException {
     DigitalOutput out = digitalOutputsByChannel.get(pin);
+    if (out != null) {
+      out.setState(state);
+    }
+  }
+
+  void setMainRelayPhysicalState(boolean state) throws PhidgetException {
+    if (mainRelayOutput != null) {
+      mainRelayOutput.setState(state);
+    }
+  }
+
+  void setLaneRelayPhysicalState(int lane, boolean state) throws PhidgetException {
+    DigitalOutput out = relayOutputs.get(lane);
     if (out != null) {
       out.setState(state);
     }
@@ -852,13 +880,13 @@ public class PhidgetProtocol extends DefaultProtocol {
       if (isOutputChannelAttached(pin)) {
         int behavior = getDigitalOutputBehavior(pin);
         if (behavior == PinBehavior.BEHAVIOR_RELAY_VALUE) {
-          boolean state = isNormallyClosedRelays() ? !isHigh : isHigh;
+          boolean state = isNormallyClosedRelays() ? isHigh : !isHigh;
           setOutputChannelPhysicalState(pin, state);
           lastMainPower = isHigh;
         } else if (behavior >= PinBehavior.BEHAVIOR_RELAY_BASE_VALUE
             && behavior < PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 64) {
           int lane = behavior - PinBehavior.BEHAVIOR_RELAY_BASE_VALUE;
-          boolean state = isNormallyClosedRelays() ? !isHigh : isHigh;
+          boolean state = isNormallyClosedRelays() ? isHigh : !isHigh;
           setOutputChannelPhysicalState(pin, state);
           lastLanePower.put(lane, isHigh);
         } else {
@@ -937,31 +965,26 @@ public class PhidgetProtocol extends DefaultProtocol {
   @Override
   public void setMainPower(boolean on) {
     super.setMainPower(on);
-    if (mainRelayOutput != null) {
-      try {
-        if (mainRelayOutput.getAttached()) {
-          boolean state = isNormallyClosedRelays() ? !on : on;
-          mainRelayOutput.setState(state);
-        }
-      } catch (PhidgetException e) {
-        logger.error("Error setting main relay state", e);
+    try {
+      if (isMainRelayAttached()) {
+        boolean state = isNormallyClosedRelays() ? on : !on;
+        setMainRelayPhysicalState(state);
       }
+    } catch (PhidgetException e) {
+      logger.error("Error setting main relay state", e);
     }
   }
 
   @Override
   public void setLanePower(boolean on, int lane) {
     super.setLanePower(on, lane);
-    DigitalOutput out = relayOutputs.get(lane);
-    if (out != null) {
-      try {
-        if (out.getAttached()) {
-          boolean state = isNormallyClosedRelays() ? !on : on;
-          out.setState(state);
-        }
-      } catch (PhidgetException e) {
-        logger.error("Error setting lane relay state", e);
+    try {
+      if (isLaneRelayAttached(lane)) {
+        boolean state = isNormallyClosedRelays() ? on : !on;
+        setLaneRelayPhysicalState(lane, state);
       }
+    } catch (PhidgetException e) {
+      logger.error("Error setting lane relay state", e);
     }
   }
 
