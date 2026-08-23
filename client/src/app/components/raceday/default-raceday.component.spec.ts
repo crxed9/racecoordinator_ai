@@ -2173,6 +2173,88 @@ describe("DefaultRacedayComponent", () => {
       expect(kphLoaded?.width).toBe(330);
       expect(fphLoaded?.width).toBe(330);
     });
+
+    it("should evenly share remaining width between multiple 0-width dynamic columns", () => {
+      // dashboardWidth is 1920
+      (component as any).dashboardWidth = 1920;
+      // Fixed: lapCount=216, gapLeader=330. Total fixed = 546.
+      // Gaps: (4 - 1) * 20 = 60.
+      // Total remaining = 1920 - 546 - 60 = 1314.
+      // 2 zero-width columns: driver.name and driver.nickname -> 1314 / 2 = 657 each.
+      mockSettings.racedayColumns = [
+        "driver.name",
+        "driver.nickname",
+        "lapCount",
+        "gapLeader",
+      ];
+      mockSettings.columnWidths = {};
+      (component as any).loadColumns();
+
+      const nameCol = component["columns"].find(
+        (c) => c.propertyName === "driver.name",
+      );
+      const nickCol = component["columns"].find(
+        (c) => c.propertyName === "driver.nickname",
+      );
+      const lapCol = component["columns"].find(
+        (c) => c.propertyName === "lapCount",
+      );
+
+      expect(nameCol?.width).toBe(657);
+      expect(nickCol?.width).toBe(657);
+      expect(lapCol?.width).toBe(216);
+      expect(nameCol?.scaleToFit).toBeTrue();
+      expect(nickCol?.scaleToFit).toBeTrue();
+      expect(lapCol?.scaleToFit).toBeFalse();
+    });
+
+    it("should respect custom column widths from settings", () => {
+      (component as any).dashboardWidth = 1920;
+      mockSettings.racedayColumns = ["driver.name", "lapCount", "lastLapTime"];
+      mockSettings.columnWidths = {
+        "driver.name": 400, // custom fixed width
+        lapCount: 150, // custom fixed width
+        lastLapTime: 0, // custom dynamic width
+      };
+      (component as any).loadColumns();
+
+      const nameCol = component["columns"].find(
+        (c) => c.propertyName === "driver.name",
+      );
+      const lapCol = component["columns"].find(
+        (c) => c.propertyName === "lapCount",
+      );
+      const lastLapCol = component["columns"].find(
+        (c) => c.propertyName === "lastLapTime",
+      );
+
+      expect(nameCol?.width).toBe(400);
+      expect(lapCol?.width).toBe(150);
+      // Remaining = 1920 - (400 + 150) - 2 * 20 = 1920 - 550 - 40 = 1330
+      expect(lastLapCol?.width).toBe(1330);
+      expect(lastLapCol?.scaleToFit).toBeTrue();
+    });
+
+    it("should use practiceColumnWidths when in practice layout", () => {
+      fixture.componentRef.setInput("isPracticeLayoutEditor", true);
+      mockSettings.practiceRacedayColumns = ["driver.name", "lapCount"];
+      mockSettings.practiceColumnWidths = {
+        "driver.name": 500,
+        lapCount: 300,
+      };
+      (component as any).loadColumns();
+
+      const nameCol = component["columns"].find(
+        (c) => c.propertyName === "driver.name",
+      );
+      const lapCol = component["columns"].find(
+        (c) => c.propertyName === "lapCount",
+      );
+
+      expect(nameCol?.width).toBe(500);
+      expect(lapCol?.width).toBe(300);
+      fixture.componentRef.setInput("isPracticeLayoutEditor", false);
+    });
   });
 
   describe("Leaderboard", () => {

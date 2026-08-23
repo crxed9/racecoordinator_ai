@@ -150,10 +150,7 @@ export class TestSetupHelper {
         "driver.name": "Center",
         lapCount: "Center",
       },
-      columnWidths: {
-        "driver.name": 200,
-        lapCount: 100,
-      },
+      columnWidths: {},
       columnVisibility: {},
     });
 

@@ -313,6 +313,87 @@ export class RacedayLayoutUtils {
     return labels[baseKey] ?? "UNKNOWN";
   }
 
+  static getDefaultColumnWidth(
+    key: string,
+    layout?: { [A in AnchorPoint]?: string },
+  ): number {
+    const propertyKey =
+      layout?.[AnchorPoint.CenterCenter] ||
+      (layout ? Object.values(layout)[0] : null) ||
+      key;
+
+    const baseKey = (propertyKey as string).split("_")[0];
+    const widths: { [key: string]: number } = {
+      "driver.name": 0,
+      "driver.nickname": 0,
+      "driver.avatarUrl": 120,
+      lapCount: 216,
+      lapsLed: 216,
+      reactionTime: 330,
+      lastLapTime: 330,
+      lastLaps: 1650,
+      medianLapTime: 330,
+      averageLapTime: 330,
+      bestLapTime: 330,
+      recordLapTime: 330,
+      totalTime: 330,
+      gapLeader: 330,
+      gapPosition: 330,
+      gapLeaderF1: 330,
+      gapPositionF1: 330,
+      "participant.team.name": 330,
+      "participant.fuelLevel": 216,
+      fuelCapacity: 216,
+      fuelPercentage: 216,
+      "imageset_fuel-gauge-builtin": 216,
+      imageset_default_fuel_gauge: 216,
+      "imageset_default_fuel-gauge-builtin": 216,
+      "fuel-gauge-builtin": 216,
+      default_fuel_gauge: 216,
+      seed: 216,
+      rankHeat: 108,
+      rankOverall: 108,
+      rankGroup: 108,
+      winProbability: 330,
+      projectedRank: 216,
+      projectedLaps: 216,
+      mph: 330,
+      kph: 330,
+      fph: 330,
+      segmentTime: 330,
+      flag: 120,
+      qrCode: 120,
+      driverViewQrCode: 120,
+      laneNumber: 120,
+      imageset: 216,
+      ghostPacing: 330,
+      ghostPacingPB: 330,
+      ghostPacingPersonalAvg: 330,
+      ghostPacingPersonalMedian: 330,
+      ghostPacingLeaderAvg: 330,
+      ghostPacingLeaderMedian: 330,
+      ghostPacingLeaderBest: 330,
+    };
+    if (typeof propertyKey === "string" && widths[propertyKey] !== undefined) {
+      return widths[propertyKey];
+    }
+    if (
+      typeof propertyKey === "string" &&
+      propertyKey.startsWith("ghostPacing")
+    ) {
+      return 330;
+    }
+    if (
+      typeof propertyKey === "string" &&
+      (propertyKey.startsWith("imageset") ||
+        propertyKey.includes("fuel-gauge") ||
+        propertyKey.includes("fuel_gauge"))
+    ) {
+      return 216;
+    }
+    return widths[baseKey] ?? 275;
+  }
+
   static reindexColumnLayout(layout: { [A in AnchorPoint]?: string }): {
     [A in AnchorPoint]?: string;
   } {

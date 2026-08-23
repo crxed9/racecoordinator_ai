@@ -210,4 +210,58 @@ describe("LaneViewInspectorComponent", () => {
     expect(changeSpy).toHaveBeenCalled();
     expect(component.getCustomLabel("col1")).toBe("Custom Label");
   });
+
+  it("should get default column width when no custom width is set", () => {
+    expect(component.getColumnWidth("driver.nickname")).toBe(0);
+    expect(component.getColumnWidth("lapCount")).toBe(216);
+  });
+
+  it("should get and set custom column width in widget customSettings and globalSettings", () => {
+    fixture.componentRef.setInput("widget", { customSettings: {} });
+    component.setColumnWidth("col1", 350);
+    expect(component.widget()?.customSettings["columnWidths"]["col1"]).toBe(
+      350,
+    );
+    expect(component.globalSettings()?.columnWidths?.["col1"]).toBe(350);
+    expect(changeSpy).toHaveBeenCalled();
+    expect(component.getColumnWidth("col1")).toBe(350);
+  });
+
+  it("should handle practice mode column widths", () => {
+    fixture.componentRef.setInput("isPracticeMode", true);
+    fixture.componentRef.setInput("widget", { customSettings: {} });
+    component.setColumnWidth("pcol1", 500);
+    expect(component.globalSettings()?.practiceColumnWidths?.["pcol1"]).toBe(
+      500,
+    );
+    expect(component.getColumnWidth("pcol1")).toBe(500);
+  });
+
+  it("should clean up column width on deleteColumn", () => {
+    fixture.componentRef.setInput("widget", {
+      customSettings: { columnWidths: { col1: 300 } },
+    });
+    const global = component.globalSettings();
+    if (global) {
+      global.columnWidths = { col1: 300 };
+    }
+    component.deleteColumn("col1");
+    expect(global?.columnWidths?.["col1"]).toBeUndefined();
+    expect(
+      component.widget()?.customSettings["columnWidths"]["col1"],
+    ).toBeUndefined();
+    expect(changeSpy).toHaveBeenCalled();
+  });
+
+  it("should parse invalid or negative width values as 0", () => {
+    fixture.componentRef.setInput("widget", { customSettings: {} });
+    component.setColumnWidth("col1", "");
+    expect(component.getColumnWidth("col1")).toBe(0);
+
+    component.setColumnWidth("col1", -50);
+    expect(component.getColumnWidth("col1")).toBe(0);
+
+    component.setColumnWidth("col1", "abc");
+    expect(component.getColumnWidth("col1")).toBe(0);
+  });
 });

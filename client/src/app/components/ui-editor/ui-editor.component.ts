@@ -456,6 +456,9 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     this.editingSettings.columnVisibility = JSON.parse(
       JSON.stringify(new Settings().columnVisibility),
     );
+    this.editingSettings.columnWidths = JSON.parse(
+      JSON.stringify(new Settings().columnWidths || {}),
+    );
     // Provide new object reference for child components to detect change
     this.editingState.settings = deepCopy(this.editingSettings);
     this.undoManager.captureState();
@@ -483,6 +486,9 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     this.editingSettings.practiceColumnVisibility = JSON.parse(
       JSON.stringify(new Settings().practiceColumnVisibility),
     );
+    this.editingSettings.practiceColumnWidths = JSON.parse(
+      JSON.stringify(new Settings().practiceColumnWidths || {}),
+    );
     this.editingState.settings = deepCopy(this.editingSettings);
     this.undoManager.captureState();
     this.refreshDisplayProperties();
@@ -496,6 +502,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       columnLayouts: this.editingSettings.columnLayouts,
       columnVisibility: this.editingSettings.columnVisibility,
       columnAnchors: this.editingSettings.columnAnchors,
+      columnWidths: this.editingSettings.columnWidths,
     };
     this.downloadJson(layoutExport, "raceday-layout.json");
   }
@@ -533,6 +540,11 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           if (anchors) {
             this.editingSettings.columnAnchors = anchors;
           }
+          const widths =
+            layoutData.columnWidths || layoutData.practiceColumnWidths;
+          if (widths) {
+            this.editingSettings.columnWidths = widths;
+          }
           this.editingState.settings = deepCopy(this.editingSettings);
           this.undoManager.captureState();
           this.refreshDisplayProperties();
@@ -553,6 +565,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       columnLayouts: this.editingSettings.practiceColumnLayouts,
       columnVisibility: this.editingSettings.practiceColumnVisibility,
       columnAnchors: this.editingSettings.practiceColumnAnchors,
+      columnWidths: this.editingSettings.practiceColumnWidths,
     };
     this.downloadJson(layoutExport, "practice-raceday-layout.json");
   }
@@ -589,6 +602,11 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
             layoutData.columnAnchors || layoutData.practiceColumnAnchors;
           if (anchors) {
             this.editingSettings.practiceColumnAnchors = anchors;
+          }
+          const widths =
+            layoutData.practiceColumnWidths || layoutData.columnWidths;
+          if (widths) {
+            this.editingSettings.practiceColumnWidths = widths;
           }
           this.editingState.settings = deepCopy(this.editingSettings);
           this.undoManager.captureState();
