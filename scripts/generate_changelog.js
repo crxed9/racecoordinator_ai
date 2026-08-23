@@ -219,7 +219,7 @@ function generateChangelog(tag, isPrerelease, options = {}) {
   let notes = formatOfficialReleaseNotes(commits, previousTag, isPre);
 
   if (previousTag) {
-    notes += `\n\n<details>\n<summary>🔍 <b>Full Commit History</b></summary>\n\nView full commit comparison on [GitHub](${REPO_URL}/compare/${previousTag}...${tag})\n</details>`;
+    notes += `\n\n<details>\n<summary>🔍 <b>Full Commit History</b></summary>\n\n<p>View full commit comparison on <a href="${REPO_URL}/compare/${previousTag}...${tag}">GitHub</a></p>\n</details>`;
   }
 
   return notes;
