@@ -105,6 +105,11 @@ test.describe("UI Editor Visuals", () => {
       .first()
       .click({ force: true });
 
+    // Wait for the flag images grid to be rendered before interacting
+    const flagGrid = customThemeSection.locator(".flags-grid");
+    await flagGrid.waitFor({ state: "visible" });
+    await TestSetupHelper.waitForImagesLoaded(customThemeSection);
+
     // Set duplicate name (Default Theme)
     const themeInput = customThemeSection.locator(".theme-name-input").first();
     await themeInput.fill("Default Theme");
@@ -120,6 +125,7 @@ test.describe("UI Editor Visuals", () => {
     await page.mouse.move(0, 0);
     const sectionHeader = customThemeSection.locator(".section-header").first();
     await sectionHeader.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
 
     await expect(sectionHeader).toHaveScreenshot(
       "ui-editor-duplicate-name-error.png",
@@ -267,10 +273,15 @@ test.describe("UI Editor Visuals", () => {
 
     await resolutionSelect.selectOption("1920x1080");
 
+    const previewContainer = page.locator(".raceday-preview-container").first();
+    await previewContainer.scrollIntoViewIfNeeded();
+    await previewContainer.waitFor({ state: "visible" });
+
     const previewScaler = page.locator(".raceday-preview-scaler").first();
-    await previewScaler.scrollIntoViewIfNeeded();
     await previewScaler.waitFor({ state: "visible" });
+    await TestSetupHelper.waitForImagesLoaded(previewScaler);
     await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
 
     await expect(previewScaler).toHaveScreenshot(
       "ui-editor-layout-preview-scaled.png",
