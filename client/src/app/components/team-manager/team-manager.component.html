@@ -9,7 +9,9 @@
 
 <div
   class="page-container"
-  [style.transform]="'translate(-50%, -50%) scale(' + scale + ')'"
+  [style.transform]="
+    'translate(-50%, -50%) scale(' + scaleX + ', ' + scaleY + ')'
+  "
 >
   <app-manager-header
     [title]="'TMM_HEADER_TEAMS'"

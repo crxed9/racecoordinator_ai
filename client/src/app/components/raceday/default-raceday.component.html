@@ -4,6 +4,9 @@
   (dragover)="onCanvasDragOver($event)"
   (drop)="onCanvasDrop($event)"
 >
+  <app-browser-navigation
+    class="raceday-fullscreen-nav"
+  ></app-browser-navigation>
   <app-raceday-modals
     [showAckModal]="showAckModal"
     [ackModalTitle]="ackModalTitle"
@@ -79,7 +82,9 @@
     [style.height.px]="isPrinting ? 1080 : dashboardHeight"
     [style.min-height.px]="isPrinting ? 1080 : dashboardHeight"
     [style.transform]="
-      isPrinting ? 'none' : 'translate(-50%, -50%) scale(' + scale + ')'
+      isPrinting
+        ? 'none'
+        : 'translate(-50%, -50%) scale(' + scaleX + ', ' + scaleY + ')'
     "
     [style.position]="isPrinting ? 'relative' : 'absolute'"
     [style.top]="isPrinting ? '0' : '50%'"

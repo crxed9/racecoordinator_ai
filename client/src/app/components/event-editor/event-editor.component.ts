@@ -25,6 +25,7 @@ import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { GuideStep } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { NavigationService } from "@app/services/navigation.service";
+import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 
 @Component({
@@ -58,6 +59,8 @@ export class EventEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   isLoading = true;
   isSaving = false;
   scale = 1;
+  scaleX = 1;
+  scaleY = 1;
   showAddRaceModal = false;
   selectedRaceToAddId = "";
 
@@ -70,6 +73,7 @@ export class EventEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   private route = inject(ActivatedRoute);
   private logger = inject(LoggerService);
   private navigationService = inject(NavigationService);
+  private settingsService = inject(SettingsService);
   private translationService = inject(TranslationService);
 
   constructor() {
@@ -120,7 +124,18 @@ export class EventEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     const baseHeight = 900;
     const scaleX = window.innerWidth / baseWidth;
     const scaleY = window.innerHeight / baseHeight;
-    this.scale = Math.min(scaleX, scaleY);
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
+
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const scale = Math.min(scaleX, scaleY);
+      this.scale = scale;
+      this.scaleX = scale;
+      this.scaleY = scale;
+    }
   }
 
   private cloneEvent(e: Event): Event {

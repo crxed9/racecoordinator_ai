@@ -186,6 +186,18 @@ export const mockSettingsService = {
   saveSettings: jasmine.createSpy("saveSettings"),
 };
 
+export const mockNavigationService = {
+  getLastEditedId: jasmine.createSpy("getLastEditedId").and.returnValue(null),
+  setLastEditedId: jasmine.createSpy("setLastEditedId"),
+  clearLastEditedId: jasmine.createSpy("clearLastEditedId"),
+  canGoBack: jasmine.createSpy("canGoBack").and.returnValue(false),
+  canGoForward: jasmine.createSpy("canGoForward").and.returnValue(false),
+  canGoBack$: of(false),
+  canGoForward$: of(false),
+  goBack: jasmine.createSpy("goBack"),
+  goForward: jasmine.createSpy("goForward"),
+};
+
 export const mockLoggerService = jasmine.createSpyObj("LoggerService", [
   "debug",
   "info",
@@ -205,6 +217,7 @@ export function resetMocks() {
     mockAnalyticsService,
     mockSettingsService,
     mockLoggerService,
+    mockNavigationService,
   ];
 
   mocks.forEach((mock) => {

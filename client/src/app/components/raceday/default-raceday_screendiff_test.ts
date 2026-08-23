@@ -1025,4 +1025,45 @@ test.describe("Raceday Visuals for Fuel", () => {
       },
     );
   });
+
+  test("should display raceday in fullscreen mode with navigation buttons", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+    await page.locator(".dashboard-wrapper").waitFor({ state: "visible" });
+
+    await page.evaluate(() => {
+      (window as any).fullscreenService?.setFullscreenOverride(true);
+    });
+
+    const nav = page.locator("app-browser-navigation");
+    await nav.waitFor({ state: "visible" });
+
+    await expect(page).toHaveScreenshot("raceday-fullscreen.png", {
+      maxDiffPixelRatio: 0.05,
+    });
+  });
+
+  test("should display raceday with force fit screen enabled in non-uniform aspect ratio", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1400, height: 1000 });
+    await TestSetupHelper.setupSettings(page, {
+      forceFitScreen: true,
+    });
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+    await page.locator(".dashboard-wrapper").waitFor({ state: "visible" });
+
+    await expect(page).toHaveScreenshot("raceday-force-fit-screen.png", {
+      maxDiffPixelRatio: 0.05,
+    });
+  });
 });

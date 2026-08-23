@@ -5,7 +5,7 @@ import {
   TestBed,
   tick,
 } from "@angular/core/testing";
-import { of, Subject } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 import { DataService } from "@app/data.service";
 import { PhidgetConfig } from "@app/models/track";
 import {
@@ -491,9 +491,8 @@ describe("PhidgetEditorComponent", () => {
   });
 
   it("should not light up badge if setInterfacePinState throws error", () => {
-    const errorSubject = new Subject<any>();
     mockDataService.setInterfacePinState.and.returnValue(
-      errorSubject.asObservable(),
+      throwError(() => new Error("Network failure")),
     );
 
     fixture.detectChanges();
@@ -503,9 +502,6 @@ describe("PhidgetEditorComponent", () => {
     expect(outBadgeEl).toBeTruthy();
 
     outBadgeEl.click();
-    fixture.detectChanges();
-
-    errorSubject.error(new Error("Network failure"));
     fixture.detectChanges();
 
     expect(component.isPinActive("out", 0)).toBeFalse();

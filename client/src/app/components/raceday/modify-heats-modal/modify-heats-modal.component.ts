@@ -38,6 +38,7 @@ import { Heat } from "@app/race/heat";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { checkLaneEquality } from "@app/utils/lane-equality";
 import { naturalSortCompare } from "@app/utils/sorting.utils";
@@ -77,6 +78,7 @@ import {
 export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
   private raceService = inject(RaceService);
   private raceConnectionService = inject(RaceConnectionService);
+  private settingsService = inject(SettingsService);
   private route = inject(ActivatedRoute);
 
   raceInput = input<Race | undefined>(undefined);
@@ -134,6 +136,8 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
   protected showExitConfirmation = false;
   protected errorMessage = signal<string | undefined>(undefined);
   protected scale = 1;
+  protected scaleX = 1;
+  protected scaleY = 1;
   private isRecovering = false;
   protected hoveredHeatIdx = -1;
   protected isDraggingHeat = false;
@@ -244,8 +248,18 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
 
-    this.scale = Math.min(scaleX, scaleY);
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const scale = Math.min(scaleX, scaleY);
+      this.scale = scale;
+      this.scaleX = scale;
+      this.scaleY = scale;
+    }
   }
 
   ngOnInit() {

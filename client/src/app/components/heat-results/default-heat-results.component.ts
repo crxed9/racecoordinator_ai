@@ -9,6 +9,7 @@ import {
 import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
+import { BrowserNavigationComponent } from "@app/components/shared/browser-navigation/browser-navigation.component";
 import {
   HeatDriverExpanderComponent,
   HeatExpanderData,
@@ -46,6 +47,7 @@ import { ViewerRaceEndedHandler } from "@app/utils/viewer-race-ended-handler";
     HeatDriverExpanderComponent,
     TwinGraphsComponent,
     PdfExportDialogComponent,
+    BrowserNavigationComponent,
   ],
 })
 export class DefaultHeatResultsComponent implements OnInit, OnDestroy {

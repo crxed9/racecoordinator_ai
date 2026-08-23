@@ -96,6 +96,7 @@ export class Settings {
   language: string = "";
   shareAnalytics: boolean = true;
   pageTransition: string = "slide";
+  forceFitScreen: boolean = false;
   clientLogLevel: string = "INFO";
   serverLogLevel: string = "INFO";
   exportPdfBackgrounds: boolean = true;

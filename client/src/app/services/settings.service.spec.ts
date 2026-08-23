@@ -142,4 +142,18 @@ describe("SettingsService", () => {
     expect(settings.language).toBe("");
     expect(mockLogger.error).toHaveBeenCalled();
   });
+
+  it("should save, retrieve and emit forceFitScreen setting via settings$", (done) => {
+    const settings = Object.assign(new Settings(), {
+      forceFitScreen: true,
+    });
+    service.settings$.subscribe((emitted) => {
+      if (emitted.forceFitScreen) {
+        expect(emitted.forceFitScreen).toBeTrue();
+        expect(service.getSettings().forceFitScreen).toBeTrue();
+        done();
+      }
+    });
+    service.saveSettings(settings);
+  });
 });

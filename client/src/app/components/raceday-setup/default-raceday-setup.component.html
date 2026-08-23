@@ -1,7 +1,9 @@
 @if (translationsLoaded) {
   <div
     class="page-container setup-container"
-    [style.transform]="'translate(-50%, -50%) scale(' + scale + ')'"
+    [style.transform]="
+      'translate(-50%, -50%) scale(' + scaleX + ', ' + scaleY + ')'
+    "
   >
     <!-- Modernized Horizontal Menu/Dropdown Toolbar sitting right above the Title Bar -->
     <div class="setup-menu-bar">
