@@ -906,9 +906,7 @@ describe("TrackEditorComponent", () => {
 
       const phidgetBadge =
         interfaceHeaders[2].querySelector(".interface-badge");
-      expect(phidgetBadge).toBeTruthy();
-      expect(phidgetBadge.textContent.trim()).toBe("ALPHA");
-      expect(phidgetBadge.classList.contains("alpha-badge")).toBeTrue();
+      expect(phidgetBadge).toBeNull();
 
       const trakmateBadge =
         interfaceHeaders[3].querySelector(".interface-badge");
