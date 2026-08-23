@@ -622,4 +622,27 @@ test.describe("Race Editor Visuals", () => {
       { timeout: 15000, maxDiffPixelRatio: 0.05 },
     );
   });
+
+  test("should display race editor in fullscreen mode with navigation buttons", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/race-editor?id=r1&driverCount=4"),
+    );
+    await TestSetupHelper.disableAnimations(page);
+
+    await page.evaluate(() => {
+      (window as any).fullscreenService?.setFullscreenOverride(true);
+    });
+
+    const header = page.locator("app-editor-title");
+    await header.waitFor({ state: "visible" });
+
+    await expect(page).toHaveScreenshot("race-editor-fullscreen.png", {
+      timeout: 15000,
+      maxDiffPixelRatio: 0.05,
+    });
+  });
 });

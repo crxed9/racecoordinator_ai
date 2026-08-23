@@ -47,6 +47,7 @@ interface StandingsRow {
   avatarUrl: string;
 }
 
+import { BrowserNavigationComponent } from "@app/components/shared/browser-navigation/browser-navigation.component";
 import {
   GhostTrajectoryDialogComponent,
   TrajectoryReferenceOption,
@@ -71,6 +72,7 @@ import { SettingsService } from "@app/services/settings.service";
     AvatarUrlPipe,
     RouterModule,
     PdfExportDialogComponent,
+    BrowserNavigationComponent,
   ],
 })
 export class DefaultDriverResultsComponent implements OnInit, OnDestroy {

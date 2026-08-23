@@ -53,6 +53,8 @@ export class TeamManagerComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   isSaving: boolean = false;
   scale: number = 1;
+  scaleX: number = 1;
+  scaleY: number = 1;
   searchQuery: string = "";
   private route = inject(ActivatedRoute);
   private params = toSignal(this.route.queryParams);
@@ -138,8 +140,18 @@ export class TeamManagerComponent implements OnInit, OnDestroy {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
 
-    this.scale = Math.min(scaleX, scaleY);
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const scale = Math.min(scaleX, scaleY);
+      this.scale = scale;
+      this.scaleX = scale;
+      this.scaleY = scale;
+    }
   }
 
   loadData() {

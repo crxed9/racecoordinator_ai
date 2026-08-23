@@ -370,4 +370,50 @@ test.describe("UI Editor Visuals", () => {
       },
     );
   });
+
+  test("should display UI editor in fullscreen mode with navigation buttons", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/ui-editor"),
+    );
+    await page.locator(".ue-container").waitFor({ state: "visible" });
+
+    await page.evaluate(() => {
+      (window as any).fullscreenService?.setFullscreenOverride(true);
+    });
+
+    const header = page.locator("app-editor-title");
+    await header.waitFor({ state: "visible" });
+
+    await expect(page).toHaveScreenshot("ui-editor-fullscreen.png", {
+      fullPage: true,
+      maxDiffPixelRatio: 0.05,
+      maxDiffPixels: 10000,
+    });
+  });
+
+  test("should display UI editor with force fit screen enabled", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 960 });
+    await TestSetupHelper.setupSettings(page, {
+      forceFitScreen: true,
+    });
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/ui-editor"),
+    );
+    await page.locator(".ue-container").waitFor({ state: "visible" });
+    await page.locator(".sections-wrapper").waitFor({ state: "visible" });
+
+    await expect(page).toHaveScreenshot("ui-editor-force-fit-screen.png", {
+      fullPage: true,
+      maxDiffPixelRatio: 0.05,
+      maxDiffPixels: 10000,
+    });
+  });
 });

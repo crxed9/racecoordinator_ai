@@ -158,11 +158,13 @@ describe("RaceEditorComponent", () => {
 
   it("should use transform scale for scaling", () => {
     fixture.detectChanges(); // Trigger ngOnInit and initial updateScale
+    component.scaleX = 0.5;
+    component.scaleY = 0.5;
     component.scale = 0.5;
     fixture.detectChanges();
     const container = fixture.nativeElement.querySelector(".page-container");
     expect(container.style.zoom).toBeFalsy();
-    expect(container.style.transform).toContain("scale(0.5)");
+    expect(container.style.transform).toContain("scale(0.5, 0.5)");
     expect(container.style.transform).toContain("translate(-50%, -50%)");
   });
 

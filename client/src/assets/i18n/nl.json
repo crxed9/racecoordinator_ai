@@ -1946,7 +1946,8 @@
   "UE_LABEL_LAYOUT_EDITOR": "Widget Gereedschapskist",
   "UE_LABEL_MIN_LAP_TIME_AUDIO": "MIN LAP TIME",
   "UE_LABEL_NEW_THEME": "Nieuw thema",
-  "UE_LABEL_NO_DIRECTORY": "Geen directorie geselecteerd",
+  "UE_LABEL_FORCE_FIT_SCREEN": "Forceer pagina's passend op scherm",
+  "UE_HELP_FORCE_FIT_SCREEN": "Wanneer ingeschakeld, worden alle pagina's niet-uniform geschaald om het venster volledig te vullen zonder zwarte balken.",
   "UE_LABEL_PAGE_TRANSITION": "Paginatransitie",
   "UE_LABEL_RACEDAY_LAYOUT": "Racedag lay-out (Standaard)",
   "UE_LABEL_RACEDAY_LAYOUT_PRACTICE": "Racedag lay-out (Oefening)",
@@ -2086,5 +2087,7 @@
   "SS_BONUS_FASTEST_LAP_HEAT_NUM": "Snelste ronde (Heat {{heat}})",
   "SS_BONUS_LED_LAP_HEAT_NUM": "Minimaal één ronde aan de leiding (Heat {{heat}})",
   "SS_BONUS_MOST_LAPS_LED_HEAT_NUM": "Meeste ronden aan de leiding (Heat {{heat}})",
-  "SS_ONE_BONUS_PER_DRIVER": "1 bonus per coureur"
+  "SS_ONE_BONUS_PER_DRIVER": "1 bonus per coureur",
+  "NAV_BACK": "Terug",
+  "NAV_FORWARD": "Vooruit"
 }

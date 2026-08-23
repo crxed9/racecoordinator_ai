@@ -68,6 +68,8 @@ export class TeamEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   isAutoSaving: boolean = false;
   isUploading: boolean = false;
   scale: number = 1;
+  scaleX: number = 1;
+  scaleY: number = 1;
   public navigateBackOnSave = false;
 
   // Undo Manager
@@ -228,8 +230,18 @@ export class TeamEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
 
-    this.scale = Math.min(scaleX, scaleY);
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const scale = Math.min(scaleX, scaleY);
+      this.scale = scale;
+      this.scaleX = scale;
+      this.scaleY = scale;
+    }
   }
 
   loadData() {

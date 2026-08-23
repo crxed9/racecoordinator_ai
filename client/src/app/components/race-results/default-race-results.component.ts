@@ -81,6 +81,7 @@ const NEON_COLORS = [
   { color: "#c6ff00", bg: "#233000" }, // Lime Green
 ];
 
+import { BrowserNavigationComponent } from "@app/components/shared/browser-navigation/browser-navigation.component";
 import {
   PdfExportDialogComponent,
   PdfExportOptions,
@@ -101,6 +102,7 @@ import { SettingsService } from "@app/services/settings.service";
     RouterModule,
     AcknowledgementModalComponent,
     PdfExportDialogComponent,
+    BrowserNavigationComponent,
   ],
 })
 export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
@@ -170,7 +172,17 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected scale = 1;
+  private _scale = 1;
+  get scale(): number {
+    return this._scale;
+  }
+  set scale(val: number) {
+    this._scale = val;
+    this.scaleX = val;
+    this.scaleY = val;
+  }
+  scaleX = 1;
+  scaleY = 1;
   protected participants: RaceParticipant[] = [];
   protected race?: Race;
   protected standingsRows: StandingsRow[] = [];
@@ -437,21 +449,31 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
     return entry.holderNickname || entry.holderName || "---";
   }
 
-  get currentScale(): number {
+  get currentScaleX(): number {
     if (this.isPrinting) {
       const numLanes = this.race?.track?.lanes?.length || 0;
       const baseColumnsWidth = 1270;
       const laneColumnsWidth = numLanes * 110;
       const paddingWidth = 30; // padding of wrapper
       const gridWidth = baseColumnsWidth + laneColumnsWidth + paddingWidth;
-
       const availableWidth = 1920 - 80;
       if (gridWidth > availableWidth) {
         return availableWidth / gridWidth;
       }
       return 1;
     }
-    return this.scale;
+    return this.scaleX;
+  }
+
+  get currentScaleY(): number {
+    if (this.isPrinting) {
+      return this.currentScaleX;
+    }
+    return this.scaleY;
+  }
+
+  get currentScale(): number {
+    return this.currentScaleX;
   }
 
   private updateScale() {
@@ -462,10 +484,17 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
 
-    const newScale = Math.min(scaleX, scaleY);
-    if (Math.abs(this.scale - newScale) > 0.001) {
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const newScale = Math.min(scaleX, scaleY);
       this.scale = newScale;
+      this.scaleX = newScale;
+      this.scaleY = newScale;
     }
   }
 

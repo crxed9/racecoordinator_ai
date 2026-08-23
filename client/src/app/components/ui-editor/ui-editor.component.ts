@@ -80,6 +80,8 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   autoSaveTimeout: any;
   isAutoSaving = false;
   scale = 1;
+  scaleX = 1;
+  scaleY = 1;
   assets: any[] = [];
   private params = toSignal(this.route.queryParams);
 
@@ -791,7 +793,20 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     const windowHeight = window.innerHeight;
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    this.scale = Math.min(scaleX, scaleY);
+    const forceFit =
+      this.editingSettings?.forceFitScreen ??
+      this.settingsService.getSettings().forceFitScreen;
+
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const s = Math.min(scaleX, scaleY);
+      this.scale = s;
+      this.scaleX = s;
+      this.scaleY = s;
+    }
   }
 
   /* eslint-disable max-lines-per-function */
@@ -1018,6 +1033,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     clone.highlightRowOnLap = s.highlightRowOnLap ?? true;
     clone.highlightPracticeRowOnLap = s.highlightPracticeRowOnLap ?? true;
     clone.pageTransition = s.pageTransition || "slide";
+    clone.forceFitScreen = s.forceFitScreen ?? false;
 
     // Theme fields
     clone.activeThemeId = s.activeThemeId;
@@ -1075,6 +1091,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       a.highlightRowOnLap === b.highlightRowOnLap &&
       a.highlightPracticeRowOnLap === b.highlightPracticeRowOnLap &&
       a.pageTransition === b.pageTransition &&
+      a.forceFitScreen === b.forceFitScreen &&
       a.activeThemeId === b.activeThemeId &&
       a.lampRedOn === b.lampRedOn &&
       a.lampRedDim === b.lampRedDim &&
@@ -1483,6 +1500,14 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     if (this.editingSettings) {
       this.editingSettings.pageTransition = transition;
       this.captureState();
+    }
+  }
+
+  onForceFitScreenChange(fit: boolean) {
+    if (this.editingSettings) {
+      this.editingSettings.forceFitScreen = fit;
+      this.captureState();
+      this.updateScale();
     }
   }
 
@@ -2303,6 +2328,15 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         selector: "#help-page-transition",
         title: this.translationService.translate("UE_LABEL_PAGE_TRANSITION"),
         content: this.translationService.translate("UE_HELP_PAGE_TRANSITION"),
+        position: "bottom",
+        onEnter: () => {
+          this.sectionsExpanded["config"] = true;
+        },
+      },
+      {
+        selector: "#help-force-fit-screen",
+        title: this.translationService.translate("UE_LABEL_FORCE_FIT_SCREEN"),
+        content: this.translationService.translate("UE_HELP_FORCE_FIT_SCREEN"),
         position: "bottom",
         onEnter: () => {
           this.sectionsExpanded["config"] = true;

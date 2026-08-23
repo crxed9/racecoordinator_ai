@@ -9,6 +9,7 @@ import {
 } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs";
+import { BrowserNavigationComponent } from "@app/components/shared/browser-navigation/browser-navigation.component";
 import {
   PdfExportDialogComponent,
   PdfExportOptions,
@@ -40,6 +41,7 @@ import { TranslationService } from "@app/services/translation.service";
     DatePipe,
     DecimalPipe,
     PdfExportDialogComponent,
+    BrowserNavigationComponent,
   ],
 })
 export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
@@ -50,6 +52,8 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
 
   isLoading = true;
   scale = 1;
+  scaleX = 1;
+  scaleY = 1;
 
   showPdfExportDialog = false;
   defaultIncludeBackground = true;
@@ -132,7 +136,18 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
     const targetHeight = 1080;
     const scaleX = window.innerWidth / targetWidth;
     const scaleY = window.innerHeight / targetHeight;
-    this.scale = Math.min(scaleX, scaleY);
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
+
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const scale = Math.min(scaleX, scaleY);
+      this.scale = scale;
+      this.scaleX = scale;
+      this.scaleY = scale;
+    }
   }
 
   loadSeasonData(): void {

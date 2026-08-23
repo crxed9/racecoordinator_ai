@@ -53,6 +53,7 @@ import { GuideStep, HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { NavigationService } from "@app/services/navigation.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { deepCopy } from "@app/utils/clone.utils";
 
@@ -106,6 +107,8 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   driverMissingError = false;
 
   scale: number = 1;
+  scaleX: number = 1;
+  scaleY: number = 1;
   isLoading: boolean = true;
   isSaving: boolean = false;
   isAutoSaving: boolean = false;
@@ -153,6 +156,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     private helpService: HelpService,
     private connectionMonitor: ConnectionMonitorService,
     private raceConnectionService: RaceConnectionService,
+    private settingsService: SettingsService,
     private logger: LoggerService,
     private navigationService: NavigationService,
   ) {
@@ -353,8 +357,18 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
 
-    this.scale = Math.min(scaleX, scaleY);
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const scale = Math.min(scaleX, scaleY);
+      this.scale = scale;
+      this.scaleX = scale;
+      this.scaleY = scale;
+    }
   }
 
   monitorConnection() {

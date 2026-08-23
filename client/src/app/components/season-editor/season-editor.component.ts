@@ -26,7 +26,14 @@ import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { GuideStep } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
 import { NavigationService } from "@app/services/navigation.service";
+import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
+
+import {
+  areSeasonsEqual,
+  cloneSeason,
+  getSeasonEditorHelpSteps,
+} from "./season-editor.utils";
 
 @Component({
   standalone: true,
@@ -67,6 +74,8 @@ export class SeasonEditorComponent
   isLoading = true;
   isSaving = false;
   scale = 1;
+  scaleX = 1;
+  scaleY = 1;
 
   undoManager: UndoManager<Season>;
   private subscriptions: Subscription[] = [];
@@ -77,6 +86,7 @@ export class SeasonEditorComponent
   private route = inject(ActivatedRoute);
   private logger = inject(LoggerService);
   private navigationService = inject(NavigationService);
+  private settingsService = inject(SettingsService);
   private translationService = inject(TranslationService);
 
   constructor() {
@@ -721,7 +731,18 @@ export class SeasonEditorComponent
     const targetHeight = 900;
     const scaleX = window.innerWidth / targetWidth;
     const scaleY = window.innerHeight / targetHeight;
-    this.scale = Math.min(scaleX, scaleY);
+    const forceFit = this.settingsService.getSettings().forceFitScreen;
+
+    if (forceFit) {
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.scale = Math.min(scaleX, scaleY);
+    } else {
+      const scale = Math.min(scaleX, scaleY);
+      this.scale = scale;
+      this.scaleX = scale;
+      this.scaleY = scale;
+    }
   }
 
   onInputChange(): void {
@@ -925,75 +946,14 @@ export class SeasonEditorComponent
   }
 
   private cloneSeason(season: Season): Season {
-    return JSON.parse(JSON.stringify(season));
+    return cloneSeason(season);
   }
 
   private areSeasonsEqual(a: Season, b: Season): boolean {
-    return JSON.stringify(a) === JSON.stringify(b);
+    return areSeasonsEqual(a, b);
   }
 
   getHelpSteps(): GuideStep[] {
-    const demoStep: GuideStep = this.hasDemoRaces
-      ? {
-          selector: "#season-editor-demo-badge",
-          title: this.translationService.translate("SE_HELP_DEMO_BADGE_TITLE"),
-          content: this.translationService.translate(
-            "SE_HELP_DEMO_BADGE_PRESENT_CONTENT",
-          ),
-          position: "bottom",
-        }
-      : {
-          selector: "#season-editor-meta",
-          title: this.translationService.translate("SE_HELP_DEMO_BADGE_TITLE"),
-          content: this.translationService.translate(
-            "SE_HELP_DEMO_BADGE_ABSENT_CONTENT",
-          ),
-          position: "bottom",
-        };
-
-    return [
-      {
-        title: this.translationService.translate("SE_HELP_WELCOME_TITLE"),
-        content: this.translationService.translate("SE_HELP_WELCOME_CONTENT"),
-        position: "center",
-      },
-      {
-        selector: "#season-name",
-        title: this.translationService.translate("SE_HELP_NAME_TITLE"),
-        content: this.translationService.translate("SE_HELP_NAME_CONTENT"),
-        position: "right",
-      },
-      {
-        selector: "#season-drops",
-        title: this.translationService.translate("SE_HELP_DROPS_TITLE"),
-        content: this.translationService.translate("SE_HELP_DROPS_CONTENT"),
-        position: "right",
-      },
-      {
-        selector: "#season-editor-races-run",
-        title: this.translationService.translate("SE_HELP_RACES_RUN_TITLE"),
-        content: this.translationService.translate("SE_HELP_RACES_RUN_CONTENT"),
-        position: "bottom",
-      },
-      demoStep,
-      {
-        selector: "#btn-add-race",
-        title: this.translationService.translate("SE_HELP_ADD_RACE_TITLE"),
-        content: this.translationService.translate("SE_HELP_ADD_RACE_CONTENT"),
-        position: "bottom",
-      },
-      {
-        selector: "#season-editor-standings",
-        title: this.translationService.translate("SE_HELP_STANDINGS_TITLE"),
-        content: this.translationService.translate("SE_HELP_STANDINGS_CONTENT"),
-        position: "left",
-      },
-      {
-        selector: "#season-editor-breakdown",
-        title: this.translationService.translate("SE_HELP_BREAKDOWN_TITLE"),
-        content: this.translationService.translate("SE_HELP_BREAKDOWN_CONTENT"),
-        position: "left",
-      },
-    ];
+    return getSeasonEditorHelpSteps(this.hasDemoRaces, this.translationService);
   }
 }

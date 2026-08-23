@@ -1946,7 +1946,8 @@
   "UE_LABEL_LAYOUT_EDITOR": "Caja de Herramientas de Widgets",
   "UE_LABEL_MIN_LAP_TIME_AUDIO": "MIN LAP TIME",
   "UE_LABEL_NEW_THEME": "Nuevo tema",
-  "UE_LABEL_NO_DIRECTORY": "Ningún directorio seleccionado",
+  "UE_LABEL_FORCE_FIT_SCREEN": "Forzar páginas a ajustar a la pantalla",
+  "UE_HELP_FORCE_FIT_SCREEN": "Cuando está habilitado, fuerza a todas las páginas a escalar de forma no uniforme para llenar completamente la ventana sin barras negras.",
   "UE_LABEL_PAGE_TRANSITION": "Transición de página",
   "UE_LABEL_RACEDAY_LAYOUT": "Diseño del día de carrera (Predeterminado)",
   "UE_LABEL_RACEDAY_LAYOUT_PRACTICE": "Diseño del día de carrera (Práctica)",
@@ -2086,5 +2087,7 @@
   "SS_BONUS_FASTEST_LAP_HEAT_NUM": "Vuelta rápida (Manga {{heat}})",
   "SS_BONUS_LED_LAP_HEAT_NUM": "Liderar al menos una vuelta (Manga {{heat}})",
   "SS_BONUS_MOST_LAPS_LED_HEAT_NUM": "Liderar la mayor cantidad de vueltas (Manga {{heat}})",
-  "SS_ONE_BONUS_PER_DRIVER": "1 bonificación por piloto"
+  "SS_ONE_BONUS_PER_DRIVER": "1 bonificación por piloto",
+  "NAV_BACK": "Atrás",
+  "NAV_FORWARD": "Adelante"
 }

@@ -1945,7 +1945,8 @@
   "UE_LABEL_LAYOUT_EDITOR": "Caixa de Ferramentas de Widgets",
   "UE_LABEL_MIN_LAP_TIME_AUDIO": "MIN LAP TIME",
   "UE_LABEL_NEW_THEME": "Novo tema",
-  "UE_LABEL_NO_DIRECTORY": "Nenhum diretório selecionado",
+  "UE_LABEL_FORCE_FIT_SCREEN": "Forçar páginas a ajustar à tela",
+  "UE_HELP_FORCE_FIT_SCREEN": "Quando ativado, força todas as páginas a escalar de forma não uniforme para preencher completamente a janela sem barras pretas.",
   "UE_LABEL_PAGE_TRANSITION": "Transição de página",
   "UE_LABEL_RACEDAY_LAYOUT": "Layout do dia de corrida (Padrão)",
   "UE_LABEL_RACEDAY_LAYOUT_PRACTICE": "Layout do dia de corrida (Treino)",
@@ -2085,5 +2086,7 @@
   "SS_BONUS_FASTEST_LAP_HEAT_NUM": "Volta mais rápida (Bateria {{heat}})",
   "SS_BONUS_LED_LAP_HEAT_NUM": "Liderar pelo menos uma volta (Bateria {{heat}})",
   "SS_BONUS_MOST_LAPS_LED_HEAT_NUM": "Liderar o maior número de voltas (Bateria {{heat}})",
-  "SS_ONE_BONUS_PER_DRIVER": "1 bônus por piloto"
+  "SS_ONE_BONUS_PER_DRIVER": "1 bônus por piloto",
+  "NAV_BACK": "Voltar",
+  "NAV_FORWARD": "Avançar"
 }
