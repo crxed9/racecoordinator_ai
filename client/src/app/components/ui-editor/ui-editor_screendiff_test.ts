@@ -214,11 +214,12 @@ test.describe("UI Editor Visuals", () => {
     await columnToolbox.waitFor({ state: "visible" });
     await TestSetupHelper.waitForImagesLoaded(practiceSection);
 
-    // Scroll header into view to position section stably within scroll container
-    await practiceHeader.scrollIntoViewIfNeeded();
-    await page.mouse.move(0, 0);
-
+    // Scroll config section into view stably within scroll container
     const configSectionPractice = page.locator(".config-section").nth(1);
+    await configSectionPractice.scrollIntoViewIfNeeded();
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
+
     await expect(configSectionPractice).toHaveScreenshot(
       "ui-editor-practice-layout-section.png",
       {
@@ -244,8 +245,16 @@ test.describe("UI Editor Visuals", () => {
     await section.waitFor({ state: "visible" });
 
     const layoutControls = section.locator(".layout-controls").first();
+    await layoutControls.scrollIntoViewIfNeeded();
     await layoutControls.waitFor({ state: "visible" });
+
+    const resolutionSelect = layoutControls.locator(
+      ".layout-resolution-select",
+    );
+    await resolutionSelect.waitFor({ state: "visible" });
+
     await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
 
     await expect(layoutControls).toHaveScreenshot(
       "ui-editor-layout-resolution-dropdown.png",
