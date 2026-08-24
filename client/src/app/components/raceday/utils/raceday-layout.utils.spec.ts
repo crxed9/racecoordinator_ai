@@ -190,6 +190,46 @@ describe("RacedayLayoutUtils", () => {
   it("should identify lap time columns", () => {
     expect(RacedayLayoutUtils.isLapTimeColumn(mockColumns[2])).toBe(true);
     expect(RacedayLayoutUtils.isLapTimeColumn(mockColumns[0])).toBe(false);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition("BEST", "bestLapTime", 200, false, "middle", 0),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition("AVG", "averageLapTime", 200, false, "middle", 0),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "MEDIAN",
+          "medianLapTime",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "RECORD",
+          "recordLapTime",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition("SEGMENT", "segmentTime", 200, false, "middle", 0),
+      ),
+    ).toBe(true);
+    expect(RacedayLayoutUtils.isLapTimeColumn(null as any)).toBe(false);
   });
 
   it("should identify image and avatar properties", () => {
@@ -387,6 +427,34 @@ describe("RacedayLayoutUtils", () => {
       expect(
         RacedayLayoutUtils.getDefaultColumnWidth("custom_unknown_key"),
       ).toBe(275);
+    });
+
+    it("should return 170 for laneNumber when in practice mode and horizontal layout", () => {
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth("laneNumber", undefined, {
+          isPractice: true,
+          isVertical: false,
+        }),
+      ).toBe(170);
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth(
+          "customKey",
+          { [AnchorPoint.CenterCenter]: "laneNumber" },
+          { isPractice: true, isVertical: false },
+        ),
+      ).toBe(170);
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth("laneNumber", undefined, {
+          isPractice: true,
+          isVertical: true,
+        }),
+      ).toBe(120);
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth("laneNumber", undefined, {
+          isPractice: false,
+          isVertical: false,
+        }),
+      ).toBe(120);
     });
 
     it("should determine width from layout CenterCenter or first anchor", () => {

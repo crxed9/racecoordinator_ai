@@ -177,14 +177,19 @@ export class RacedayLayoutUtils {
   }
 
   static isLapTimeColumn(col: ColumnDefinition): boolean {
+    if (!col) return false;
     const property =
-      RacedayLayoutUtils.getLayoutEntries(col)[0]?.property || "";
+      col.layout?.[AnchorPoint.CenterCenter] ||
+      RacedayLayoutUtils.getLayoutEntries(col)[0]?.property ||
+      col.propertyName ||
+      "";
     const baseKey = property.split("_")[0];
     return (
       baseKey === "lastLapTime" ||
       baseKey === "bestLapTime" ||
       baseKey === "averageLapTime" ||
       baseKey === "medianLapTime" ||
+      baseKey === "recordLapTime" ||
       baseKey === "segmentTime"
     );
   }
@@ -316,6 +321,7 @@ export class RacedayLayoutUtils {
   static getDefaultColumnWidth(
     key: string,
     layout?: { [A in AnchorPoint]?: string },
+    options?: { isPractice?: boolean; isVertical?: boolean },
   ): number {
     const propertyKey =
       layout?.[AnchorPoint.CenterCenter] ||
@@ -323,6 +329,14 @@ export class RacedayLayoutUtils {
       key;
 
     const baseKey = (propertyKey as string).split("_")[0];
+    if (
+      (propertyKey === "laneNumber" || baseKey === "laneNumber") &&
+      options?.isPractice &&
+      !options?.isVertical
+    ) {
+      return 170;
+    }
+
     const widths: { [key: string]: number } = {
       "driver.name": 0,
       "driver.nickname": 0,

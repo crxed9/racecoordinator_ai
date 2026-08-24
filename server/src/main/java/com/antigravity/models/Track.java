@@ -244,6 +244,14 @@ public class Track extends Model {
         }
       }
     }
+    if (this.trackmateConfigs != null) {
+      for (TrackmateConfig config : this.trackmateConfigs) {
+        if (config != null && config.hasPerLaneRelays) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
 
@@ -288,6 +296,15 @@ public class Track extends Model {
         }
       }
     }
+
+    if (this.trackmateConfigs != null) {
+      for (TrackmateConfig config : this.trackmateConfigs) {
+        if (config != null && !config.hasPerLaneRelays) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
 

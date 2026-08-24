@@ -60,10 +60,16 @@ public class PhidgetProtocolTest {
   public void testInitialStateAndGetters() {
     assertEquals(0, protocol.getInterfaceIndex());
     assertEquals(4, protocol.getNumLanes());
-    assertFalse(protocol.hasMainRelay()); // Not open yet
-    assertFalse(protocol.hasPerLaneRelays()); // Not open yet
-    assertFalse(protocol.hasDigitalFuel());
+    assertTrue(protocol.hasMainRelay());
+    assertTrue(protocol.hasPerLaneRelays());
+    assertTrue(protocol.hasDigitalFuel());
     assertFalse(protocol.isHealthy()); // Not open yet
+
+    PhidgetConfig emptyConfig = new PhidgetConfig();
+    PhidgetProtocol emptyProtocol = new PhidgetProtocol(emptyConfig, 4, null);
+    assertFalse(emptyProtocol.hasMainRelay());
+    assertFalse(emptyProtocol.hasPerLaneRelays());
+    assertFalse(emptyProtocol.hasDigitalFuel());
   }
 
   @Test
@@ -146,7 +152,7 @@ public class PhidgetProtocolTest {
 
     // Closing protocol should update health and notify listener of DISCONNECTED state
     protocol.close();
-    assertFalse(protocol.hasMainRelay());
+    assertTrue(protocol.hasMainRelay());
     assertFalse(protocol.isHealthy());
     verify(mockListener).onInterfaceStatus(InterfaceStatus.DISCONNECTED, 0);
 
@@ -787,5 +793,98 @@ public class PhidgetProtocolTest {
 
     spyProtocol.updateConfig(updated);
     assertEquals(updated, spyProtocol.getConfig());
+  }
+
+  @Test
+  public void testOpenAndCapabilityDetection() {
+    PhidgetConfig phidgetConfig = new PhidgetConfig();
+    phidgetConfig.serialNumber = 147992;
+    phidgetConfig.digitalOutIds =
+        Arrays.asList(
+            PinBehavior.BEHAVIOR_RELAY_VALUE, // Main relay
+            PinBehavior.BEHAVIOR_RELAY_BASE_VALUE, // Lane 0 relay
+            PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 1, // Lane 1 relay
+            PinBehavior.BEHAVIOR_ANALOG_LED_GREEN_FLAG_VALUE);
+    phidgetConfig.analogIds = Arrays.asList(PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE_VALUE);
+
+    PhidgetProtocol testProto = new PhidgetProtocol(phidgetConfig, 4, null);
+    testProto.setInterfaceIndex(0);
+
+    assertTrue(testProto.hasMainRelay());
+    assertTrue(testProto.hasPerLaneRelays());
+    assertTrue(testProto.hasDigitalFuel());
+
+    // Update with empty config
+    PhidgetConfig emptyConfig = new PhidgetConfig();
+    emptyConfig.serialNumber = 147992;
+    emptyConfig.digitalOutIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+    emptyConfig.analogIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+    testProto.updateConfig(emptyConfig);
+
+    assertFalse(testProto.hasMainRelay());
+    assertFalse(testProto.hasPerLaneRelays());
+    assertFalse(testProto.hasDigitalFuel());
+  }
+
+  @Test
+  public void testTwoPhidgetsMultiInterfacePowerDelegation() throws Exception {
+    // Phidget 1 (8/8/8): Lap inputs, no relays
+    PhidgetConfig sensorConfig = new PhidgetConfig();
+    sensorConfig.serialNumber = 147992;
+    sensorConfig.digitalInIds =
+        Arrays.asList(
+            PinBehavior.BEHAVIOR_LAP_BASE_VALUE,
+            PinBehavior.BEHAVIOR_LAP_BASE_VALUE + 1,
+            PinBehavior.BEHAVIOR_LAP_BASE_VALUE + 2,
+            PinBehavior.BEHAVIOR_LAP_BASE_VALUE + 3);
+    sensorConfig.digitalOutIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+
+    // Phidget 2 (0/0/4): 4 Lane Relays
+    PhidgetConfig relayConfig = new PhidgetConfig();
+    relayConfig.serialNumber = 147993;
+    relayConfig.normallyClosedRelays = false;
+    relayConfig.digitalOutIds =
+        Arrays.asList(
+            PinBehavior.BEHAVIOR_RELAY_BASE_VALUE,
+            PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 1,
+            PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 2,
+            PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 3);
+
+    PhidgetProtocol sensorProto =
+        org.mockito.Mockito.spy(new PhidgetProtocol(sensorConfig, 4, null));
+    sensorProto.setInterfaceIndex(0);
+
+    PhidgetProtocol relayProto = org.mockito.Mockito.spy(new PhidgetProtocol(relayConfig, 4, null));
+    relayProto.setInterfaceIndex(1);
+
+    org.mockito.Mockito.doReturn(true).when(relayProto).isLaneRelayAttached(0);
+    org.mockito.Mockito.doReturn(true).when(relayProto).isLaneRelayAttached(1);
+    org.mockito.Mockito.doNothing()
+        .when(relayProto)
+        .setLaneRelayPhysicalState(
+            org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyBoolean());
+
+    List<com.antigravity.protocols.IProtocol> protocolsList =
+        Arrays.asList(sensorProto, relayProto);
+    com.antigravity.protocols.ProtocolDelegate delegate =
+        new com.antigravity.protocols.ProtocolDelegate(protocolsList);
+
+    assertFalse(delegate.hasMainRelay());
+    assertTrue(delegate.hasPerLaneRelays());
+
+    // Main power ON across all lanes
+    delegate.setMainPower(true);
+    verify(relayProto).setLanePower(true, 0);
+    verify(relayProto).setLanePower(true, 1);
+    verify(relayProto).setLanePower(true, 2);
+    verify(relayProto).setLanePower(true, 3);
+    // Normally Open (normallyClosedRelays = false): on -> false
+    verify(relayProto).setLaneRelayPhysicalState(0, false);
+    verify(relayProto).setLaneRelayPhysicalState(1, false);
+
+    // Turn Lane 1 power OFF
+    delegate.setLanePower(false, 0);
+    verify(relayProto).setLanePower(false, 0);
+    verify(relayProto).setLaneRelayPhysicalState(0, true);
   }
 }

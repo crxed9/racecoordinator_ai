@@ -127,6 +127,31 @@ describe("DefaultRacedayComponent", () => {
         "minmax(0, 100fr) minmax(0, 250fr) minmax(0, 1250fr) minmax(0, 250fr)",
       );
     });
+
+    it("should assign largeHeight to bestLapTime and other lap time columns", () => {
+      (component as any).columns = [
+        { propertyName: "laneNumber", width: 200 },
+        { propertyName: "driver.nickname", width: 200 },
+        { propertyName: "lastLapTime", width: 330 },
+        { propertyName: "bestLapTime", width: 330 },
+        { propertyName: "lastLaps", width: 1650 },
+        { propertyName: "lapCount", width: 200 },
+      ] as any[];
+
+      // largeHeight = max(330, 200) = 330
+      // smallHeight = min(330, 200) = 200
+      // laneNumber = smallHeight (200)
+      // driver.nickname = smallHeight (200)
+      // lastLapTime = largeHeight (330)
+      // bestLapTime = largeHeight (330)
+      // lastLaps = largeHeight * 5 (1650)
+      // lapCount = largeHeight (330)
+
+      const result = (component as any).gridTemplateRowsVertical;
+      expect(result).toBe(
+        "minmax(0, 200fr) minmax(0, 200fr) minmax(0, 330fr) minmax(0, 330fr) minmax(0, 1650fr) minmax(0, 330fr)",
+      );
+    });
   });
 
   describe("getLastLaps", () => {
@@ -2253,6 +2278,33 @@ describe("DefaultRacedayComponent", () => {
 
       expect(nameCol?.width).toBe(500);
       expect(lapCol?.width).toBe(300);
+      fixture.componentRef.setInput("isPracticeLayoutEditor", false);
+    });
+
+    it("should default laneNumber width to 170 when in practice layout with horizontal layout", () => {
+      fixture.componentRef.setInput("isPracticeLayoutEditor", true);
+      mockSettings.practiceRacedayColumns = ["laneNumber", "lapCount"];
+      mockSettings.practiceColumnWidths = {};
+      mockSettings.practiceRacedayLayout = {
+        widgets: [
+          {
+            id: "lane-view-widget",
+            widgetType: "lane-view",
+            x: 0,
+            y: 0,
+            width: 1920,
+            height: 1080,
+            zIndex: 1,
+            customSettings: { isVertical: false },
+          },
+        ],
+      };
+      (component as any).loadColumns();
+
+      const laneCol = component["columns"].find(
+        (c) => c.propertyName === "laneNumber",
+      );
+      expect(laneCol?.width).toBe(170);
       fixture.componentRef.setInput("isPracticeLayoutEditor", false);
     });
   });

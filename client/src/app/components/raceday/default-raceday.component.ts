@@ -431,9 +431,7 @@ export class DefaultRacedayComponent
   protected get gridTemplateRowsVertical(): string {
     if (!this.columns || this.columns.length === 0) return "1fr";
 
-    const lapTimeCol = this.columns.find((c) =>
-      c.propertyName.startsWith("lastLapTime"),
-    );
+    const lapTimeCol = this.columns.find((c) => this.isLapTimeColumn(c));
     const nicknameCol = this.columns.find(
       (c) =>
         c.propertyName.startsWith("driver.nickname") ||
@@ -453,10 +451,7 @@ export class DefaultRacedayComponent
         if (c.propertyName === "lastLaps") {
           return `minmax(0, ${largeHeight * 5}fr)`;
         }
-        if (
-          c.propertyName === "lapCount" ||
-          c.propertyName.startsWith("lastLapTime")
-        ) {
+        if (c.propertyName === "lapCount" || this.isLapTimeColumn(c)) {
           return `minmax(0, ${largeHeight}fr)`;
         }
         return `minmax(0, ${smallHeight}fr)`;
@@ -2013,10 +2008,19 @@ export class DefaultRacedayComponent
 
       if (isNewRace) {
         // Reset timer state ONLY when advancing to a new race
-        this.autoStartRemaining = 0;
+        this.autoStartRemaining =
+          (race as any)?.auto_start_remaining_seconds ||
+          (race as any)?.auto_start_remaining ||
+          race.auto_start_time ||
+          0;
         this.autoAdvanceRemaining =
-          (race as any)?.auto_advance_remaining_seconds || 0;
-        this.time = this.autoAdvanceRemaining;
+          (race as any)?.auto_advance_remaining_seconds ||
+          (race as any)?.auto_advance_remaining ||
+          0;
+        this.time =
+          this.autoStartRemaining > 0
+            ? this.autoStartRemaining
+            : this.autoAdvanceRemaining;
         this.previousTime = this.time;
         this.timeFormat = "1.0-0";
         this.playedSecondsLeft.clear();
@@ -4019,6 +4023,7 @@ export class DefaultRacedayComponent
     const laneViewWidget = this.currentRacedayLayout?.widgets?.find(
       (w: any) => w.widgetType === "lane-view",
     );
+    const isVertical = laneViewWidget?.customSettings?.["isVertical"] ?? false;
     const widgetWidths = laneViewWidget?.customSettings?.["columnWidths"] || {};
     const currentWidths = this.currentColumnWidths || {};
 
@@ -4035,7 +4040,10 @@ export class DefaultRacedayComponent
       ) {
         width = Number(currentWidths[key]);
       } else {
-        width = RacedayLayoutUtils.getDefaultColumnWidth(key, layout);
+        width = RacedayLayoutUtils.getDefaultColumnWidth(key, layout, {
+          isPractice: this.isPracticeLayout,
+          isVertical,
+        });
       }
 
       configuredWidths[key] = width;

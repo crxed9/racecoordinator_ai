@@ -952,6 +952,8 @@ public class Race implements ProtocolListener {
       broadcastRecords();
       broadcastTime();
       updateAndBroadcastOverallStandings();
+      setAutoStartFired(false);
+      setAutoAdvanceFired(false);
       changeState(new NotStarted());
     }
   }

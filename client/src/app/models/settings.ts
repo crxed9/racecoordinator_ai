@@ -154,6 +154,9 @@ export class Settings {
   racedayColumns: string[] = Settings.DEFAULT_COLUMNS;
   columnAnchors: { [key: string]: AnchorPoint } = {};
   columnLayouts: { [columnKey: string]: { [A in AnchorPoint]?: string } } = {
+    laneNumber: {
+      [AnchorPoint.CenterCenter]: "laneNumber",
+    },
     "driver.nickname": {
       [AnchorPoint.CenterCenter]: "driver.nickname",
       [AnchorPoint.BottomRight]: "participant.team.name",
@@ -189,6 +192,9 @@ export class Settings {
   practiceColumnLayouts: {
     [columnKey: string]: { [A in AnchorPoint]?: string };
   } = {
+    laneNumber: {
+      [AnchorPoint.CenterCenter]: "laneNumber",
+    },
     "driver.nickname": {
       [AnchorPoint.CenterCenter]: "driver.nickname",
     },

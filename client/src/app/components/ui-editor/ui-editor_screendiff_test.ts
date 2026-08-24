@@ -39,7 +39,6 @@ test.describe("UI Editor Visuals", () => {
     await editor.waitFor({ state: "visible" });
 
     await expect(page).toHaveScreenshot("ui-editor-page.png", {
-      fullPage: true,
       maxDiffPixelRatio: 0.05,
       maxDiffPixels: 10000,
     });
@@ -124,17 +123,15 @@ test.describe("UI Editor Visuals", () => {
     // Clear hover/focus and scroll into view
     await page.mouse.move(0, 0);
     const sectionHeader = customThemeSection.locator(".section-header").first();
+    await sectionHeader.waitFor({ state: "visible" });
     await sectionHeader.scrollIntoViewIfNeeded();
     await page.waitForTimeout(300);
 
-    await expect(sectionHeader).toHaveScreenshot(
-      "ui-editor-duplicate-name-error.png",
-      {
-        maxDiffPixelRatio: 0.15,
-        maxDiffPixels: 10000,
-        animations: "disabled",
-      },
-    );
+    await expect(page).toHaveScreenshot("ui-editor-duplicate-name-error.png", {
+      maxDiffPixelRatio: 0.15,
+      maxDiffPixels: 10000,
+      animations: "disabled",
+    });
   });
 
   test("should show confirmation modal on leave with pending changes", async ({
@@ -216,11 +213,12 @@ test.describe("UI Editor Visuals", () => {
 
     // Scroll config section into view stably within scroll container
     const configSectionPractice = page.locator(".config-section").nth(1);
+    await configSectionPractice.waitFor({ state: "visible" });
     await configSectionPractice.scrollIntoViewIfNeeded();
     await page.mouse.move(0, 0);
     await page.waitForTimeout(300);
 
-    await expect(configSectionPractice).toHaveScreenshot(
+    await expect(page).toHaveScreenshot(
       "ui-editor-practice-layout-section.png",
       {
         maxDiffPixelRatio: 0.05,
@@ -245,8 +243,8 @@ test.describe("UI Editor Visuals", () => {
     await section.waitFor({ state: "visible" });
 
     const layoutControls = section.locator(".layout-controls").first();
-    await layoutControls.scrollIntoViewIfNeeded();
     await layoutControls.waitFor({ state: "visible" });
+    await layoutControls.scrollIntoViewIfNeeded();
 
     const resolutionSelect = layoutControls.locator(
       ".layout-resolution-select",
@@ -256,7 +254,7 @@ test.describe("UI Editor Visuals", () => {
     await page.mouse.move(0, 0);
     await page.waitForTimeout(300);
 
-    await expect(layoutControls).toHaveScreenshot(
+    await expect(page).toHaveScreenshot(
       "ui-editor-layout-resolution-dropdown.png",
       {
         maxDiffPixelRatio: 0.05,
@@ -277,29 +275,26 @@ test.describe("UI Editor Visuals", () => {
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
     const resolutionSelect = page.locator(".layout-resolution-select").first();
-    await resolutionSelect.scrollIntoViewIfNeeded();
     await resolutionSelect.waitFor({ state: "visible" });
+    await resolutionSelect.scrollIntoViewIfNeeded();
 
     await resolutionSelect.selectOption("1920x1080");
 
     const previewContainer = page.locator(".raceday-preview-container").first();
-    await previewContainer.scrollIntoViewIfNeeded();
     await previewContainer.waitFor({ state: "visible" });
+    await previewContainer.scrollIntoViewIfNeeded();
 
     const previewScaler = page.locator(".raceday-preview-scaler").first();
     await previewScaler.waitFor({ state: "visible" });
-    await TestSetupHelper.waitForImagesLoaded(previewScaler);
+    await TestSetupHelper.waitForImagesLoaded(previewContainer);
     await page.mouse.move(0, 0);
     await page.waitForTimeout(300);
 
-    await expect(previewScaler).toHaveScreenshot(
-      "ui-editor-layout-preview-scaled.png",
-      {
-        maxDiffPixelRatio: 0.1,
-        maxDiffPixels: 40000,
-        animations: "disabled",
-      },
-    );
+    await expect(page).toHaveScreenshot("ui-editor-layout-preview-scaled.png", {
+      maxDiffPixelRatio: 0.1,
+      maxDiffPixels: 40000,
+      animations: "disabled",
+    });
   });
 
   test("should display expanded custom theme with all 12 behavioral flags", async ({
@@ -314,6 +309,7 @@ test.describe("UI Editor Visuals", () => {
 
     // Expand Custom Theme (2nd theme sub-section)
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
+    await customThemeSection.scrollIntoViewIfNeeded();
     await customThemeSection
       .locator(".section-header")
       .first()
@@ -331,14 +327,11 @@ test.describe("UI Editor Visuals", () => {
     await page.mouse.move(0, 0);
     await page.waitForTimeout(300);
 
-    await expect(customThemeSection).toHaveScreenshot(
-      "ui-editor-theme-custom-expanded.png",
-      {
-        maxDiffPixelRatio: 0.05,
-        maxDiffPixels: 10000,
-        animations: "disabled",
-      },
-    );
+    await expect(page).toHaveScreenshot("ui-editor-theme-custom-expanded.png", {
+      maxDiffPixelRatio: 0.05,
+      maxDiffPixels: 10000,
+      animations: "disabled",
+    });
   });
 
   test("should display expanded default theme in read-only mode", async ({
@@ -353,6 +346,7 @@ test.describe("UI Editor Visuals", () => {
 
     // Expand Default Theme (1st theme sub-section)
     const defaultThemeSection = page.locator(".theme-sub-section").first();
+    await defaultThemeSection.scrollIntoViewIfNeeded();
     await defaultThemeSection
       .locator(".section-header")
       .first()
@@ -370,7 +364,7 @@ test.describe("UI Editor Visuals", () => {
     await page.mouse.move(0, 0);
     await page.waitForTimeout(300);
 
-    await expect(defaultThemeSection).toHaveScreenshot(
+    await expect(page).toHaveScreenshot(
       "ui-editor-theme-default-expanded.png",
       {
         maxDiffPixelRatio: 0.05,
@@ -398,7 +392,6 @@ test.describe("UI Editor Visuals", () => {
     await header.waitFor({ state: "visible" });
 
     await expect(page).toHaveScreenshot("ui-editor-fullscreen.png", {
-      fullPage: true,
       maxDiffPixelRatio: 0.05,
       maxDiffPixels: 10000,
     });
@@ -420,7 +413,6 @@ test.describe("UI Editor Visuals", () => {
     await page.locator(".sections-wrapper").waitFor({ state: "visible" });
 
     await expect(page).toHaveScreenshot("ui-editor-force-fit-screen.png", {
-      fullPage: true,
       maxDiffPixelRatio: 0.05,
       maxDiffPixels: 10000,
     });

@@ -231,9 +231,7 @@ public class PhidgetProtocol extends DefaultProtocol {
 
     try {
       opened = true;
-      openDigitalInputs();
-      openDigitalOutputs();
-      openAnalogInputs();
+      updateChannelMappings();
 
       int openedChannelCount = digitalInputs.size() + digitalOutputs.size() + analogInputs.size();
       if (openedChannelCount == 0 && hasConfiguredPins()) {
@@ -261,18 +259,18 @@ public class PhidgetProtocol extends DefaultProtocol {
   private boolean hasConfiguredPins() {
     if (config == null) return false;
     if (config.digitalInIds != null) {
-      for (int behavior : config.digitalInIds) {
-        if (behavior != PinBehavior.BEHAVIOR_UNUSED_VALUE) return true;
+      for (Integer behavior : config.digitalInIds) {
+        if (behavior != null && behavior != PinBehavior.BEHAVIOR_UNUSED_VALUE) return true;
       }
     }
     if (config.digitalOutIds != null) {
-      for (int behavior : config.digitalOutIds) {
-        if (behavior != PinBehavior.BEHAVIOR_UNUSED_VALUE) return true;
+      for (Integer behavior : config.digitalOutIds) {
+        if (behavior != null && behavior != PinBehavior.BEHAVIOR_UNUSED_VALUE) return true;
       }
     }
     if (config.analogIds != null) {
-      for (int behavior : config.analogIds) {
-        if (behavior != PinBehavior.BEHAVIOR_UNUSED_VALUE) return true;
+      for (Integer behavior : config.analogIds) {
+        if (behavior != null && behavior != PinBehavior.BEHAVIOR_UNUSED_VALUE) return true;
       }
     }
     return false;
@@ -316,18 +314,35 @@ public class PhidgetProtocol extends DefaultProtocol {
         analogInputs.size());
 
     if (this.opened && listener != null) {
-      InterfaceStatus status =
-          isHealthy() ? InterfaceStatus.CONNECTED : InterfaceStatus.DISCONNECTED;
-      InterfaceStatusEvent statusEvent =
-          InterfaceStatusEvent.newBuilder()
-              .setStatus(status)
-              .setInterfaceIndex(getInterfaceIndex())
-              .setDetectedChannels(getDetectedChannels())
-              .setSupportsRgbLeds(supportsRgbLeds())
-              .setVersion(getVersion() != null ? getVersion() : "")
-              .build();
-      listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
-      listener.onInterfaceStatus(status, getInterfaceIndex());
+      if (isHealthy()) {
+        if (!wasAttached) {
+          syncPower();
+          syncAnalogLeds();
+        }
+        InterfaceStatus status = InterfaceStatus.CONNECTED;
+        InterfaceStatusEvent statusEvent =
+            InterfaceStatusEvent.newBuilder()
+                .setStatus(status)
+                .setInterfaceIndex(getInterfaceIndex())
+                .setDetectedChannels(getDetectedChannels())
+                .setSupportsRgbLeds(supportsRgbLeds())
+                .setVersion(getVersion() != null ? getVersion() : "")
+                .build();
+        listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
+        listener.onInterfaceStatus(status, getInterfaceIndex());
+      } else if (wasAttached) {
+        InterfaceStatus status = InterfaceStatus.DISCONNECTED;
+        InterfaceStatusEvent statusEvent =
+            InterfaceStatusEvent.newBuilder()
+                .setStatus(status)
+                .setInterfaceIndex(getInterfaceIndex())
+                .setDetectedChannels(getDetectedChannels())
+                .setSupportsRgbLeds(supportsRgbLeds())
+                .setVersion(getVersion() != null ? getVersion() : "")
+                .build();
+        listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
+        listener.onInterfaceStatus(status, getInterfaceIndex());
+      }
     }
   }
 
@@ -420,13 +435,6 @@ public class PhidgetProtocol extends DefaultProtocol {
     return PinBehavior.BEHAVIOR_UNUSED_VALUE;
   }
 
-  private void openDigitalInputs() {
-    if (config.digitalInIds == null) return;
-    for (int i = 0; i < config.digitalInIds.size(); i++) {
-      createAndOpenDigitalInput(i);
-    }
-  }
-
   private synchronized DigitalInput createAndOpenDigitalInput(int channel) {
     if (digitalInputsByChannel.containsKey(channel)) {
       return digitalInputsByChannel.get(channel);
@@ -490,13 +498,6 @@ public class PhidgetProtocol extends DefaultProtocol {
     return null;
   }
 
-  private void openDigitalOutputs() {
-    if (config.digitalOutIds == null) return;
-    for (int i = 0; i < config.digitalOutIds.size(); i++) {
-      createAndOpenDigitalOutput(i);
-    }
-  }
-
   private synchronized DigitalOutput createAndOpenDigitalOutput(int channel) {
     if (digitalOutputsByChannel.containsKey(channel)) {
       return digitalOutputsByChannel.get(channel);
@@ -518,8 +519,12 @@ public class PhidgetProtocol extends DefaultProtocol {
             public void onAttach(AttachEvent e) {
               logger.info("Phidget DigitalOutput channel {} attached", channel);
               attachedChannelCount.incrementAndGet();
+              try {
+                applyOutputChannelState(channel);
+              } catch (PhidgetException ex) {
+                logger.error("Error applying output state to Phidget channel {}", channel, ex);
+              }
               checkAttachmentStatus();
-              applyOutputChannelState(out, channel);
             }
           });
 
@@ -576,20 +581,9 @@ public class PhidgetProtocol extends DefaultProtocol {
     }
   }
 
-  private void applyOutputChannelState(DigitalOutput out, int channel) {
-    try {
-      if (!out.getAttached()) {
-        return;
-      }
-      applyOutputChannelState(channel);
-    } catch (PhidgetException e) {
-      logger.error("Error applying output state to Phidget channel {}", channel, e);
-    }
-  }
-
   public void syncPower() {
     try {
-      if (isMainRelayAttached()) {
+      if (hasMainRelay()) {
         boolean power = lastMainPower != null ? lastMainPower : false;
         boolean state = isNormallyClosedRelays() ? power : !power;
         setMainRelayPhysicalState(state);
@@ -599,11 +593,9 @@ public class PhidgetProtocol extends DefaultProtocol {
     }
     for (Integer lane : relayOutputs.keySet()) {
       try {
-        if (isLaneRelayAttached(lane)) {
-          boolean power = lastLanePower.getOrDefault(lane, false);
-          boolean state = isNormallyClosedRelays() ? power : !power;
-          setLaneRelayPhysicalState(lane, state);
-        }
+        boolean power = lastLanePower.getOrDefault(lane, false);
+        boolean state = isNormallyClosedRelays() ? power : !power;
+        setLaneRelayPhysicalState(lane, state);
       } catch (PhidgetException e) {
         logger.error("Error setting lane relay state for lane {} during syncPower", lane + 1, e);
       }
@@ -612,13 +604,6 @@ public class PhidgetProtocol extends DefaultProtocol {
 
   public void syncAnalogLeds() {
     onAnalogLedsChanged();
-  }
-
-  private void openAnalogInputs() {
-    if (config.analogIds == null) return;
-    for (int i = 0; i < config.analogIds.size(); i++) {
-      createAndOpenAnalogInput(i);
-    }
   }
 
   private synchronized VoltageRatioInput createAndOpenAnalogInput(int channel) {
@@ -855,12 +840,21 @@ public class PhidgetProtocol extends DefaultProtocol {
   void setOutputChannelPhysicalState(int pin, boolean state) throws PhidgetException {
     DigitalOutput out = digitalOutputsByChannel.get(pin);
     if (out != null) {
+      logger.info(
+          "Phidget serial {} pin {} set physical state to {}",
+          config != null ? config.serialNumber : 0,
+          pin,
+          state);
       out.setState(state);
     }
   }
 
   void setMainRelayPhysicalState(boolean state) throws PhidgetException {
     if (mainRelayOutput != null) {
+      logger.info(
+          "Phidget serial {} main relay set physical state to {}",
+          config != null ? config.serialNumber : 0,
+          state);
       mainRelayOutput.setState(state);
     }
   }
@@ -868,6 +862,11 @@ public class PhidgetProtocol extends DefaultProtocol {
   void setLaneRelayPhysicalState(int lane, boolean state) throws PhidgetException {
     DigitalOutput out = relayOutputs.get(lane);
     if (out != null) {
+      logger.info(
+          "Phidget serial {} lane {} relay set physical state to {}",
+          config != null ? config.serialNumber : 0,
+          lane + 1,
+          state);
       out.setState(state);
     }
   }
@@ -940,16 +939,42 @@ public class PhidgetProtocol extends DefaultProtocol {
 
   @Override
   public boolean hasPerLaneRelays() {
+    if (config != null && config.digitalOutIds != null) {
+      int base = PinBehavior.BEHAVIOR_RELAY_BASE.getNumber();
+      int max = base + Math.max(1, getNumLanes());
+      for (Integer code : config.digitalOutIds) {
+        if (code != null && code >= base && code < max) {
+          return true;
+        }
+      }
+    }
     return !relayOutputs.isEmpty();
   }
 
   @Override
   public boolean hasDigitalFuel() {
+    if (config != null && config.analogIds != null) {
+      int base = PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE.getNumber();
+      int max = base + Math.max(1, getNumLanes());
+      for (Integer code : config.analogIds) {
+        if (code != null && code >= base && code < max) {
+          return true;
+        }
+      }
+    }
     return false;
   }
 
   @Override
   public boolean hasMainRelay() {
+    if (config != null && config.digitalOutIds != null) {
+      int mainRelay = PinBehavior.BEHAVIOR_RELAY.getNumber();
+      for (Integer code : config.digitalOutIds) {
+        if (code != null && code == mainRelay) {
+          return true;
+        }
+      }
+    }
     return mainRelayOutput != null;
   }
 
@@ -965,6 +990,7 @@ public class PhidgetProtocol extends DefaultProtocol {
   @Override
   public void setMainPower(boolean on) {
     super.setMainPower(on);
+    this.lastMainPower = on;
     try {
       if (isMainRelayAttached()) {
         boolean state = isNormallyClosedRelays() ? on : !on;
@@ -978,6 +1004,7 @@ public class PhidgetProtocol extends DefaultProtocol {
   @Override
   public void setLanePower(boolean on, int lane) {
     super.setLanePower(on, lane);
+    this.lastLanePower.put(lane, on);
     try {
       if (isLaneRelayAttached(lane)) {
         boolean state = isNormallyClosedRelays() ? on : !on;
@@ -1000,7 +1027,7 @@ public class PhidgetProtocol extends DefaultProtocol {
 
   @Override
   public boolean isConnected() {
-    return opened && attached && config != null && config.serialNumber > 0;
+    return opened && config != null && config.serialNumber > 0;
   }
 
   @Override
