@@ -190,6 +190,46 @@ describe("RacedayLayoutUtils", () => {
   it("should identify lap time columns", () => {
     expect(RacedayLayoutUtils.isLapTimeColumn(mockColumns[2])).toBe(true);
     expect(RacedayLayoutUtils.isLapTimeColumn(mockColumns[0])).toBe(false);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition("BEST", "bestLapTime", 200, false, "middle", 0),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition("AVG", "averageLapTime", 200, false, "middle", 0),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "MEDIAN",
+          "medianLapTime",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "RECORD",
+          "recordLapTime",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition("SEGMENT", "segmentTime", 200, false, "middle", 0),
+      ),
+    ).toBe(true);
+    expect(RacedayLayoutUtils.isLapTimeColumn(null as any)).toBe(false);
   });
 
   it("should identify image and avatar properties", () => {

@@ -177,14 +177,19 @@ export class RacedayLayoutUtils {
   }
 
   static isLapTimeColumn(col: ColumnDefinition): boolean {
+    if (!col) return false;
     const property =
-      RacedayLayoutUtils.getLayoutEntries(col)[0]?.property || "";
+      col.layout?.[AnchorPoint.CenterCenter] ||
+      RacedayLayoutUtils.getLayoutEntries(col)[0]?.property ||
+      col.propertyName ||
+      "";
     const baseKey = property.split("_")[0];
     return (
       baseKey === "lastLapTime" ||
       baseKey === "bestLapTime" ||
       baseKey === "averageLapTime" ||
       baseKey === "medianLapTime" ||
+      baseKey === "recordLapTime" ||
       baseKey === "segmentTime"
     );
   }

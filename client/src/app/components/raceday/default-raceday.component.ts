@@ -431,9 +431,7 @@ export class DefaultRacedayComponent
   protected get gridTemplateRowsVertical(): string {
     if (!this.columns || this.columns.length === 0) return "1fr";
 
-    const lapTimeCol = this.columns.find((c) =>
-      c.propertyName.startsWith("lastLapTime"),
-    );
+    const lapTimeCol = this.columns.find((c) => this.isLapTimeColumn(c));
     const nicknameCol = this.columns.find(
       (c) =>
         c.propertyName.startsWith("driver.nickname") ||
@@ -453,10 +451,7 @@ export class DefaultRacedayComponent
         if (c.propertyName === "lastLaps") {
           return `minmax(0, ${largeHeight * 5}fr)`;
         }
-        if (
-          c.propertyName === "lapCount" ||
-          c.propertyName.startsWith("lastLapTime")
-        ) {
+        if (c.propertyName === "lapCount" || this.isLapTimeColumn(c)) {
           return `minmax(0, ${largeHeight}fr)`;
         }
         return `minmax(0, ${smallHeight}fr)`;
