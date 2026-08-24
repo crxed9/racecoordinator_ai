@@ -162,6 +162,7 @@ public class RaceHardwareManager {
   public void forceMainPowerSync() {
     if (protocols != null) {
       protocols.setMainPower(race.isMainPower());
+      race.syncLanePowerWithState(race.isMainPower());
     }
   }
 

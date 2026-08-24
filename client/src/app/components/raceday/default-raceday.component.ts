@@ -2008,10 +2008,19 @@ export class DefaultRacedayComponent
 
       if (isNewRace) {
         // Reset timer state ONLY when advancing to a new race
-        this.autoStartRemaining = 0;
+        this.autoStartRemaining =
+          (race as any)?.auto_start_remaining_seconds ||
+          (race as any)?.auto_start_remaining ||
+          race.auto_start_time ||
+          0;
         this.autoAdvanceRemaining =
-          (race as any)?.auto_advance_remaining_seconds || 0;
-        this.time = this.autoAdvanceRemaining;
+          (race as any)?.auto_advance_remaining_seconds ||
+          (race as any)?.auto_advance_remaining ||
+          0;
+        this.time =
+          this.autoStartRemaining > 0
+            ? this.autoStartRemaining
+            : this.autoAdvanceRemaining;
         this.previousTime = this.time;
         this.timeFormat = "1.0-0";
         this.playedSecondsLeft.clear();

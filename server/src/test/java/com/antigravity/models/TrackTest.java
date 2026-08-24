@@ -231,6 +231,17 @@ public class TrackTest {
     config.digitalIds.set(5, 0); // clear digital
     config.analogIds.set(2, com.antigravity.proto.PinBehavior.BEHAVIOR_RELAY_BASE_VALUE + 1);
     assertEquals(true, track.hasPerLaneRelays());
+
+    // Trackmate with per lane relays
+    com.antigravity.protocols.trackmate.TrackmateConfig tmConfig =
+        new com.antigravity.protocols.trackmate.TrackmateConfig();
+    tmConfig.hasPerLaneRelays = true;
+    Track tmTrack =
+        new Track.Builder()
+            .name("TM Track")
+            .trackmateConfigs(Collections.singletonList(tmConfig))
+            .build();
+    assertEquals(true, tmTrack.hasPerLaneRelays());
   }
 
   @Test
@@ -259,6 +270,21 @@ public class TrackTest {
     config.digitalIds.set(4, 0);
     config.analogIds.set(3, com.antigravity.proto.PinBehavior.BEHAVIOR_RELAY_VALUE);
     assertEquals(true, track.hasMainRelay());
+
+    // Trackmate without per lane relays has main relay
+    com.antigravity.protocols.trackmate.TrackmateConfig tmConfig =
+        new com.antigravity.protocols.trackmate.TrackmateConfig();
+    tmConfig.hasPerLaneRelays = false;
+    Track tmTrack =
+        new Track.Builder()
+            .name("TM Track")
+            .trackmateConfigs(Collections.singletonList(tmConfig))
+            .build();
+    assertEquals(true, tmTrack.hasMainRelay());
+
+    // Trackmate with per lane relays does not have main relay
+    tmConfig.hasPerLaneRelays = true;
+    assertEquals(false, tmTrack.hasMainRelay());
   }
 
   @Test

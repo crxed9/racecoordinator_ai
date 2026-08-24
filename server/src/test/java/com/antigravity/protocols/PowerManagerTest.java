@@ -270,4 +270,54 @@ public class PowerManagerTest {
     // desiredLanePower to true
     verify(protocol).setLanePower(true, 0);
   }
+
+  @Test
+  public void testMultiProtocol_OneMainRelay_OnePerLaneRelays() {
+    IProtocol mainProtocol = mock(IProtocol.class);
+    when(mainProtocol.hasMainRelay()).thenReturn(true);
+    when(mainProtocol.hasPerLaneRelays()).thenReturn(false);
+    when(mainProtocol.getNumLanes()).thenReturn(numLanes);
+
+    IProtocol laneProtocol = mock(IProtocol.class);
+    when(laneProtocol.hasMainRelay()).thenReturn(false);
+    when(laneProtocol.hasPerLaneRelays()).thenReturn(true);
+    when(laneProtocol.getNumLanes()).thenReturn(numLanes);
+
+    List<IProtocol> protocols = new ArrayList<>();
+    protocols.add(mainProtocol);
+    protocols.add(laneProtocol);
+
+    ProtocolDelegate multiDelegate = mock(ProtocolDelegate.class);
+    when(multiDelegate.getProtocols()).thenReturn(protocols);
+    when(multiDelegate.getNumLanes()).thenReturn(numLanes);
+
+    PowerManager multiPowerManager = new PowerManager(multiDelegate);
+
+    // Turn main power ON
+    multiPowerManager.setMainPower(true);
+
+    // mainProtocol should receive setMainPower(true) and never setLanePower
+    verify(mainProtocol).setMainPower(true);
+    verify(mainProtocol, never()).setLanePower(anyBoolean(), anyInt());
+
+    // laneProtocol should receive setLanePower(true, i) for all lanes and never setMainPower
+    verify(laneProtocol, never()).setMainPower(anyBoolean());
+    for (int i = 0; i < numLanes; i++) {
+      verify(laneProtocol).setLanePower(true, i);
+    }
+
+    // Turn main power OFF
+    reset(mainProtocol, laneProtocol);
+    when(mainProtocol.hasMainRelay()).thenReturn(true);
+    when(mainProtocol.hasPerLaneRelays()).thenReturn(false);
+    when(laneProtocol.hasMainRelay()).thenReturn(false);
+    when(laneProtocol.hasPerLaneRelays()).thenReturn(true);
+
+    multiPowerManager.setMainPower(false);
+
+    verify(mainProtocol).setMainPower(false);
+    for (int i = 0; i < numLanes; i++) {
+      verify(laneProtocol).setLanePower(false, i);
+    }
+  }
 }
