@@ -209,12 +209,15 @@ public class InterfaceHardwareHandler {
       com.antigravity.race.Race race = // fqn-collision
           ClientSubscriptionManager.getInstance().getRace();
       if (race != null) {
-        race.setMainPower(on);
+        race.forceUserMainPower(on);
         ctx.status(200).result("Main power set to " + on);
       } else {
         ProtocolDelegate protocol = ClientSubscriptionManager.getInstance().getProtocol();
         if (protocol != null) {
           protocol.setMainPower(on);
+          if (!protocol.hasMainRelay() && protocol.hasPerLaneRelays()) {
+            protocol.setLanePower(on, -1);
+          }
           ctx.status(200).result("Main power set to " + on);
         } else {
           ctx.status(404).result("No active race or interface found");

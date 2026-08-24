@@ -518,6 +518,17 @@ public class Race implements ProtocolListener {
     syncLanePowerWithState(on);
   }
 
+  public void forceUserMainPower(boolean on) {
+    this.mainPower = on;
+    if (hardwareManager.getProtocols() != null) {
+      hardwareManager.getProtocols().setMainPower(on);
+      if (!hardwareManager.getProtocols().hasMainRelay()
+          && hardwareManager.getProtocols().hasPerLaneRelays()) {
+        setLanePower(on, -1);
+      }
+    }
+  }
+
   public com.antigravity.models.Race getRaceModel() { // fqn-collision
     return model;
   }

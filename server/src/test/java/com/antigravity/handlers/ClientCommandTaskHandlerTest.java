@@ -459,7 +459,7 @@ public class ClientCommandTaskHandlerTest {
 
     setMainPowerHandler.handle(mockCtx);
 
-    verify(mockRace).setMainPower(true);
+    verify(mockRace).forceUserMainPower(true);
     verify(mockCtx).status(200);
     verify(mockCtx).result("Main power set to true");
   }

@@ -872,8 +872,18 @@ public class PhidgetProtocolTest {
     assertFalse(delegate.hasMainRelay());
     assertTrue(delegate.hasPerLaneRelays());
 
-    // Main power ON across all lanes
+    // Main power ON across all lanes (Should NO LONGER touch lane relays)
     delegate.setMainPower(true);
+    verify(relayProto, org.mockito.Mockito.never())
+        .setLanePower(
+            org.mockito.ArgumentMatchers.anyBoolean(), org.mockito.ArgumentMatchers.anyInt());
+
+    // Explicitly set Lane Power
+    delegate.setLanePower(true, 0);
+    delegate.setLanePower(true, 1);
+    delegate.setLanePower(true, 2);
+    delegate.setLanePower(true, 3);
+
     verify(relayProto).setLanePower(true, 0);
     verify(relayProto).setLanePower(true, 1);
     verify(relayProto).setLanePower(true, 2);
