@@ -77,4 +77,17 @@ export class PhidgetEditorHarnessE2e implements PhidgetEditorHarnessBase {
   async removeInterface(): Promise<void> {
     await this.removeButton.click();
   }
+
+  private get pitBehaviorSelect(): Locator {
+    return this.locator.locator(this.base.selectors.pitBehaviorSelect).first();
+  }
+
+  async getLapPinPitBehavior(): Promise<number> {
+    const value = await this.pitBehaviorSelect.inputValue();
+    return Number(value);
+  }
+
+  async setLapPinPitBehavior(value: number): Promise<void> {
+    await this.pitBehaviorSelect.selectOption(value.toString());
+  }
 }

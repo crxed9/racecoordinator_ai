@@ -17,9 +17,12 @@ export abstract class PhidgetEditorHarnessBase {
     statusBadge: "button[id^='phidget-status-badge-']",
     ncSensorsCheckbox: "input[id^='phidget-nc-sensors-']",
     ncRelaysCheckbox: "input[id^='phidget-nc-relays-']",
+    pitBehaviorSelect: "select[id^='phidget-pit-behavior-']",
     removeButton: "button.action-btn.danger",
     boardImage: ".board-image",
   };
 
   abstract exists(): Promise<boolean>;
+  abstract getLapPinPitBehavior(): Promise<number>;
+  abstract setLapPinPitBehavior(value: number): Promise<void>;
 }
