@@ -4714,9 +4714,6 @@ export class DefaultRacedayComponent
       return;
     }
     if (col.propertyName === "lapCount") {
-      if (this.heat && this.heat.started === false) {
-        return;
-      }
       if (event.shiftKey) {
         event.preventDefault();
         this.updateUserLaps(hd, this.LAP_ADJUSTMENT_AMOUNT);
