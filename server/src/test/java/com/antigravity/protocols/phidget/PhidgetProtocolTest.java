@@ -482,7 +482,7 @@ public class PhidgetProtocolTest {
   }
 
   @Test
-  public void testOpenWithZeroConfiguredPinsEvaluatesHealthy() {
+  public void testOpenWithZeroConfiguredPinsEvaluatesDisconnectedWhenNotAttached() {
     PhidgetConfig emptyPinsConfig = new PhidgetConfig();
     emptyPinsConfig.serialNumber = 12345;
     emptyPinsConfig.digitalInIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
@@ -496,7 +496,41 @@ public class PhidgetProtocolTest {
     try {
       boolean opened = emptyProtocol.open();
       assertTrue(opened);
+      // Without physical hardware attached, it should not be healthy
+      assertFalse(emptyProtocol.isHealthy());
+      assertFalse(emptyProtocol.isConnected());
+      verify(mockListener, atLeastOnce()).onInterfaceStatus(InterfaceStatus.DISCONNECTED, 0);
+    } finally {
+      emptyProtocol.close();
+    }
+  }
+
+  @Test
+  public void testOpenWithZeroConfiguredPinsEvaluatesHealthyWhenManagerAttached() throws Exception {
+    PhidgetConfig emptyPinsConfig = new PhidgetConfig();
+    emptyPinsConfig.serialNumber = 12345;
+    emptyPinsConfig.digitalInIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+    emptyPinsConfig.digitalOutIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+    emptyPinsConfig.analogIds = Arrays.asList(PinBehavior.BEHAVIOR_UNUSED_VALUE);
+
+    PhidgetProtocol emptyProtocol = new PhidgetProtocol(emptyPinsConfig, 4, null);
+    ProtocolListener mockListener = mock(ProtocolListener.class);
+    emptyProtocol.setListener(mockListener);
+
+    try {
+      boolean opened = emptyProtocol.open();
+      assertTrue(opened);
+
+      Field managerAttachedField = PhidgetProtocol.class.getDeclaredField("managerDeviceAttached");
+      managerAttachedField.setAccessible(true);
+      managerAttachedField.set(emptyProtocol, true);
+
+      Method checkMethod = PhidgetProtocol.class.getDeclaredMethod("checkAttachmentStatus");
+      checkMethod.setAccessible(true);
+      checkMethod.invoke(emptyProtocol);
+
       assertTrue(emptyProtocol.isHealthy());
+      assertTrue(emptyProtocol.isConnected());
       verify(mockListener, atLeastOnce()).onInterfaceStatus(InterfaceStatus.CONNECTED, 0);
     } finally {
       emptyProtocol.close();

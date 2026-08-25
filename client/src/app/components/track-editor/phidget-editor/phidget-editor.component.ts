@@ -301,6 +301,7 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
   }
 
   onDeviceSelectChange(key: string) {
+    this.status = "DISCONNECTED";
     const selected = this.devices.find((d) => this.getDeviceKey(d) === key);
     const c = this.config();
     if (selected && c) {

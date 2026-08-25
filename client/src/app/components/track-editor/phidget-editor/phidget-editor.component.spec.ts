@@ -254,6 +254,20 @@ describe("PhidgetEditorComponent", () => {
     expect(badgeEl.classList.contains("connected")).toBeFalse();
   });
 
+  it("should reset status to DISCONNECTED when switching device", () => {
+    component.status = "CONNECTED";
+    fixture.detectChanges();
+    const badgeEl: HTMLElement = fixture.nativeElement.querySelector(
+      "#phidget-status-badge-0",
+    );
+    expect(badgeEl.classList.contains("connected")).toBeTrue();
+
+    component.onDeviceSelectChange("67890_false_0");
+    fixture.detectChanges();
+    expect(component.status).toBe("DISCONNECTED");
+    expect(badgeEl.classList.contains("connected")).toBeFalse();
+  });
+
   it("should toggle output pin state high/low when output status badge is pressed", () => {
     // Digital Output pin 0 is set to BEHAVIOR_RELAY in sampleConfig
     fixture.detectChanges();
