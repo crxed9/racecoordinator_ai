@@ -128,6 +128,8 @@ describe("PhidgetEditorComponent", () => {
   });
 
   it("should correctly detect capabilities for 0/0/4 relay board", () => {
+    component.config().digitalInIds = [];
+    component.config().analogIds = [];
     component.onDeviceSelectChange("67890_false_0");
     const caps = component.getCapabilities();
     expect(caps.digitalInputs).toBe(0);
@@ -592,5 +594,90 @@ describe("PhidgetEditorComponent", () => {
 
     component.selectPinAction("out", 0, "unused");
     expect(component.isPinActive("out", 0)).toBeFalse();
+  });
+
+  it("should show 0 pins when no device is selected and no pins are assigned", () => {
+    componentRef.setInput("config", {
+      name: "Phidget 1",
+      serialNumber: -1,
+      isHubPort: false,
+      hubPort: 0,
+      normallyClosedLaneSensors: true,
+      normallyClosedRelays: true,
+      useLapsForSegments: false,
+      lapPinPitBehavior: 3,
+      digitalInIds: Array(32).fill(0),
+      digitalOutIds: Array(32).fill(0),
+      analogIds: Array(16).fill(0),
+    });
+    component.updateSelectedDeviceKey();
+    fixture.detectChanges();
+
+    const caps = component.getCapabilities();
+    expect(caps.digitalInputs).toBe(0);
+    expect(caps.digitalOutputs).toBe(0);
+    expect(caps.analogInputs).toBe(0);
+    expect(component.availableDigitalInputPins.length).toBe(0);
+    expect(component.availableDigitalOutputPins.length).toBe(0);
+  });
+
+  it("should show sections with assigned pins when board is disconnected and 8/8/8 is configured", () => {
+    componentRef.setInput("config", {
+      name: "Phidget 8/8/8",
+      serialNumber: 99999,
+      isHubPort: false,
+      hubPort: 0,
+      normallyClosedLaneSensors: true,
+      normallyClosedRelays: true,
+      useLapsForSegments: true,
+      lapPinPitBehavior: 0,
+      digitalInIds: [PinBehavior.BEHAVIOR_LAP_BASE, 0, 0, 0],
+      digitalOutIds: [PinBehavior.BEHAVIOR_RELAY, 0, 0, 0],
+      analogIds: [0],
+    });
+    component.updateSelectedDeviceKey();
+    fixture.detectChanges();
+
+    expect(component.isConfiguredDeviceDisconnected).toBeTrue();
+    const caps = component.getCapabilities();
+    expect(caps.digitalInputs).toBe(8);
+    expect(caps.digitalOutputs).toBe(8);
+    expect(component.availableDigitalInputPins.length).toBe(8);
+    expect(component.availableDigitalOutputPins.length).toBe(8);
+
+    const selectEl: HTMLSelectElement =
+      fixture.nativeElement.querySelector("#device-0");
+    const options = Array.from(selectEl.options);
+    const discOpt = options.find((opt) => opt.value === "99999_false_0");
+    expect(discOpt).toBeTruthy();
+    expect(discOpt?.textContent).toContain("Phidget 8/8/8 (99999)");
+    expect(discOpt?.textContent).toContain("PHIDGET_STATUS_DISCONNECTED");
+  });
+
+  it("should show assigned pins even if device type has 0 inputs", () => {
+    componentRef.setInput("config", {
+      name: "Phidget 0/0/4",
+      serialNumber: 88888,
+      isHubPort: false,
+      hubPort: 0,
+      normallyClosedLaneSensors: true,
+      normallyClosedRelays: true,
+      useLapsForSegments: true,
+      lapPinPitBehavior: 0,
+      digitalInIds: [
+        PinBehavior.BEHAVIOR_LAP_BASE,
+        PinBehavior.BEHAVIOR_LAP_BASE + 1,
+      ],
+      digitalOutIds: [PinBehavior.BEHAVIOR_RELAY],
+      analogIds: [],
+    });
+    component.updateSelectedDeviceKey();
+    fixture.detectChanges();
+
+    const caps = component.getCapabilities();
+    expect(caps.digitalInputs).toBe(2);
+    expect(caps.digitalOutputs).toBe(4);
+    expect(component.availableDigitalInputPins.length).toBe(2);
+    expect(component.availableDigitalOutputPins.length).toBe(4);
   });
 });
