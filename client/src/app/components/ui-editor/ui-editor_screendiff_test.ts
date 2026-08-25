@@ -54,12 +54,15 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
+    // Wait for themes to load
+    await page.locator("#help-default-theme").waitFor({ state: "visible" });
+
     // Expand the custom theme section (2nd theme)
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    await customThemeSection
-      .locator(".section-header")
-      .first()
-      .click({ force: true });
+    const customExpander = customThemeSection.locator(".expander-icon").first();
+    await customExpander.waitFor({ state: "visible" });
+    await customExpander.scrollIntoViewIfNeeded();
+    await customExpander.click();
 
     // Wait for flags grid to be visible
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -97,12 +100,15 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
+    // Wait for themes to load
+    await page.locator("#help-default-theme").waitFor({ state: "visible" });
+
     // Expand Custom Theme
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    await customThemeSection
-      .locator(".section-header")
-      .first()
-      .click({ force: true });
+    const customExpander = customThemeSection.locator(".expander-icon").first();
+    await customExpander.waitFor({ state: "visible" });
+    await customExpander.scrollIntoViewIfNeeded();
+    await customExpander.click();
 
     // Wait for the flag images grid to be rendered before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -144,12 +150,20 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
+    // Wait for themes to load
+    await page.locator("#help-default-theme").waitFor({ state: "visible" });
+
     // Expand Custom Theme and set duplicate theme name to make changes invalid and unsavable
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    await customThemeSection
-      .locator(".section-header")
-      .first()
-      .click({ force: true });
+    const customExpander = customThemeSection.locator(".expander-icon").first();
+    await customExpander.waitFor({ state: "visible" });
+    await customExpander.scrollIntoViewIfNeeded();
+    await customExpander.click();
+
+    // Wait for flag grid to render before interacting
+    const flagGrid = customThemeSection.locator(".flags-grid");
+    await flagGrid.waitFor({ state: "visible" });
+    await TestSetupHelper.waitForImagesLoaded(customThemeSection);
 
     const themeInput = customThemeSection.locator(".theme-name-input").first();
     await themeInput.fill("Default Theme");
@@ -200,6 +214,7 @@ test.describe("UI Editor Visuals", () => {
     // Expand Practice Raceday Layout section via unique header ID
     const practiceHeader = page.locator("#help-practice-ui");
     await practiceHeader.waitFor({ state: "visible" });
+    await practiceHeader.scrollIntoViewIfNeeded();
     await practiceHeader.click();
 
     // Wait for the practice section content to be visible
@@ -307,13 +322,15 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
+    // Wait for themes to load
+    await page.locator("#help-default-theme").waitFor({ state: "visible" });
+
     // Expand Custom Theme (2nd theme sub-section)
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    await customThemeSection.scrollIntoViewIfNeeded();
-    await customThemeSection
-      .locator(".section-header")
-      .first()
-      .click({ force: true });
+    const customExpander = customThemeSection.locator(".expander-icon").first();
+    await customExpander.waitFor({ state: "visible" });
+    await customExpander.scrollIntoViewIfNeeded();
+    await customExpander.click();
 
     // Wait for the flag images grid to be rendered
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -344,13 +361,14 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
+    // Wait for themes to load
+    const defaultThemeHeader = page.locator("#help-default-theme");
+    await defaultThemeHeader.waitFor({ state: "visible" });
+    await defaultThemeHeader.scrollIntoViewIfNeeded();
+    await defaultThemeHeader.click();
+
     // Expand Default Theme (1st theme sub-section)
     const defaultThemeSection = page.locator(".theme-sub-section").first();
-    await defaultThemeSection.scrollIntoViewIfNeeded();
-    await defaultThemeSection
-      .locator(".section-header")
-      .first()
-      .click({ force: true });
 
     // Wait for the flag images grid to be rendered
     const flagGrid = defaultThemeSection.locator(".flags-grid");
