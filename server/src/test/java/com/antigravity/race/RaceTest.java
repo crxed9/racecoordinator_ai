@@ -2480,6 +2480,25 @@ public class RaceTest {
       assertFalse(resumeRace.isLanePower(0));
       assertTrue(resumeRace.isLanePower(1));
     }
+
+    @Test
+    public void testForceUserMainPower_WithMainRelay() {
+      race.forceUserMainPower(true);
+      assertTrue(race.isMainPower());
+      verify(mockProtocols).setMainPower(true);
+      verify(mockProtocols, never()).setLanePower(anyBoolean(), anyInt());
+    }
+
+    @Test
+    public void testForceUserMainPower_WithoutMainRelay_WithLaneRelays() {
+      when(mockProtocols.hasMainRelay()).thenReturn(false);
+      when(mockProtocols.hasPerLaneRelays()).thenReturn(true);
+      race.forceUserMainPower(true);
+      assertTrue(race.isMainPower());
+      verify(mockProtocols).setMainPower(true);
+      verify(mockProtocols).setLanePower(true, 0);
+      verify(mockProtocols).setLanePower(true, 1);
+    }
   }
 
   // =========================================================================

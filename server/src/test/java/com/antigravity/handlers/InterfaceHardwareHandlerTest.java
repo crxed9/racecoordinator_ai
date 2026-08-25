@@ -71,7 +71,7 @@ public class InterfaceHardwareHandlerTest {
     when(mockCtx.status(org.mockito.ArgumentMatchers.anyInt())).thenReturn(mockCtx);
 
     handler.setMainPower(mockCtx);
-    org.mockito.Mockito.verify(mockRace).setMainPower(true);
+    org.mockito.Mockito.verify(mockRace).forceUserMainPower(true);
     org.mockito.Mockito.verify(mockCtx).status(200);
 
     handler.setLanePower(mockCtx);

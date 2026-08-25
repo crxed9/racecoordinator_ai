@@ -1698,7 +1698,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       deviceAddress: "",
       numLanes: this.lanes.length,
       minLapMs: 1,
-      lapPinPitBehavior: 0,
+      lapPinPitBehavior: 3,
       lapPinBehaviors: Array(this.lanes.length)
         .fill(0)
         .map((_, i) => PinBehavior.BEHAVIOR_LAP_BASE + i),
@@ -1763,7 +1763,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       normallyClosedLaneSensors: true,
       normallyClosedRelays: true,
       useLapsForSegments: false,
-      lapPinPitBehavior: 0,
+      lapPinPitBehavior: 3,
       digitalInIds: Array(32).fill(0),
       digitalOutIds: Array(32).fill(0),
       analogIds: Array(16).fill(0),

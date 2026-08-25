@@ -144,10 +144,10 @@ public class PhidgetProtocol extends DefaultProtocol {
 
   @Override
   protected ArduinoConfig.LapPinPitBehavior getLapPinPitBehavior() {
-    if (config != null && config.lapPinPitBehavior != null) {
-      return config.lapPinPitBehavior;
+    if (config == null || config.lapPinPitBehavior == null) {
+      return ArduinoConfig.LapPinPitBehavior.PIT_IN_OUT;
     }
-    return ArduinoConfig.LapPinPitBehavior.NONE;
+    return config.lapPinPitBehavior;
   }
 
   @Override
