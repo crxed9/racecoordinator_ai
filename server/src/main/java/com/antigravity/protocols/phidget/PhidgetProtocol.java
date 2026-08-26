@@ -175,7 +175,7 @@ public class PhidgetProtocol extends DefaultProtocol {
   }
 
   @Override
-  protected boolean hasPitInConfigured(int laneIndex) {
+  public boolean hasPitInConfigured(int laneIndex) {
     if (config != null && config.lapPinPitBehavior != null) {
       if (config.lapPinPitBehavior == LapPinPitBehavior.PIT_IN
           || config.lapPinPitBehavior == LapPinPitBehavior.PIT_IN_OUT) {

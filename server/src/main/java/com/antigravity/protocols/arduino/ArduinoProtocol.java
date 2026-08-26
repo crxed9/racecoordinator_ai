@@ -696,30 +696,24 @@ public class ArduinoProtocol extends AbstractSerialProtocol {
             pct = Math.min(1.0, Math.max(0.0, (double) value / maxVoltage));
           }
 
-          CarLocation location = laneInPits[laneIndex] ? CarLocation.PitRow : CarLocation.Main;
+          boolean inPits = isLaneInPits(laneIndex);
+          CarLocation location = inPits ? CarLocation.PitRow : CarLocation.Main;
           listener.onCarData(
-              new CarData(
-                  laneIndex,
-                  deltaTimeSeconds,
-                  pct,
-                  pct,
-                  laneInPits[laneIndex],
-                  location,
-                  location,
-                  -1));
+              new CarData(laneIndex, deltaTimeSeconds, pct, pct, inPits, location, location, -1));
         }
       }
     }
   }
 
   @Override
-  protected boolean hasPitInConfigured(int laneIndex) {
-    if (config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_IN) {
+  public boolean hasPitInConfigured(int laneIndex) {
+    if (config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_IN
+        || config.lapPinPitBehavior == ArduinoConfig.LapPinPitBehavior.PIT_IN_OUT) {
       return true;
     }
 
     for (PinConfig pc : pinLookup.values()) {
-      if (pc.behavior == InputBehavior.PIT_IN
+      if ((pc.behavior == InputBehavior.PIT_IN || pc.behavior == InputBehavior.PIT_IN_OUT)
           && (pc.laneIndex == -1 || pc.laneIndex == laneIndex)) {
         return true;
       }
@@ -729,6 +723,7 @@ public class ArduinoProtocol extends AbstractSerialProtocol {
 
   @Override
   public void initializeHardwareState() {
+    super.initializeHardwareState();
     lastLeaderLane = null;
     lastHeatStandings = null;
     lastSentState = null;
