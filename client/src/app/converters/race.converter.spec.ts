@@ -224,4 +224,23 @@ describe("RaceConverter", () => {
     expect(result.group_options.max_groups).toBe(2);
     expect(result.group_options.names).toEqual(["Novice Group", "Pro Group"]);
   });
+
+  it("should map minLapTime from proto and default to 1.5 when not provided", () => {
+    const mockProtoDefault: IRaceModel = {
+      model: { entityId: "r14" },
+      name: "Default Min Lap Race",
+      track: { model: { entityId: "t1" }, name: "Track", lanes: [] },
+    };
+    const resultDefault = RaceConverter.fromProto(mockProtoDefault);
+    expect(resultDefault.min_lap_time).toBe(1.5);
+
+    const mockProtoExplicit: IRaceModel = {
+      model: { entityId: "r15" },
+      name: "Explicit Min Lap Race",
+      track: { model: { entityId: "t1" }, name: "Track", lanes: [] },
+      minLapTime: 3.2,
+    };
+    const resultExplicit = RaceConverter.fromProto(mockProtoExplicit);
+    expect(resultExplicit.min_lap_time).toBe(3.2);
+  });
 });

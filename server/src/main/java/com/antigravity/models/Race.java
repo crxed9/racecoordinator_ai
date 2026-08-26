@@ -189,7 +189,7 @@ public class Race extends Model {
             : (oldHeatScoring != null ? oldHeatScoring : new HeatScoring());
     this.overallScoring = overallScoring != null ? overallScoring : new OverallScoring();
     this.seasonScoring = seasonScoring != null ? seasonScoring : new SeasonScoring();
-    this.minLapTime = minLapTime != null ? minLapTime : 0.0;
+    this.minLapTime = minLapTime != null ? minLapTime : 1.5;
     this.fuelOptions = fuelOptions != null ? fuelOptions : new AnalogFuelOptions();
     this.digitalFuelOptions =
         digitalFuelOptions != null ? digitalFuelOptions : new DigitalFuelOptions();
@@ -229,7 +229,7 @@ public class Race extends Model {
     private HeatScoring heatScoring = new HeatScoring();
     private OverallScoring overallScoring = new OverallScoring();
     private SeasonScoring seasonScoring = new SeasonScoring();
-    private double minLapTime = 0.0;
+    private double minLapTime = 1.5;
     private AnalogFuelOptions fuelOptions = new AnalogFuelOptions();
     private DigitalFuelOptions digitalFuelOptions = new DigitalFuelOptions();
     private TeamOptions teamOptions = new TeamOptions();

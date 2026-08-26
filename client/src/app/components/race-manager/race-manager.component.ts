@@ -381,6 +381,7 @@ export class RaceManagerComponent implements OnInit, OnDestroy {
         ranking_method: "LAP_COUNT",
         tiebreaker: "TOTAL_TIME",
       },
+      min_lap_time: 1.5,
     };
 
     if (this.tracks && this.tracks.length > 0) {

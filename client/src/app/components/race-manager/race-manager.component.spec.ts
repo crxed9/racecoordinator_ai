@@ -271,7 +271,11 @@ describe("RaceManagerComponent", () => {
 
       component.createNewRace();
 
-      expect(dataService.createRace).toHaveBeenCalled();
+      expect(dataService.createRace).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          min_lap_time: 1.5,
+        }),
+      );
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/race-editor"], {
         queryParams: {
           id: "r-new",
