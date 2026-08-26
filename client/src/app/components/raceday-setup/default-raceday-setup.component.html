@@ -963,22 +963,63 @@
               class="saved-race-item"
               [class.selected]="selectedSavedRace?.filename === file.filename"
               [class.corrupt]="file.corrupt"
+              [class.editing]="editingSaveFilename === file.filename"
               (click)="selectSavedRace(file)"
             >
-              <span class="race-file-name">{{ file.filename }}</span>
-              @if (file.isDemo) {
-                <span class="demo-indicator-badge">Demo</span>
+              @if (editingSaveFilename === file.filename) {
+                <div
+                  class="inline-rename-container"
+                  (click)="$event.stopPropagation()"
+                >
+                  <input
+                    type="text"
+                    [(ngModel)]="editingSaveNewName"
+                    (keyup.enter)="saveInlineRename(file)"
+                    (keyup.escape)="cancelInlineRename()"
+                    class="inline-rename-input"
+                    [placeholder]="'RDS_ENTER_SAVE_NAME' | translate"
+                    autoFocus
+                  />
+                  <button
+                    class="inline-rename-btn confirm"
+                    (click)="saveInlineRename(file)"
+                    title="Save"
+                  >
+                    &#10004;
+                  </button>
+                  <button
+                    class="inline-rename-btn cancel"
+                    (click)="cancelInlineRename()"
+                    title="Cancel"
+                  >
+                    &times;
+                  </button>
+                </div>
+              } @else {
+                <span class="race-file-name">{{ file.filename }}</span>
+                @if (file.isDemo) {
+                  <span class="demo-indicator-badge">Demo</span>
+                }
+                @if (file.corrupt) {
+                  <span class="corrupt-indicator-badge">Corrupt</span>
+                }
+                <div class="saved-race-actions">
+                  <button
+                    class="rename-saved-btn"
+                    (click)="startInlineRename($event, file)"
+                    [title]="'RDS_RENAME_SAVE_TOOLTIP' | translate"
+                  >
+                    &#9998;
+                  </button>
+                  <button
+                    class="delete-saved-btn"
+                    (click)="deleteSavedRace($event, file)"
+                    title="Delete Save"
+                  >
+                    &times;
+                  </button>
+                </div>
               }
-              @if (file.corrupt) {
-                <span class="corrupt-indicator-badge">Corrupt</span>
-              }
-              <button
-                class="delete-saved-btn"
-                (click)="deleteSavedRace($event, file)"
-                title="Delete Save"
-              >
-                &times;
-              </button>
             </div>
           }
         </div>

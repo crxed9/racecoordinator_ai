@@ -1781,12 +1781,11 @@ export class DataService {
       .pipe(map(() => true));
   }
 
-  saveRace(): Observable<string> {
-    return this.http.post(
-      `${this.baseUrl}/api/save-race`,
-      {},
-      { responseType: "text" },
-    );
+  saveRace(name?: string): Observable<string> {
+    const payload = name ? { name, saveName: name } : {};
+    return this.http.post(`${this.baseUrl}/api/save-race`, payload, {
+      responseType: "text",
+    });
   }
 
   getSavedRaces(
@@ -1799,11 +1798,13 @@ export class DataService {
   }
 
   loadRace(filename: string, isDemo: boolean = false): Observable<string> {
-    return this.http.post(
-      `${this.baseUrl}/api/load-race`,
-      { filename, isDemo },
-      { responseType: "text" },
-    );
+    const payload = {
+      filename,
+      isDemo,
+    };
+    return this.http.post(`${this.baseUrl}/api/load-race`, payload, {
+      responseType: "text",
+    });
   }
 
   deleteSavedRace(
@@ -1814,6 +1815,21 @@ export class DataService {
       ? `${this.baseUrl}/api/saved-races/${filename}?demo=true`
       : `${this.baseUrl}/api/saved-races/${filename}`;
     return this.http.delete(url, {
+      responseType: "text",
+    });
+  }
+
+  renameSavedRace(
+    oldFilename: string,
+    newFilename: string,
+    isDemo: boolean = false,
+  ): Observable<string> {
+    const payload = {
+      oldFilename,
+      newFilename,
+      isDemo,
+    };
+    return this.http.post(`${this.baseUrl}/api/rename-saved-race`, payload, {
       responseType: "text",
     });
   }

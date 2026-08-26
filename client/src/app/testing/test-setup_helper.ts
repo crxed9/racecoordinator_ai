@@ -1778,6 +1778,53 @@ export class TestSetupHelper {
         body: JSON.stringify({ heats: [] }),
       });
     });
+
+    await page.route("**/api/saved-races*", async (route) => {
+      const url = route.request().url();
+      const isDemo = url.includes("demo=true");
+      if (isDemo) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            { filename: "20260826-020000_Demo_Sprint.json", corrupt: false },
+          ]),
+        });
+      } else {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            { filename: "20260826-005121_Super_Cup.json", corrupt: false },
+            { filename: "20260826-011234_Night_Race.json", corrupt: false },
+          ]),
+        });
+      }
+    });
+
+    await page.route("**/api/rename-saved-race", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/plain",
+        body: "Race save renamed successfully: My_New_Race.json",
+      });
+    });
+
+    await page.route("**/api/save-race", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/plain",
+        body: "Race saved successfully: Custom_Save.json",
+      });
+    });
+
+    await page.route("**/api/load-race", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/plain",
+        body: "Race loaded successfully",
+      });
+    });
   }
 
   static async setupRaceWebSocketMocks(page: Page) {

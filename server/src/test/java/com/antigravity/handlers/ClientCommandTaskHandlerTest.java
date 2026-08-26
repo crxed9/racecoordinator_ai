@@ -322,6 +322,13 @@ public class ClientCommandTaskHandlerTest {
   }
 
   @Test
+  public void testRenameSavedRace_RouteRegistered() {
+    verify(app).post(eq("/api/rename-saved-race"), any(), eq(com.antigravity.auth.Role.DIRECTOR));
+    verify(app)
+        .put(eq("/api/saved-races/{filename}"), any(), eq(com.antigravity.auth.Role.DIRECTOR));
+  }
+
+  @Test
   public void testSkipRace_RouteRegistered() {
     verify(app).post(eq("/api/skip-race"), any(), eq(com.antigravity.auth.Role.DIRECTOR));
   }

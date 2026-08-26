@@ -848,6 +848,69 @@ describe("DefaultRacedaySetupComponent", () => {
     expect(component.selectedSavedRace).toBeNull();
   });
 
+  it("should select saved race", () => {
+    const file = {
+      filename: "20260826-123456_Super_Cup.json",
+      isDemo: false,
+      corrupt: false,
+    };
+    component.selectSavedRace(file);
+    expect(component.selectedSavedRace).toEqual(file);
+
+    const corruptFile = {
+      filename: "bad_race.json",
+      isDemo: false,
+      corrupt: true,
+    };
+    component.selectSavedRace(corruptFile);
+    // Should not select corrupt race
+    expect(component.selectedSavedRace).toEqual(file);
+  });
+
+  it("should start and save inline rename for saved race", () => {
+    const file = {
+      filename: "20260826-123456_Super_Cup.json",
+      isDemo: false,
+      corrupt: false,
+    };
+    component.savedRaces = [file];
+    component.selectedSavedRace = file;
+
+    const event = new MouseEvent("click");
+    spyOn(event, "stopPropagation");
+
+    component.startInlineRename(event, file);
+    expect(event.stopPropagation).toHaveBeenCalled();
+    expect(component.editingSaveFilename).toBe(
+      "20260826-123456_Super_Cup.json",
+    );
+    expect(component.editingSaveNewName).toBe("20260826-123456_Super_Cup");
+
+    mockDataService.renameSavedRace.and.returnValue(
+      of("Race save renamed successfully: My_New_Name.json"),
+    );
+    component.editingSaveNewName = "My_New_Name";
+    component.saveInlineRename(file);
+
+    expect(mockDataService.renameSavedRace).toHaveBeenCalledWith(
+      "20260826-123456_Super_Cup.json",
+      "My_New_Name.json",
+      false,
+    );
+    expect(file.filename).toBe("My_New_Name.json");
+    expect(component.editingSaveFilename).toBeNull();
+  });
+
+  it("should cancel inline rename", () => {
+    component.editingSaveFilename = "test.json";
+    component.editingSaveNewName = "test";
+
+    component.cancelInlineRename();
+
+    expect(component.editingSaveFilename).toBeNull();
+    expect(component.editingSaveNewName).toBe("");
+  });
+
   it("should confirm and load normal race", () => {
     const fileToLoad = { filename: "race1.json", isDemo: false };
     component.selectedSavedRace = fileToLoad;

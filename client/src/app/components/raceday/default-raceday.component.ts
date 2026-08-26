@@ -73,6 +73,7 @@ export interface LapDisplayInfo {
   segments: string[];
 }
 import { BrowserNavigationComponent } from "@app/components/shared/browser-navigation/browser-navigation.component";
+import { InputDialogComponent } from "@app/components/shared/input-dialog/input-dialog.component";
 import {
   PdfExportDialogComponent,
   PdfExportOptions,
@@ -122,6 +123,7 @@ import {
     AddLapSectionsDialogComponent,
     PdfExportDialogComponent,
     BrowserNavigationComponent,
+    InputDialogComponent,
   ],
 })
 export class DefaultRacedayComponent
@@ -129,6 +131,8 @@ export class DefaultRacedayComponent
 {
   showPdfExportDialog = false;
   defaultIncludeBackground = true;
+  showSaveRaceDialog = false;
+  saveRaceName = "";
 
   private isDestroyed = false;
   private subscriptions: Subscription[] = [];
@@ -3233,8 +3237,15 @@ export class DefaultRacedayComponent
 
   saveRace() {
     if (this.isSaveDisabled) return;
+    this.saveRaceName = this.race?.name || "";
+    this.showSaveRaceDialog = true;
+    this.cdr.markForCheck();
+  }
 
-    this.dataService.saveRace().subscribe({
+  onSaveRaceConfirm(name: string) {
+    this.showSaveRaceDialog = false;
+    const trimmed = typeof name === "string" ? name.trim() : "";
+    this.dataService.saveRace(trimmed || undefined).subscribe({
       next: (response) => {
         this.ackModalTitle =
           this.translationService.translate("RD_SAVE_SUCCESS");
@@ -3249,6 +3260,11 @@ export class DefaultRacedayComponent
         this.cdr.markForCheck();
       },
     });
+  }
+
+  onSaveRaceCancel() {
+    this.showSaveRaceDialog = false;
+    this.cdr.markForCheck();
   }
 
   resetLane(lane: number, event: Event) {

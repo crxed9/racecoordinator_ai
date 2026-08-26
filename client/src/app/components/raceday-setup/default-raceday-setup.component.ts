@@ -120,11 +120,14 @@ export class DefaultRacedaySetupComponent implements OnInit {
   isMac: boolean = false;
   quitShortcut: string = "Alt+F4";
   showLoadRaceModal: boolean = false;
+  editingSaveFilename: string | null = null;
+  editingSaveNewName: string = "";
   showAutoSavePrompt: boolean = false;
   autoSaveFileToLoad: string | null = null;
   pendingIsDemo: boolean = false;
   savedRaces: ISavedRace[] = [];
   selectedSavedRace: ISavedRace | null = null;
+  loadedRaceName: string = "";
   public isRefreshingList: boolean = false;
   public showWelcomeMessage: boolean = true;
   isAvailableDriversCollapsed: boolean = false;
@@ -1949,6 +1952,66 @@ export class DefaultRacedaySetupComponent implements OnInit {
       return;
     }
     this.selectedSavedRace = file;
+  }
+
+  startInlineRename(event: MouseEvent, file: ISavedRace) {
+    event.stopPropagation();
+    if (file.corrupt) return;
+    this.editingSaveFilename = file.filename;
+    let name = file.filename;
+    if (name.toLowerCase().endsWith(".json")) {
+      name = name.substring(0, name.length - 5);
+    }
+    this.editingSaveNewName = name;
+    this.cdr.detectChanges();
+  }
+
+  saveInlineRename(file: ISavedRace) {
+    if (!this.editingSaveNewName || !this.editingSaveNewName.trim()) {
+      this.cancelInlineRename();
+      return;
+    }
+    let normalized = this.editingSaveNewName.trim();
+    if (!normalized.toLowerCase().endsWith(".json")) {
+      normalized += ".json";
+    }
+    if (normalized === file.filename) {
+      this.cancelInlineRename();
+      return;
+    }
+    const oldFilename = file.filename;
+    this.dataService
+      .renameSavedRace(oldFilename, normalized, file.isDemo)
+      .subscribe({
+        next: () => {
+          file.filename = normalized;
+          this.savedRaces = [...this.savedRaces];
+          if (this.selectedSavedRace?.filename === oldFilename) {
+            this.selectedSavedRace = file;
+          }
+          this.editingSaveFilename = null;
+          this.editingSaveNewName = "";
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error("Failed to rename saved race:", err);
+          this.errorTitle = "Error";
+          this.errorMessage =
+            typeof err?.error === "string" && err.error.trim()
+              ? err.error
+              : err?.message || "Failed to rename saved race";
+          this.showErrorModal = true;
+          this.editingSaveFilename = null;
+          this.editingSaveNewName = "";
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  cancelInlineRename() {
+    this.editingSaveFilename = null;
+    this.editingSaveNewName = "";
+    this.cdr.detectChanges();
   }
 
   closeLoadRaceModal() {

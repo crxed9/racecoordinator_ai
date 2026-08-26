@@ -1084,6 +1084,82 @@
   font-weight: 600;
 }
 
+.saved-race-item.editing {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: #38bdf8;
+  padding: 8px 12px;
+}
+
+.inline-rename-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.inline-rename-input {
+  flex: 1;
+  background: #0f172a;
+  border: 1px solid #38bdf8;
+  border-radius: 6px;
+  color: #f1f5f9;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.inline-rename-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.inline-rename-btn.confirm {
+  color: #10b981;
+}
+
+.inline-rename-btn.confirm:hover {
+  background: rgba(16, 185, 129, 0.2);
+  transform: scale(1.15);
+}
+
+.inline-rename-btn.cancel {
+  color: #ef4444;
+  font-size: 18px;
+}
+
+.inline-rename-btn.cancel:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.15);
+}
+
+.saved-race-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rename-saved-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: all 0.2s;
+}
+
+.rename-saved-btn:hover {
+  color: #38bdf8;
+  transform: scale(1.15);
+}
+
 .delete-saved-btn {
   background: transparent;
   border: none;
@@ -1092,11 +1168,12 @@
   cursor: pointer;
   padding: 0 4px;
   line-height: 1;
+  transition: all 0.2s;
 }
 
 .delete-saved-btn:hover {
   color: #f87171;
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
 .no-saved-races {

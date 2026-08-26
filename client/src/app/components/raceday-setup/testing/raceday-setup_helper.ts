@@ -24,6 +24,7 @@ export function createRacedaySetupDataServiceMock(overrides: any = {}) {
     "getSavedRaces",
     "loadRace",
     "deleteSavedRace",
+    "renameSavedRace",
     "toggleServerAnalytics",
     "getRaceFlag",
     "getDefaultDemoConfig",
@@ -42,6 +43,7 @@ export function createRacedaySetupDataServiceMock(overrides: any = {}) {
   mock.getSavedRaces.and.callFake(() => of(deepCopy(MOCK_AUTOSAVE_RACES)));
   mock.loadRace.and.returnValue(of("OK"));
   mock.deleteSavedRace.and.returnValue(of("OK"));
+  mock.renameSavedRace.and.returnValue(of("OK"));
   mock.toggleServerAnalytics.and.returnValue(of("OK"));
   mock.initializeRace.and.returnValue(
     of(InitializeRaceResponse.create({ success: true })),

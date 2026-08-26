@@ -1150,34 +1150,50 @@ describe("DataService", () => {
   });
 
   describe("Saved Race Operations and Analytics API", () => {
-    it("should handle saveRace, getSavedRaces, loadRace, and deleteSavedRace", (done) => {
-      service.saveRace().subscribe((sRes) => {
+    it("should handle saveRace, getSavedRaces, loadRace, renameSavedRace, and deleteSavedRace", (done) => {
+      service.saveRace("Custom Save").subscribe((sRes) => {
         expect(sRes).toBe("saved_race.json");
         service.getSavedRaces(false).subscribe((races) => {
           expect(races.length).toBe(1);
           expect(races[0].filename).toBe("saved_race.json");
-          service.loadRace("saved_race.json", false).subscribe((loadRes) => {
-            expect(loadRes).toBe("OK");
-            service
-              .deleteSavedRace("saved_race.json", false)
-              .subscribe((delRes) => {
-                expect(delRes).toBe("DELETED");
-                done();
+          service
+            .renameSavedRace("saved_race.json", "renamed_race.json", false)
+            .subscribe((renRes) => {
+              expect(renRes).toBe("OK");
+              service
+                .loadRace("renamed_race.json", false)
+                .subscribe((loadRes) => {
+                  expect(loadRes).toBe("OK");
+                  service
+                    .deleteSavedRace("renamed_race.json", false)
+                    .subscribe((delRes) => {
+                      expect(delRes).toBe("DELETED");
+                      done();
+                    });
+                  const reqDel = httpMock.expectOne((r) =>
+                    r.url.endsWith("/api/saved-races/renamed_race.json"),
+                  );
+                  expect(reqDel.request.method).toBe("DELETE");
+                  reqDel.flush("DELETED");
+                });
+              const reqLoad = httpMock.expectOne((r) =>
+                r.url.endsWith("/api/load-race"),
+              );
+              expect(reqLoad.request.body).toEqual({
+                filename: "renamed_race.json",
+                isDemo: false,
               });
-            const reqDel = httpMock.expectOne((r) =>
-              r.url.endsWith("/api/saved-races/saved_race.json"),
-            );
-            expect(reqDel.request.method).toBe("DELETE");
-            reqDel.flush("DELETED");
-          });
-          const reqLoad = httpMock.expectOne((r) =>
-            r.url.endsWith("/api/load-race"),
+              reqLoad.flush("OK");
+            });
+          const reqRename = httpMock.expectOne((r) =>
+            r.url.endsWith("/api/rename-saved-race"),
           );
-          expect(reqLoad.request.body).toEqual({
-            filename: "saved_race.json",
+          expect(reqRename.request.body).toEqual({
+            oldFilename: "saved_race.json",
+            newFilename: "renamed_race.json",
             isDemo: false,
           });
-          reqLoad.flush("OK");
+          reqRename.flush("OK");
         });
         const reqList = httpMock.expectOne((r) =>
           r.url.endsWith("/api/saved-races"),
@@ -1188,6 +1204,10 @@ describe("DataService", () => {
       const reqSave = httpMock.expectOne((r) =>
         r.url.endsWith("/api/save-race"),
       );
+      expect(reqSave.request.body).toEqual({
+        name: "Custom Save",
+        saveName: "Custom Save",
+      });
       reqSave.flush("saved_race.json");
     });
 
