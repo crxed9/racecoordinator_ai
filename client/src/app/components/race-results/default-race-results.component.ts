@@ -384,6 +384,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
 
   onPdfExportConfirm(options: PdfExportOptions) {
     this.showPdfExportDialog = false;
+    this.cdr.detectChanges();
     if (options.saveAsDefault) {
       const settings = this.settingsService.getSettings();
       settings.exportPdfBackgrounds = options.includeBackground;

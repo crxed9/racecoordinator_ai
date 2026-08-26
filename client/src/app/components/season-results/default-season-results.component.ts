@@ -563,6 +563,7 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
 
   onPdfExportConfirm(options: PdfExportOptions): void {
     this.showPdfExportDialog = false;
+    this.cdr.detectChanges();
     if (options.saveAsDefault) {
       const settings = this.settingsService.getSettings();
       settings.exportPdfBackgrounds = options.includeBackground;
@@ -575,7 +576,6 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
       undefined,
       options.includeBackground,
     );
-    this.cdr.detectChanges();
   }
 
   onPdfExportCancel(): void {
