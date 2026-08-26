@@ -129,7 +129,23 @@
 }
 
 .editor-section select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: rgba(15, 23, 42, 0.5);
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPScjOTRhM2I4JyBoZWlnaHQ9JzI0JyB2aWV3Qm94PScwIDAgMjQgMjQnIHdpZHRoPScyNCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNNyAxMGw1IDUgNS01eicvPjwvc3ZnPg==");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px 20px;
+  padding-right: 32px;
   cursor: pointer;
+  color-scheme: dark;
+}
+
+.editor-section select option,
+.editor-section select optgroup {
+  background-color: #0f172a;
+  color: #f1f5f9;
 }
 
 .heat-list-section {
@@ -578,8 +594,28 @@
   cursor: pointer;
 }
 
+.preview-panel select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: rgba(15, 23, 42, 0.6);
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPScjOTRhM2I4JyBoZWlnaHQ9JzI0JyB2aWV3Qm94PScwIDAgMjQgMjQnIHdpZHRoPScyNCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNNyAxMGw1IDUgNS01eicvPjwvc3ZnPg==");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px 20px;
+  padding-right: 32px;
+  color-scheme: dark;
+}
+
 .preview-panel select:focus {
   border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.preview-panel select option,
+.preview-panel select optgroup {
+  background-color: #0f172a;
+  color: #f8fafc;
 }
 
 /* RHS Label Overrides (matching Arduino Editor style) */

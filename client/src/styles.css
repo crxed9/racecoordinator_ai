@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  color-scheme: dark;
+}
+
 html,
 body {
   margin: 0;
@@ -7,6 +11,17 @@ body {
   height: 100%;
   overflow: hidden;
   background-color: #000;
+  color-scheme: dark;
+}
+
+select {
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background-color: #0f172a;
+  color: #f1f5f9;
 }
 
 @media print {
