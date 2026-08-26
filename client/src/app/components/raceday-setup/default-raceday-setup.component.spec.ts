@@ -684,6 +684,97 @@ describe("DefaultRacedaySetupComponent", () => {
     expect(component.isHelpDropdownOpen).toBeFalse();
   });
 
+  describe("Quit & Keyboard Shortcuts", () => {
+    it("should close file dropdown and close window when quit is called", () => {
+      spyOn(component, "closeWindow");
+      component.isFileDropdownOpen = true;
+      component.quit();
+      expect(component.isFileDropdownOpen).toBeFalse();
+      expect(component.closeWindow).toHaveBeenCalled();
+    });
+
+    it("should call window.close in closeWindow", () => {
+      spyOn(window, "close");
+      component.closeWindow();
+      expect(window.close).toHaveBeenCalled();
+    });
+
+    it("should detect Mac and set quitShortcut to Cmd+Q", () => {
+      spyOnProperty(navigator, "platform", "get").and.returnValue("MacIntel");
+      component.detectShortcutKey();
+      expect(component.isMac).toBeTrue();
+      expect(component.quitShortcut).toBe("Cmd+Q");
+    });
+
+    it("should detect non-Mac and set quitShortcut to Alt+F4", () => {
+      spyOnProperty(navigator, "platform", "get").and.returnValue("Win32");
+      spyOnProperty(navigator, "userAgent", "get").and.returnValue(
+        "Windows NT",
+      );
+      component.detectShortcutKey();
+      expect(component.isMac).toBeFalse();
+      expect(component.quitShortcut).toBe("Alt+F4");
+    });
+
+    it("should trigger quit on Cmd+Q on Mac", () => {
+      component.isMac = true;
+      spyOn(component, "quit");
+      const event = new KeyboardEvent("keydown", {
+        key: "q",
+        metaKey: true,
+        cancelable: true,
+      });
+      spyOn(event, "preventDefault");
+      component.onKeyDown(event);
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(component.quit).toHaveBeenCalled();
+    });
+
+    it("should trigger quit on Alt+F4 on Windows", () => {
+      component.isMac = false;
+      spyOn(component, "quit");
+      const event = new KeyboardEvent("keydown", {
+        key: "F4",
+        altKey: true,
+        cancelable: true,
+      });
+      spyOn(event, "preventDefault");
+      component.onKeyDown(event);
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(component.quit).toHaveBeenCalled();
+    });
+
+    it("should trigger quit on Ctrl+Q on Windows", () => {
+      component.isMac = false;
+      spyOn(component, "quit");
+      const event = new KeyboardEvent("keydown", {
+        key: "q",
+        ctrlKey: true,
+        cancelable: true,
+      });
+      spyOn(event, "preventDefault");
+      component.onKeyDown(event);
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(component.quit).toHaveBeenCalled();
+    });
+
+    it("should not trigger quit when inside an input element", () => {
+      component.isMac = true;
+      spyOn(component, "quit");
+      const inputEl = document.createElement("input");
+      document.body.appendChild(inputEl);
+      inputEl.focus();
+
+      const event = new KeyboardEvent("keydown", {
+        key: "q",
+        metaKey: true,
+      });
+      component.onKeyDown(event);
+      expect(component.quit).not.toHaveBeenCalled();
+      document.body.removeChild(inputEl);
+    });
+  });
+
   it("should load demo configuration from settings on init", () => {
     const customConfig = { minLapTimeMs: 1234 };
     (mockSettingsService as any).settings.demoConfig = customConfig;

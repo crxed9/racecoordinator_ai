@@ -59,6 +59,19 @@
                               <option value="" disabled>
                                 {{ "PHIDGET_SELECT_DEVICE" | translate }}
                               </option>
+                              @if (isConfiguredDeviceDisconnected) {
+                                <option [value]="selectedDeviceKeyStr">
+                                  {{ config().name }} ({{
+                                    config().serialNumber
+                                  }})
+                                  @if (config().isHubPort) {
+                                    - Port {{ config().hubPort }}
+                                  }
+                                  - ({{
+                                    "PHIDGET_STATUS_DISCONNECTED" | translate
+                                  }})
+                                </option>
+                              }
                               @for (
                                 device of devices;
                                 track getDeviceKey(device)

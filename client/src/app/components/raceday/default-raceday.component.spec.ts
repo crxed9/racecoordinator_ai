@@ -1211,29 +1211,43 @@ describe("DefaultRacedayComponent", () => {
       expect(component["heats"][0].heatDrivers[0].userLaps).toBe(1.5);
     });
 
-    it("should block opening add-lap dialog or shortcut edits on unstarted heats", () => {
+    it("should allow opening add-lap dialog and shortcut edits on unstarted heats with or without auto-start", () => {
       fixture.detectChanges();
-      const mockHd = { laneIndex: 1, userLaps: 1.0 } as any;
+      const mockHd = {
+        laneIndex: 1,
+        userLaps: 1.0,
+        adjustedLapCount: 1.0,
+      } as any;
       component["heat"] = { started: false } as any; // Unstarted heat
+      mockDataService.updateUserLaps.and.returnValue(
+        of({ adjustedLapCount: 1.25 }),
+      );
 
       mockDataService.updateUserLaps.calls.reset();
       component["showAddLapSectionsDialog"] = false;
 
-      // Try click
+      // Regular click opens dialog
       component.onCellClick(
         mockHd,
         { propertyName: "lapCount" } as any,
         new MouseEvent("click"),
       );
-      expect(component["showAddLapSectionsDialog"]).toBeFalse();
+      expect(component["showAddLapSectionsDialog"]).toBeTrue();
+      expect(component["selectedHeatDriver"]).toBe(mockHd);
 
-      // Try ctrl+click shortcut
+      // Shift+click performs lap adjustment even in unstarted heat
+      component["autoStartRemaining"] = 5.0; // with auto-start active
+      const shiftEvent = {
+        shiftKey: true,
+        preventDefault: jasmine.createSpy("preventDefault"),
+      } as any;
       component.onCellClick(
         mockHd,
         { propertyName: "lapCount" } as any,
-        new MouseEvent("click", { ctrlKey: true }),
+        shiftEvent,
       );
-      expect(mockDataService.updateUserLaps).not.toHaveBeenCalled();
+      expect(shiftEvent.preventDefault).toHaveBeenCalled();
+      expect(mockDataService.updateUserLaps).toHaveBeenCalledWith(1, 1.25);
     });
 
     it("should show restart heat confirmation dialog when RESTART_HEAT selected", () => {

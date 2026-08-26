@@ -1090,11 +1090,17 @@ public class ClientCommandTaskHandlerTest {
   }
 
   @Test
-  public void testUpdateUserLaps_Fail_NotStarted() throws Exception {
+  public void testUpdateUserLaps_Success_NotStarted() throws Exception {
     com.antigravity.race.Race mockRace = mock(com.antigravity.race.Race.class);
     com.antigravity.race.Heat mockHeat = mock(com.antigravity.race.Heat.class);
+    DriverHeatData mockDhd = mock(DriverHeatData.class);
+    com.antigravity.models.Race mockRaceModel = mock(com.antigravity.models.Race.class);
+
     when(mockRace.getCurrentHeat()).thenReturn(mockHeat);
+    when(mockHeat.getDrivers()).thenReturn(Arrays.asList(mockDhd));
     when(mockHeat.isStarted()).thenReturn(false);
+    when(mockDhd.getAdjustedLapCount()).thenReturn(5.25);
+    when(mockRace.getRaceModel()).thenReturn(mockRaceModel);
 
     ClientSubscriptionManager.getInstance().setRace(mockRace);
 
@@ -1109,16 +1115,25 @@ public class ClientCommandTaskHandlerTest {
 
     handler.updateUserLaps(ctx, pathParams, body);
 
-    verify(res).setStatus(400);
+    verify(mockDhd).setUserLaps(1.25);
+    verify(mockHeat).initializeStandings(any(), anyBoolean());
+    verify(mockRace).updateAndBroadcastOverallStandings();
+    verify(res).setStatus(200);
   }
 
   @Test
-  public void testUpdateHeatUserLaps_Fail_NotStarted() throws Exception {
+  public void testUpdateHeatUserLaps_Success_NotStarted() throws Exception {
     com.antigravity.race.Race mockRace = mock(com.antigravity.race.Race.class);
     com.antigravity.race.Heat mockHeat = mock(com.antigravity.race.Heat.class);
+    DriverHeatData mockDhd = mock(DriverHeatData.class);
+    com.antigravity.models.Race mockRaceModel = mock(com.antigravity.models.Race.class);
+
     when(mockRace.getHeats()).thenReturn(Arrays.asList(mockHeat));
     when(mockHeat.getHeatNumber()).thenReturn(2);
+    when(mockHeat.getDrivers()).thenReturn(Arrays.asList(mockDhd));
     when(mockHeat.isStarted()).thenReturn(false);
+    when(mockDhd.getAdjustedLapCount()).thenReturn(5.25);
+    when(mockRace.getRaceModel()).thenReturn(mockRaceModel);
 
     ClientSubscriptionManager.getInstance().setRace(mockRace);
 
@@ -1142,7 +1157,10 @@ public class ClientCommandTaskHandlerTest {
     m.setAccessible(true);
     m.invoke(handler, ctx);
 
-    verify(res).setStatus(400);
+    verify(mockDhd).setUserLaps(1.25);
+    verify(mockHeat).initializeStandings(any(), anyBoolean());
+    verify(mockRace).updateAndBroadcastOverallStandings();
+    verify(res).setStatus(200);
   }
 
   @Test
@@ -1202,12 +1220,17 @@ public class ClientCommandTaskHandlerTest {
   }
 
   @Test
-  public void testUpdateBatchUserLaps_Fail_NotStarted() throws Exception {
+  public void testUpdateBatchUserLaps_Success_NotStarted() throws Exception {
     com.antigravity.race.Race mockRace = mock(com.antigravity.race.Race.class);
     com.antigravity.race.Heat mockHeat1 = mock(com.antigravity.race.Heat.class);
+    DriverHeatData mockDhd1 = mock(DriverHeatData.class);
+    com.antigravity.models.Race mockRaceModel = mock(com.antigravity.models.Race.class);
+
     when(mockRace.getHeats()).thenReturn(Arrays.asList(mockHeat1));
     when(mockHeat1.getHeatNumber()).thenReturn(1);
+    when(mockHeat1.getDrivers()).thenReturn(Arrays.asList(mockDhd1));
     when(mockHeat1.isStarted()).thenReturn(false); // Unstarted
+    when(mockRace.getRaceModel()).thenReturn(mockRaceModel);
 
     ClientSubscriptionManager.getInstance().setRace(mockRace);
 
@@ -1229,7 +1252,10 @@ public class ClientCommandTaskHandlerTest {
     m.setAccessible(true);
     m.invoke(handler, ctx);
 
-    verify(res).setStatus(400);
+    verify(mockDhd1).setUserLaps(1.5);
+    verify(mockHeat1).initializeStandings(any(), anyBoolean());
+    verify(mockRace).updateAndBroadcastOverallStandings();
+    verify(res).setStatus(200);
   }
 
   @Test

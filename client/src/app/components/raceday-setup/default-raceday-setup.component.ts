@@ -118,6 +118,8 @@ export class DefaultRacedaySetupComponent implements OnInit {
   isEventDropdownOpen: boolean = false;
   isOptionsDropdownOpen: boolean = false;
   isFileDropdownOpen: boolean = false;
+  isMac: boolean = false;
+  quitShortcut: string = "Alt+F4";
   showLoadRaceModal: boolean = false;
   showAutoSavePrompt: boolean = false;
   autoSaveFileToLoad: string | null = null;
@@ -407,6 +409,44 @@ export class DefaultRacedaySetupComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+
+    this.detectShortcutKey();
+  }
+
+  detectShortcutKey() {
+    if (typeof navigator !== "undefined") {
+      this.isMac =
+        navigator.platform?.toUpperCase().indexOf("MAC") >= 0 ||
+        navigator.userAgent?.toUpperCase().indexOf("MAC") >= 0;
+      this.quitShortcut = this.isMac ? "Cmd+Q" : "Alt+F4";
+    }
+  }
+
+  @HostListener("window:keydown", ["$event"])
+  onKeyDown(event: KeyboardEvent) {
+    const inInputField =
+      document.activeElement &&
+      (document.activeElement.tagName === "INPUT" ||
+        document.activeElement.tagName === "TEXTAREA");
+
+    if (inInputField) {
+      return;
+    }
+
+    if (this.isMac) {
+      if (event.metaKey && (event.key === "q" || event.key === "Q")) {
+        event.preventDefault();
+        this.quit();
+      }
+    } else {
+      if (
+        (event.altKey && event.key === "F4") ||
+        (event.ctrlKey && (event.key === "q" || event.key === "Q"))
+      ) {
+        event.preventDefault();
+        this.quit();
+      }
+    }
   }
 
   @HostListener("window:resize")
@@ -1412,6 +1452,15 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   closeFileDropdown() {
     this.isFileDropdownOpen = false;
+  }
+
+  quit() {
+    this.closeFileDropdown();
+    this.closeWindow();
+  }
+
+  closeWindow() {
+    window.close();
   }
 
   exportSettings() {

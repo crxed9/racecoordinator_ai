@@ -75,7 +75,7 @@ describe("AboutDialogComponent", () => {
     expect(await harness.isCharityTabVisible()).toBeTrue();
 
     const expectedDonateUrl =
-      "https://www.paypal.com/donate?token=L6PFPbwF0z3WOF-qIijTS_MSQjLtTCmiYlq3ObTaqvLhwrKUPo0faql9Qpk9QJ6NolQESAXw0l8YCUKn&locale.x=US";
+      "https://www.paypal.com/donate/?business=daufderh@hotmail.com&currency_code=USD";
     expect(component.donateUrl).toBe(expectedDonateUrl);
     expect(await harness.getDonateLinkHref()).toBe(expectedDonateUrl);
   });

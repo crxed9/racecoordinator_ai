@@ -301,6 +301,7 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
   }
 
   onDeviceSelectChange(key: string) {
+    this.status = "DISCONNECTED";
     const selected = this.devices.find((d) => this.getDeviceKey(d) === key);
     const c = this.config();
     if (selected && c) {
@@ -332,6 +333,21 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
     }
   }
 
+  isDeviceSelected(): boolean {
+    const c = this.config();
+    return !!(
+      (this.selectedDeviceKeyStr && this.selectedDeviceKeyStr !== "") ||
+      (c && c.serialNumber && c.serialNumber > 0)
+    );
+  }
+
+  get isConfiguredDeviceDisconnected(): boolean {
+    const c = this.config();
+    if (!c || !c.serialNumber || c.serialNumber <= 0) return false;
+    const key = this.getDeviceKey(c);
+    return !this.devices.some((d) => this.getDeviceKey(d) === key);
+  }
+
   getCapabilities(): {
     digitalInputs: number;
     digitalOutputs: number;
@@ -348,14 +364,7 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
     if (inCount === 0 && outCount === 0 && analogCount === 0) {
       const name = selected?.name || c?.name || "";
       const match = name.match(/(\d+)\/(\d+)\/(\d+)/);
-      if (match) {
-        inCount = parseInt(match[1], 10);
-        outCount = parseInt(match[2], 10);
-        analogCount = parseInt(match[3], 10);
-      } else if (
-        name.includes("0/0/4") ||
-        name.toLowerCase().includes("1014")
-      ) {
+      if (name.includes("0/0/4") || name.toLowerCase().includes("1014")) {
         inCount = 0;
         outCount = 4;
         analogCount = 0;
@@ -366,21 +375,25 @@ export class PhidgetEditorComponent implements OnInit, OnDestroy {
         inCount = 8;
         outCount = 8;
         analogCount = 8;
-      } else {
-        inCount = this.getHighestAssignedIndex(c?.digitalInIds) + 1;
-        outCount = this.getHighestAssignedIndex(c?.digitalOutIds) + 1;
-        analogCount = this.getHighestAssignedIndex(c?.analogIds) + 1;
-        if (inCount === 0 && outCount === 0 && analogCount === 0) {
-          inCount = 8;
-          outCount = 8;
-          analogCount = 8;
-        }
+      } else if (match) {
+        inCount = parseInt(match[1], 10);
+        outCount = parseInt(match[2], 10);
+        analogCount = parseInt(match[3], 10);
+      } else if (this.isDeviceSelected()) {
+        inCount = 8;
+        outCount = 8;
+        analogCount = 8;
       }
     }
+
+    const assignedIn = this.getHighestAssignedIndex(c?.digitalInIds) + 1;
+    const assignedOut = this.getHighestAssignedIndex(c?.digitalOutIds) + 1;
+    const assignedAnalog = this.getHighestAssignedIndex(c?.analogIds) + 1;
+
     return {
-      digitalInputs: inCount,
-      digitalOutputs: outCount,
-      analogInputs: analogCount,
+      digitalInputs: Math.max(inCount, assignedIn),
+      digitalOutputs: Math.max(outCount, assignedOut),
+      analogInputs: Math.max(analogCount, assignedAnalog),
     };
   }
 

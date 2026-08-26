@@ -77,6 +77,7 @@ public class PhidgetProtocol extends DefaultProtocol {
   private volatile PhidgetConfig config;
   private volatile boolean opened = false;
   private volatile boolean attached = false;
+  private volatile boolean managerDeviceAttached = false;
   private final java.util.concurrent.atomic.AtomicInteger attachedChannelCount =
       new java.util.concurrent.atomic.AtomicInteger(0);
 
@@ -101,6 +102,19 @@ public class PhidgetProtocol extends DefaultProtocol {
 
   public PhidgetConfig getConfig() {
     return config;
+  }
+
+  private boolean matchesDevice(com.phidget22.Phidget p) {
+    if (config == null || config.serialNumber <= 0 || p == null) return false;
+    try {
+      if (p.getDeviceSerialNumber() != config.serialNumber) return false;
+      if (config.isHubPort) {
+        return p.getIsHubPortDevice() && p.getHubPort() == config.hubPort;
+      }
+      return true;
+    } catch (Throwable t) {
+      return false;
+    }
   }
 
   public synchronized void updateConfig(PhidgetConfig newConfig) {
@@ -161,7 +175,7 @@ public class PhidgetProtocol extends DefaultProtocol {
   }
 
   @Override
-  protected boolean hasPitInConfigured(int laneIndex) {
+  public boolean hasPitInConfigured(int laneIndex) {
     if (config != null && config.lapPinPitBehavior != null) {
       if (config.lapPinPitBehavior == LapPinPitBehavior.PIT_IN
           || config.lapPinPitBehavior == LapPinPitBehavior.PIT_IN_OUT) {
@@ -224,6 +238,36 @@ public class PhidgetProtocol extends DefaultProtocol {
     }
     try {
       keepAliveManager = new com.phidget22.Manager();
+      keepAliveManager.addAttachListener(
+          e -> {
+            try {
+              com.phidget22.Phidget p = e.getChannel();
+              if (matchesDevice(p)) {
+                logger.info(
+                    "Manager detected attach for Phidget device serial {}",
+                    config != null ? config.serialNumber : 0);
+                managerDeviceAttached = true;
+                checkAttachmentStatus();
+              }
+            } catch (Throwable t) {
+              logger.warn("Error in Phidget manager attach listener", t);
+            }
+          });
+      keepAliveManager.addDetachListener(
+          e -> {
+            try {
+              com.phidget22.Phidget p = e.getChannel();
+              if (matchesDevice(p)) {
+                logger.info(
+                    "Manager detected detach for Phidget device serial {}",
+                    config != null ? config.serialNumber : 0);
+                managerDeviceAttached = false;
+                checkAttachmentStatus();
+              }
+            } catch (Throwable t) {
+              logger.warn("Error in Phidget manager detach listener", t);
+            }
+          });
       keepAliveManager.open();
     } catch (Throwable e) {
       logger.warn("Failed to open keepAliveManager for Phidgets", e);
@@ -294,10 +338,8 @@ public class PhidgetProtocol extends DefaultProtocol {
   }
 
   private synchronized void checkAttachmentStatus() {
-    boolean anyAttached = attachedChannelCount.get() > 0 || isAnyChannelAttached();
-    if (!hasConfiguredPins()) {
-      anyAttached = anyAttached || opened;
-    }
+    boolean anyAttached =
+        attachedChannelCount.get() > 0 || isAnyChannelAttached() || managerDeviceAttached;
 
     boolean wasAttached = this.attached;
     this.attached = anyAttached;
@@ -314,35 +356,22 @@ public class PhidgetProtocol extends DefaultProtocol {
         analogInputs.size());
 
     if (this.opened && listener != null) {
-      if (isHealthy()) {
-        if (!wasAttached) {
-          syncPower();
-          syncAnalogLeds();
-        }
-        InterfaceStatus status = InterfaceStatus.CONNECTED;
-        InterfaceStatusEvent statusEvent =
-            InterfaceStatusEvent.newBuilder()
-                .setStatus(status)
-                .setInterfaceIndex(getInterfaceIndex())
-                .setDetectedChannels(getDetectedChannels())
-                .setSupportsRgbLeds(supportsRgbLeds())
-                .setVersion(getVersion() != null ? getVersion() : "")
-                .build();
-        listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
-        listener.onInterfaceStatus(status, getInterfaceIndex());
-      } else if (wasAttached) {
-        InterfaceStatus status = InterfaceStatus.DISCONNECTED;
-        InterfaceStatusEvent statusEvent =
-            InterfaceStatusEvent.newBuilder()
-                .setStatus(status)
-                .setInterfaceIndex(getInterfaceIndex())
-                .setDetectedChannels(getDetectedChannels())
-                .setSupportsRgbLeds(supportsRgbLeds())
-                .setVersion(getVersion() != null ? getVersion() : "")
-                .build();
-        listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
-        listener.onInterfaceStatus(status, getInterfaceIndex());
+      InterfaceStatus status =
+          isHealthy() ? InterfaceStatus.CONNECTED : InterfaceStatus.DISCONNECTED;
+      if (isHealthy() && !wasAttached) {
+        syncPower();
+        syncAnalogLeds();
       }
+      InterfaceStatusEvent statusEvent =
+          InterfaceStatusEvent.newBuilder()
+              .setStatus(status)
+              .setInterfaceIndex(getInterfaceIndex())
+              .setDetectedChannels(getDetectedChannels())
+              .setSupportsRgbLeds(supportsRgbLeds())
+              .setVersion(getVersion() != null ? getVersion() : "")
+              .build();
+      listener.onInterfaceEvent(InterfaceEvent.newBuilder().setStatus(statusEvent).build());
+      listener.onInterfaceStatus(status, getInterfaceIndex());
     }
   }
 
@@ -673,6 +702,8 @@ public class PhidgetProtocol extends DefaultProtocol {
   public synchronized void close() {
     opened = false;
     attached = false;
+    managerDeviceAttached = false;
+    attachedChannelCount.set(0);
     stopStatusScheduler();
 
     if (keepAliveManager != null) {
@@ -1027,7 +1058,7 @@ public class PhidgetProtocol extends DefaultProtocol {
 
   @Override
   public boolean isConnected() {
-    return opened && config != null && config.serialNumber > 0;
+    return opened && attached && config != null && config.serialNumber > 0;
   }
 
   @Override
