@@ -62,10 +62,10 @@ test.describe("UI Editor Visuals", () => {
 
     // Expand the custom theme section (2nd theme)
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    const customExpander = customThemeSection.locator(".expander-icon").first();
-    await customExpander.waitFor({ state: "visible" });
-    await customExpander.scrollIntoViewIfNeeded();
-    await customExpander.click();
+    const customHeader = customThemeSection.locator(".section-header").first();
+    await customHeader.waitFor({ state: "visible" });
+    await customHeader.scrollIntoViewIfNeeded();
+    await customHeader.click();
 
     // Wait for flags grid to be visible and rendered
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -118,10 +118,10 @@ test.describe("UI Editor Visuals", () => {
 
     // Expand Custom Theme
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    const customExpander = customThemeSection.locator(".expander-icon").first();
-    await customExpander.waitFor({ state: "visible" });
-    await customExpander.scrollIntoViewIfNeeded();
-    await customExpander.click();
+    const customHeader = customThemeSection.locator(".section-header").first();
+    await customHeader.waitFor({ state: "visible" });
+    await customHeader.scrollIntoViewIfNeeded();
+    await customHeader.click();
 
     // Wait for the flag images grid to be rendered before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -145,9 +145,7 @@ test.describe("UI Editor Visuals", () => {
 
     // Clear hover/focus and scroll into view
     await page.mouse.move(0, 0);
-    const sectionHeader = customThemeSection.locator(".section-header").first();
-    await sectionHeader.waitFor({ state: "visible" });
-    await sectionHeader.scrollIntoViewIfNeeded();
+    await customHeader.scrollIntoViewIfNeeded();
     await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-duplicate-name-error.png", {
@@ -172,10 +170,10 @@ test.describe("UI Editor Visuals", () => {
 
     // Expand Custom Theme and set duplicate theme name to make changes invalid and unsavable
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    const customExpander = customThemeSection.locator(".expander-icon").first();
-    await customExpander.waitFor({ state: "visible" });
-    await customExpander.scrollIntoViewIfNeeded();
-    await customExpander.click();
+    const customHeader = customThemeSection.locator(".section-header").first();
+    await customHeader.waitFor({ state: "visible" });
+    await customHeader.scrollIntoViewIfNeeded();
+    await customHeader.click();
 
     // Wait for flag grid to render before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -346,10 +344,10 @@ test.describe("UI Editor Visuals", () => {
 
     // Expand Custom Theme (2nd theme sub-section)
     const customThemeSection = page.locator(".theme-sub-section").nth(1);
-    const customExpander = customThemeSection.locator(".expander-icon").first();
-    await customExpander.waitFor({ state: "visible" });
-    await customExpander.scrollIntoViewIfNeeded();
-    await customExpander.click();
+    const customHeader = customThemeSection.locator(".section-header").first();
+    await customHeader.waitFor({ state: "visible" });
+    await customHeader.scrollIntoViewIfNeeded();
+    await customHeader.click();
 
     // Wait for the flag images grid to be rendered
     const flagGrid = customThemeSection.locator(".flags-grid");

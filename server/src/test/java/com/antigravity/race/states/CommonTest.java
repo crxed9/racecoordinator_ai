@@ -81,4 +81,93 @@ public class CommonTest {
     verify(race, never()).prepareHeat();
     verify(race, never()).broadcast(any());
   }
+
+  @Test
+  public void testHandleDriftLap_NullRaceOrModel() {
+    assertFalse(Common.handleDriftLap(null, System.currentTimeMillis(), "State", 0, 5.0, 1, null));
+
+    Race race = mock(Race.class);
+    when(race.getRaceModel()).thenReturn(null);
+    assertFalse(Common.handleDriftLap(race, System.currentTimeMillis(), "State", 0, 5.0, 1, null));
+  }
+
+  @Test
+  public void testHandleDriftLap_ZeroDriftTime() {
+    Race race = mock(Race.class);
+    com.antigravity.models.Race model =
+        new com.antigravity.models.Race.Builder().withDriftTime(0.0).build();
+    when(race.getRaceModel()).thenReturn(model);
+
+    assertFalse(Common.handleDriftLap(race, System.currentTimeMillis(), "State", 0, 5.0, 1, null));
+  }
+
+  @Test
+  public void testHandleDriftLap_ExpiredDriftTime() {
+    Race race = mock(Race.class);
+    com.antigravity.models.Race model =
+        new com.antigravity.models.Race.Builder().withDriftTime(0.01).build();
+    when(race.getRaceModel()).thenReturn(model);
+
+    long pastStartTime = System.currentTimeMillis() - 50;
+    assertFalse(Common.handleDriftLap(race, pastStartTime, "State", 0, 5.0, 1, null));
+  }
+
+  @Test
+  public void testHandleDriftLap_WithinDriftWindow_SuccessWithCallback() {
+    Race race = mock(Race.class);
+    com.antigravity.models.Race model =
+        new com.antigravity.models.Race.Builder().withDriftTime(1.0).build();
+    when(race.getRaceModel()).thenReturn(model);
+
+    com.antigravity.race.HeatExecutionManager hem =
+        mock(com.antigravity.race.HeatExecutionManager.class);
+    when(race.getHeatExecutionManager()).thenReturn(hem);
+    when(hem.onLap(0, 5.0, 1, false, true, true)).thenReturn(true);
+
+    boolean[] callbackRan = new boolean[] {false};
+    boolean result =
+        Common.handleDriftLap(
+            race,
+            System.currentTimeMillis(),
+            "State",
+            0,
+            5.0,
+            1,
+            () -> {
+              callbackRan[0] = true;
+            });
+
+    assertTrue(result);
+    assertTrue(callbackRan[0]);
+    verify(hem).onLap(0, 5.0, 1, false, true, true);
+  }
+
+  @Test
+  public void testHandleDriftLap_WithinDriftWindow_UncountedDoesNotRunCallback() {
+    Race race = mock(Race.class);
+    com.antigravity.models.Race model =
+        new com.antigravity.models.Race.Builder().withDriftTime(1.0).build();
+    when(race.getRaceModel()).thenReturn(model);
+
+    com.antigravity.race.HeatExecutionManager hem =
+        mock(com.antigravity.race.HeatExecutionManager.class);
+    when(race.getHeatExecutionManager()).thenReturn(hem);
+    when(hem.onLap(0, 5.0, 1, false, true, true)).thenReturn(false);
+
+    boolean[] callbackRan = new boolean[] {false};
+    boolean result =
+        Common.handleDriftLap(
+            race,
+            System.currentTimeMillis(),
+            "State",
+            0,
+            5.0,
+            1,
+            () -> {
+              callbackRan[0] = true;
+            });
+
+    assertFalse(result);
+    assertFalse(callbackRan[0]);
+  }
 }
