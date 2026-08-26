@@ -98,6 +98,18 @@
   border-bottom: none;
 }
 
+.setup-menu-dropdown-item.has-shortcut {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.setup-menu-shortcut {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-left: 20px;
+}
+
 .setup-menu-dropdown-divider {
   border: none;
   height: 1px;

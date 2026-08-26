@@ -84,6 +84,14 @@
               >
                 {{ "RDS_MENU_IMPORT_SETTINGS" | translate }}
               </div>
+              <hr class="setup-menu-dropdown-divider" />
+              <div
+                class="setup-menu-dropdown-item has-shortcut"
+                (click)="quit()"
+              >
+                <span>{{ "RDS_MENU_QUIT" | translate }}</span>
+                <span class="setup-menu-shortcut">{{ quitShortcut }}</span>
+              </div>
             </div>
           }
           <input
