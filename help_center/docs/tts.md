@@ -10,7 +10,7 @@ Interpolation is **case-insensitive**, meaning `{driver.lastLapTime}` and `{DRIV
 
 ## Available Variables
 
-The following variables are available in the TTS context during a race (e.g., when a lap is recorded):
+The following variables are available in the TTS context during a race (e.g., when a lap or event is recorded):
 
 | Variable Path | Description |
 | :--- | :--- |
@@ -25,17 +25,18 @@ The following variables are available in the TTS context during a race (e.g., wh
 
 ### Numbers
 Numerical values (such as lap times) are automatically formatted for speech:
-*   **Integers**: Spoken as-is.
-*   **Decimals**: Automatically rounded/formatted to **3 decimal places** (e.g., `5.432`).
+*   **Integers**: Spoken as-is (e.g., `10`).
+*   **Decimals**: Automatically rounded and formatted to **3 decimal places** (e.g., `5.432`).
 
 ## Examples
 
-| TTS String | Output (Example) |
+| TTS String | Spoken Output (Example) |
 | :--- | :--- |
 | `{driver.nickname} lap time {driver.lastLapTime}` | "Speedy lap time five point four three two" |
 | `Fastest lap for {driver.name}` | "Fastest lap for John Doe" |
 | `{driver.nickname} is on lap {driver.lapCount}` | "Speedy is on lap ten" |
+| `Min lap time for {{driver.nickname}}` | "Min lap time for Speedy" |
 
 ## Implementation Details
 
-The interpolation logic is handled on the client side in `client/src/app/utils/audio.ts`. It uses a standard regular expression to identify and replace placeholders before passing the final string to the browser's `speechSynthesis` API.
+The interpolation logic is handled on the client side using the browser's Web Speech API (`speechSynthesis`). Unresolved placeholders are left untouched in the text.
