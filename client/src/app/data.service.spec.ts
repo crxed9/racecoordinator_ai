@@ -222,7 +222,10 @@ describe("DataService", () => {
             expect(updated.name).toBe("Season 2026");
             service.deleteSeason("s1").subscribe((del) => {
               expect(del.success).toBeTrue();
-              done();
+              service.getSeasonStandings("s1").subscribe((st) => {
+                expect(st.length).toBe(1);
+                done();
+              });
             });
           });
         });
@@ -248,6 +251,12 @@ describe("DataService", () => {
     const req5 = httpMock.expectOne((r) => r.url.endsWith("/api/seasons/s1"));
     expect(req5.request.method).toBe("DELETE");
     req5.flush({ success: true });
+
+    const req6 = httpMock.expectOne((r) =>
+      r.url.endsWith("/api/seasons/s1/standings"),
+    );
+    expect(req6.request.method).toBe("GET");
+    req6.flush([{ driver_id: "d1", driver_name: "Driver 1", net_points: 25 }]);
   });
 
   it("should call race control protobuf endpoints (start, pause, end, abort, nextHeat, restartHeat, skipHeat, skipRace)", (done) => {

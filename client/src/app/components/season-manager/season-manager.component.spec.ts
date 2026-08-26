@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { of } from "rxjs";
+import { SeasonSummaryComponent } from "@app/components/shared/season-summary/season-summary.component";
 import { DataService } from "@app/data.service";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { ConnectionMonitorService } from "@app/services/connection-monitor.service";
@@ -37,6 +38,7 @@ describe("SeasonManagerComponent", () => {
       getSeasons: () => of([]),
       getAllFinishedRaceHistory: () => of([]),
       deleteSeason: () => of({}),
+      getSeasonStandings: () => of([]),
     };
 
     const mockConnectionMonitorService = {
@@ -52,6 +54,7 @@ describe("SeasonManagerComponent", () => {
     await TestBed.configureTestingModule({
       imports: [
         SeasonManagerComponent,
+        SeasonSummaryComponent,
         FormsModule,
         TranslatePipe,
         DecimalPipe,
@@ -80,6 +83,7 @@ describe("SeasonManagerComponent", () => {
         set: {
           imports: [
             MockManagerHeaderComponent,
+            SeasonSummaryComponent,
             TranslatePipe,
             DecimalPipe,
             FormsModule,

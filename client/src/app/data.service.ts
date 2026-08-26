@@ -12,7 +12,7 @@ import {
 } from "rxjs";
 import { catchError, map } from "rxjs/operators";
 import { Event } from "@app/models/event";
-import { Season } from "@app/models/season";
+import { Season, SeasonStandingItem } from "@app/models/season";
 import {
   ArduinoConfig,
   BartConfig,
@@ -293,6 +293,12 @@ export class DataService {
 
   deleteSeason(id: string): Observable<any> {
     return this.http.delete<any>(`${this.seasonsUrl}/${id}`);
+  }
+
+  getSeasonStandings(id: string): Observable<SeasonStandingItem[]> {
+    return this.http.get<SeasonStandingItem[]>(
+      `${this.seasonsUrl}/${id}/standings`,
+    );
   }
 
   getRaceHistory(isDemo?: boolean): Observable<any[]> {

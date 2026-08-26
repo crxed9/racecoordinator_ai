@@ -30,17 +30,20 @@ test.describe("UI Editor Visuals", () => {
       "en",
       page.goto("/ui-editor"),
     );
-    await page.locator(".ue-container").waitFor({ state: "visible" });
-
     const editor = page.locator(".ue-container");
-    const _harness = new UIEditorHarnessE2e(editor);
-
-    // Wait for the UI editor container to be visible
     await editor.waitFor({ state: "visible" });
+
+    const _harness = new UIEditorHarnessE2e(editor);
+    const previewContainer = page.locator(".raceday-preview-container").first();
+    await previewContainer.waitFor({ state: "visible" });
+    await TestSetupHelper.waitForImagesLoaded(editor);
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-page.png", {
       maxDiffPixelRatio: 0.05,
       maxDiffPixels: 10000,
+      animations: "disabled",
     });
   });
 
@@ -64,20 +67,30 @@ test.describe("UI Editor Visuals", () => {
     await customExpander.scrollIntoViewIfNeeded();
     await customExpander.click();
 
-    // Wait for flags grid to be visible
+    // Wait for flags grid to be visible and rendered
     const flagGrid = customThemeSection.locator(".flags-grid");
     await flagGrid.waitFor({ state: "visible" });
+    await flagGrid
+      .locator("app-image-selector")
+      .nth(11)
+      .waitFor({ state: "attached" });
+    await TestSetupHelper.waitForImagesLoaded(customThemeSection);
 
     // Click 1st flag preview of custom theme
-    await customThemeSection
+    const firstFlagPreview = customThemeSection
       .locator("app-image-selector .image-preview")
-      .first()
-      .click({ force: true });
+      .first();
+    await firstFlagPreview.waitFor({ state: "visible" });
+    await firstFlagPreview.scrollIntoViewIfNeeded();
+    await firstFlagPreview.click();
 
     // Wait for image selector modal to be visible
-    const itemSelector = page.locator("app-item-selector");
-    const modalContent = itemSelector.locator(".modal-content");
+    const modalContent = page.locator("app-item-selector .modal-content");
     await modalContent.waitFor({ state: "visible" });
+    await modalContent
+      .locator(".item-card")
+      .first()
+      .waitFor({ state: "visible" });
     await TestSetupHelper.waitForImagesLoaded(modalContent);
     await page.mouse.move(0, 0);
     await page.waitForTimeout(300);
@@ -113,6 +126,10 @@ test.describe("UI Editor Visuals", () => {
     // Wait for the flag images grid to be rendered before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
     await flagGrid.waitFor({ state: "visible" });
+    await flagGrid
+      .locator("app-image-selector")
+      .nth(11)
+      .waitFor({ state: "attached" });
     await TestSetupHelper.waitForImagesLoaded(customThemeSection);
 
     // Set duplicate name (Default Theme)
@@ -163,6 +180,10 @@ test.describe("UI Editor Visuals", () => {
     // Wait for flag grid to render before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
     await flagGrid.waitFor({ state: "visible" });
+    await flagGrid
+      .locator("app-image-selector")
+      .nth(11)
+      .waitFor({ state: "attached" });
     await TestSetupHelper.waitForImagesLoaded(customThemeSection);
 
     const themeInput = customThemeSection.locator(".theme-name-input").first();
@@ -188,12 +209,10 @@ test.describe("UI Editor Visuals", () => {
     });
 
     // Wait for confirmation modal backdrop and content to be visible
-    const modal = page.locator(
-      "app-confirmation-modal[title='UE_CONFIRM_DISCARD_TITLE']",
-    );
-    const modalContent = modal.locator(".modal-content");
+    const modalContent = page.locator("app-confirmation-modal .modal-content");
     await modalContent.waitFor({ state: "visible" });
     await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
 
     await expect(modalContent).toHaveScreenshot(
       "ui-editor-discard-confirm.png",
@@ -408,10 +427,15 @@ test.describe("UI Editor Visuals", () => {
 
     const header = page.locator("app-editor-title");
     await header.waitFor({ state: "visible" });
+    const editor = page.locator(".ue-container");
+    await TestSetupHelper.waitForImagesLoaded(editor);
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-fullscreen.png", {
       maxDiffPixelRatio: 0.05,
       maxDiffPixels: 10000,
+      animations: "disabled",
     });
   });
 
@@ -427,12 +451,24 @@ test.describe("UI Editor Visuals", () => {
       "en",
       page.goto("/ui-editor"),
     );
-    await page.locator(".ue-container").waitFor({ state: "visible" });
-    await page.locator(".sections-wrapper").waitFor({ state: "visible" });
+    const editor = page.locator(".ue-container");
+    await editor.waitFor({ state: "visible" });
+    const sectionsWrapper = page.locator(".sections-wrapper");
+    await sectionsWrapper.waitFor({ state: "visible" });
+
+    const previewContainer = page.locator(".raceday-preview-container").first();
+    await previewContainer.waitFor({ state: "visible" });
+    const previewScaler = page.locator(".raceday-preview-scaler").first();
+    await previewScaler.waitFor({ state: "visible" });
+
+    await TestSetupHelper.waitForImagesLoaded(editor);
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-force-fit-screen.png", {
       maxDiffPixelRatio: 0.05,
       maxDiffPixels: 10000,
+      animations: "disabled",
     });
   });
 });

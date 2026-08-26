@@ -1242,10 +1242,11 @@
 
 .event-details-card.season-summary-card {
   flex: 1;
-  min-height: 60px;
+  min-height: 320px;
   max-height: none;
   margin-bottom: 12px;
   overflow: hidden;
+  padding: 12px 16px;
 }
 
 .event-details-card.season-summary-card.empty-season-card {
@@ -1254,12 +1255,6 @@
   align-items: center;
   min-height: 60px;
   max-height: none;
-}
-
-.season-summary-card .event-races-summary {
-  flex: 1;
-  max-height: none;
-  overflow-y: auto;
 }
 
 .event-detail-header {

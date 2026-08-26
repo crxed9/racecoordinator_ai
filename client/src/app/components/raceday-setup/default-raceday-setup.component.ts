@@ -26,16 +26,13 @@ import { ConfirmationModalComponent } from "@app/components/shared/confirmation-
 import { DemoConfigModalComponent } from "@app/components/shared/demo-config-modal/demo-config-modal.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import { LanguageSelectorComponent } from "@app/components/shared/language-selector/language-selector.component";
+import { SeasonSummaryComponent } from "@app/components/shared/season-summary/season-summary.component";
 import { UpdateSelectorComponent } from "@app/components/shared/update-selector/update-selector.component";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
 import { Event as EventModel } from "@app/models/event";
 import { Race } from "@app/models/race";
-import {
-  Season,
-  SeasonStandingDetail,
-  SeasonStandingItem,
-} from "@app/models/season";
+import { Season, SeasonStandingItem } from "@app/models/season";
 import { Settings } from "@app/models/settings";
 import { Team } from "@app/models/team";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
@@ -49,6 +46,7 @@ import { RaceService } from "@app/services/race.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
+import { calculateSeasonStandings } from "@app/utils/season.utils";
 import { naturalSortCompare } from "@app/utils/sorting.utils";
 
 interface ISavedRace {
@@ -74,6 +72,7 @@ type Participant = Driver | Team;
     ConfirmationModalComponent,
     AcknowledgementModalComponent,
     DemoConfigModalComponent,
+    SeasonSummaryComponent,
     TranslatePipe,
     EditorTitleComponent,
     LanguageSelectorComponent,
@@ -1581,99 +1580,43 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   onSeasonChange() {
     this.calculateSeasonStandings();
+    if (this.selectedSeason?.entity_id) {
+      this.dataService
+        .getSeasonStandings(this.selectedSeason.entity_id)
+        .subscribe({
+          next: (standings) => {
+            this.seasonStandings = standings;
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.logger.warn("Failed to fetch season standings", err);
+          },
+        });
+    }
     this.saveSettings();
   }
 
   selectSeason(season?: Season) {
     this.selectedSeason = season;
     this.calculateSeasonStandings();
+    if (season?.entity_id) {
+      this.dataService.getSeasonStandings(season.entity_id).subscribe({
+        next: (standings) => {
+          if (this.selectedSeason?.entity_id === season.entity_id) {
+            this.seasonStandings = standings;
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err) => {
+          this.logger.warn("Failed to fetch season standings", err);
+        },
+      });
+    }
     this.saveSettings();
   }
 
   calculateSeasonStandings(): void {
-    if (
-      !this.selectedSeason ||
-      !this.selectedSeason.races ||
-      this.selectedSeason.races.length === 0
-    ) {
-      this.seasonStandings = [];
-      return;
-    }
-
-    const season = this.selectedSeason;
-    const racesCopy = [...(season.races || [])].sort(
-      (a, b) => (a.timestamp || 0) - (b.timestamp || 0),
-    );
-
-    const driverMap = new Map<
-      string,
-      { driver_name: string; scores: SeasonStandingDetail[] }
-    >();
-
-    for (const race of racesCopy) {
-      if (!race.driver_results) continue;
-      for (const res of race.driver_results) {
-        let entry = driverMap.get(res.driver_id);
-        if (!entry) {
-          entry = { driver_name: res.driver_name, scores: [] };
-          driverMap.set(res.driver_id, entry);
-        }
-        entry.scores.push({
-          race_id: race.race_id,
-          race_name: race.race_name,
-          overall_rank: res.overall_rank,
-          overall_points: res.overall_points,
-          heat_points: res.heat_points,
-          total_points: res.total_points,
-          is_dropped: false,
-        });
-      }
-    }
-
-    const result: SeasonStandingItem[] = [];
-
-    driverMap.forEach((entry, driverId) => {
-      const scores = entry.scores;
-      const drops = season.drops || 0;
-      const racesRun = scores.length;
-
-      if (racesRun > drops && drops > 0) {
-        const sortedIndices = scores
-          .map((s, idx) => ({ total: s.total_points, idx }))
-          .sort((a, b) => a.total - b.total);
-
-        for (let i = 0; i < drops; i++) {
-          scores[sortedIndices[i].idx].is_dropped = true;
-        }
-      }
-
-      let net = 0;
-      let gross = 0;
-      for (const s of scores) {
-        gross += s.total_points;
-        if (!s.is_dropped) {
-          net += s.total_points;
-        }
-      }
-
-      result.push({
-        driver_id: driverId,
-        driver_name: entry.driver_name,
-        net_points: net,
-        gross_points: gross,
-        races_run: racesRun,
-        race_scores: scores,
-      });
-    });
-
-    result.sort((a, b) => {
-      if (b.net_points !== a.net_points) return b.net_points - a.net_points;
-      if (b.gross_points !== a.gross_points)
-        return b.gross_points - a.gross_points;
-      return b.races_run - a.races_run;
-    });
-
-    this.seasonStandings = result;
+    this.seasonStandings = calculateSeasonStandings(this.selectedSeason);
   }
 
   compareSeasons(s1?: Season, s2?: Season): boolean {

@@ -50,3 +50,8 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 ## Conventional Commit Message Discipline
 - **Use supported conventional commit prefixes**: All git commit messages must use supported conventional prefixes (`feat:`, `fix:`, `refactor:`, `perf:`, `docs:`, `test:`, `chore:`, `ci:`, `style:`, `build:`), optional scopes (e.g. `feat(phidget): ...`), and concise descriptions to ensure automated release changelog generation remains accurate and clean.
 
+## Server-Side Calculations & Single Source of Truth
+- **All calculations performed on the server**: All calculations with very few if any exceptions should be done on the server. The client should get calculations from the server and display them.
+- **Calculations scope**: Calculations include overall/heat standings, average lap times, median lap times, gaps, probabilities, etc.
+- **Server as single source of truth**: The server is the authoritative source of truth and the client is strictly a display layer.
+
