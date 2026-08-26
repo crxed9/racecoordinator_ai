@@ -147,6 +147,38 @@ describe("DefaultSeasonResultsComponent", () => {
     expect(component.isRaceExpanded("r1")).toBeFalse();
   });
 
+  it("should toggle race expansion independently for multiple runs of same race", () => {
+    const race1 = {
+      race_id: "race_template_1",
+      race_name: "Club Sprint",
+      timestamp: 1000,
+      driver_results: [],
+    };
+    const race2 = {
+      race_id: "race_template_1",
+      race_name: "Club Sprint",
+      timestamp: 2000,
+      driver_results: [],
+    };
+    component.season = {
+      name: "Season 1",
+      drops: 0,
+      races: [race1, race2],
+    };
+    fixture.detectChanges();
+
+    expect(component.isRaceExpanded(race1, 0)).toBeFalse();
+    expect(component.isRaceExpanded(race2, 1)).toBeFalse();
+
+    component.toggleRaceExpanded(race1, 0);
+    expect(component.isRaceExpanded(race1, 0)).toBeTrue();
+    expect(component.isRaceExpanded(race2, 1)).toBeFalse();
+
+    component.toggleRaceExpanded(race2, 1);
+    expect(component.isRaceExpanded(race1, 0)).toBeTrue();
+    expect(component.isRaceExpanded(race2, 1)).toBeTrue();
+  });
+
   it("should calculate drop races correctly when races run exceed drops", () => {
     component.season = {
       name: "Drop Test Season",
