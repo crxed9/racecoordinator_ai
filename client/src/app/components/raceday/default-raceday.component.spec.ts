@@ -5914,4 +5914,61 @@ describe("DefaultRacedayComponent", () => {
       expect(component.isPacingProperty("")).toBe(false);
     });
   });
+
+  describe("Save Race Dialog", () => {
+    it("should open save dialog with race name when saveRace is called", () => {
+      spyOnProperty(component, "isSaveDisabled", "get").and.returnValue(false);
+      (component as any).race = { name: "Test Championship" };
+      component.saveRace();
+
+      expect(component.showSaveRaceDialog).toBeTrue();
+      expect(component.saveRaceName).toBe("Test Championship");
+    });
+
+    it("should not open save dialog if save is disabled", () => {
+      spyOnProperty(component, "isSaveDisabled", "get").and.returnValue(true);
+      component.showSaveRaceDialog = false;
+      component.saveRace();
+
+      expect(component.showSaveRaceDialog).toBeFalse();
+    });
+
+    it("should call dataService.saveRace with custom name and handle success", () => {
+      mockDataService.saveRace.and.returnValue(
+        of("Race saved successfully: 20260826_Test.json"),
+      );
+      fixture.detectChanges();
+      component.showSaveRaceDialog = true;
+
+      component.onSaveRaceConfirm("Renamed Race");
+
+      expect(component.showSaveRaceDialog).toBeFalse();
+      expect(mockDataService.saveRace).toHaveBeenCalledWith("Renamed Race");
+      expect(component.showAckModal).toBeTrue();
+      expect(component.ackModalMessage).toBe(
+        "Race saved successfully: 20260826_Test.json",
+      );
+    });
+
+    it("should handle error when saving race fails", () => {
+      mockDataService.saveRace.and.returnValue(
+        throwError(() => ({ error: "Server Error" })),
+      );
+      fixture.detectChanges();
+      component.showSaveRaceDialog = true;
+
+      component.onSaveRaceConfirm("Renamed Race");
+
+      expect(component.showSaveRaceDialog).toBeFalse();
+      expect(component.showAckModal).toBeTrue();
+      expect(component.ackModalMessage).toBe("Server Error");
+    });
+
+    it("should close dialog on onSaveRaceCancel", () => {
+      component.showSaveRaceDialog = true;
+      component.onSaveRaceCancel();
+
+      expect(component.showSaveRaceDialog).toBeFalse();
+    });
+  });
 });

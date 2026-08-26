@@ -42,10 +42,14 @@ public class HeatOver implements IRaceState {
 
   private ScheduledExecutorService scheduler;
   private ScheduledFuture<?> timerHandle;
+  private Race race;
+  private long heatOverStartTimeMillis;
 
   @Override
   public void enter(Race race) {
     logger.info("HeatOver state entered.");
+    this.race = race;
+    this.heatOverStartTimeMillis = System.currentTimeMillis();
 
     if (race.getCurrentHeat() != null) {
       race.getCurrentHeat().getStatistics().setEndTime(OffsetDateTime.now().toString());
@@ -145,7 +149,17 @@ public class HeatOver implements IRaceState {
 
   @Override
   public boolean onLap(int lane, double lapTime, int interfaceId, boolean isDrift) {
-    return false;
+    return Common.handleDriftLap(
+        race,
+        heatOverStartTimeMillis,
+        "HeatOver",
+        lane,
+        lapTime,
+        interfaceId,
+        () -> {
+          race.updateScoreRecords();
+          race.broadcast(race.createSnapshot());
+        });
   }
 
   @Override

@@ -876,81 +876,11 @@
 
           @if (selectedSeason) {
             <div class="event-details-card season-summary-card">
-              <div class="event-detail-header">
-                <div class="event-detail-title">{{ selectedSeason.name }}</div>
-                <div class="event-detail-sub">
-                  {{ "SM_DROPS_COUNT" | translate }}:
-                  <strong>{{ selectedSeason.drops }}</strong> &bull;
-                  {{ "SM_RACES_RUN" | translate }}:
-                  <strong>{{
-                    selectedSeason.races ? selectedSeason.races.length : 0
-                  }}</strong>
-                </div>
-              </div>
-              @if (seasonStandings.length === 0) {
-                <div class="empty-standings">
-                  {{ "SM_NO_RACES_RUN" | translate }}
-                </div>
-              } @else {
-                <div class="event-races-table-header">
-                  <table
-                    class="race-sequence-table standings-table header-table"
-                  >
-                    <thead>
-                      <tr>
-                        <th class="col-num">{{ "SM_RANK" | translate }}</th>
-                        <th class="col-name">{{ "SM_DRIVER" | translate }}</th>
-                        <th class="col-method">
-                          {{ "SM_NET_POINTS" | translate }}
-                        </th>
-                        <th class="col-value">
-                          {{ "SM_GROSS_POINTS" | translate }}
-                        </th>
-                        <th class="col-drivers">
-                          {{ "SM_RACES" | translate }}
-                        </th>
-                      </tr>
-                    </thead>
-                  </table>
-                </div>
-                <div class="event-races-summary">
-                  <table class="race-sequence-table standings-table body-table">
-                    <tbody>
-                      @for (
-                        item of seasonStandings;
-                        track item.driver_id;
-                        let rankIdx = $index
-                      ) {
-                        <tr>
-                          <td class="col-num">
-                            @if (rankIdx === 0) {
-                              🥇 1
-                            } @else if (rankIdx === 1) {
-                              🥈 2
-                            } @else if (rankIdx === 2) {
-                              🥉 3
-                            } @else {
-                              {{ rankIdx + 1 }}
-                            }
-                          </td>
-                          <td class="col-name">
-                            <strong>{{ item.driver_name }}</strong>
-                          </td>
-                          <td class="col-method">
-                            <strong style="color: #38bdf8">{{
-                              item.net_points | number: "1.0-2"
-                            }}</strong>
-                          </td>
-                          <td class="col-value">
-                            {{ item.gross_points | number: "1.0-2" }}
-                          </td>
-                          <td class="col-drivers">{{ item.races_run }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              }
+              <app-season-summary
+                [season]="selectedSeason"
+                [standings]="seasonStandings"
+                [compact]="true"
+              ></app-season-summary>
             </div>
           } @else {
             <div
@@ -1033,22 +963,63 @@
               class="saved-race-item"
               [class.selected]="selectedSavedRace?.filename === file.filename"
               [class.corrupt]="file.corrupt"
+              [class.editing]="editingSaveFilename === file.filename"
               (click)="selectSavedRace(file)"
             >
-              <span class="race-file-name">{{ file.filename }}</span>
-              @if (file.isDemo) {
-                <span class="demo-indicator-badge">Demo</span>
+              @if (editingSaveFilename === file.filename) {
+                <div
+                  class="inline-rename-container"
+                  (click)="$event.stopPropagation()"
+                >
+                  <input
+                    type="text"
+                    [(ngModel)]="editingSaveNewName"
+                    (keyup.enter)="saveInlineRename(file)"
+                    (keyup.escape)="cancelInlineRename()"
+                    class="inline-rename-input"
+                    [placeholder]="'RDS_ENTER_SAVE_NAME' | translate"
+                    autoFocus
+                  />
+                  <button
+                    class="inline-rename-btn confirm"
+                    (click)="saveInlineRename(file)"
+                    title="Save"
+                  >
+                    &#10004;
+                  </button>
+                  <button
+                    class="inline-rename-btn cancel"
+                    (click)="cancelInlineRename()"
+                    title="Cancel"
+                  >
+                    &times;
+                  </button>
+                </div>
+              } @else {
+                <span class="race-file-name">{{ file.filename }}</span>
+                @if (file.isDemo) {
+                  <span class="demo-indicator-badge">Demo</span>
+                }
+                @if (file.corrupt) {
+                  <span class="corrupt-indicator-badge">Corrupt</span>
+                }
+                <div class="saved-race-actions">
+                  <button
+                    class="rename-saved-btn"
+                    (click)="startInlineRename($event, file)"
+                    [title]="'RDS_RENAME_SAVE_TOOLTIP' | translate"
+                  >
+                    &#9998;
+                  </button>
+                  <button
+                    class="delete-saved-btn"
+                    (click)="deleteSavedRace($event, file)"
+                    title="Delete Save"
+                  >
+                    &times;
+                  </button>
+                </div>
               }
-              @if (file.corrupt) {
-                <span class="corrupt-indicator-badge">Corrupt</span>
-              }
-              <button
-                class="delete-saved-btn"
-                (click)="deleteSavedRace($event, file)"
-                title="Delete Save"
-              >
-                &times;
-              </button>
             </div>
           }
         </div>

@@ -283,3 +283,14 @@
   (confirm)="onPdfExportConfirm($event)"
   (cancel)="onPdfExportCancel()"
 ></app-pdf-export-dialog>
+
+<app-input-dialog
+  [visible]="showSaveRaceDialog"
+  [title]="'RD_SAVE_RACE_TITLE'"
+  [message]="'RD_SAVE_RACE_MSG'"
+  [initialValue]="saveRaceName"
+  [placeholder]="'RD_ENTER_SAVE_NAME'"
+  (confirm)="onSaveRaceConfirm($event)"
+  (cancel)="onSaveRaceCancel()"
+>
+</app-input-dialog>

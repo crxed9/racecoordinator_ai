@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 public class Race implements ProtocolListener {
   private static final Logger logger = LoggerFactory.getLogger(Race.class);
 
-  private final com.antigravity.models.Race model; // fqn-collision
+  private com.antigravity.models.Race model; // fqn-collision
   private final Track track;
   private Theme theme;
   private final List<RaceParticipant> drivers;
@@ -531,6 +531,10 @@ public class Race implements ProtocolListener {
 
   public com.antigravity.models.Race getRaceModel() { // fqn-collision
     return model;
+  }
+
+  public void setRaceModel(com.antigravity.models.Race model) { // fqn-collision
+    this.model = model;
   }
 
   public List<CustomRotation> getCustomRotations() {
