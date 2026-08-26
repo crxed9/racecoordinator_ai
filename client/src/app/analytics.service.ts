@@ -5,6 +5,7 @@ import { forkJoin, Observable, of } from "rxjs";
 import { catchError, filter, map } from "rxjs/operators";
 import { LoggerService } from "@app/services/logger.service";
 import { SettingsService } from "@app/services/settings.service";
+import { CLIENT_VERSION } from "@app/version";
 
 import { DataService } from "./data.service";
 
@@ -20,8 +21,7 @@ export class AnalyticsService {
   private scriptLoaded: boolean = false;
   private eventQueue: any[] = [];
   private configLoaded: boolean = false;
-  private clientVersion: string =
-    (window as any).CLIENT_VERSION_OVERRIDE || "0.0.0.22";
+  private clientVersion: string = CLIENT_VERSION;
   private serverVersion: string = "unknown";
 
   constructor(

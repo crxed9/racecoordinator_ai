@@ -39,6 +39,7 @@ import {
   UpdateProgress,
   UpdateService,
 } from "@app/services/update.service";
+import { CLIENT_VERSION } from "@app/version";
 
 import { DefaultRacedaySetupComponent } from "./default-raceday-setup.component";
 
@@ -99,8 +100,7 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
   tempServerPort = 7070;
   serverIp: string = "";
   serverVersion: string = "";
-  clientVersion: string =
-    (window as any).CLIENT_VERSION_OVERRIDE || "0.0.0_dev";
+  clientVersion: string = CLIENT_VERSION;
   showAboutDialog = false;
 
   scale: number = 1;

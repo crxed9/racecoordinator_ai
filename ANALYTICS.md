@@ -19,7 +19,7 @@ The client focuses on UI engagement and navigation, only sending data if the use
 
 **Global Parameters:**
 All client-side events automatically include the following configuration parameters:
-- `client_version`: The version string of the Angular UI (e.g., "0.0.0.22").
+- `client_version`: The version string of the Angular UI (e.g., "1.0.0" or "0.0.0_dev").
 - `server_version`: The version string of the connected Java backend.
 
 1. **`page_view`**: Fired automatically every time the Angular Router navigates to a new route. Tracks standard page visit flow.
