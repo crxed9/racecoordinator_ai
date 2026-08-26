@@ -55,3 +55,7 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 - **Calculations scope**: Calculations include overall/heat standings, average lap times, median lap times, gaps, probabilities, etc.
 - **Server as single source of truth**: The server is the authoritative source of truth and the client is strictly a display layer.
 
+## Production Code Hygiene (No Test or Leftover Debug Code)
+- **No test code in production files**: Test hooks, test-specific methods, test fixtures, or test branches must never be added to production code files. All testing logic belongs strictly in dedicated test files (`*.spec.ts`, `*Test.java`, test harnesses, or testing helper directories).
+- **Remove temporary debug code**: Temporary debug code (e.g., temporary `console.log` / `System.out.println`, debug flags, or ad-hoc bypasses) may only be added during active debugging and must be completely removed before the task is finished.
+
