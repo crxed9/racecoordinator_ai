@@ -2238,19 +2238,6 @@ export class TestSetupHelper {
         }
       });
       observer.observe(document, { childList: true, subtree: true });
-
-      // Suppress 1000ms+ animation loops from overloading WebKit in Docker
-      const originalSetInterval = window.setInterval;
-      window.setInterval = function (
-        handler: TimerHandler,
-        timeout?: number,
-        ...args: any[]
-      ): number {
-        if (typeof timeout === "number" && timeout >= 1000) {
-          return 0 as any;
-        }
-        return originalSetInterval(handler, timeout, ...args);
-      } as any;
     }, css);
 
     // Apply immediately to current execution context to be safe

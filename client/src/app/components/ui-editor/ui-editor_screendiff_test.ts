@@ -232,7 +232,7 @@ test.describe("UI Editor Visuals", () => {
     const practiceHeader = page.locator("#help-practice-ui");
     await practiceHeader.waitFor({ state: "visible" });
     await practiceHeader.scrollIntoViewIfNeeded();
-    await practiceHeader.click();
+    await practiceHeader.locator("h1").click();
 
     // Wait for the practice section content to be visible
     const practiceSection = page.locator(".practice-raceday-layout-section");
