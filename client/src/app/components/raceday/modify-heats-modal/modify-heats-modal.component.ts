@@ -136,8 +136,6 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
   protected showExitConfirmation = false;
   protected errorMessage = signal<string | undefined>(undefined);
   protected scale = 1;
-  protected scaleX = 1;
-  protected scaleY = 1;
 
   isDirtyState(): boolean {
     return this.undoManager?.hasChanges() ?? false;
@@ -252,18 +250,7 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   ngOnInit() {

@@ -813,4 +813,16 @@ describe("DefaultSeasonResultsComponent", () => {
     expect(bonusItemPoints[0].textContent?.trim()).toBe("+5.68");
     expect(bonusItemPoints[1].textContent?.trim()).toBe("+2.5");
   });
+
+  it("should calculate uniform scale on resize", () => {
+    spyOnProperty(window, "innerWidth", "get").and.returnValue(960);
+    spyOnProperty(window, "innerHeight", "get").and.returnValue(1080);
+
+    component.onResize();
+    // Target width=1920, height=1080
+    // scaleX = 960 / 1920 = 0.5
+    // scaleY = 1080 / 1080 = 1.0
+    // uniform scale = min(0.5, 1.0) = 0.5
+    expect(component.scale).toBeCloseTo(0.5, 3);
+  });
 });

@@ -2542,8 +2542,6 @@ export class DefaultRacedayComponent
   isWindowsMenuOpen = false;
   isOptionsMenuOpen = false;
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   dashboardWidth: number = 1920;
   dashboardHeight: number = 1080;
 
@@ -2575,8 +2573,6 @@ export class DefaultRacedayComponent
 
     if (this.isUIEditorMode()) {
       this.scale = 1;
-      this.scaleX = 1;
-      this.scaleY = 1;
       if (
         this.dashboardWidth !== targetWidth ||
         this.dashboardHeight !== targetHeight
@@ -2594,18 +2590,7 @@ export class DefaultRacedayComponent
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const newScale = Math.min(scaleX, scaleY);
-      this.scale = newScale;
-      this.scaleX = newScale;
-      this.scaleY = newScale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
 
     if (
       this.dashboardWidth !== targetWidth ||

@@ -114,8 +114,6 @@ export class AssetManagerComponent implements OnInit, OnDestroy {
   lastSelectedIndex: number = -1;
 
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   private route = inject(ActivatedRoute);
   private params = toSignal(this.route.queryParams);
 
@@ -177,18 +175,7 @@ export class AssetManagerComponent implements OnInit, OnDestroy {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   loadActiveDatabase() {

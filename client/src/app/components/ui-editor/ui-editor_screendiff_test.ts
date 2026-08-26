@@ -436,37 +436,4 @@ test.describe("UI Editor Visuals", () => {
       animations: "disabled",
     });
   });
-
-  test("should display UI editor with force fit screen enabled", async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1280, height: 960 });
-    await TestSetupHelper.setupSettings(page, {
-      forceFitScreen: true,
-    });
-    await TestSetupHelper.waitForLocalization(
-      page,
-      "en",
-      page.goto("/ui-editor"),
-    );
-    const editor = page.locator(".ue-container");
-    await editor.waitFor({ state: "visible" });
-    const sectionsWrapper = page.locator(".sections-wrapper");
-    await sectionsWrapper.waitFor({ state: "visible" });
-
-    const previewContainer = page.locator(".raceday-preview-container").first();
-    await previewContainer.waitFor({ state: "visible" });
-    const previewScaler = page.locator(".raceday-preview-scaler").first();
-    await previewScaler.waitFor({ state: "visible" });
-
-    await TestSetupHelper.waitForImagesLoaded(editor);
-    await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
-
-    await expect(page).toHaveScreenshot("ui-editor-force-fit-screen.png", {
-      maxDiffPixelRatio: 0.05,
-      maxDiffPixels: 10000,
-      animations: "disabled",
-    });
-  });
 });

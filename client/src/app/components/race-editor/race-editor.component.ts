@@ -69,8 +69,6 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   isSaving: boolean = false;
   isAutoSaving: boolean = false;
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   public navigateBackOnSave = false;
   undoManager: UndoManager<any>;
   tracks: Track[] = [];
@@ -607,23 +605,10 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     const windowHeight = window.innerHeight;
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
 
     if (this.scale <= 0 || isNaN(this.scale)) {
       this.scale = 1;
-      this.scaleX = 1;
-      this.scaleY = 1;
     }
   }
 

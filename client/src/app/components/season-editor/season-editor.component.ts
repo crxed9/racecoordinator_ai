@@ -74,8 +74,6 @@ export class SeasonEditorComponent
   isLoading = true;
   isSaving = false;
   scale = 1;
-  scaleX = 1;
-  scaleY = 1;
 
   undoManager: UndoManager<Season>;
   private subscriptions: Subscription[] = [];
@@ -741,18 +739,7 @@ export class SeasonEditorComponent
     const targetHeight = 900;
     const scaleX = window.innerWidth / targetWidth;
     const scaleY = window.innerHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   onInputChange(): void {

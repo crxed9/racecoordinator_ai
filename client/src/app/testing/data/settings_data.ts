@@ -15,7 +15,6 @@ export function createDefaultSettings(
   s.assetManagerHelpShown = true;
   s.raceManagerHelpShown = true;
   s.raceEditorHelpShown = true;
-  s.forceFitScreen = false;
 
   s.racedayColumns = ["driver.name", "lapCount"];
   s.columnLayouts = {

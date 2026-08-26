@@ -82,9 +82,7 @@
     [style.height.px]="isPrinting ? 1080 : dashboardHeight"
     [style.min-height.px]="isPrinting ? 1080 : dashboardHeight"
     [style.transform]="
-      isPrinting
-        ? 'none'
-        : 'translate(-50%, -50%) scale(' + scaleX + ', ' + scaleY + ')'
+      isPrinting ? 'none' : 'translate(-50%, -50%) scale(' + scale + ')'
     "
     [style.position]="isPrinting ? 'relative' : 'absolute'"
     [style.top]="isPrinting ? '0' : '50%'"

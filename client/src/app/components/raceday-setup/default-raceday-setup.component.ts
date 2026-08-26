@@ -110,8 +110,6 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   // UI State
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   translationsLoaded: boolean = false;
   isDropdownOpen: boolean = false;
   isEventDropdownOpen: boolean = false;
@@ -484,18 +482,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   getParticipantAvatarUrl(participant: Participant): string {

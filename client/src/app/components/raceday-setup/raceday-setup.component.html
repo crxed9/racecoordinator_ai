@@ -60,10 +60,7 @@
   }
   @if (showSplash) {
     <div class="splash-screen">
-      <div
-        class="splash-content"
-        [style.transform]="'scale(' + scaleX + ', ' + scaleY + ')'"
-      >
+      <div class="splash-content" [style.transform]="'scale(' + scale + ')'">
         @if (translationsLoaded) {
           <div class="server-btn-container">
             <button class="server-config-btn" (click)="toggleServerConfig()">

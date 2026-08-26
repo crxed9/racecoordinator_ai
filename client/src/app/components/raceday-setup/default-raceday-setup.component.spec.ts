@@ -1990,5 +1990,17 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(emptyCard).toBeTruthy();
       expect(emptyCard.textContent).toContain("RDS_NO_SEASON_SELECTED");
     });
+
+    it("should calculate uniform scale on resize", () => {
+      spyOnProperty(window, "innerWidth", "get").and.returnValue(800);
+      spyOnProperty(window, "innerHeight", "get").and.returnValue(600);
+
+      component.onResize();
+      // Target width=1600, height=900
+      // scaleX = 800 / 1600 = 0.5
+      // scaleY = 600 / 900 = 0.6667
+      // uniform scale = min(0.5, 0.6667) = 0.5
+      expect(component.scale).toBeCloseTo(0.5, 3);
+    });
   });
 });

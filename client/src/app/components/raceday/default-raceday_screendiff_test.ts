@@ -1047,23 +1047,4 @@ test.describe("Raceday Visuals for Fuel", () => {
       maxDiffPixelRatio: 0.05,
     });
   });
-
-  test("should display raceday with force fit screen enabled in non-uniform aspect ratio", async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1400, height: 1000 });
-    await TestSetupHelper.setupSettings(page, {
-      forceFitScreen: true,
-    });
-    await TestSetupHelper.waitForLocalization(
-      page,
-      "en",
-      page.goto("/default-raceday"),
-    );
-    await page.locator(".dashboard-wrapper").waitFor({ state: "visible" });
-
-    await expect(page).toHaveScreenshot("raceday-force-fit-screen.png", {
-      maxDiffPixelRatio: 0.05,
-    });
-  });
 });

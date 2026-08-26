@@ -143,14 +143,14 @@ describe("SettingsService", () => {
     expect(mockLogger.error).toHaveBeenCalled();
   });
 
-  it("should save, retrieve and emit forceFitScreen setting via settings$", (done) => {
+  it("should save, retrieve and emit pageTransition setting via settings$", (done) => {
     const settings = Object.assign(new Settings(), {
-      forceFitScreen: true,
+      pageTransition: "fade",
     });
     service.settings$.subscribe((emitted) => {
-      if (emitted.forceFitScreen) {
-        expect(emitted.forceFitScreen).toBeTrue();
-        expect(service.getSettings().forceFitScreen).toBeTrue();
+      if (emitted.pageTransition === "fade") {
+        expect(emitted.pageTransition).toBe("fade");
+        expect(service.getSettings().pageTransition).toBe("fade");
         done();
       }
     });

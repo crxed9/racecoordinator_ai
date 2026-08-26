@@ -52,8 +52,6 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
 
   isLoading = true;
   scale = 1;
-  scaleX = 1;
-  scaleY = 1;
 
   showPdfExportDialog = false;
   defaultIncludeBackground = true;
@@ -136,18 +134,7 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
     const targetHeight = 1080;
     const scaleX = window.innerWidth / targetWidth;
     const scaleY = window.innerHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   loadSeasonData(): void {

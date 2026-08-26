@@ -51,8 +51,6 @@ export class EventManagerComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   isSaving: boolean = false;
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   searchQuery: string = "";
   showDeleteConfirmation: boolean = false;
 
@@ -115,18 +113,7 @@ export class EventManagerComponent implements OnInit, OnDestroy {
     const baseHeight = 900;
     const scaleX = window.innerWidth / baseWidth;
     const scaleY = window.innerHeight / baseHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   loadData(): void {
