@@ -1380,7 +1380,7 @@ describe("DefaultRacedaySetupComponent", () => {
       ).toBeTrue();
     });
 
-    it("should render race summary card when a single race is selected", () => {
+    it("should render race summary card with rearranged 2-column details when a single race is selected", () => {
       component.selectedRace = component.races[0];
       component.selectedEvent = undefined;
       fixture.detectChanges();
@@ -1391,7 +1391,18 @@ describe("DefaultRacedaySetupComponent", () => {
 
       const summaryGrid = raceSummaryCard.querySelector(".summary-grid");
       expect(summaryGrid).toBeTruthy();
-      expect(summaryGrid.querySelectorAll(".summary-item").length).toBe(6);
+      const items = summaryGrid.querySelectorAll(".summary-item");
+      expect(items.length).toBe(6);
+
+      const labels = Array.from(items).map((item: any) =>
+        item.querySelector(".summary-label")?.textContent?.trim(),
+      );
+      expect(labels[0]).toBe("RM_LABEL_HEAT_RANKING:");
+      expect(labels[1]).toBe("RM_LABEL_OVERALL_RANKING:");
+      expect(labels[2]).toBe("RM_LABEL_FINISH_METHOD:");
+      expect(labels[3]).toBe("RM_LABEL_FINISH_VALUE:");
+      expect(labels[4]).toBe("RM_LABEL_HEAT_ROTATION:");
+      expect(labels[5]).toBe("RM_LABEL_FUEL_RACE:");
     });
 
     it("should update recentRaceIds and quickStartRaces when an event is started", fakeAsync(() => {
