@@ -1,4 +1,4 @@
-import { Injectable, NgZone, OnDestroy } from "@angular/core";
+import { inject, Injectable, NgZone, OnDestroy } from "@angular/core";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 import { DriverConverter } from "@app/converters/driver.converter";
 import { HeatConverter } from "@app/converters/heat.converter";
@@ -31,6 +31,7 @@ export interface IReactionTime {
   interfaceId?: number | null;
 }
 
+import { ChildWindowManagerService } from "./child-window-manager.service";
 import { LoggerService } from "./logger.service";
 import { RaceService } from "./race.service";
 
@@ -116,7 +117,12 @@ export class RaceConnectionService implements OnDestroy {
     private raceService: RaceService,
     private logger: LoggerService,
     private ngZone: NgZone,
-  ) {}
+    private childWindowManagerService?: ChildWindowManagerService,
+  ) {
+    if (!this.childWindowManagerService) {
+      this.childWindowManagerService = inject(ChildWindowManagerService);
+    }
+  }
 
   connect() {
     if (this.disconnectedTimeout) {
@@ -425,6 +431,9 @@ export class RaceConnectionService implements OnDestroy {
 
     if (this.noStatusWatchdog) clearTimeout(this.noStatusWatchdog);
     this.clearDisconnectedError();
+    if (this.childWindowManagerService) {
+      this.childWindowManagerService.closeAllWindows();
+    }
   }
 
   private hydrateDrivers() {

@@ -5537,11 +5537,20 @@ describe("DefaultRacedayComponent", () => {
       expect((component as any).predictionResultsWindow).toBeNull();
     });
 
-    it("should close predictionResultsWindow on ngOnDestroy", () => {
+    it("should close predictionResultsWindow on ngOnDestroy when navigating to non-race-preserving route", () => {
       (component as any).onWindowsMenuSelect("PREDICTION_RESULTS");
+      (component as any).pendingNavigationUrl = "/raceday-setup";
       component.ngOnDestroy();
       expect(mockChildWindow.close).toHaveBeenCalled();
       expect((component as any).predictionResultsWindow).toBeNull();
+    });
+
+    it("should not close predictionResultsWindow on ngOnDestroy when navigating to /ui-editor", () => {
+      (component as any).onWindowsMenuSelect("PREDICTION_RESULTS");
+      (component as any).pendingNavigationUrl = "/ui-editor";
+      component.ngOnDestroy();
+      expect(mockChildWindow.close).not.toHaveBeenCalled();
+      expect((component as any).predictionResultsWindow).toBe(mockChildWindow);
     });
   });
 
@@ -5566,11 +5575,57 @@ describe("DefaultRacedayComponent", () => {
       expect((component as any).seasonResultsWindow).toBeNull();
     });
 
-    it("should close seasonResultsWindow on ngOnDestroy", () => {
+    it("should close seasonResultsWindow on ngOnDestroy when navigating to non-race-preserving route", () => {
       (component as any).onWindowsMenuSelect("SEASON_RESULTS");
+      (component as any).pendingNavigationUrl = "/raceday-setup";
       component.ngOnDestroy();
       expect(mockChildWindow.close).toHaveBeenCalled();
       expect((component as any).seasonResultsWindow).toBeNull();
+    });
+
+    it("should not close seasonResultsWindow on ngOnDestroy when navigating to /ui-editor", () => {
+      (component as any).onWindowsMenuSelect("SEASON_RESULTS");
+      (component as any).pendingNavigationUrl = "/ui-editor";
+      component.ngOnDestroy();
+      expect(mockChildWindow.close).not.toHaveBeenCalled();
+      expect((component as any).seasonResultsWindow).toBe(mockChildWindow);
+    });
+  });
+
+  describe("heatResultsWindow and raceResultsWindow management", () => {
+    let mockChildWindow: any;
+
+    beforeEach(() => {
+      mockChildWindow = { close: jasmine.createSpy("close"), closed: false };
+      spyOn(window, "open").and.returnValue(mockChildWindow);
+    });
+
+    it("should open heatResultsWindow when HEAT_RESULTS action is called", () => {
+      (component as any).onWindowsMenuSelect("HEAT_RESULTS");
+      expect(window.open).toHaveBeenCalledWith("mock-url", "_blank");
+      expect((component as any).heatResultsWindow).toBe(mockChildWindow);
+    });
+
+    it("should not close heatResultsWindow when navigating to /ui-editor", () => {
+      (component as any).onWindowsMenuSelect("HEAT_RESULTS");
+      (component as any).pendingNavigationUrl = "/ui-editor";
+      component.ngOnDestroy();
+      expect(mockChildWindow.close).not.toHaveBeenCalled();
+      expect((component as any).heatResultsWindow).toBe(mockChildWindow);
+    });
+
+    it("should open raceResultsWindow when RACE_RESULTS action is called", () => {
+      (component as any).onWindowsMenuSelect("RACE_RESULTS");
+      expect(window.open).toHaveBeenCalledWith("mock-url", "_blank");
+      expect((component as any).raceResultsWindow).toBe(mockChildWindow);
+    });
+
+    it("should not close raceResultsWindow when navigating to /ui-editor", () => {
+      (component as any).onWindowsMenuSelect("RACE_RESULTS");
+      (component as any).pendingNavigationUrl = "/ui-editor";
+      component.ngOnDestroy();
+      expect(mockChildWindow.close).not.toHaveBeenCalled();
+      expect((component as any).raceResultsWindow).toBe(mockChildWindow);
     });
   });
 

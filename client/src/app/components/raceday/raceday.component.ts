@@ -16,6 +16,7 @@ import { AboutDialogComponent } from "@app/components/shared/about-dialog/about-
 import { DataService } from "@app/data.service";
 import { CanComponentDeactivate } from "@app/guards/raceday.guard";
 import { AuthService } from "@app/services/auth.service";
+import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
 import { DynamicComponentService } from "@app/services/dynamic-component.service";
 import { FileSystemService } from "@app/services/file-system.service";
 import { HelpService } from "@app/services/help.service";
@@ -51,6 +52,8 @@ class CustomRacedayBaseComponent extends DefaultRacedayComponent {
     @Inject(AuthService) authService: AuthService,
     @Inject(HelpService) helpService: HelpService,
     @Inject(RacePredictionService) predictionService: RacePredictionService,
+    @Inject(ChildWindowManagerService)
+    childWindowManagerService?: ChildWindowManagerService,
   ) {
     super(
       el,
@@ -69,6 +72,7 @@ class CustomRacedayBaseComponent extends DefaultRacedayComponent {
       authService,
       helpService,
       predictionService,
+      childWindowManagerService,
     );
   }
 }

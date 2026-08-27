@@ -59,6 +59,7 @@ import { IRecordEntry, LapType, RaceState } from "@app/proto/antigravity";
 import { DriverHeatData } from "@app/race/driver_heat_data";
 import { Heat } from "@app/race/heat";
 import { AuthService } from "@app/services/auth.service";
+import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
 import { HelpLinkService } from "@app/services/help-link.service";
 import { LoggerService } from "@app/services/logger.service";
 import { PrintService } from "@app/services/print.service";
@@ -607,6 +608,8 @@ export class DefaultRacedayComponent
   showLoginModal = false;
   private pendingNavigationUrl = "";
 
+  private childWindowManagerService: ChildWindowManagerService;
+
   constructor(
     private el: ElementRef,
     private translationService: TranslationService,
@@ -624,7 +627,10 @@ export class DefaultRacedayComponent
     public authService: AuthService,
     private helpService: HelpService,
     private predictionService?: RacePredictionService,
+    childWindowManagerService?: ChildWindowManagerService,
   ) {
+    this.childWindowManagerService =
+      childWindowManagerService ?? inject(ChildWindowManagerService);
     // Initial default columns, will be overwritten in ngOnInit
     this.columns = [];
     this.router.events.subscribe((event) => {
@@ -1625,12 +1631,49 @@ export class DefaultRacedayComponent
     return this.heatBestTime || 0;
   }
 
-  private leaderBoardWindow: Window | null = null;
-  private heatResultsWindow: Window | null = null;
-  private raceResultsWindow: Window | null = null;
-  private seasonResultsWindow: Window | null = null;
-  private predictionResultsWindow: Window | null = null;
-  private driverStationTabs: Window[] = [];
+  get leaderBoardWindow(): Window | null {
+    return this.childWindowManagerService.getLeaderBoardWindow();
+  }
+  set leaderBoardWindow(val: Window | null) {
+    this.childWindowManagerService.setLeaderBoardWindow(val);
+  }
+
+  get heatResultsWindow(): Window | null {
+    return this.childWindowManagerService.getHeatResultsWindow();
+  }
+  set heatResultsWindow(val: Window | null) {
+    this.childWindowManagerService.setHeatResultsWindow(val);
+  }
+
+  get raceResultsWindow(): Window | null {
+    return this.childWindowManagerService.getRaceResultsWindow();
+  }
+  set raceResultsWindow(val: Window | null) {
+    this.childWindowManagerService.setRaceResultsWindow(val);
+  }
+
+  get seasonResultsWindow(): Window | null {
+    return this.childWindowManagerService.getSeasonResultsWindow();
+  }
+  set seasonResultsWindow(val: Window | null) {
+    this.childWindowManagerService.setSeasonResultsWindow(val);
+  }
+
+  get predictionResultsWindow(): Window | null {
+    return this.childWindowManagerService.getPredictionResultsWindow();
+  }
+  set predictionResultsWindow(val: Window | null) {
+    this.childWindowManagerService.setPredictionResultsWindow(val);
+  }
+
+  get driverStationTabs(): Window[] {
+    return this.childWindowManagerService.getDriverStationTabs();
+  }
+  set driverStationTabs(val: Window[]) {
+    if (val.length === 0) {
+      this.childWindowManagerService.clearDriverStationTabs();
+    }
+  }
 
   private setupMockDataForEditor() {
     const mockData = createMockEditorData();
@@ -1685,32 +1728,9 @@ export class DefaultRacedayComponent
     this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.subscriptions = [];
 
-    if (this.leaderBoardWindow) {
-      this.leaderBoardWindow.close();
-      this.leaderBoardWindow = null;
+    if (!this.childWindowManagerService.isRacePreservingRoute(destUrl)) {
+      this.childWindowManagerService.closeAllWindows();
     }
-    if (this.heatResultsWindow) {
-      this.heatResultsWindow.close();
-      this.heatResultsWindow = null;
-    }
-    if (this.raceResultsWindow) {
-      this.raceResultsWindow.close();
-      this.raceResultsWindow = null;
-    }
-    if (this.seasonResultsWindow) {
-      this.seasonResultsWindow.close();
-      this.seasonResultsWindow = null;
-    }
-    if (this.predictionResultsWindow) {
-      this.predictionResultsWindow.close();
-      this.predictionResultsWindow = null;
-    }
-    this.driverStationTabs.forEach((tab) => {
-      if (tab && !tab.closed) {
-        tab.close();
-      }
-    });
-    this.driverStationTabs = [];
   }
 
   private showInterfaceError(titleKey: string, messageKey: string) {
@@ -2892,12 +2912,12 @@ export class DefaultRacedayComponent
       const url = this.router.serializeUrl(
         this.router.createUrlTree(["/heat-results"]),
       );
-      this.heatResultsWindow = window.open(url, "_blank");
+      this.childWindowManagerService.openWindow(action, url);
     } else if (action === "RACE_RESULTS") {
       const url = this.router.serializeUrl(
         this.router.createUrlTree(["/race-results"]),
       );
-      this.raceResultsWindow = window.open(url, "_blank");
+      this.childWindowManagerService.openWindow(action, url);
     } else if (action === "SEASON_RESULTS") {
       const seasonId =
         (this.race as any)?.season_id || (this.race as any)?.seasonId || "";
@@ -2905,12 +2925,12 @@ export class DefaultRacedayComponent
       const url = this.router.serializeUrl(
         this.router.createUrlTree(["/season-results"], { queryParams }),
       );
-      this.seasonResultsWindow = window.open(url, "_blank");
+      this.childWindowManagerService.openWindow(action, url);
     } else if (action === "PREDICTION_RESULTS") {
       const url = this.router.serializeUrl(
         this.router.createUrlTree(["/prediction-results"]),
       );
-      this.predictionResultsWindow = window.open(url, "_blank");
+      this.childWindowManagerService.openWindow(action, url);
     }
   }
 
@@ -2925,32 +2945,7 @@ export class DefaultRacedayComponent
   @HostListener("window:pagehide", ["$event"])
   onPageHide(_event: any) {
     this.raceConnectionService.disconnect();
-    if (this.leaderBoardWindow) {
-      this.leaderBoardWindow.close();
-      this.leaderBoardWindow = null;
-    }
-    if (this.heatResultsWindow) {
-      this.heatResultsWindow.close();
-      this.heatResultsWindow = null;
-    }
-    if (this.raceResultsWindow) {
-      this.raceResultsWindow.close();
-      this.raceResultsWindow = null;
-    }
-    if (this.seasonResultsWindow) {
-      this.seasonResultsWindow.close();
-      this.seasonResultsWindow = null;
-    }
-    if (this.predictionResultsWindow) {
-      this.predictionResultsWindow.close();
-      this.predictionResultsWindow = null;
-    }
-    this.driverStationTabs.forEach((tab) => {
-      if (tab && !tab.closed) {
-        tab.close();
-      }
-    });
-    this.driverStationTabs = [];
+    this.childWindowManagerService.closeAllWindows();
   }
 
   // Layout Editing - Column and Anchor Handlers
