@@ -1,5 +1,4 @@
 import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
-import { DecimalPipe } from "@angular/common";
 import { Component, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
@@ -57,7 +56,6 @@ describe("SeasonManagerComponent", () => {
         SeasonSummaryComponent,
         FormsModule,
         TranslatePipe,
-        DecimalPipe,
       ],
       providers: [
         { provide: DataService, useValue: mockDataService },
@@ -85,7 +83,6 @@ describe("SeasonManagerComponent", () => {
             MockManagerHeaderComponent,
             SeasonSummaryComponent,
             TranslatePipe,
-            DecimalPipe,
             FormsModule,
           ],
           schemas: [NO_ERRORS_SCHEMA],

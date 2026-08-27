@@ -6,7 +6,7 @@ import {
   moveItemInArray,
   ɵɵCdkScrollable,
 } from "@angular/cdk/drag-drop";
-import { DecimalPipe, NgClass } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -68,7 +68,6 @@ type Participant = Driver | Team;
     CdkDrag,
     FormsModule,
     NgClass,
-    DecimalPipe,
     ConfirmationModalComponent,
     AcknowledgementModalComponent,
     DemoConfigModalComponent,
