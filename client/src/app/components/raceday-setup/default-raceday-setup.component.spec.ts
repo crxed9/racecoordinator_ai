@@ -1816,31 +1816,31 @@ describe("DefaultRacedaySetupComponent", () => {
       });
 
       expect(steps[1]).toEqual({
-        targetId: "racing-drivers-section",
-        title: "RDS_HELP_DRIVER_RACING_TITLE",
-        content: "RDS_HELP_DRIVER_RACING_CONTENT",
-        position: "right",
-      });
-
-      expect(steps[2]).toEqual({
-        selector: "#racing-drivers-section .section-header",
-        title: "RDS_HELP_DRIVER_ACTIONS_TITLE",
-        content: "RDS_HELP_DRIVER_ACTIONS_CONTENT",
-        position: "bottom",
-      });
-
-      expect(steps[3]).toEqual({
         targetId: "available-drivers-section",
         title: "RDS_HELP_DRIVER_AVAILABLE_TITLE",
         content: "RDS_HELP_DRIVER_AVAILABLE_CONTENT",
         position: "right",
       });
 
-      expect(steps[4]).toEqual({
+      expect(steps[2]).toEqual({
         selector: "#available-drivers-section .header-actions",
         title: "RDS_HELP_DRIVER_TEAM_STATS_TITLE",
         content: "RDS_HELP_DRIVER_TEAM_STATS_CONTENT",
+        position: "bottom",
+      });
+
+      expect(steps[3]).toEqual({
+        targetId: "racing-drivers-section",
+        title: "RDS_HELP_DRIVER_RACING_TITLE",
+        content: "RDS_HELP_DRIVER_RACING_CONTENT",
         position: "right",
+      });
+
+      expect(steps[4]).toEqual({
+        selector: "#racing-drivers-section .section-header",
+        title: "RDS_HELP_DRIVER_ACTIONS_TITLE",
+        content: "RDS_HELP_DRIVER_ACTIONS_CONTENT",
+        position: "bottom",
       });
 
       expect(steps[5]).toEqual({

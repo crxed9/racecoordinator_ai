@@ -1790,6 +1790,26 @@ export class DefaultRacedaySetupComponent implements OnInit {
         content: this.translationService.translate("RDS_HELP_WELCOME_CONTENT"),
       },
       {
+        targetId: "available-drivers-section",
+        title: this.translationService.translate(
+          "RDS_HELP_DRIVER_AVAILABLE_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RDS_HELP_DRIVER_AVAILABLE_CONTENT",
+        ),
+        position: "right",
+      },
+      {
+        selector: "#available-drivers-section .header-actions",
+        title: this.translationService.translate(
+          "RDS_HELP_DRIVER_TEAM_STATS_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RDS_HELP_DRIVER_TEAM_STATS_CONTENT",
+        ),
+        position: "bottom",
+      },
+      {
         targetId: "racing-drivers-section",
         title: this.translationService.translate(
           "RDS_HELP_DRIVER_RACING_TITLE",
@@ -1808,26 +1828,6 @@ export class DefaultRacedaySetupComponent implements OnInit {
           "RDS_HELP_DRIVER_ACTIONS_CONTENT",
         ),
         position: "bottom",
-      },
-      {
-        targetId: "available-drivers-section",
-        title: this.translationService.translate(
-          "RDS_HELP_DRIVER_AVAILABLE_TITLE",
-        ),
-        content: this.translationService.translate(
-          "RDS_HELP_DRIVER_AVAILABLE_CONTENT",
-        ),
-        position: "right",
-      },
-      {
-        selector: "#available-drivers-section .header-actions",
-        title: this.translationService.translate(
-          "RDS_HELP_DRIVER_TEAM_STATS_TITLE",
-        ),
-        content: this.translationService.translate(
-          "RDS_HELP_DRIVER_TEAM_STATS_CONTENT",
-        ),
-        position: "right",
       },
       {
         selector: ".custom-dropdown-container",
