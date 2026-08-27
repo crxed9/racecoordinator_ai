@@ -584,6 +584,37 @@ describe("TrackEditorComponent", () => {
     expect(updatedConfig.voltageConfigs?.[1]).toBe(600); // Shifted
   });
 
+  it("should update heat leader analog LEDs on lane reordering and deletion", () => {
+    component.lanes = [
+      new Lane("l1", "white", "black", 100),
+      new Lane("l2", "white", "black", 100),
+      new Lane("l3", "white", "black", 100),
+    ];
+
+    component.addArduinoConfig();
+    const config = component.arduinoConfigs[0];
+    config.digitalIds = [9000, 9001, 9002]; // Heat Leader Lane 1, Lane 2, Lane 3
+
+    // Move Lane 1 (index 0) to Lane 2 (index 1)
+    const event = {
+      previousIndex: 0,
+      currentIndex: 1,
+      container: { data: component.lanes },
+      item: { data: component.lanes[0] },
+    } as any;
+
+    component.onLaneDropped(event);
+    expect(config.digitalIds[0]).toBe(9001);
+    expect(config.digitalIds[1]).toBe(9000);
+    expect(config.digitalIds[2]).toBe(9002);
+
+    // Delete Lane 2 (index 1)
+    component.removeLane(1);
+    expect(config.digitalIds[0]).toBe(0); // Pin assigned to deleted Lane 2 (9001) becomes UNUSED (0)
+    expect(config.digitalIds[1]).toBe(9000); // Pin assigned to Lane 1 (9000) unchanged
+    expect(config.digitalIds[2]).toBe(9001); // Pin assigned to Lane 3 (9002) shifted down to 9001
+  });
+
   it("should re-initialize interfaces when onTrackmateConfigChange is called", () => {
     component.addTrackmateConfig();
     (dataService.initializeInterface as jasmine.Spy).calls.reset();

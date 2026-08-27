@@ -82,6 +82,7 @@
   "AE_NUM_LEDS": "Nombre de LED",
   "AE_PIN_ANALOG_LED_COUNTDOWN": "Countdown {{num}}",
   "AE_PIN_ANALOG_LED_GREEN_FLAG": "Green Flag",
+  "AE_PIN_ANALOG_LED_HEAT_LEADER_LANE": "Leader de la manche V{{lane}}",
   "AE_PIN_ANALOG_LED_YELLOW_FLAG": "Yellow Flag",
   "AE_PIN_CALL_BUTTON_LANE": "Appel V{{lane}}",
   "AE_PIN_LAP_LANE": "Tours V{{lane}}",

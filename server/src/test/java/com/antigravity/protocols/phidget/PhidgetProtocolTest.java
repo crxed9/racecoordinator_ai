@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -930,5 +931,81 @@ public class PhidgetProtocolTest {
     delegate.setLanePower(false, 0);
     verify(relayProto).setLanePower(false, 0);
     verify(relayProto).setLaneRelayPhysicalState(0, true);
+  }
+
+  @Test
+  public void testAnalogLedHeatLeader() throws Exception {
+    PhidgetConfig ledConfig = new PhidgetConfig();
+    ledConfig.serialNumber = 147994;
+    ledConfig.digitalOutIds =
+        Arrays.asList(
+            PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE, // Lane 0
+            PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 1 // Lane 1
+            );
+
+    PhidgetProtocol spyProto = org.mockito.Mockito.spy(new PhidgetProtocol(ledConfig, 2, null));
+    spyProto.setInterfaceIndex(0);
+    doNothing()
+        .when(spyProto)
+        .setAnalogLedState(
+            org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyBoolean());
+
+    Field analogLedOutputsField = PhidgetProtocol.class.getDeclaredField("analogLedOutputs");
+    analogLedOutputsField.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Map<Integer, Object> map = (Map<Integer, Object>) analogLedOutputsField.get(spyProto);
+    map.put(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE, null);
+    map.put(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 1, null);
+
+    // 1. Lane 0 is leader
+    spyProto.setHeatStandings(Arrays.asList(0, 1));
+    verify(spyProto)
+        .setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE, true);
+    verify(spyProto)
+        .setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 1, false);
+
+    // 2. Lane 1 becomes leader
+    org.mockito.Mockito.clearInvocations(spyProto);
+    spyProto.setHeatStandings(Arrays.asList(1, 0));
+    verify(spyProto)
+        .setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE, false);
+    verify(spyProto)
+        .setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 1, true);
+
+    // 3. Clear LEDs
+    org.mockito.Mockito.clearInvocations(spyProto);
+    spyProto.clearLeds();
+    verify(spyProto)
+        .setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE, false);
+    verify(spyProto)
+        .setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 1, false);
+  }
+
+  @Test
+  public void testApplyOutputChannelState_HeatLeader() throws Exception {
+    PhidgetConfig ledConfig = new PhidgetConfig();
+    ledConfig.serialNumber = 147995;
+    ledConfig.digitalOutIds =
+        Arrays.asList(
+            PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE, // Lane 0
+            PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 1 // Lane 1
+            );
+
+    PhidgetProtocol spyProto = org.mockito.Mockito.spy(new PhidgetProtocol(ledConfig, 2, null));
+    org.mockito.Mockito.doNothing()
+        .when(spyProto)
+        .setOutputChannelPhysicalState(
+            org.mockito.ArgumentMatchers.anyInt(), org.mockito.ArgumentMatchers.anyBoolean());
+
+    Field lastLeaderLaneField =
+        PhidgetProtocol.class.getSuperclass().getDeclaredField("lastLeaderLane");
+    lastLeaderLaneField.setAccessible(true);
+    lastLeaderLaneField.set(spyProto, 0); // Lane 0 is leader
+
+    spyProto.applyOutputChannelState(0);
+    verify(spyProto).setOutputChannelPhysicalState(0, true);
+
+    spyProto.applyOutputChannelState(1);
+    verify(spyProto).setOutputChannelPhysicalState(1, false);
   }
 }

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -401,7 +402,9 @@ public class PhidgetProtocol extends DefaultProtocol {
           } else if (behavior == PinBehavior.BEHAVIOR_ANALOG_LED_GREEN_FLAG_VALUE
               || behavior == PinBehavior.BEHAVIOR_ANALOG_LED_YELLOW_FLAG_VALUE
               || (behavior >= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_1_VALUE
-                  && behavior <= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5_VALUE)) {
+                  && behavior <= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5_VALUE)
+              || (behavior >= PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE
+                  && behavior < PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 64)) {
             analogLedOutputs.put(behavior, out);
           }
         }
@@ -607,6 +610,11 @@ public class PhidgetProtocol extends DefaultProtocol {
         && behavior <= PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5_VALUE) {
       int idx = behavior - PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_1_VALUE;
       setOutputChannelPhysicalState(channel, isCountdownOn[idx]);
+    } else if (behavior >= PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE
+        && behavior < PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 64) {
+      int lane = behavior - PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE;
+      boolean isLeader = (lastLeaderLane != null && lastLeaderLane == lane);
+      setOutputChannelPhysicalState(channel, isLeader);
     }
   }
 
@@ -948,9 +956,34 @@ public class PhidgetProtocol extends DefaultProtocol {
     setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_3_VALUE, isCountdownOn[2]);
     setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_4_VALUE, isCountdownOn[3]);
     setAnalogLedState(PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5_VALUE, isCountdownOn[4]);
+    for (int lane = 0; lane < 64; lane++) {
+      int behavior = PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + lane;
+      if (analogLedOutputs.containsKey(behavior)) {
+        boolean isLeader = (lastLeaderLane != null && lastLeaderLane == lane);
+        setAnalogLedState(behavior, isLeader);
+      }
+    }
   }
 
-  private void setAnalogLedState(int behavior, boolean on) {
+  @Override
+  public void setHeatStandings(List<Integer> laneIndices) {
+    super.setHeatStandings(laneIndices);
+    Integer leaderLane =
+        (laneIndices != null && !laneIndices.isEmpty()) ? laneIndices.get(0) : null;
+    if (Objects.equals(lastLeaderLane, leaderLane)) {
+      return;
+    }
+    lastLeaderLane = leaderLane;
+    for (int lane = 0; lane < 64; lane++) {
+      int behavior = PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + lane;
+      if (analogLedOutputs.containsKey(behavior)) {
+        boolean isLeader = (lastLeaderLane != null && lastLeaderLane == lane);
+        setAnalogLedState(behavior, isLeader);
+      }
+    }
+  }
+
+  protected void setAnalogLedState(int behavior, boolean on) {
     DigitalOutput out = analogLedOutputs.get(behavior);
     if (out != null) {
       try {
@@ -1073,5 +1106,6 @@ public class PhidgetProtocol extends DefaultProtocol {
     for (int i = 0; i < getNumLanes(); i++) {
       setLanePower(false, i);
     }
+    onAnalogLedsChanged();
   }
 }

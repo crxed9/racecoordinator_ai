@@ -82,6 +82,7 @@
   "AE_NUM_LEDS": "Número de LEDs",
   "AE_PIN_ANALOG_LED_COUNTDOWN": "Countdown {{num}}",
   "AE_PIN_ANALOG_LED_GREEN_FLAG": "Green Flag",
+  "AE_PIN_ANALOG_LED_HEAT_LEADER_LANE": "Líder de manga C{{lane}}",
   "AE_PIN_ANALOG_LED_YELLOW_FLAG": "Yellow Flag",
   "AE_PIN_CALL_BUTTON_LANE": "Botón de llamada C{{lane}}",
   "AE_PIN_LAP_LANE": "Vueltas C{{lane}}",
