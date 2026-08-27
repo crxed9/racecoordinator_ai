@@ -441,7 +441,7 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
           hd.driver?.driver?.model?.entityId ||
           "";
         const lane = this.race?.track?.lanes[hd.laneIndex];
-        const color = lane?.foreground_color || "#ffffff";
+        const color = lane?.background_color || "#ffffff";
         const backgroundColor = lane?.background_color || "#333333";
 
         const laps = hd.lapTimes; // Uses our new getter
