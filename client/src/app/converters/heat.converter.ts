@@ -116,6 +116,15 @@ export class HeatConverter {
         (d): d is DriverHeatData => d !== null,
       );
 
+      if (proto.standings && proto.standings.length > 0) {
+        proto.standings.forEach((sid, idx) => {
+          const d = validHeatDrivers.find((hd) => hd.objectId === sid);
+          if (d) {
+            d.rank = idx + 1;
+          }
+        });
+      }
+
       const h = new Heat(
         objectId || "",
         heatNumber !== -1 ? heatNumber : proto.heatNumber || 0,

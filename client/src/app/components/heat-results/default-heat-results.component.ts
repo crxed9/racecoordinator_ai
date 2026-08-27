@@ -192,6 +192,14 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
       }),
     );
 
+    this.subscriptions.push(
+      this.raceConnectionService.standingsUpdate$.subscribe(() => {
+        this.updateGraph();
+        this.calculateHeatStandings();
+        this.cdr.markForCheck();
+      }),
+    );
+
     this.loadRaceData();
     this.updateGraph();
     this.calculateHeatStandings();
@@ -310,8 +318,26 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
     );
     if (isSkip) return null;
 
+    let rank = heatDriver.rank || 0;
+    if (
+      !rank &&
+      this.raceConnectionService?.driverRankings?.has(heatDriver.objectId)
+    ) {
+      rank =
+        this.raceConnectionService.driverRankings.get(heatDriver.objectId) || 0;
+    } else if (
+      !rank &&
+      this.heat?.standings &&
+      this.heat.standings.length > 0
+    ) {
+      const idx = this.heat.standings.indexOf(heatDriver.objectId);
+      if (idx !== -1) {
+        rank = idx + 1;
+      }
+    }
+
     const row: HeatStandingsRow = {
-      rank: heatDriver.rank || 1,
+      rank,
       objectId: heatDriver.objectId,
       laps: heatDriver.adjustedLapCount,
       averageLapTime: heatDriver.averageLapTime,

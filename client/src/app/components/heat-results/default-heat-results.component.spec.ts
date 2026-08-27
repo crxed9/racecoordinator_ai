@@ -39,6 +39,8 @@ describe("DefaultHeatResultsComponent", () => {
       connect: jasmine.createSpy("connect"),
       disconnect: jasmine.createSpy("disconnect"),
       laps$: new BehaviorSubject<any>(null),
+      standingsUpdate$: new BehaviorSubject<any>(null),
+      driverRankings: new Map<string, number>(),
     };
 
     mockRaceService = jasmine.createSpyObj("RaceService", [
@@ -244,6 +246,106 @@ describe("DefaultHeatResultsComponent", () => {
 
       expect(component.showAckModal).toBeFalse();
       expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("Heat Standings & Positions", () => {
+    it("should resolve heat positions correctly from heat.standings", () => {
+      const currentHeat = mockRaceService.getCurrentHeat();
+      // hd2 is 1st, hd1 is 2nd
+      currentHeat.standings = ["hd2", "hd1"];
+      currentHeat.heatDrivers[0].rank = 0;
+      currentHeat.heatDrivers[1].rank = 0;
+
+      component["calculateHeatStandings"]();
+
+      expect(component["heatData"].length).toBe(2);
+      const row1 = component["heatData"].find(
+        (d) => d.heatDriver.objectId === "hd1",
+      )?.row;
+      const row2 = component["heatData"].find(
+        (d) => d.heatDriver.objectId === "hd2",
+      )?.row;
+
+      expect(row2?.rank).toBe(1);
+      expect(row1?.rank).toBe(2);
+    });
+
+    it("should resolve heat positions directly from heatDriver.rank", () => {
+      const currentHeat = mockRaceService.getCurrentHeat();
+      currentHeat.standings = [];
+      currentHeat.heatDrivers[0].rank = 2; // hd1
+      currentHeat.heatDrivers[1].rank = 1; // hd2
+
+      component["calculateHeatStandings"]();
+
+      const row1 = component["heatData"].find(
+        (d) => d.heatDriver.objectId === "hd1",
+      )?.row;
+      const row2 = component["heatData"].find(
+        (d) => d.heatDriver.objectId === "hd2",
+      )?.row;
+
+      expect(row2?.rank).toBe(1);
+      expect(row1?.rank).toBe(2);
+    });
+
+    it("should update heat positions when standingsUpdate$ emits", () => {
+      const currentHeat = mockRaceService.getCurrentHeat();
+      currentHeat.heatDrivers[0].rank = 1;
+      currentHeat.heatDrivers[1].rank = 2;
+      component["calculateHeatStandings"]();
+
+      expect(
+        component["heatData"].find((d) => d.heatDriver.objectId === "hd1")?.row
+          .rank,
+      ).toBe(1);
+      expect(
+        component["heatData"].find((d) => d.heatDriver.objectId === "hd2")?.row
+          .rank,
+      ).toBe(2);
+
+      // Now server emits standings update swapping positions
+      mockRaceConnectionService.driverRankings.set("hd1", 2);
+      mockRaceConnectionService.driverRankings.set("hd2", 1);
+      currentHeat.heatDrivers[0].rank = 2;
+      currentHeat.heatDrivers[1].rank = 1;
+
+      mockRaceConnectionService.standingsUpdate$.next({
+        updates: [
+          { objectId: "hd2", rank: 1 },
+          { objectId: "hd1", rank: 2 },
+        ],
+      });
+
+      expect(
+        component["heatData"].find((d) => d.heatDriver.objectId === "hd1")?.row
+          .rank,
+      ).toBe(2);
+      expect(
+        component["heatData"].find((d) => d.heatDriver.objectId === "hd2")?.row
+          .rank,
+      ).toBe(1);
+    });
+
+    it("should default rank to 0 for unranked drivers instead of defaulting to 1", () => {
+      const currentHeat = mockRaceService.getCurrentHeat();
+      currentHeat.standings = [];
+      currentHeat.heatDrivers[0].rank = 0;
+      currentHeat.heatDrivers[1].rank = 0;
+      mockRaceConnectionService.driverRankings.clear();
+
+      component["calculateHeatStandings"]();
+
+      const row1 = component["heatData"].find(
+        (d) => d.heatDriver.objectId === "hd1",
+      )?.row;
+      const row2 = component["heatData"].find(
+        (d) => d.heatDriver.objectId === "hd2",
+      )?.row;
+
+      expect(row1?.rank).toBe(0);
+      expect(row2?.rank).toBe(0);
     });
   });
 });

@@ -403,6 +403,11 @@ export class RaceConnectionService implements OnDestroy {
     this.subscriptions.push(
       this.dataService.getHeats().subscribe((heatProto) => {
         const heat = HeatConverter.fromProto(heatProto);
+        if (heat.standings && heat.standings.length > 0) {
+          heat.standings.forEach((sid, index) => {
+            this.driverRankings.set(sid, index + 1);
+          });
+        }
         this.raceService.setCurrentHeat(heat);
       }),
     );
@@ -523,6 +528,11 @@ export class RaceConnectionService implements OnDestroy {
 
     if (update.currentHeat) {
       const currentHeat = HeatConverter.fromProto(update.currentHeat);
+      if (currentHeat.standings && currentHeat.standings.length > 0) {
+        currentHeat.standings.forEach((sid, index) => {
+          this.driverRankings.set(sid, index + 1);
+        });
+      }
       this.raceService.setCurrentHeat(currentHeat);
     }
 
