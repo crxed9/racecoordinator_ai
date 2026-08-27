@@ -541,4 +541,79 @@ describe("RacedayLaneViewComponent", () => {
     expect(spans[1].textContent.trim()).toBe("2");
     expect(spans[1].style.paddingRight).toBe("0px");
   });
+
+  it("should apply 0px inline padding to pacing entry even when not in center-center anchor", () => {
+    mockParent.columns = [
+      {
+        propertyName: "ghostPacing",
+        labelKey: "RD_COL_GHOST_PACING",
+        layout: {
+          [AnchorPoint.TopCenter]: "ghostPacing",
+        },
+      } as any,
+    ];
+    mockParent.getLayoutEntries = (_col: any) => [
+      { anchor: "top-center", property: "ghostPacing" },
+    ];
+    fixture.detectChanges();
+
+    const pacingEl = fixture.nativeElement.querySelector(".pacing-entry");
+    expect(pacingEl).toBeTruthy();
+    expect(pacingEl.style.padding).toBe("0px");
+  });
+
+  it("should correctly identify solo center pacing and apply solo-pacing class", () => {
+    const colSingle = {
+      propertyName: "ghostPacing",
+      labelKey: "RD_COL_GHOST_PACING",
+      layout: { [AnchorPoint.CenterCenter]: "ghostPacing" },
+    };
+    mockParent.getLayoutEntries = (_c: any) => [
+      { anchor: "center-center", property: "ghostPacing" },
+    ];
+    expect(
+      component.isSoloCenterPacing(colSingle, {
+        anchor: "center-center",
+        property: "ghostPacing",
+      }),
+    ).toBeTrue();
+
+    // Multi-entry column
+    mockParent.getLayoutEntries = (_c: any) => [
+      { anchor: "center-center", property: "ghostPacing" },
+      { anchor: "top-left", property: "lapCount" },
+    ];
+    expect(
+      component.isSoloCenterPacing(colSingle, {
+        anchor: "center-center",
+        property: "ghostPacing",
+      }),
+    ).toBeFalse();
+
+    // Non-center anchor
+    expect(
+      component.isSoloCenterPacing(colSingle, {
+        anchor: "top-center",
+        property: "ghostPacing",
+      }),
+    ).toBeFalse();
+
+    // Non-pacing property
+    expect(
+      component.isSoloCenterPacing(colSingle, {
+        anchor: "center-center",
+        property: "lapCount",
+      }),
+    ).toBeFalse();
+
+    // Verify DOM receives solo-pacing class when single center pacing configured
+    mockParent.columns = [colSingle as any];
+    mockParent.getLayoutEntries = (_c: any) => [
+      { anchor: "center-center", property: "ghostPacing" },
+    ];
+    fixture.detectChanges();
+
+    const pacingEl = fixture.nativeElement.querySelector(".solo-pacing");
+    expect(pacingEl).toBeTruthy();
+  });
 });
