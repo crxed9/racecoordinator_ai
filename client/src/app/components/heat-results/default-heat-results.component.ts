@@ -327,10 +327,24 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
         this.raceConnectionService.driverRankings.get(heatDriver.objectId) || 0;
     } else if (
       !rank &&
+      heatDriver.participant?.objectId &&
+      this.raceConnectionService?.driverRankings?.has(
+        heatDriver.participant.objectId,
+      )
+    ) {
+      rank =
+        this.raceConnectionService.driverRankings.get(
+          heatDriver.participant.objectId,
+        ) || 0;
+    } else if (
+      !rank &&
       this.heat?.standings &&
       this.heat.standings.length > 0
     ) {
-      const idx = this.heat.standings.indexOf(heatDriver.objectId);
+      let idx = this.heat.standings.indexOf(heatDriver.objectId);
+      if (idx === -1 && heatDriver.participant?.objectId) {
+        idx = this.heat.standings.indexOf(heatDriver.participant.objectId);
+      }
       if (idx !== -1) {
         rank = idx + 1;
       }
