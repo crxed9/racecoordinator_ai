@@ -457,7 +457,7 @@ describe("RacedayLaneViewComponent", () => {
     expect(component.isPacingProperty(undefined)).toBe(false);
   });
 
-  it("should render recordLapTime column with time, nickname, and date", () => {
+  it("should render recordLapTime column with time, nickname, and date on separate lines", () => {
     mockParent.columns = [
       {
         propertyName: "recordLapTime",
@@ -474,6 +474,9 @@ describe("RacedayLaneViewComponent", () => {
     );
     expect(recordContentEls.length).toBe(2);
 
+    const firstRowSub = recordContentEls[0].querySelector(".record-lap-sub");
+    expect(firstRowSub).toBeTruthy();
+
     const firstRowTime = recordContentEls[0].querySelector(".record-lap-time");
     const firstRowHolder =
       recordContentEls[0].querySelector(".record-lap-holder");
@@ -482,6 +485,10 @@ describe("RacedayLaneViewComponent", () => {
     expect(firstRowTime.textContent.trim()).toBe("5.200");
     expect(firstRowHolder.textContent.trim()).toBe("Speedy");
     expect(firstRowDate.textContent.trim()).toBe("2026-08-21");
+    // Ensure date is after holder within record-lap-sub
+    expect(firstRowHolder.compareDocumentPosition(firstRowDate)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
 
     const secondRowTime = recordContentEls[1].querySelector(".record-lap-time");
     const secondRowHolder =
