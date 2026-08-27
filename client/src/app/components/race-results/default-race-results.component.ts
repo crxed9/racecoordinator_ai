@@ -172,17 +172,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private _scale = 1;
-  get scale(): number {
-    return this._scale;
-  }
-  set scale(val: number) {
-    this._scale = val;
-    this.scaleX = val;
-    this.scaleY = val;
-  }
-  scaleX = 1;
-  scaleY = 1;
+  scale = 1;
   protected participants: RaceParticipant[] = [];
   protected race?: Race;
   protected standingsRows: StandingsRow[] = [];
@@ -384,6 +374,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
 
   onPdfExportConfirm(options: PdfExportOptions) {
     this.showPdfExportDialog = false;
+    this.cdr.detectChanges();
     if (options.saveAsDefault) {
       const settings = this.settingsService.getSettings();
       settings.exportPdfBackgrounds = options.includeBackground;
@@ -449,7 +440,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
     return entry.holderNickname || entry.holderName || "---";
   }
 
-  get currentScaleX(): number {
+  get currentScale(): number {
     if (this.isPrinting) {
       const numLanes = this.race?.track?.lanes?.length || 0;
       const baseColumnsWidth = 1270;
@@ -462,18 +453,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
       }
       return 1;
     }
-    return this.scaleX;
-  }
-
-  get currentScaleY(): number {
-    if (this.isPrinting) {
-      return this.currentScaleX;
-    }
-    return this.scaleY;
-  }
-
-  get currentScale(): number {
-    return this.currentScaleX;
+    return this.scale;
   }
 
   private updateScale() {
@@ -484,18 +464,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const newScale = Math.min(scaleX, scaleY);
-      this.scale = newScale;
-      this.scaleX = newScale;
-      this.scaleY = newScale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   protected recalculateStandings() {

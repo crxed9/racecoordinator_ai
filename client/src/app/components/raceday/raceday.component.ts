@@ -28,6 +28,7 @@ import { RacePredictionService } from "@app/services/race-prediction.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
+import { CLIENT_VERSION } from "@app/version";
 
 import { DefaultRacedayComponent } from "./default-raceday.component";
 
@@ -93,8 +94,7 @@ export class RacedayComponent
   serverVersion = "";
   serverIp = "";
   serverPort = 7070;
-  clientVersion: string =
-    (window as any).CLIENT_VERSION_OVERRIDE || "0.0.0_dev";
+  clientVersion: string = CLIENT_VERSION;
 
   constructor(
     private fileSystem: FileSystemService,

@@ -217,4 +217,32 @@
       (change)="onSettingsChange()"
     ></app-action-button-inspector>
   }
+  @case ("action-open-season-results") {
+    <app-action-button-inspector
+      [widget]="widget()"
+      [disableFontSizes]="widget().scaleMode === 'auto'"
+      (change)="onSettingsChange()"
+    ></app-action-button-inspector>
+  }
+  @case ("action-open-prediction-results") {
+    <app-action-button-inspector
+      [widget]="widget()"
+      [disableFontSizes]="widget().scaleMode === 'auto'"
+      (change)="onSettingsChange()"
+    ></app-action-button-inspector>
+  }
+  @case ("action-master-power-on") {
+    <app-action-button-inspector
+      [widget]="widget()"
+      [disableFontSizes]="widget().scaleMode === 'auto'"
+      (change)="onSettingsChange()"
+    ></app-action-button-inspector>
+  }
+  @case ("action-master-power-off") {
+    <app-action-button-inspector
+      [widget]="widget()"
+      [disableFontSizes]="widget().scaleMode === 'auto'"
+      (change)="onSettingsChange()"
+    ></app-action-button-inspector>
+  }
 }

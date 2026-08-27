@@ -61,6 +61,9 @@ public abstract class DefaultProtocol implements IProtocol {
   protected Boolean lastMainPower = null;
   protected Map<Integer, Boolean> lastLanePower = new HashMap<>();
 
+  // Heat leader state
+  protected Integer lastLeaderLane = null;
+
   // Scheduling
   protected ScheduledExecutorService statusScheduler;
   protected ScheduledFuture<?> statusFuture;
@@ -473,6 +476,7 @@ public abstract class DefaultProtocol implements IProtocol {
     for (int i = 0; i < 5; i++) {
       isCountdownOn[i] = false;
     }
+    lastLeaderLane = null;
     onAnalogLedsChanged();
   }
 
@@ -636,5 +640,6 @@ public abstract class DefaultProtocol implements IProtocol {
     if (pitManager != null) {
       pitManager.reset();
     }
+    lastLeaderLane = null;
   }
 }

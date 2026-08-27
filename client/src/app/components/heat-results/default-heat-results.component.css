@@ -242,6 +242,10 @@
     display: block !important;
   }
 
+  .scrollable-container {
+    margin: 0 auto !important;
+  }
+
   body:not(.print-no-background) .dashboard-wrapper {
     background: #06090e !important;
   }

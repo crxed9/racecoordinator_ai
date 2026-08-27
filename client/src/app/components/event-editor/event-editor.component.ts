@@ -59,8 +59,6 @@ export class EventEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   isLoading = true;
   isSaving = false;
   scale = 1;
-  scaleX = 1;
-  scaleY = 1;
   showAddRaceModal = false;
   selectedRaceToAddId = "";
 
@@ -124,18 +122,7 @@ export class EventEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     const baseHeight = 900;
     const scaleX = window.innerWidth / baseWidth;
     const scaleY = window.innerHeight / baseHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   private cloneEvent(e: Event): Event {

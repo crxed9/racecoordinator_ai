@@ -37,7 +37,6 @@ public class ArduinoProtocol extends AbstractSerialProtocol {
   private ScheduledFuture<?> ledFlashFuture;
   private ArduinoLedHelper ledHelper;
 
-  private Integer lastLeaderLane = null;
   private List<Integer> lastHeatStandings = null;
   private Integer lastSentState = null;
   private Integer lastSentValue = null;
@@ -729,6 +728,7 @@ public class ArduinoProtocol extends AbstractSerialProtocol {
     lastSentState = null;
     lastSentValue = null;
     syncPower();
+    onAnalogLedsChanged();
     ledHelper.initializeHardwareState();
   }
 
@@ -915,6 +915,11 @@ public class ArduinoProtocol extends AbstractSerialProtocol {
         setPinState(isDigital, pin, isCountdownOn[3]);
       } else if (behavior == PinBehavior.BEHAVIOR_ANALOG_LED_COUNTDOWN_5_VALUE) {
         setPinState(isDigital, pin, isCountdownOn[4]);
+      } else if (behavior >= PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE
+          && behavior < PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE + 64) {
+        int lane = behavior - PinBehavior.BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE_VALUE;
+        boolean isLeader = (lastLeaderLane != null && lastLeaderLane == lane);
+        setPinState(isDigital, pin, isLeader);
       }
     }
   }
@@ -958,13 +963,18 @@ public class ArduinoProtocol extends AbstractSerialProtocol {
   public void setHeatStandings(List<Integer> laneIndices) {
     ledHelper.setHeatStandings(laneIndices);
 
-    if (laneIndices != null && !laneIndices.isEmpty()) {
-      int leaderLane = laneIndices.get(0);
-      if (lastLeaderLane == null || lastLeaderLane != leaderLane) {
-        lastLeaderLane = leaderLane;
+    Integer leaderLane =
+        (laneIndices != null && !laneIndices.isEmpty()) ? laneIndices.get(0) : null;
+    if (lastLeaderLane == null || !lastLeaderLane.equals(leaderLane)) {
+      lastLeaderLane = leaderLane;
+      if (leaderLane != null) {
         sendHeatLeader(leaderLane);
       }
+      updateAnalogLedPins(true, config.digitalIds);
+      updateAnalogLedPins(false, config.analogIds);
+    }
 
+    if (laneIndices != null && !laneIndices.isEmpty()) {
       if (lastHeatStandings == null || !lastHeatStandings.equals(laneIndices)) {
         lastHeatStandings = new java.util.ArrayList<>(laneIndices);
         sendHeatStandings(laneIndices);

@@ -121,6 +121,9 @@ export const mockDataService = {
   getSystemState: jasmine
     .createSpy("getSystemState")
     .and.returnValue(new Subject().asObservable()),
+  getSystemStateValue: jasmine
+    .createSpy("getSystemStateValue")
+    .and.returnValue(null),
   getServerIp: jasmine
     .createSpy("getServerIp")
     .and.returnValue(of("127.0.0.1")),
@@ -260,6 +263,7 @@ export function resetMocks() {
   mockDataService.getHeats.and.returnValue(new Subject().asObservable());
   mockDataService.getRecordData.and.returnValue(of(null));
   mockDataService.getSystemState.and.returnValue(new Subject().asObservable());
+  mockDataService.getSystemStateValue.and.returnValue(null);
   mockDataService.getServerIp.and.returnValue(of("127.0.0.1"));
   mockDataService.getTracks.and.returnValue(of([]));
   mockDataService.socketConnected$ = of(true);

@@ -6,7 +6,7 @@ import {
   moveItemInArray,
   ɵɵCdkScrollable,
 } from "@angular/cdk/drag-drop";
-import { DecimalPipe, NgClass } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -68,7 +68,6 @@ type Participant = Driver | Team;
     CdkDrag,
     FormsModule,
     NgClass,
-    DecimalPipe,
     ConfirmationModalComponent,
     AcknowledgementModalComponent,
     DemoConfigModalComponent,
@@ -110,8 +109,6 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   // UI State
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   translationsLoaded: boolean = false;
   isDropdownOpen: boolean = false;
   isEventDropdownOpen: boolean = false;
@@ -484,18 +481,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   getParticipantAvatarUrl(participant: Participant): string {
@@ -1804,6 +1790,26 @@ export class DefaultRacedaySetupComponent implements OnInit {
         content: this.translationService.translate("RDS_HELP_WELCOME_CONTENT"),
       },
       {
+        targetId: "available-drivers-section",
+        title: this.translationService.translate(
+          "RDS_HELP_DRIVER_AVAILABLE_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RDS_HELP_DRIVER_AVAILABLE_CONTENT",
+        ),
+        position: "right",
+      },
+      {
+        selector: "#available-drivers-section .header-actions",
+        title: this.translationService.translate(
+          "RDS_HELP_DRIVER_TEAM_STATS_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RDS_HELP_DRIVER_TEAM_STATS_CONTENT",
+        ),
+        position: "bottom",
+      },
+      {
         targetId: "racing-drivers-section",
         title: this.translationService.translate(
           "RDS_HELP_DRIVER_RACING_TITLE",
@@ -1822,26 +1828,6 @@ export class DefaultRacedaySetupComponent implements OnInit {
           "RDS_HELP_DRIVER_ACTIONS_CONTENT",
         ),
         position: "bottom",
-      },
-      {
-        targetId: "available-drivers-section",
-        title: this.translationService.translate(
-          "RDS_HELP_DRIVER_AVAILABLE_TITLE",
-        ),
-        content: this.translationService.translate(
-          "RDS_HELP_DRIVER_AVAILABLE_CONTENT",
-        ),
-        position: "right",
-      },
-      {
-        selector: "#available-drivers-section .header-actions",
-        title: this.translationService.translate(
-          "RDS_HELP_DRIVER_TEAM_STATS_TITLE",
-        ),
-        content: this.translationService.translate(
-          "RDS_HELP_DRIVER_TEAM_STATS_CONTENT",
-        ),
-        position: "right",
       },
       {
         selector: ".custom-dropdown-container",

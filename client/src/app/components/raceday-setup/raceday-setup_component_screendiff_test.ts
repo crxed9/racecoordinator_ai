@@ -264,4 +264,28 @@ test.describe("Raceday Setup Functional - en", () => {
       },
     );
   });
+
+  test("Season selected with standings", async ({ page }) => {
+    const container = page.locator(".setup-container");
+    const harness = new DefaultRacedaySetupHarnessE2e(container);
+
+    await harness.selectSeason("2026 Pro GT Championship");
+
+    const seasonCard = page.locator(".season-summary-card");
+    await seasonCard.waitFor({ state: "visible" });
+    await seasonCard
+      .locator(".standings-wrapper")
+      .waitFor({ state: "visible" });
+
+    await page.waitForTimeout(300);
+
+    await expect(page).toHaveScreenshot(
+      "season-selected-with-standings-en.png",
+      {
+        maxDiffPixelRatio: 0.05,
+        animations: "disabled",
+        timeout: 10000,
+      },
+    );
+  });
 });

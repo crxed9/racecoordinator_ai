@@ -80,8 +80,6 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   autoSaveTimeout: any;
   isAutoSaving = false;
   scale = 1;
-  scaleX = 1;
-  scaleY = 1;
   assets: any[] = [];
   private params = toSignal(this.route.queryParams);
 
@@ -811,20 +809,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     const windowHeight = window.innerHeight;
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit =
-      this.editingSettings?.forceFitScreen ??
-      this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const s = Math.min(scaleX, scaleY);
-      this.scale = s;
-      this.scaleX = s;
-      this.scaleY = s;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   /* eslint-disable max-lines-per-function */
@@ -1051,7 +1036,6 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     clone.highlightRowOnLap = s.highlightRowOnLap ?? true;
     clone.highlightPracticeRowOnLap = s.highlightPracticeRowOnLap ?? true;
     clone.pageTransition = s.pageTransition || "slide";
-    clone.forceFitScreen = s.forceFitScreen ?? false;
 
     // Theme fields
     clone.activeThemeId = s.activeThemeId;
@@ -1109,7 +1093,6 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       a.highlightRowOnLap === b.highlightRowOnLap &&
       a.highlightPracticeRowOnLap === b.highlightPracticeRowOnLap &&
       a.pageTransition === b.pageTransition &&
-      a.forceFitScreen === b.forceFitScreen &&
       a.activeThemeId === b.activeThemeId &&
       a.lampRedOn === b.lampRedOn &&
       a.lampRedDim === b.lampRedDim &&

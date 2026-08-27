@@ -188,7 +188,7 @@ export class RaceConverter {
           proto.autoAdvanceWarmupTime || 0,
           proto.autoStartWarmupTime || 0,
           p.driftTime || p.drift_time || 0.5,
-          p.minLapTime || p.min_lap_time || 1.5,
+          p.minLapTime ?? p.min_lap_time ?? 1.5,
           p.start_time !== undefined && p.start_time !== null
             ? Number(p.start_time)
             : p.startTime !== undefined && p.startTime !== null

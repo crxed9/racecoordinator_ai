@@ -1816,31 +1816,31 @@ describe("DefaultRacedaySetupComponent", () => {
       });
 
       expect(steps[1]).toEqual({
-        targetId: "racing-drivers-section",
-        title: "RDS_HELP_DRIVER_RACING_TITLE",
-        content: "RDS_HELP_DRIVER_RACING_CONTENT",
-        position: "right",
-      });
-
-      expect(steps[2]).toEqual({
-        selector: "#racing-drivers-section .section-header",
-        title: "RDS_HELP_DRIVER_ACTIONS_TITLE",
-        content: "RDS_HELP_DRIVER_ACTIONS_CONTENT",
-        position: "bottom",
-      });
-
-      expect(steps[3]).toEqual({
         targetId: "available-drivers-section",
         title: "RDS_HELP_DRIVER_AVAILABLE_TITLE",
         content: "RDS_HELP_DRIVER_AVAILABLE_CONTENT",
         position: "right",
       });
 
-      expect(steps[4]).toEqual({
+      expect(steps[2]).toEqual({
         selector: "#available-drivers-section .header-actions",
         title: "RDS_HELP_DRIVER_TEAM_STATS_TITLE",
         content: "RDS_HELP_DRIVER_TEAM_STATS_CONTENT",
+        position: "bottom",
+      });
+
+      expect(steps[3]).toEqual({
+        targetId: "racing-drivers-section",
+        title: "RDS_HELP_DRIVER_RACING_TITLE",
+        content: "RDS_HELP_DRIVER_RACING_CONTENT",
         position: "right",
+      });
+
+      expect(steps[4]).toEqual({
+        selector: "#racing-drivers-section .section-header",
+        title: "RDS_HELP_DRIVER_ACTIONS_TITLE",
+        content: "RDS_HELP_DRIVER_ACTIONS_CONTENT",
+        position: "bottom",
       });
 
       expect(steps[5]).toEqual({
@@ -1989,6 +1989,18 @@ describe("DefaultRacedaySetupComponent", () => {
         fixture.nativeElement.querySelector(".empty-season-card");
       expect(emptyCard).toBeTruthy();
       expect(emptyCard.textContent).toContain("RDS_NO_SEASON_SELECTED");
+    });
+
+    it("should calculate uniform scale on resize", () => {
+      spyOnProperty(window, "innerWidth", "get").and.returnValue(800);
+      spyOnProperty(window, "innerHeight", "get").and.returnValue(600);
+
+      component.onResize();
+      // Target width=1600, height=900
+      // scaleX = 800 / 1600 = 0.5
+      // scaleY = 600 / 900 = 0.6667
+      // uniform scale = min(0.5, 0.6667) = 0.5
+      expect(component.scale).toBeCloseTo(0.5, 3);
     });
   });
 });

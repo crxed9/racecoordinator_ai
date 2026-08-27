@@ -113,8 +113,6 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   driverMissingError = false;
 
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   isLoading: boolean = true;
   isSaving: boolean = false;
   isAutoSaving: boolean = false;
@@ -431,18 +429,7 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   monitorConnection() {
@@ -1377,6 +1364,26 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           val < PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE + 1000
         ) {
           base = PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE;
+        } else if (
+          val >= PinBehavior.BEHAVIOR_PIT_IN_BASE &&
+          val < PinBehavior.BEHAVIOR_PIT_OUT_BASE
+        ) {
+          base = PinBehavior.BEHAVIOR_PIT_IN_BASE;
+        } else if (
+          val >= PinBehavior.BEHAVIOR_PIT_OUT_BASE &&
+          val < PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE
+        ) {
+          base = PinBehavior.BEHAVIOR_PIT_OUT_BASE;
+        } else if (
+          val >= PinBehavior.BEHAVIOR_PIT_IN_OUT_BASE &&
+          val < PinBehavior.BEHAVIOR_PIT_IN_OUT_BASE + 1000
+        ) {
+          base = PinBehavior.BEHAVIOR_PIT_IN_OUT_BASE;
+        } else if (
+          val >= (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE &&
+          val < (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE + 1000
+        ) {
+          base = (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE;
         }
 
         if (base !== -1) {
@@ -1514,6 +1521,26 @@ export class TrackEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           val < PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE + 1000
         ) {
           base = PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE;
+        } else if (
+          val >= PinBehavior.BEHAVIOR_PIT_IN_BASE &&
+          val < PinBehavior.BEHAVIOR_PIT_OUT_BASE
+        ) {
+          base = PinBehavior.BEHAVIOR_PIT_IN_BASE;
+        } else if (
+          val >= PinBehavior.BEHAVIOR_PIT_OUT_BASE &&
+          val < PinBehavior.BEHAVIOR_VOLTAGE_LEVEL_BASE
+        ) {
+          base = PinBehavior.BEHAVIOR_PIT_OUT_BASE;
+        } else if (
+          val >= PinBehavior.BEHAVIOR_PIT_IN_OUT_BASE &&
+          val < PinBehavior.BEHAVIOR_PIT_IN_OUT_BASE + 1000
+        ) {
+          base = PinBehavior.BEHAVIOR_PIT_IN_OUT_BASE;
+        } else if (
+          val >= (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE &&
+          val < (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE + 1000
+        ) {
+          base = (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE;
         }
 
         if (base !== -1) {

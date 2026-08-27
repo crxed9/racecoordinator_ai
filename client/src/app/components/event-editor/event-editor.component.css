@@ -414,12 +414,27 @@
 }
 
 .modal-body select {
-  padding: 10px;
-  background: #1e293b;
+  padding: 10px 32px 10px 12px;
+  background-color: #1e293b;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyBmaWxsPScjOTRhM2I4JyBoZWlnaHQ9JzI0JyB2aWV3Qm94PScwIDAgMjQgMjQnIHdpZHRoPScyNCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cGF0aCBkPSdNNyAxMGw1IDUgNS01eicvPjwvc3ZnPg==");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px 20px;
   border: 1px solid rgba(56, 189, 248, 0.4);
   border-radius: 6px;
   color: #fff;
   font-size: 1.1rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  color-scheme: dark;
+}
+
+.modal-body select option,
+.modal-body select optgroup {
+  background-color: #0f172a;
+  color: #f8fafc;
 }
 
 .modal-body select:focus {

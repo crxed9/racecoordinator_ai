@@ -1048,6 +1048,19 @@ describe("DefaultRaceResultsComponent", () => {
         expect(component.showAckModal).toBeFalse();
         expect(routerSpy.navigate).not.toHaveBeenCalled();
       });
+
+      it("should calculate uniform scale on resize", () => {
+        spyOnProperty(window, "innerWidth", "get").and.returnValue(960);
+        spyOnProperty(window, "innerHeight", "get").and.returnValue(1080);
+
+        component.onResize();
+        // Target width=1920, height=1080
+        // scaleX = 960 / 1920 = 0.5
+        // scaleY = 1080 / 1080 = 1.0
+        // uniform scale = min(0.5, 1.0) = 0.5
+        expect(component.scale).toBeCloseTo(0.5, 3);
+        expect(component.currentScale).toBeCloseTo(0.5, 3);
+      });
     });
   });
 });

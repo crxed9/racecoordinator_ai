@@ -694,4 +694,41 @@ describe("PhidgetEditorComponent", () => {
     expect(component.availableDigitalInputPins.length).toBe(2);
     expect(component.availableDigitalOutputPins.length).toBe(4);
   });
+
+  describe("Heat Leader Analog LED Options", () => {
+    it("should include heat leader analog LED actions in analog LED group for all lanes", () => {
+      componentRef.setInput("lanes", 2);
+      fixture.detectChanges();
+
+      const groups = component.getFilteredActions("out", 0);
+      const analogGroup = groups.find(
+        (g) => g.key === "AE_BEHAVIOR_GROUP_ANALOG_LED",
+      );
+      expect(analogGroup).toBeDefined();
+
+      const lane1Leader = analogGroup?.actions.find(
+        (a) => a.value === "analogled_heat_leader_0",
+      );
+      const lane2Leader = analogGroup?.actions.find(
+        (a) => a.value === "analogled_heat_leader_1",
+      );
+
+      expect(lane1Leader).toBeDefined();
+      expect(lane2Leader).toBeDefined();
+    });
+
+    it("should select and get pin action for heat leader analog LEDs", () => {
+      component.selectPinAction("out", 0, "analogled_heat_leader_0");
+      expect(component.getPinAction("out", 0)).toBe("analogled_heat_leader_0");
+      expect(component.config()?.digitalOutIds?.[0]).toBe(
+        (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE,
+      );
+
+      component.selectPinAction("out", 1, "analogled_heat_leader_1");
+      expect(component.getPinAction("out", 1)).toBe("analogled_heat_leader_1");
+      expect(component.config()?.digitalOutIds?.[1]).toBe(
+        (PinBehavior as any).BEHAVIOR_ANALOG_LED_HEAT_LEADER_BASE + 1,
+      );
+    });
+  });
 });

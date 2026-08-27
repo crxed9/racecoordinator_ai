@@ -112,6 +112,12 @@ export class DefaultRacedaySetupHarnessE2e implements DefaultRacedaySetupHarness
     await this.dropdownTrigger.locator(".dropdown-arrow").click();
   }
 
+  async selectSeason(name: string): Promise<void> {
+    const select = this.locator.locator(this.base.selectors.seasonSelect);
+    await select.waitFor({ state: "visible" });
+    await select.selectOption({ label: name });
+  }
+
   async openOptionsMenu(): Promise<void> {
     await this.optionsMenu.click();
   }

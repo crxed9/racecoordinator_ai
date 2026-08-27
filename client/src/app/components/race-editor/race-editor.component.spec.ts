@@ -1709,6 +1709,7 @@ describe("RaceEditorComponent", () => {
         } as any,
       ];
       component.createNewRace();
+      expect(component.editingRace.min_lap_time).toBe(1.5);
       expect(
         component.editingRace.season_scoring.heat_position_points.length,
       ).toBe(6);

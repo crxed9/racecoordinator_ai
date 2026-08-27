@@ -39,6 +39,7 @@ import {
   UpdateProgress,
   UpdateService,
 } from "@app/services/update.service";
+import { CLIENT_VERSION } from "@app/version";
 
 import { DefaultRacedaySetupComponent } from "./default-raceday-setup.component";
 
@@ -99,13 +100,10 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
   tempServerPort = 7070;
   serverIp: string = "";
   serverVersion: string = "";
-  clientVersion: string =
-    (window as any).CLIENT_VERSION_OVERRIDE || "0.0.0_dev";
+  clientVersion: string = CLIENT_VERSION;
   showAboutDialog = false;
 
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
 
   quoteKeys: string[] = [];
   currentQuoteKey: string = "";
@@ -171,18 +169,7 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   get isServerConnected(): boolean {

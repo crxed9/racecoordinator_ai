@@ -93,6 +93,9 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .standings-header-container {
@@ -154,6 +157,9 @@
   text-align: left;
   border-bottom: 1px solid rgba(148, 163, 184, 0.1);
   box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .standings-table th {
@@ -170,20 +176,27 @@
 }
 
 .col-rank {
-  width: 80px;
+  width: 70px;
+  text-align: center;
   font-weight: 700;
 }
 
 .col-driver {
   font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 12px;
 }
 
 .col-pts {
-  width: 140px;
+  width: 170px;
+  text-align: right;
+  padding-right: 18px;
 }
 
 .col-races {
-  width: 100px;
+  width: 110px;
   text-align: center;
 }
 
@@ -204,27 +217,74 @@
   background: rgba(217, 119, 6, 0.12);
 }
 
-/* Compact title bar layout for Race Day Settings */
+/* Compact layout for Race Day Setup */
 .season-summary-container.compact .detail-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   padding-bottom: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .season-summary-container.compact .detail-header h2 {
-  font-size: 1.35rem;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #38bdf8;
+  width: 100%;
 }
 
 .season-summary-container.compact .season-meta {
-  gap: 8px;
+  gap: 6px;
 }
 
 .season-summary-container.compact .meta-pill {
   padding: 2px 8px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .season-summary-container.compact .badge-demo {
   padding: 2px 6px;
   font-size: 0.75rem;
+}
+
+.season-summary-container.compact .standings-table th,
+.season-summary-container.compact .standings-table td {
+  padding: 4px 4px;
+  font-size: 1.05rem;
+}
+
+.season-summary-container.compact .standings-table th {
+  font-size: 0.65rem;
+  letter-spacing: 0.2px;
+}
+
+.season-summary-container.compact .col-rank {
+  width: 44px;
+  text-align: center;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.season-summary-container.compact .col-driver {
+  font-size: 1.05rem;
+  padding-left: 4px;
+}
+
+.season-summary-container.compact .col-pts {
+  width: 92px;
+  text-align: right;
+  padding-right: 4px;
+  padding-left: 2px;
+}
+
+.season-summary-container.compact .col-races {
+  width: 48px;
+  text-align: center;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.season-summary-container.compact .net-highlight {
+  font-size: 1.1rem;
 }

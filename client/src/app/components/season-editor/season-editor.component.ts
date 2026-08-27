@@ -74,8 +74,6 @@ export class SeasonEditorComponent
   isLoading = true;
   isSaving = false;
   scale = 1;
-  scaleX = 1;
-  scaleY = 1;
 
   undoManager: UndoManager<Season>;
   private subscriptions: Subscription[] = [];
@@ -374,17 +372,32 @@ export class SeasonEditorComponent
     this.standings = result;
   }
 
-  toggleRaceExpanded(raceId: string): void {
-    if (this.expandedRaceIds.has(raceId)) {
-      this.expandedRaceIds.delete(raceId);
+  getRaceExpanderKey(race: SeasonRaceRecord, idx: number): string {
+    return `${race.race_id || "race"}_${race.timestamp || ""}_${idx}`;
+  }
+
+  toggleRaceExpanded(raceOrId: SeasonRaceRecord | string, idx?: number): void {
+    const key =
+      typeof raceOrId === "string"
+        ? raceOrId
+        : this.getRaceExpanderKey(raceOrId, idx ?? 0);
+    if (this.expandedRaceIds.has(key)) {
+      this.expandedRaceIds.delete(key);
     } else {
-      this.expandedRaceIds.add(raceId);
+      this.expandedRaceIds.add(key);
     }
     this.cdr.detectChanges();
   }
 
-  isRaceExpanded(raceId: string): boolean {
-    return this.expandedRaceIds.has(raceId);
+  isRaceExpanded(raceOrId: SeasonRaceRecord | string, idx?: number): boolean {
+    if (typeof raceOrId === "string") {
+      return this.expandedRaceIds.has(raceOrId);
+    }
+    const key = this.getRaceExpanderKey(raceOrId, idx ?? 0);
+    return (
+      this.expandedRaceIds.has(key) ||
+      (Boolean(raceOrId.race_id) && this.expandedRaceIds.has(raceOrId.race_id))
+    );
   }
 
   removeRaceFromSeason(index: number, event?: Event): void {
@@ -405,26 +418,21 @@ export class SeasonEditorComponent
     const isAlreadyInSeason = (candidate: SeasonRaceRecord): boolean => {
       if (!existingRaces || existingRaces.length === 0) return false;
       const candTs = Number(candidate.timestamp) || 0;
-      const candId = String(candidate.race_id || "");
+      const candId = String(candidate.race_id || "").trim();
       const candName = (candidate.race_name || "").trim().toLowerCase();
 
       return existingRaces.some((r) => {
         const rTs = Number(r.timestamp) || 0;
-        const rId = String(r.race_id || "");
+        const rId = String(r.race_id || "").trim();
         const rName = (r.race_name || "").trim().toLowerCase();
 
+        if (candTs > 0 && rTs > 0) {
+          return candTs === rTs;
+        }
         if (rId && candId && rId === candId) {
           return true;
         }
-        if (rTs > 0 && candTs > 0 && rTs === candTs) {
-          return true;
-        }
-        if (
-          (rTs === 0 || candTs === 0) &&
-          rName &&
-          candName &&
-          rName === candName
-        ) {
+        if (rName && candName && rName === candName) {
           return true;
         }
         return false;
@@ -731,18 +739,7 @@ export class SeasonEditorComponent
     const targetHeight = 900;
     const scaleX = window.innerWidth / targetWidth;
     const scaleY = window.innerHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   onInputChange(): void {

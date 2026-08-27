@@ -114,8 +114,6 @@ export class CustomRotationEditorComponent
 
   lastSavedAsset?: IAssetMessage;
   scale = 1;
-  scaleX = 1;
-  scaleY = 1;
   virtualDrivers: { id: number; name: string }[] = [];
   numVirtualDrivers: number = 10;
 
@@ -228,18 +226,7 @@ export class CustomRotationEditorComponent
 
     const scaleX = windowWidth / targetWidth;
     const scaleY = windowHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   ngOnInit() {

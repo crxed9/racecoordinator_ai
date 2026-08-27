@@ -1,9 +1,7 @@
 <div class="dashboard-wrapper">
   <div
     class="scalable-content"
-    [style.transform]="
-      'translate(-50%, -50%) scale(' + scaleX + ', ' + scaleY + ')'
-    "
+    [style.transform]="'translate(-50%, -50%) scale(' + scale + ')'"
   >
     <!-- Header Bar -->
     <div class="header-bar">
@@ -121,20 +119,18 @@
               <div class="expander-list">
                 @for (
                   race of season.races;
-                  track race.race_id || idx;
+                  track getRaceExpanderKey(race, idx);
                   let idx = $index
                 ) {
                   <div class="race-expander-card">
                     <div
                       class="expander-title-bar"
-                      (click)="toggleRaceExpanded(race.race_id || '' + idx)"
+                      (click)="toggleRaceExpanded(race, idx)"
                     >
                       <div class="expander-title-left">
                         <span
                           class="expander-icon"
-                          [class.collapsed]="
-                            !isRaceExpanded(race.race_id || '' + idx)
-                          "
+                          [class.collapsed]="!isRaceExpanded(race, idx)"
                           >▼</span
                         >
                         <span class="race-step">#{{ idx + 1 }}</span>
@@ -153,9 +149,7 @@
                     </div>
                     <div
                       class="expander-body"
-                      [class.expander-collapsed]="
-                        !isRaceExpanded(race.race_id || '' + idx)
-                      "
+                      [class.expander-collapsed]="!isRaceExpanded(race, idx)"
                     >
                       <table class="race-breakdown-table">
                         <thead>
@@ -179,13 +173,13 @@
                               class="driver-expandable-row"
                               [class.driver-row-expanded]="
                                 isDriverExpanded(
-                                  race.race_id || '' + idx,
+                                  getRaceExpanderKey(race, idx),
                                   res.driver_id
                                 )
                               "
                               (click)="
                                 toggleDriverExpanded(
-                                  race.race_id || '' + idx,
+                                  getRaceExpanderKey(race, idx),
                                   res.driver_id
                                 )
                               "
@@ -196,7 +190,7 @@
                                   class="driver-expander-chevron"
                                   [class.expanded]="
                                     isDriverExpanded(
-                                      race.race_id || '' + idx,
+                                      getRaceExpanderKey(race, idx),
                                       res.driver_id
                                     )
                                   "
@@ -229,7 +223,7 @@
                               class="driver-bonus-details-row"
                               [class.driver-bonus-collapsed]="
                                 !isDriverExpanded(
-                                  race.race_id || '' + idx,
+                                  getRaceExpanderKey(race, idx),
                                   res.driver_id
                                 )
                               "

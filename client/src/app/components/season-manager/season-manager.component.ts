@@ -1,4 +1,3 @@
-import { DecimalPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -43,7 +42,6 @@ import { naturalSortCompare } from "@app/utils/sorting.utils";
     ConfirmationModalComponent,
     SeasonSummaryComponent,
     TranslatePipe,
-    DecimalPipe,
     FormsModule,
   ],
 })
@@ -55,8 +53,6 @@ export class SeasonManagerComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   isSaving: boolean = false;
   scale: number = 1;
-  scaleX: number = 1;
-  scaleY: number = 1;
   searchQuery: string = "";
   isConnectionLost: boolean = false;
   showDeleteConfirmation: boolean = false;
@@ -126,18 +122,7 @@ export class SeasonManagerComponent implements OnInit, OnDestroy {
     const targetHeight = 900;
     const scaleX = window.innerWidth / targetWidth;
     const scaleY = window.innerHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   loadData(): void {

@@ -52,8 +52,6 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
 
   isLoading = true;
   scale = 1;
-  scaleX = 1;
-  scaleY = 1;
 
   showPdfExportDialog = false;
   defaultIncludeBackground = true;
@@ -136,18 +134,7 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
     const targetHeight = 1080;
     const scaleX = window.innerWidth / targetWidth;
     const scaleY = window.innerHeight / targetHeight;
-    const forceFit = this.settingsService.getSettings().forceFitScreen;
-
-    if (forceFit) {
-      this.scaleX = scaleX;
-      this.scaleY = scaleY;
-      this.scale = Math.min(scaleX, scaleY);
-    } else {
-      const scale = Math.min(scaleX, scaleY);
-      this.scale = scale;
-      this.scaleX = scale;
-      this.scaleY = scale;
-    }
+    this.scale = Math.min(scaleX, scaleY);
   }
 
   loadSeasonData(): void {
@@ -401,35 +388,67 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
     this.standings = result;
   }
 
-  toggleRaceExpanded(raceId: string): void {
-    if (this.expandedRaceIds.has(raceId)) {
-      this.expandedRaceIds.delete(raceId);
+  getRaceExpanderKey(race: SeasonRaceRecord, idx: number): string {
+    return `${race.race_id || "race"}_${race.timestamp || ""}_${idx}`;
+  }
+
+  toggleRaceExpanded(raceOrId: SeasonRaceRecord | string, idx?: number): void {
+    const key =
+      typeof raceOrId === "string"
+        ? raceOrId
+        : this.getRaceExpanderKey(raceOrId, idx ?? 0);
+    if (this.expandedRaceIds.has(key)) {
+      this.expandedRaceIds.delete(key);
     } else {
-      this.expandedRaceIds.add(raceId);
+      this.expandedRaceIds.add(key);
     }
     this.cdr.detectChanges();
   }
 
-  isRaceExpanded(raceId: string): boolean {
-    return this.expandedRaceIds.has(raceId);
+  isRaceExpanded(raceOrId: SeasonRaceRecord | string, idx?: number): boolean {
+    if (typeof raceOrId === "string") {
+      return this.expandedRaceIds.has(raceOrId);
+    }
+    const key = this.getRaceExpanderKey(raceOrId, idx ?? 0);
+    return (
+      this.expandedRaceIds.has(key) ||
+      (Boolean(raceOrId.race_id) && this.expandedRaceIds.has(raceOrId.race_id))
+    );
   }
 
-  getDriverKey(raceId: string, driverId: string): string {
-    return `${raceId}__${driverId}`;
+  getDriverKey(raceIdOrKey: string, driverId: string): string {
+    return `${raceIdOrKey}__${driverId}`;
   }
 
-  toggleDriverExpanded(raceId: string, driverId: string): void {
-    const key = this.getDriverKey(raceId, driverId);
+  toggleDriverExpanded(raceIdOrKey: string, driverId: string): void {
+    const key = this.getDriverKey(raceIdOrKey, driverId);
     if (this.expandedDriverKeys.has(key)) {
       this.expandedDriverKeys.delete(key);
     } else {
-      this.expandedDriverKeys.add(key);
+      const existing = Array.from(this.expandedDriverKeys).find(
+        (k) =>
+          k.endsWith(`__${driverId}`) &&
+          (k.startsWith(`${raceIdOrKey}_`) || k.startsWith(`${raceIdOrKey}__`)),
+      );
+      if (existing) {
+        this.expandedDriverKeys.delete(existing);
+      } else {
+        this.expandedDriverKeys.add(key);
+      }
     }
     this.cdr.detectChanges();
   }
 
-  isDriverExpanded(raceId: string, driverId: string): boolean {
-    return this.expandedDriverKeys.has(this.getDriverKey(raceId, driverId));
+  isDriverExpanded(raceIdOrKey: string, driverId: string): boolean {
+    const exactKey = this.getDriverKey(raceIdOrKey, driverId);
+    if (this.expandedDriverKeys.has(exactKey)) {
+      return true;
+    }
+    return Array.from(this.expandedDriverKeys).some(
+      (k) =>
+        k.endsWith(`__${driverId}`) &&
+        (k.startsWith(`${raceIdOrKey}_`) || k.startsWith(`${raceIdOrKey}__`)),
+    );
   }
 
   hasAnyBonuses(res: SeasonDriverResult): boolean {
@@ -563,6 +582,7 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
 
   onPdfExportConfirm(options: PdfExportOptions): void {
     this.showPdfExportDialog = false;
+    this.cdr.detectChanges();
     if (options.saveAsDefault) {
       const settings = this.settingsService.getSettings();
       settings.exportPdfBackgrounds = options.includeBackground;
@@ -575,7 +595,6 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
       undefined,
       options.includeBackground,
     );
-    this.cdr.detectChanges();
   }
 
   onPdfExportCancel(): void {

@@ -172,6 +172,15 @@ export class DefaultRacedaySetupHarness
     if (trigger) await trigger.click();
   }
 
+  async selectSeason(_name: string): Promise<void> {
+    const select = await this.locatorForOptional(
+      DefaultRacedaySetupHarnessBase.selectors.seasonSelect,
+    )();
+    if (select) {
+      await select.dispatchEvent("change");
+    }
+  }
+
   async openOptionsMenu(): Promise<void> {
     const menu = await this.getOptionsMenu();
     if (menu) await menu.click();

@@ -38,7 +38,6 @@ test.describe("UI Editor Visuals", () => {
     await previewContainer.waitFor({ state: "visible" });
     await TestSetupHelper.waitForImagesLoaded(editor);
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-page.png", {
       maxDiffPixelRatio: 0.05,
@@ -93,7 +92,6 @@ test.describe("UI Editor Visuals", () => {
       .waitFor({ state: "visible" });
     await TestSetupHelper.waitForImagesLoaded(modalContent);
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(modalContent).toHaveScreenshot(
       "ui-editor-image-selector-modal.png",
@@ -146,7 +144,6 @@ test.describe("UI Editor Visuals", () => {
     // Clear hover/focus and scroll into view
     await page.mouse.move(0, 0);
     await customHeader.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-duplicate-name-error.png", {
       maxDiffPixelRatio: 0.15,
@@ -210,7 +207,6 @@ test.describe("UI Editor Visuals", () => {
     const modalContent = page.locator("app-confirmation-modal .modal-content");
     await modalContent.waitFor({ state: "visible" });
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(modalContent).toHaveScreenshot(
       "ui-editor-discard-confirm.png",
@@ -248,7 +244,6 @@ test.describe("UI Editor Visuals", () => {
     await configSectionPractice.waitFor({ state: "visible" });
     await configSectionPractice.scrollIntoViewIfNeeded();
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot(
       "ui-editor-practice-layout-section.png",
@@ -284,7 +279,6 @@ test.describe("UI Editor Visuals", () => {
     await resolutionSelect.waitFor({ state: "visible" });
 
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot(
       "ui-editor-layout-resolution-dropdown.png",
@@ -320,7 +314,6 @@ test.describe("UI Editor Visuals", () => {
     await previewScaler.waitFor({ state: "visible" });
     await TestSetupHelper.waitForImagesLoaded(previewContainer);
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-layout-preview-scaled.png", {
       maxDiffPixelRatio: 0.1,
@@ -359,7 +352,6 @@ test.describe("UI Editor Visuals", () => {
     await TestSetupHelper.waitForImagesLoaded(customThemeSection);
     await customThemeSection.scrollIntoViewIfNeeded();
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-theme-custom-expanded.png", {
       maxDiffPixelRatio: 0.05,
@@ -397,7 +389,6 @@ test.describe("UI Editor Visuals", () => {
     await TestSetupHelper.waitForImagesLoaded(defaultThemeSection);
     await defaultThemeSection.scrollIntoViewIfNeeded();
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot(
       "ui-editor-theme-default-expanded.png",
@@ -428,42 +419,8 @@ test.describe("UI Editor Visuals", () => {
     const editor = page.locator(".ue-container");
     await TestSetupHelper.waitForImagesLoaded(editor);
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
 
     await expect(page).toHaveScreenshot("ui-editor-fullscreen.png", {
-      maxDiffPixelRatio: 0.05,
-      maxDiffPixels: 10000,
-      animations: "disabled",
-    });
-  });
-
-  test("should display UI editor with force fit screen enabled", async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 1280, height: 960 });
-    await TestSetupHelper.setupSettings(page, {
-      forceFitScreen: true,
-    });
-    await TestSetupHelper.waitForLocalization(
-      page,
-      "en",
-      page.goto("/ui-editor"),
-    );
-    const editor = page.locator(".ue-container");
-    await editor.waitFor({ state: "visible" });
-    const sectionsWrapper = page.locator(".sections-wrapper");
-    await sectionsWrapper.waitFor({ state: "visible" });
-
-    const previewContainer = page.locator(".raceday-preview-container").first();
-    await previewContainer.waitFor({ state: "visible" });
-    const previewScaler = page.locator(".raceday-preview-scaler").first();
-    await previewScaler.waitFor({ state: "visible" });
-
-    await TestSetupHelper.waitForImagesLoaded(editor);
-    await page.mouse.move(0, 0);
-    await page.waitForTimeout(300);
-
-    await expect(page).toHaveScreenshot("ui-editor-force-fit-screen.png", {
       maxDiffPixelRatio: 0.05,
       maxDiffPixels: 10000,
       animations: "disabled",

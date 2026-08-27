@@ -185,13 +185,14 @@
   box-shadow: inset 0 10px 20px -10px rgba(0, 0, 0, 0.5);
 }
 
-/* LHS: Drivers Panel */
+/* LHS: Drivers Panel (Available on left, Racing on right) */
 .editor-panel {
   margin-left: 0;
-  width: 320px;
+  width: 560px;
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 15px;
   background-color: transparent;
   padding-top: 15px;
   overflow: hidden;
@@ -200,14 +201,16 @@
 .driver-pool-section {
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   flex: 1;
+  height: 100%;
   overflow: hidden;
   background: rgba(15, 23, 42, 0.4);
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
   padding: 15px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .driver-pool-section.collapsed {
@@ -526,6 +529,30 @@
   box-shadow: 0 0 4px rgba(56, 189, 248, 0.2);
 }
 
+#available-drivers-section .section-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+#available-drivers-section .header-title-container {
+  width: 100%;
+}
+
+#available-drivers-section .header-actions {
+  margin-left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#available-drivers-section .available-pill {
+  flex: 1;
+  justify-content: center;
+  padding: 3px 8px;
+}
+
 .section-header .header-actions {
   display: flex;
   gap: 6px;
@@ -641,9 +668,10 @@
   height: 100%;
   overflow: hidden;
   background-color: transparent;
-  padding: 15px 10px 0 25px;
+  padding: 15px 10px 0 20px;
   border-left: 1px solid rgba(56, 189, 248, 0.15);
   position: relative;
+  min-width: 0;
 }
 
 .quick-start-grid {
@@ -788,19 +816,22 @@
 }
 
 .all-races-selector .custom-dropdown-container {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   position: relative;
   z-index: 100;
 }
 
 .all-races-selector .search-wrapper {
-  flex: 0.8;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .all-races-selector .season-selection-wrapper {
   display: flex;
   align-items: center;
-  flex: 0.8;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .all-races-selector .season-select-input {
@@ -1302,35 +1333,50 @@
   gap: 15px;
 }
 
+.setup-summaries-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  align-items: stretch;
+}
+
 .event-details-card {
   background: rgba(30, 41, 59, 0.6);
   border: 1px solid rgba(56, 189, 248, 0.3);
   border-radius: 8px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-height: 180px;
-  margin-top: 10px;
+  gap: 2px;
+  flex: 0.7;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
   overflow: hidden;
   box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 .event-details-card.season-summary-card {
-  flex: 1;
-  min-height: 320px;
+  flex: 1.3;
+  min-width: 0;
+  min-height: 0;
   max-height: none;
-  margin-bottom: 12px;
+  margin: 0;
   overflow: hidden;
-  padding: 12px 16px;
+  padding: 8px 12px;
 }
 
 .event-details-card.season-summary-card.empty-season-card {
-  flex: 1;
+  flex: 1.3;
   justify-content: center;
   align-items: center;
-  min-height: 60px;
+  min-height: 0;
   max-height: none;
 }
 
@@ -1342,8 +1388,8 @@
 }
 
 .event-detail-title {
-  font-size: 1.15rem;
-  font-weight: 800;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #38bdf8;
 }
 
@@ -1360,7 +1406,8 @@
 .event-races-summary {
   display: block;
   margin-top: 0;
-  max-height: 120px;
+  flex: 1;
+  max-height: none;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -1464,36 +1511,39 @@
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px 16px;
-  margin-top: 6px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 10px;
+  margin-top: 4px;
   background: rgba(15, 23, 42, 0.4);
-  padding: 10px 12px;
+  padding: 4px 8px;
   border-radius: 6px;
   border: 1px solid rgba(148, 163, 184, 0.1);
+  flex: 1;
+  align-content: start;
 }
 
 .summary-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .summary-label {
   font-size: 0.72rem;
   color: #94a3b8;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
+  letter-spacing: 0.25px;
+  line-height: 1.15;
+  white-space: normal;
+  overflow: hidden;
 }
 
 .summary-value {
   font-size: 0.95rem;
-  color: #f8fafc;
+  color: #ffffff;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .empty-standings {

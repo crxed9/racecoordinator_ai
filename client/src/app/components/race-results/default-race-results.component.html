@@ -3,12 +3,8 @@
     class="scalable-content"
     [style.transform]="
       isPrinting
-        ? 'scale(' + currentScaleX + ', ' + currentScaleY + ')'
-        : 'translate(-50%, -50%) scale(' +
-          currentScaleX +
-          ', ' +
-          currentScaleY +
-          ')'
+        ? 'scale(' + currentScale + ')'
+        : 'translate(-50%, -50%) scale(' + currentScale + ')'
     "
   >
     <!-- Top Cyberpunk Title Bar -->

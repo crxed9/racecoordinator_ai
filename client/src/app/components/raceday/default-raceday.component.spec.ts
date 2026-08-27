@@ -5971,4 +5971,111 @@ describe("DefaultRacedayComponent", () => {
       expect(component.showSaveRaceDialog).toBeFalse();
     });
   });
+
+  describe("Master Power Actions and Unused Widgets", () => {
+    it("should compute isMainPowerDisabled correctly based on role and relays", () => {
+      mockAuthService.currentRoleSubject.next(Role.VIEWER);
+      expect(component.isMainPowerDisabled).toBeTrue();
+
+      mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
+      mockDataService.getSystemStateValue.and.returnValue(null);
+      expect(component.isMainPowerDisabled).toBeTrue();
+
+      mockDataService.getSystemStateValue.and.returnValue({
+        hasMainRelay: false,
+        hasPerLaneRelays: false,
+      } as any);
+      expect(component.isMainPowerDisabled).toBeTrue();
+
+      mockDataService.getSystemStateValue.and.returnValue({
+        hasMainRelay: true,
+        hasPerLaneRelays: false,
+      } as any);
+      expect(component.isMainPowerDisabled).toBeFalse();
+
+      mockDataService.getSystemStateValue.and.returnValue({
+        hasMainRelay: false,
+        hasPerLaneRelays: true,
+      } as any);
+      expect(component.isMainPowerDisabled).toBeFalse();
+    });
+
+    it("should include master power widgets in getUnusedWidgets when not in layout", () => {
+      component.layout = { widgets: [] } as any;
+      const unused = component.getUnusedWidgets();
+      expect(unused).toContain("action-master-power-on");
+      expect(unused).toContain("action-master-power-off");
+      expect(unused).toContain("action-open-season-results");
+      expect(unused).toContain("action-open-prediction-results");
+
+      component.layout = {
+        widgets: [
+          { widgetType: "action-master-power-on" } as any,
+          { widgetType: "action-master-power-off" } as any,
+        ],
+      } as any;
+      const updatedUnused = component.getUnusedWidgets();
+      expect(updatedUnused).not.toContain("action-master-power-on");
+      expect(updatedUnused).not.toContain("action-master-power-off");
+    });
+
+    it("should execute master power actions on executeWidgetAction", () => {
+      mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
+      mockDataService.getSystemStateValue.and.returnValue({
+        hasMainRelay: true,
+      } as any);
+      spyOn(component, "onTrackPowerMainSelect");
+      spyOn(component, "onWindowsMenuSelect");
+      spyOn(component, "onFileMenuSelect");
+
+      component["executeWidgetAction"]("action-master-power-on");
+      expect(component.onTrackPowerMainSelect).toHaveBeenCalledWith(true);
+
+      component["executeWidgetAction"]("action-master-power-off");
+      expect(component.onTrackPowerMainSelect).toHaveBeenCalledWith(false);
+
+      component["executeWidgetAction"]("action-open-season-results");
+      expect(component.onWindowsMenuSelect).toHaveBeenCalledWith(
+        "SEASON_RESULTS",
+      );
+
+      component["executeWidgetAction"]("action-open-prediction-results");
+      expect(component.onWindowsMenuSelect).toHaveBeenCalledWith(
+        "PREDICTION_RESULTS",
+      );
+
+      component["executeWidgetAction"]("action-export-pdf");
+      expect(component.onFileMenuSelect).toHaveBeenCalledWith("EXPORT_PDF");
+    });
+
+    it("should trigger master power action from keyboard shortcut", () => {
+      mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
+      mockDataService.getSystemStateValue.and.returnValue({
+        hasMainRelay: true,
+      } as any);
+      spyOn(component, "onTrackPowerMainSelect");
+
+      component.layout = {
+        widgets: [
+          {
+            widgetType: "action-master-power-on",
+            customSettings: { shortcut: "Ctrl+P" },
+          } as any,
+        ],
+      } as any;
+
+      const event = new KeyboardEvent("keydown", {
+        key: "p",
+        code: "KeyP",
+        ctrlKey: true,
+      });
+      spyOn(event, "preventDefault");
+      spyOn(event, "stopPropagation");
+
+      const handled = component["checkWidgetShortcuts"](event);
+      expect(handled).toBeTrue();
+      expect(component.onTrackPowerMainSelect).toHaveBeenCalledWith(true);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+  });
 });
