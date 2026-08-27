@@ -1,7 +1,9 @@
 import { Pipe, PipeTransform } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
+import { TwinGraphsComponent } from "@app/components/shared/twin-graphs/twin-graphs.component";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
 import { Race } from "@app/models/race";
@@ -123,10 +125,24 @@ describe("DefaultHeatResultsComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should render dual graph containers", () => {
+  it("should render dual graph containers in stacked layout with axis titles and dual legends", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector(".rankings-graph")).toBeTruthy();
     expect(compiled.querySelector(".laptimes-graph")).toBeTruthy();
+
+    const twinGraphsDebug = fixture.debugElement.query(
+      By.directive(TwinGraphsComponent),
+    );
+    expect(twinGraphsDebug).toBeTruthy();
+    expect(twinGraphsDebug.componentInstance.stacked).toBeTrue();
+
+    // Verify top and bottom legends are rendered in stacked mode
+    expect(compiled.querySelector(".top-legend")).toBeTruthy();
+    expect(compiled.querySelector(".legend")).toBeTruthy();
+
+    // Verify axis titles for both graphs are rendered (X and Y for each = 4 total)
+    const axisTitles = compiled.querySelectorAll(".axis-title");
+    expect(axisTitles.length).toBe(4);
   });
 
   it("should calculate ranking timeline correctly", () => {
