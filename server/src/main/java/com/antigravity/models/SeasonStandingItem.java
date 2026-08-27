@@ -76,6 +76,11 @@ public class SeasonStandingItem {
     return round2(grossPoints);
   }
 
+  @JsonProperty("dropped_points")
+  public double getDroppedPoints() {
+    return round2(Math.max(0.0, getGrossPoints() - getNetPoints()));
+  }
+
   @JsonProperty("races_run")
   public int getRacesRun() {
     return racesRun;

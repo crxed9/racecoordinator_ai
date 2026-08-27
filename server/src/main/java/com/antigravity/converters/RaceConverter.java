@@ -253,6 +253,7 @@ public class RaceConverter {
                       .setDriverName(standing.getDriverName())
                       .setNetPoints(standing.getNetPoints())
                       .setGrossPoints(standing.getGrossPoints())
+                      .setDroppedPoints(standing.getDroppedPoints())
                       .setRacesRun(standing.getRacesRun())
                       .setCurrentRacePoints(standing.getCurrentRacePoints());
               if (currentDetail != null) {

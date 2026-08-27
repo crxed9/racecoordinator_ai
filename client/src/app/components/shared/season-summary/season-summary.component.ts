@@ -26,15 +26,25 @@ export class SeasonSummaryComponent {
   computedStandings = computed(() => {
     const raw = this.standings();
     if (raw !== undefined && raw !== null && raw.length > 0) {
-      return raw.map((item: any) => ({
-        driver_id: item.driver_id ?? item.driverId ?? "",
-        driver_name: item.driver_name ?? item.driverName ?? "",
-        net_points: item.net_points ?? item.netPoints ?? 0,
-        gross_points: item.gross_points ?? item.grossPoints ?? 0,
-        races_run: item.races_run ?? item.racesRun ?? 0,
-        current_race_points: item.current_race_points ?? item.currentRacePoints,
-        race_scores: item.race_scores ?? item.raceScores ?? [],
-      }));
+      return raw.map((item: any) => {
+        const net = item.net_points ?? item.netPoints ?? 0;
+        const gross = item.gross_points ?? item.grossPoints ?? 0;
+        const dropped =
+          item.dropped_points ??
+          item.droppedPoints ??
+          Math.round(Math.max(0, gross - net) * 100) / 100;
+        return {
+          driver_id: item.driver_id ?? item.driverId ?? "",
+          driver_name: item.driver_name ?? item.driverName ?? "",
+          net_points: net,
+          gross_points: gross,
+          dropped_points: dropped,
+          races_run: item.races_run ?? item.racesRun ?? 0,
+          current_race_points:
+            item.current_race_points ?? item.currentRacePoints,
+          race_scores: item.race_scores ?? item.raceScores ?? [],
+        };
+      });
     }
     const s = this.season();
     if (!s) return [];

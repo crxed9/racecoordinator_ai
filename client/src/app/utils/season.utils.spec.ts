@@ -75,11 +75,13 @@ describe("season.utils", () => {
     expect(standings[0].driver_name).toBe("Max Verstappen");
     expect(standings[0].net_points).toBe(25);
     expect(standings[0].gross_points).toBe(43);
+    expect(standings[0].dropped_points).toBe(18);
     expect(standings[0].races_run).toBe(2);
 
     expect(standings[1].driver_name).toBe("Lewis Hamilton");
     expect(standings[1].net_points).toBe(25);
     expect(standings[1].gross_points).toBe(35);
+    expect(standings[1].dropped_points).toBe(10);
     expect(standings[1].races_run).toBe(2);
   });
 });

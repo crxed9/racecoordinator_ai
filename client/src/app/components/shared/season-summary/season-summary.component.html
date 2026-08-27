@@ -41,6 +41,9 @@
                   <th class="col-pts">
                     {{ "SM_GROSS_POINTS" | translate }}
                   </th>
+                  <th class="col-pts">
+                    {{ "SM_DROPPED_POINTS" | translate }}
+                  </th>
                   <th class="col-races">
                     {{ "SM_RACES" | translate }}
                   </th>
@@ -80,6 +83,9 @@
                     </td>
                     <td class="col-pts">
                       {{ item.gross_points | number: "1.0-2" }}
+                    </td>
+                    <td class="col-pts">
+                      {{ item.dropped_points | number: "1.0-2" }}
                     </td>
                     <td class="col-races">{{ item.races_run }}</td>
                   </tr>

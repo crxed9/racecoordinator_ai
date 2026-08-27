@@ -84,16 +84,17 @@ describe("SeasonSummaryComponent", () => {
         driver_id: "d1",
         driver_name: "First Driver",
         net_points: 50,
-        gross_points: 50,
-        races_run: 2,
+        gross_points: 70,
+        dropped_points: 20,
+        races_run: 3,
         race_scores: [],
       },
       {
         driver_id: "d2",
         driver_name: "Second Driver",
         net_points: 40,
-        gross_points: 40,
-        races_run: 2,
+        gross_points: 55,
+        races_run: 3,
         race_scores: [],
       },
       {
@@ -118,6 +119,17 @@ describe("SeasonSummaryComponent", () => {
     fixture.componentRef.setInput("standings", standings);
     fixture.detectChanges();
 
+    const headers = fixture.nativeElement.querySelectorAll(
+      ".standings-header-container thead tr th",
+    );
+    expect(headers.length).toBe(6);
+    expect(headers[0].textContent.trim()).toBe("SM_RANK");
+    expect(headers[1].textContent.trim()).toBe("SM_DRIVER");
+    expect(headers[2].textContent.trim()).toBe("SM_NET_POINTS");
+    expect(headers[3].textContent.trim()).toBe("SM_GROSS_POINTS");
+    expect(headers[4].textContent.trim()).toBe("SM_DROPPED_POINTS");
+    expect(headers[5].textContent.trim()).toBe("SM_RACES");
+
     const rows = fixture.nativeElement.querySelectorAll(
       ".standings-body-container tbody tr",
     );
@@ -127,9 +139,15 @@ describe("SeasonSummaryComponent", () => {
     expect(rows[0].textContent).toContain("🥇 1");
     expect(rows[0].textContent).toContain("First Driver");
     expect(rows[0].textContent).toContain("50");
+    expect(rows[0].textContent).toContain("70");
+    expect(rows[0].textContent).toContain("20");
 
     expect(rows[1].classList).toContain("podium-2");
     expect(rows[1].textContent).toContain("🥈 2");
+    expect(rows[1].textContent).toContain("Second Driver");
+    expect(rows[1].textContent).toContain("40");
+    expect(rows[1].textContent).toContain("55");
+    expect(rows[1].textContent).toContain("15");
 
     expect(rows[2].classList).toContain("podium-3");
     expect(rows[2].textContent).toContain("🥉 3");
