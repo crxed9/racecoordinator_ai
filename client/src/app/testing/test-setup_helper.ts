@@ -1931,28 +1931,42 @@ export class TestSetupHelper {
     }
 
     const injectHeatStandings = (heat: any) => {
-      if (
-        heat &&
-        heat.heatDrivers &&
-        (!heat.standings || heat.standings.length === 0)
-      ) {
-        heat.standings = heat.heatDrivers
-          .filter((hd: any) => {
-            const isEmptyDriver =
-              hd?.driver?.driver?.model?.entityId === "" ||
-              hd?.driver?.model?.entityId === "" ||
-              hd?.actualDriver?.model?.entityId === "" ||
-              hd?.driver?.name === "Empty";
-            return !isEmptyDriver;
-          })
-          .map((hd: any) => hd.objectId);
+      if (!heat) return;
+      if (heat.heatDrivers) {
+        heat.heatDrivers.forEach((hd: any, index: number) => {
+          if (!hd.objectId) {
+            hd.objectId =
+              hd.driver?.objectId ||
+              hd.driver?.driver?.model?.entityId ||
+              hd.driver?.model?.entityId ||
+              hd.actualDriver?.model?.entityId ||
+              `hd_${hd.laneIndex ?? index}`;
+          }
+        });
+        if (!heat.standings || heat.standings.length === 0) {
+          heat.standings = heat.heatDrivers
+            .filter((hd: any) => {
+              const isEmptyDriver =
+                hd?.driver?.driver?.model?.entityId === "" ||
+                hd?.driver?.model?.entityId === "" ||
+                hd?.actualDriver?.model?.entityId === "" ||
+                hd?.driver?.name === "Empty";
+              return !isEmptyDriver && hd.objectId;
+            })
+            .map((hd: any) => hd.objectId);
+        }
+      }
+      if (heat.standings) {
+        heat.standings = heat.standings.filter(
+          (s: any) => typeof s === "string" && s.length > 0,
+        );
       }
     };
 
     if (data?.race?.currentHeat) {
       injectHeatStandings(data.race.currentHeat);
     }
-    if (data?.race?.heats) {
+    if (data?.race?.heats && Array.isArray(data.race.heats)) {
       data.race.heats.forEach((h: any) => injectHeatStandings(h));
     }
     if (data?.heat) {
