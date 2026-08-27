@@ -265,6 +265,7 @@
                     #fitTextTarget
                     [class]="parent().getAnchorClass(entry.anchor)"
                     [class.pacing-entry]="isPacingProperty(entry.property)"
+                    [class.solo-pacing]="isSoloCenterPacing(col, entry)"
                     [style.word-break]="
                       ['rankHeat', 'rankOverall', 'rankGroup'].includes(
                         entry.property
@@ -297,6 +298,7 @@
                     [style.padding]="
                       !parent().isNameProperty(entry.property) &&
                       entry.property !== 'laneNumber' &&
+                      !isPacingProperty(entry.property) &&
                       entry.anchor !== 'center-center'
                         ? '10px'
                         : '0'
@@ -453,7 +455,8 @@
                       } @else {
                         <app-raceday-ghost-pacing
                           [driverHeatData]="hd"
-                          [compact]="true"
+                          [compact]="!isSoloCenterPacing(col, entry)"
+                          [stacked]="isSoloCenterPacing(col, entry)"
                           [benchmarkType]="
                             getPacingBenchmarkType(entry.property)
                           "

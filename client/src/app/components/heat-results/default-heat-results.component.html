@@ -56,25 +56,28 @@
       </div>
     </div>
 
-    <app-twin-graphs
-      [driverLines]="driverLines"
-      [xTicks]="xTicks"
-      [yTicksLeft]="yTicksLeft"
-      [yTicks]="yTicks"
-      [width]="width"
-      [height]="height"
-      [padding]="padding"
-      [maxX]="maxX"
-      [maxY]="maxY"
-      titleKey="HR_TITLE"
-      [titleParams]="{ heat: heat?.heatNumber }"
-      leftTitleKey="HR_RANKINGS_HEADER"
-      rightTitleKey="HR_LAP_TIMES_HEADER"
-      leftXAxisKey="HR_X_AXIS"
-      rightXAxisKey="HR_X_AXIS"
-      leftYAxisKey="HR_HEAT_POSITION"
-      rightYAxisKey="HR_Y_AXIS"
-    ></app-twin-graphs>
+    @if (driverLines.length > 0) {
+      <app-twin-graphs
+        [driverLines]="driverLines"
+        [xTicks]="xTicks"
+        [yTicksLeft]="yTicksLeft"
+        [yTicks]="yTicks"
+        [width]="width"
+        [height]="height"
+        [padding]="padding"
+        [maxX]="maxX"
+        [maxY]="maxY"
+        [stacked]="true"
+        titleKey="HR_TITLE"
+        [titleParams]="{ heat: heat?.heatNumber }"
+        leftTitleKey="HR_RANKINGS_HEADER"
+        rightTitleKey="HR_LAP_TIMES_HEADER"
+        leftXAxisKey="HR_X_AXIS"
+        rightXAxisKey="HR_X_AXIS"
+        leftYAxisKey="HR_HEAT_POSITION"
+        rightYAxisKey="HR_Y_AXIS"
+      ></app-twin-graphs>
+    }
   </div>
 </div>
 

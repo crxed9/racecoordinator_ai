@@ -14,6 +14,7 @@ import { AnchorPoint } from "@app/components/raceday/column_definition";
 import { DataService } from "@app/data.service";
 import { Settings } from "@app/models/settings";
 import { Theme } from "@app/models/theme";
+import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
 import { FileSystemService } from "@app/services/file-system.service";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
@@ -2644,6 +2645,38 @@ describe("UIEditorComponent", () => {
         jasmine.objectContaining({ id: "pw1" }),
       );
       expect((practiceWidget as any).scaleMode).toBe("auto");
+    });
+  });
+
+  describe("ChildWindowManagerService integration", () => {
+    let childWindowManager: ChildWindowManagerService;
+
+    beforeEach(() => {
+      childWindowManager = TestBed.inject(ChildWindowManagerService);
+      spyOn(childWindowManager, "closeAllWindows");
+    });
+
+    it("should close all windows on onPageHide", () => {
+      component.onPageHide({});
+      expect(childWindowManager.closeAllWindows).toHaveBeenCalled();
+    });
+
+    it("should close all windows on ngOnDestroy when navigating to non-race-preserving route", () => {
+      (component as any).pendingNavigationUrl = "/raceday-setup";
+      component.ngOnDestroy();
+      expect(childWindowManager.closeAllWindows).toHaveBeenCalled();
+    });
+
+    it("should not close windows on ngOnDestroy when navigating back to /raceday", () => {
+      (component as any).pendingNavigationUrl = "/raceday";
+      component.ngOnDestroy();
+      expect(childWindowManager.closeAllWindows).not.toHaveBeenCalled();
+    });
+
+    it("should not close windows on ngOnDestroy when navigating back to /default-raceday", () => {
+      (component as any).pendingNavigationUrl = "/default-raceday";
+      component.ngOnDestroy();
+      expect(childWindowManager.closeAllWindows).not.toHaveBeenCalled();
     });
   });
 });

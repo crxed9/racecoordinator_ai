@@ -9,6 +9,7 @@ import {
   RaceState,
 } from "@app/proto/antigravity";
 
+import { ChildWindowManagerService } from "./child-window-manager.service";
 import { RaceService } from "./race.service";
 import { RaceConnectionService } from "./race-connection.service";
 
@@ -135,6 +136,15 @@ describe("RaceConnectionService", () => {
       // Should be called immediately without ticking
       expect((service as any).stopConnection).toHaveBeenCalledTimes(1);
     }));
+
+    it("should call closeAllWindows on childWindowManagerService when stopConnection runs", () => {
+      const childWindowManager = TestBed.inject(ChildWindowManagerService);
+      spyOn(childWindowManager, "closeAllWindows");
+
+      (service as any).stopConnection();
+
+      expect(childWindowManager.closeAllWindows).toHaveBeenCalled();
+    });
   });
 
   describe("Watchdog and Alerts", () => {

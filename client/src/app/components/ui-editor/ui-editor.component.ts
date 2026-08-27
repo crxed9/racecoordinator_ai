@@ -5,6 +5,7 @@ import {
   Component,
   computed,
   HostListener,
+  inject,
   NgZone,
   OnDestroy,
   OnInit,
@@ -12,7 +13,7 @@ import {
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, NavigationStart, Router } from "@angular/router";
 import { forkJoin, of, Subscription } from "rxjs";
 import { DefaultRacedayComponent } from "@app/components/raceday/default-raceday.component";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
@@ -29,6 +30,7 @@ import { AudioConfig } from "@app/models/driver";
 import { LayoutConfig, Settings } from "@app/models/settings";
 import { Theme } from "@app/models/theme";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
+import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
 import { FileSystemService } from "@app/services/file-system.service";
 import { GuideStep, HelpService } from "@app/services/help.service";
 import { LoggerService } from "@app/services/logger.service";
@@ -633,6 +635,9 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     document.body.removeChild(a);
   }
 
+  private pendingNavigationUrl = "";
+  private childWindowManagerService: ChildWindowManagerService;
+
   constructor(
     private settingsService: SettingsService,
     private fileSystem: FileSystemService,
@@ -646,7 +651,17 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     private raceConnectionService: RaceConnectionService,
     private helpService: HelpService,
     private ngZone: NgZone,
+    childWindowManagerService?: ChildWindowManagerService,
   ) {
+    this.childWindowManagerService =
+      childWindowManagerService ?? inject(ChildWindowManagerService);
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.pendingNavigationUrl = event.url;
+      }
+    });
+
     this.layoutResolutionOptions = [
       {
         label: "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY",
@@ -772,6 +787,21 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       this.helpSubscription.unsubscribe();
     }
     this.undoManager.destroy();
+
+    const currentNav = this.router.getCurrentNavigation();
+    let destUrl = this.pendingNavigationUrl || this.router.url || "";
+    if (currentNav && currentNav.extractedUrl) {
+      destUrl = currentNav.extractedUrl.toString();
+    }
+    if (!this.childWindowManagerService.isRacePreservingRoute(destUrl)) {
+      this.childWindowManagerService.closeAllWindows();
+    }
+  }
+
+  @HostListener("window:pagehide", ["$event"])
+  onPageHide(_event: any) {
+    this.raceConnectionService.disconnect();
+    this.childWindowManagerService.closeAllWindows();
   }
 
   @HostListener("window:resize")

@@ -40,7 +40,7 @@ export class HeatConverter {
     }
 
     const hd = new DriverHeatData(
-      dProto.objectId || "",
+      dProto.objectId || (dProto as any).object_id || "",
       participant,
       index,
       actualDriver,
@@ -115,6 +115,19 @@ export class HeatConverter {
       const validHeatDrivers = heatDrivers.filter(
         (d): d is DriverHeatData => d !== null,
       );
+
+      if (proto.standings && proto.standings.length > 0) {
+        proto.standings.forEach((sid, idx) => {
+          const d = validHeatDrivers.find(
+            (hd) =>
+              (hd.objectId && hd.objectId === sid) ||
+              (hd.participant?.objectId && hd.participant.objectId === sid),
+          );
+          if (d) {
+            d.rank = idx + 1;
+          }
+        });
+      }
 
       const h = new Heat(
         objectId || "",

@@ -1,4 +1,4 @@
-import { Injectable, NgZone, OnDestroy } from "@angular/core";
+import { inject, Injectable, NgZone, OnDestroy } from "@angular/core";
 import { BehaviorSubject, Subject, Subscription } from "rxjs";
 import { DriverConverter } from "@app/converters/driver.converter";
 import { HeatConverter } from "@app/converters/heat.converter";
@@ -31,6 +31,7 @@ export interface IReactionTime {
   interfaceId?: number | null;
 }
 
+import { ChildWindowManagerService } from "./child-window-manager.service";
 import { LoggerService } from "./logger.service";
 import { RaceService } from "./race.service";
 
@@ -116,7 +117,12 @@ export class RaceConnectionService implements OnDestroy {
     private raceService: RaceService,
     private logger: LoggerService,
     private ngZone: NgZone,
-  ) {}
+    private childWindowManagerService?: ChildWindowManagerService,
+  ) {
+    if (!this.childWindowManagerService) {
+      this.childWindowManagerService = inject(ChildWindowManagerService);
+    }
+  }
 
   connect() {
     if (this.disconnectedTimeout) {
@@ -397,6 +403,11 @@ export class RaceConnectionService implements OnDestroy {
     this.subscriptions.push(
       this.dataService.getHeats().subscribe((heatProto) => {
         const heat = HeatConverter.fromProto(heatProto);
+        if (heat.standings && heat.standings.length > 0) {
+          heat.standings.forEach((sid, index) => {
+            this.driverRankings.set(sid, index + 1);
+          });
+        }
         this.raceService.setCurrentHeat(heat);
       }),
     );
@@ -425,6 +436,9 @@ export class RaceConnectionService implements OnDestroy {
 
     if (this.noStatusWatchdog) clearTimeout(this.noStatusWatchdog);
     this.clearDisconnectedError();
+    if (this.childWindowManagerService) {
+      this.childWindowManagerService.closeAllWindows();
+    }
   }
 
   private hydrateDrivers() {
@@ -514,6 +528,11 @@ export class RaceConnectionService implements OnDestroy {
 
     if (update.currentHeat) {
       const currentHeat = HeatConverter.fromProto(update.currentHeat);
+      if (currentHeat.standings && currentHeat.standings.length > 0) {
+        currentHeat.standings.forEach((sid, index) => {
+          this.driverRankings.set(sid, index + 1);
+        });
+      }
       this.raceService.setCurrentHeat(currentHeat);
     }
 

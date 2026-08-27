@@ -84,16 +84,17 @@ describe("SeasonSummaryComponent", () => {
         driver_id: "d1",
         driver_name: "First Driver",
         net_points: 50,
-        gross_points: 50,
-        races_run: 2,
+        gross_points: 70,
+        dropped_points: 20,
+        races_run: 3,
         race_scores: [],
       },
       {
         driver_id: "d2",
         driver_name: "Second Driver",
         net_points: 40,
-        gross_points: 40,
-        races_run: 2,
+        gross_points: 55,
+        races_run: 3,
         race_scores: [],
       },
       {
@@ -118,6 +119,17 @@ describe("SeasonSummaryComponent", () => {
     fixture.componentRef.setInput("standings", standings);
     fixture.detectChanges();
 
+    const headers = fixture.nativeElement.querySelectorAll(
+      ".standings-header-container thead tr th",
+    );
+    expect(headers.length).toBe(6);
+    expect(headers[0].textContent.trim()).toBe("SM_RANK");
+    expect(headers[1].textContent.trim()).toBe("SM_DRIVER");
+    expect(headers[2].textContent.trim()).toBe("SM_NET_POINTS");
+    expect(headers[3].textContent.trim()).toBe("SM_GROSS_POINTS");
+    expect(headers[4].textContent.trim()).toBe("SM_DROPPED_POINTS");
+    expect(headers[5].textContent.trim()).toBe("SM_RACES");
+
     const rows = fixture.nativeElement.querySelectorAll(
       ".standings-body-container tbody tr",
     );
@@ -127,9 +139,15 @@ describe("SeasonSummaryComponent", () => {
     expect(rows[0].textContent).toContain("🥇 1");
     expect(rows[0].textContent).toContain("First Driver");
     expect(rows[0].textContent).toContain("50");
+    expect(rows[0].textContent).toContain("70");
+    expect(rows[0].textContent).toContain("20");
 
     expect(rows[1].classList).toContain("podium-2");
     expect(rows[1].textContent).toContain("🥈 2");
+    expect(rows[1].textContent).toContain("Second Driver");
+    expect(rows[1].textContent).toContain("40");
+    expect(rows[1].textContent).toContain("55");
+    expect(rows[1].textContent).toContain("15");
 
     expect(rows[2].classList).toContain("podium-3");
     expect(rows[2].textContent).toContain("🥉 3");
@@ -242,5 +260,103 @@ describe("SeasonSummaryComponent", () => {
     expect(driverCell.textContent.trim()).toBe(
       "Very Long Driver Name That Can Truncate",
     );
+  });
+
+  it("should correctly display 3-digit ranks for positions greater than 99 in compact mode", () => {
+    const season: Season = {
+      entity_id: "s_large",
+      name: "Large Field Season",
+      drops: 0,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [],
+        },
+      ],
+    };
+
+    const standings: SeasonStandingItem[] = Array.from(
+      { length: 105 },
+      (_, idx) => ({
+        driver_id: `d_${idx + 1}`,
+        driver_name: `Driver ${idx + 1}`,
+        net_points: 1000 - idx * 5,
+        gross_points: 1000 - idx * 5,
+        races_run: 1,
+        race_scores: [],
+      }),
+    );
+
+    fixture.componentRef.setInput("season", season);
+    fixture.componentRef.setInput("standings", standings);
+    fixture.componentRef.setInput("compact", true);
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll(
+      ".standings-body-container tbody tr",
+    );
+    expect(rows.length).toBe(105);
+
+    // Podium ranks
+    expect(rows[0].querySelector(".col-rank").textContent.trim()).toBe("🥇 1");
+    expect(rows[1].querySelector(".col-rank").textContent.trim()).toBe("🥈 2");
+    expect(rows[2].querySelector(".col-rank").textContent.trim()).toBe("🥉 3");
+
+    // Regular ranks including 2-digit and 3-digit
+    expect(rows[3].querySelector(".col-rank").textContent.trim()).toBe("4");
+    expect(rows[98].querySelector(".col-rank").textContent.trim()).toBe("99");
+    expect(rows[99].querySelector(".col-rank").textContent.trim()).toBe("100");
+    expect(rows[104].querySelector(".col-rank").textContent.trim()).toBe("105");
+  });
+
+  it("should display large 7-digit numeric values accurately across all stat columns", () => {
+    const season: Season = {
+      entity_id: "s_large_nums",
+      name: "High Score Season",
+      drops: 2,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [],
+        },
+      ],
+    };
+
+    const standings: SeasonStandingItem[] = [
+      {
+        driver_id: "d1",
+        driver_name: "High Roller",
+        net_points: 1234567,
+        gross_points: 9876543.5,
+        dropped_points: 8641976.5,
+        races_run: 1234567,
+        race_scores: [],
+      },
+    ];
+
+    fixture.componentRef.setInput("season", season);
+    fixture.componentRef.setInput("standings", standings);
+    fixture.detectChanges();
+
+    const row = fixture.nativeElement.querySelector(
+      ".standings-body-container tbody tr",
+    );
+    expect(row).toBeTruthy();
+
+    const ptsCells = row.querySelectorAll("td.col-pts");
+    expect(ptsCells.length).toBe(3);
+    // Net Points (1,234,567)
+    expect(ptsCells[0].textContent.replace(/,/g, "")).toContain("1234567");
+    // Gross Points (9,876,543.5)
+    expect(ptsCells[1].textContent.replace(/,/g, "")).toContain("9876543.5");
+    // Dropped Points (8,641,976.5)
+    expect(ptsCells[2].textContent.replace(/,/g, "")).toContain("8641976.5");
+
+    const racesCell = row.querySelector("td.col-races");
+    expect(racesCell.textContent.trim()).toBe("1234567");
   });
 });
