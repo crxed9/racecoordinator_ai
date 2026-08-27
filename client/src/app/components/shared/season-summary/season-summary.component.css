@@ -93,9 +93,8 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  width: 100%;
+  width: fit-content;
   max-width: 100%;
-  margin: 0 auto;
 }
 
 .standings-header-container {
@@ -189,6 +188,7 @@
 }
 
 .col-driver {
+  width: 260px;
   font-size: 1.1rem;
   white-space: nowrap;
   overflow: hidden;
@@ -203,7 +203,7 @@
 }
 
 .col-races {
-  width: 90px;
+  width: 95px;
   text-align: center;
 }
 
@@ -255,6 +255,11 @@
   font-size: 0.75rem;
 }
 
+.season-summary-container.compact .standings-wrapper {
+  width: 100%;
+  max-width: 100%;
+}
+
 .season-summary-container.compact .standings-table th,
 .season-summary-container.compact .standings-table td {
   padding: 4px 6px;
@@ -279,6 +284,7 @@
 }
 
 .season-summary-container.compact .col-driver {
+  width: auto;
   font-size: 1.05rem;
   padding-left: 4px;
 }

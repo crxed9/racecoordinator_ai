@@ -310,4 +310,53 @@ describe("SeasonSummaryComponent", () => {
     expect(rows[99].querySelector(".col-rank").textContent.trim()).toBe("100");
     expect(rows[104].querySelector(".col-rank").textContent.trim()).toBe("105");
   });
+
+  it("should display large 7-digit numeric values accurately across all stat columns", () => {
+    const season: Season = {
+      entity_id: "s_large_nums",
+      name: "High Score Season",
+      drops: 2,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [],
+        },
+      ],
+    };
+
+    const standings: SeasonStandingItem[] = [
+      {
+        driver_id: "d1",
+        driver_name: "High Roller",
+        net_points: 1234567,
+        gross_points: 9876543.5,
+        dropped_points: 8641976.5,
+        races_run: 1234567,
+        race_scores: [],
+      },
+    ];
+
+    fixture.componentRef.setInput("season", season);
+    fixture.componentRef.setInput("standings", standings);
+    fixture.detectChanges();
+
+    const row = fixture.nativeElement.querySelector(
+      ".standings-body-container tbody tr",
+    );
+    expect(row).toBeTruthy();
+
+    const ptsCells = row.querySelectorAll("td.col-pts");
+    expect(ptsCells.length).toBe(3);
+    // Net Points (1,234,567)
+    expect(ptsCells[0].textContent.replace(/,/g, "")).toContain("1234567");
+    // Gross Points (9,876,543.5)
+    expect(ptsCells[1].textContent.replace(/,/g, "")).toContain("9876543.5");
+    // Dropped Points (8,641,976.5)
+    expect(ptsCells[2].textContent.replace(/,/g, "")).toContain("8641976.5");
+
+    const racesCell = row.querySelector("td.col-races");
+    expect(racesCell.textContent.trim()).toBe("1234567");
+  });
 });
