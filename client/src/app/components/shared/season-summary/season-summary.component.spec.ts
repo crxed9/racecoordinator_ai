@@ -243,4 +243,53 @@ describe("SeasonSummaryComponent", () => {
       "Very Long Driver Name That Can Truncate",
     );
   });
+
+  it("should correctly display 3-digit ranks for positions greater than 99 in compact mode", () => {
+    const season: Season = {
+      entity_id: "s_large",
+      name: "Large Field Season",
+      drops: 0,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [],
+        },
+      ],
+    };
+
+    const standings: SeasonStandingItem[] = Array.from(
+      { length: 105 },
+      (_, idx) => ({
+        driver_id: `d_${idx + 1}`,
+        driver_name: `Driver ${idx + 1}`,
+        net_points: 1000 - idx * 5,
+        gross_points: 1000 - idx * 5,
+        races_run: 1,
+        race_scores: [],
+      }),
+    );
+
+    fixture.componentRef.setInput("season", season);
+    fixture.componentRef.setInput("standings", standings);
+    fixture.componentRef.setInput("compact", true);
+    fixture.detectChanges();
+
+    const rows = fixture.nativeElement.querySelectorAll(
+      ".standings-body-container tbody tr",
+    );
+    expect(rows.length).toBe(105);
+
+    // Podium ranks
+    expect(rows[0].querySelector(".col-rank").textContent.trim()).toBe("🥇 1");
+    expect(rows[1].querySelector(".col-rank").textContent.trim()).toBe("🥈 2");
+    expect(rows[2].querySelector(".col-rank").textContent.trim()).toBe("🥉 3");
+
+    // Regular ranks including 2-digit and 3-digit
+    expect(rows[3].querySelector(".col-rank").textContent.trim()).toBe("4");
+    expect(rows[98].querySelector(".col-rank").textContent.trim()).toBe("99");
+    expect(rows[99].querySelector(".col-rank").textContent.trim()).toBe("100");
+    expect(rows[104].querySelector(".col-rank").textContent.trim()).toBe("105");
+  });
 });
