@@ -83,11 +83,13 @@ export function createRacedayMocks(overrides: any = {}) {
     "skipHeat",
     "skipRace",
     "getSystemState",
+    "getSystemStateValue",
     "resetLaneHeatData",
     "setMainPower",
     "setLanePower",
     "saveRace",
   ]);
+  mockDataService.getSystemStateValue.and.returnValue(null);
   mockDataService.listAssets.and.returnValue(of([]));
   mockDataService.saveRace.and.returnValue(of("saved_race.json"));
   mockDataService.getRaceFlag.and.returnValue(of(RaceFlag.RED));

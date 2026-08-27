@@ -42,7 +42,9 @@ export type WidgetType =
   | "action-open-heat-results"
   | "action-open-race-results"
   | "action-open-season-results"
-  | "action-open-prediction-results";
+  | "action-open-prediction-results"
+  | "action-master-power-on"
+  | "action-master-power-off";
 
 export interface AbsoluteWidgetNode {
   id: string; // Unique ID so we can uniquely identify widgets on the page

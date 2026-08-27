@@ -3716,6 +3716,33 @@ export class DefaultRacedayComponent
       case "action-modify-heats":
         if (!this.isModifyDisabled) this.onMenuSelect("MODIFY");
         break;
+      case "action-export-pdf":
+        this.onFileMenuSelect("EXPORT_PDF");
+        break;
+      case "action-export-csv":
+        this.onFileMenuSelect("EXPORT_CSV");
+        break;
+      case "action-export-xls":
+        this.onFileMenuSelect("EXPORT_XLS");
+        break;
+      case "action-open-heat-results":
+        this.onWindowsMenuSelect("HEAT_RESULTS");
+        break;
+      case "action-open-race-results":
+        this.onWindowsMenuSelect("RACE_RESULTS");
+        break;
+      case "action-open-season-results":
+        this.onWindowsMenuSelect("SEASON_RESULTS");
+        break;
+      case "action-open-prediction-results":
+        this.onWindowsMenuSelect("PREDICTION_RESULTS");
+        break;
+      case "action-master-power-on":
+        if (!this.isMainPowerDisabled) this.onTrackPowerMainSelect(true);
+        break;
+      case "action-master-power-off":
+        if (!this.isMainPowerDisabled) this.onTrackPowerMainSelect(false);
+        break;
     }
   }
 
@@ -3738,6 +3765,15 @@ export class DefaultRacedayComponent
     this.dataService.setLanePower(event.lane, event.on).subscribe({
       error: (err) => this.logger.error("Error setting lane power", err),
     });
+  }
+
+  public get isMainPowerDisabled(): boolean {
+    if (this.authService.currentRole === Role.VIEWER) {
+      return true;
+    }
+    const s = this.dataService.getSystemStateValue();
+    const hasRelay = s ? !!s.hasMainRelay || !!s.hasPerLaneRelays : false;
+    return !hasRelay;
   }
 
   public get isStartResumeDisabled(): boolean {
@@ -5018,6 +5054,10 @@ export class DefaultRacedayComponent
       "action-export-xls",
       "action-open-heat-results",
       "action-open-race-results",
+      "action-open-season-results",
+      "action-open-prediction-results",
+      "action-master-power-on",
+      "action-master-power-off",
     ];
     const used = new Set(this.layout?.widgets?.map((w) => w.widgetType) || []);
     return allTypes
