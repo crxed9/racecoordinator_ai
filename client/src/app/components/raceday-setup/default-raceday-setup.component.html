@@ -752,145 +752,147 @@
             </div>
           </div>
 
-          @if (selectedEvent) {
-            <div class="event-details-card">
-              <div class="event-detail-header">
-                <div class="event-detail-title">{{ selectedEvent.name }}</div>
-                <div class="event-detail-sub">
-                  Auto-Advance: {{ selectedEvent.auto_advance_time || 0 }}s
+          <div class="setup-summaries-row">
+            @if (selectedEvent) {
+              <div class="event-details-card">
+                <div class="event-detail-header">
+                  <div class="event-detail-title">{{ selectedEvent.name }}</div>
+                  <div class="event-detail-sub">
+                    Auto-Advance: {{ selectedEvent.auto_advance_time || 0 }}s
+                  </div>
                 </div>
-              </div>
-              <div class="event-races-table-header">
-                <table class="race-sequence-table header-table">
-                  <thead>
-                    <tr>
-                      <th class="col-num">#</th>
-                      <th class="col-name">Race Name</th>
-                      <th class="col-method">
-                        {{ "RM_LABEL_FINISH_METHOD" | translate }}
-                      </th>
-                      <th class="col-value">
-                        {{ "RM_LABEL_FINISH_VALUE" | translate }}
-                      </th>
-                      <th class="col-drivers">
-                        {{ "EE_LABEL_MAX_DRIVERS" | translate }}
-                      </th>
-                    </tr>
-                  </thead>
-                </table>
-              </div>
-              <div class="event-races-summary">
-                <table class="race-sequence-table body-table">
-                  <tbody>
-                    @for (
-                      item of selectedEvent.races;
-                      track item;
-                      let idx = $index
-                    ) {
+                <div class="event-races-table-header">
+                  <table class="race-sequence-table header-table">
+                    <thead>
                       <tr>
-                        <td class="col-num">{{ idx + 1 }}</td>
-                        <td class="col-name">
-                          {{ getRaceName(getItemRaceId(item)) }}
-                        </td>
-                        <td class="col-method">
-                          {{ getRaceFinishMethod(getItemRaceId(item)) }}
-                        </td>
-                        <td class="col-value">
-                          {{ getRaceFinishValue(getItemRaceId(item)) }}
-                        </td>
-                        <td class="col-drivers">
-                          @if (getItemMaxDrivers(item) > 0) {
-                            {{ getItemMaxDrivers(item) }}
-                          } @else {
-                            {{ "EE_UNLIMITED" | translate }}
-                          }
-                        </td>
+                        <th class="col-num">#</th>
+                        <th class="col-name">Race Name</th>
+                        <th class="col-method">
+                          {{ "RM_LABEL_FINISH_METHOD" | translate }}
+                        </th>
+                        <th class="col-value">
+                          {{ "RM_LABEL_FINISH_VALUE" | translate }}
+                        </th>
+                        <th class="col-drivers">
+                          {{ "EE_LABEL_MAX_DRIVERS" | translate }}
+                        </th>
                       </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          } @else if (selectedRace) {
-            <div class="event-details-card race-summary-card">
-              <div class="event-detail-title">{{ selectedRace.name }}</div>
-              <div class="summary-grid">
-                <div class="summary-item">
-                  <span class="summary-label"
-                    >{{ "RM_LABEL_HEAT_RANKING" | translate }}:</span
-                  >
-                  <span class="summary-value">{{
-                    getHeatRankingDisplay(selectedRace)
-                  }}</span>
+                    </thead>
+                  </table>
                 </div>
-                <div class="summary-item">
-                  <span class="summary-label"
-                    >{{ "RM_LABEL_FINISH_METHOD" | translate }}:</span
-                  >
-                  <span class="summary-value">{{
-                    formatEnumDisplay(
-                      $any(selectedRace).heat_scoring?.finish_method
-                    )
-                  }}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label"
-                    >{{ "RM_LABEL_HEAT_ROTATION" | translate }}:</span
-                  >
-                  <span class="summary-value">{{
-                    getHeatRotationTypeDisplay(
-                      $any(selectedRace).heat_rotation_type
-                    )
-                  }}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label"
-                    >{{ "RM_LABEL_OVERALL_RANKING" | translate }}:</span
-                  >
-                  <span class="summary-value">{{
-                    getOverallRankingDisplay(selectedRace)
-                  }}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label"
-                    >{{ "RM_LABEL_FINISH_VALUE" | translate }}:</span
-                  >
-                  <span class="summary-value">{{
-                    getFinishValueDisplay(selectedRace)
-                  }}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="summary-label"
-                    >{{ "RM_LABEL_FUEL_RACE" | translate }}:</span
-                  >
-                  <span class="summary-value">{{
-                    $any(selectedRace).fuel_options?.enabled ||
-                    $any(selectedRace).digital_fuel_options?.enabled
-                      ? ("GEN_YES" | translate)
-                      : ("GEN_NO" | translate)
-                  }}</span>
+                <div class="event-races-summary">
+                  <table class="race-sequence-table body-table">
+                    <tbody>
+                      @for (
+                        item of selectedEvent.races;
+                        track item;
+                        let idx = $index
+                      ) {
+                        <tr>
+                          <td class="col-num">{{ idx + 1 }}</td>
+                          <td class="col-name">
+                            {{ getRaceName(getItemRaceId(item)) }}
+                          </td>
+                          <td class="col-method">
+                            {{ getRaceFinishMethod(getItemRaceId(item)) }}
+                          </td>
+                          <td class="col-value">
+                            {{ getRaceFinishValue(getItemRaceId(item)) }}
+                          </td>
+                          <td class="col-drivers">
+                            @if (getItemMaxDrivers(item) > 0) {
+                              {{ getItemMaxDrivers(item) }}
+                            } @else {
+                              {{ "EE_UNLIMITED" | translate }}
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            </div>
-          }
+            } @else if (selectedRace) {
+              <div class="event-details-card race-summary-card">
+                <div class="event-detail-title">{{ selectedRace.name }}</div>
+                <div class="summary-grid">
+                  <div class="summary-item">
+                    <span class="summary-label"
+                      >{{ "RM_LABEL_HEAT_RANKING" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      getHeatRankingDisplay(selectedRace)
+                    }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label"
+                      >{{ "RM_LABEL_FINISH_METHOD" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      formatEnumDisplay(
+                        $any(selectedRace).heat_scoring?.finish_method
+                      )
+                    }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label"
+                      >{{ "RM_LABEL_HEAT_ROTATION" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      getHeatRotationTypeDisplay(
+                        $any(selectedRace).heat_rotation_type
+                      )
+                    }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label"
+                      >{{ "RM_LABEL_OVERALL_RANKING" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      getOverallRankingDisplay(selectedRace)
+                    }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label"
+                      >{{ "RM_LABEL_FINISH_VALUE" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      getFinishValueDisplay(selectedRace)
+                    }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label"
+                      >{{ "RM_LABEL_FUEL_RACE" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      $any(selectedRace).fuel_options?.enabled ||
+                      $any(selectedRace).digital_fuel_options?.enabled
+                        ? ("GEN_YES" | translate)
+                        : ("GEN_NO" | translate)
+                    }}</span>
+                  </div>
+                </div>
+              </div>
+            }
 
-          @if (selectedSeason) {
-            <div class="event-details-card season-summary-card">
-              <app-season-summary
-                [season]="selectedSeason"
-                [standings]="seasonStandings"
-                [compact]="true"
-              ></app-season-summary>
-            </div>
-          } @else {
-            <div
-              class="event-details-card season-summary-card empty-season-card"
-            >
-              <div class="empty-standings">
-                {{ "RDS_NO_SEASON_SELECTED" | translate }}
+            @if (selectedSeason) {
+              <div class="event-details-card season-summary-card">
+                <app-season-summary
+                  [season]="selectedSeason"
+                  [standings]="seasonStandings"
+                  [compact]="true"
+                ></app-season-summary>
               </div>
-            </div>
-          }
+            } @else {
+              <div
+                class="event-details-card season-summary-card empty-season-card"
+              >
+                <div class="empty-standings">
+                  {{ "RDS_NO_SEASON_SELECTED" | translate }}
+                </div>
+              </div>
+            }
+          </div>
 
           @if (getEventDriverLimitWarning()) {
             <div class="event-warning-banner">

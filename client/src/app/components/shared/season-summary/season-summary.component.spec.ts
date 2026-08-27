@@ -202,4 +202,45 @@ describe("SeasonSummaryComponent", () => {
     );
     expect(container.classList).toContain("compact");
   });
+
+  it("should set title attribute on driver column cells for full name tooltip", () => {
+    const season: Season = {
+      entity_id: "s_long",
+      name: "Long Name Season",
+      drops: 0,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [],
+        },
+      ],
+    };
+    const standings: SeasonStandingItem[] = [
+      {
+        driver_id: "d1",
+        driver_name: "Very Long Driver Name That Can Truncate",
+        net_points: 100,
+        gross_points: 100,
+        races_run: 5,
+        race_scores: [],
+      },
+    ];
+
+    fixture.componentRef.setInput("season", season);
+    fixture.componentRef.setInput("standings", standings);
+    fixture.detectChanges();
+
+    const driverCell = fixture.nativeElement.querySelector(
+      ".standings-body-container tbody tr td.col-driver",
+    );
+    expect(driverCell).toBeTruthy();
+    expect(driverCell.getAttribute("title")).toBe(
+      "Very Long Driver Name That Can Truncate",
+    );
+    expect(driverCell.textContent.trim()).toBe(
+      "Very Long Driver Name That Can Truncate",
+    );
+  });
 });

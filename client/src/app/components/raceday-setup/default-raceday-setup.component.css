@@ -1302,6 +1302,18 @@
   gap: 15px;
 }
 
+.setup-summaries-row {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  align-items: stretch;
+}
+
 .event-details-card {
   background: rgba(30, 41, 59, 0.6);
   border: 1px solid rgba(56, 189, 248, 0.3);
@@ -1310,27 +1322,30 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 180px;
-  margin-top: 10px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
   overflow: hidden;
   box-sizing: border-box;
-  flex-shrink: 0;
 }
 
 .event-details-card.season-summary-card {
   flex: 1;
-  min-height: 320px;
+  min-width: 0;
+  min-height: 0;
   max-height: none;
-  margin-bottom: 12px;
+  margin: 0;
   overflow: hidden;
-  padding: 12px 16px;
+  padding: 10px 14px;
 }
 
 .event-details-card.season-summary-card.empty-season-card {
   flex: 1;
   justify-content: center;
   align-items: center;
-  min-height: 60px;
+  min-height: 0;
   max-height: none;
 }
 
@@ -1360,7 +1375,8 @@
 .event-races-summary {
   display: block;
   margin-top: 0;
-  max-height: 120px;
+  flex: 1;
+  max-height: none;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -1464,13 +1480,15 @@
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px 16px;
   margin-top: 6px;
   background: rgba(15, 23, 42, 0.4);
   padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid rgba(148, 163, 184, 0.1);
+  flex: 1;
+  align-content: start;
 }
 
 .summary-item {

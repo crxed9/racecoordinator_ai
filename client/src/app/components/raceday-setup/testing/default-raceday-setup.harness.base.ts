@@ -15,6 +15,7 @@ export abstract class DefaultRacedaySetupHarnessBase {
     configMenu: ".config-menu-container .setup-menu-item",
     helpMenu: ".help-menu-container .setup-menu-item",
     driverActionBarBtn: ".header-actions .action-btn",
+    seasonSelect: ".season-select-input",
   };
 
   abstract clickRemoveAll(): Promise<void>;
@@ -29,6 +30,7 @@ export abstract class DefaultRacedaySetupHarnessBase {
   abstract doubleClickUnselectedDriver(index: number): Promise<void>;
   abstract getRaceCardCount(): Promise<number>;
   abstract clickRaceDropdown(): Promise<void>;
+  abstract selectSeason(name: string): Promise<void>;
   abstract openOptionsMenu(): Promise<void>;
   abstract clickOptionsMenuOptionByText(text: string): Promise<void>;
   abstract openLocalizationSubMenu(): Promise<void>;
