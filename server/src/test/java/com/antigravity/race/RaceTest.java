@@ -1066,6 +1066,7 @@ public class RaceTest {
       List<Heat> heats = race.getHeats();
       Heat h2 = mock(Heat.class);
       when(h2.getDrivers()).thenReturn(new ArrayList<>());
+      when(h2.getActiveDriverCount()).thenReturn(1);
       when(h2.getHeatStandings()).thenReturn(mock(HeatStandings.class));
       heats.add(h2);
 
@@ -1199,6 +1200,7 @@ public class RaceTest {
       List<Heat> heats = race.getHeats();
       Heat h2 = mock(Heat.class);
       when(h2.getDrivers()).thenReturn(new ArrayList<>());
+      when(h2.getActiveDriverCount()).thenReturn(1);
       when(h2.getHeatStandings()).thenReturn(mock(HeatStandings.class));
       heats.add(h2);
 
@@ -1379,6 +1381,7 @@ public class RaceTest {
       List<Heat> heats = race.getHeats();
       Heat h2 = mock(Heat.class);
       when(h2.getDrivers()).thenReturn(new ArrayList<>());
+      when(h2.getActiveDriverCount()).thenReturn(1);
       when(h2.getHeatStandings()).thenReturn(mock(HeatStandings.class));
       heats.add(h2);
 
@@ -1407,6 +1410,7 @@ public class RaceTest {
       List<Heat> heats = race.getHeats();
       Heat h2 = mock(Heat.class);
       when(h2.getDrivers()).thenReturn(new ArrayList<>());
+      when(h2.getActiveDriverCount()).thenReturn(1);
       when(h2.getHeatStandings()).thenReturn(mock(HeatStandings.class));
       when(h2.getGroup()).thenReturn(1);
       heats.add(h2);
@@ -2259,8 +2263,10 @@ public class RaceTest {
       when(heatScoring.getHeatRanking()).thenReturn(HeatScoring.HeatRanking.LAP_COUNT);
       when(heatScoring.getHeatRankingTiebreaker())
           .thenReturn(HeatScoring.HeatRankingTiebreaker.AVERAGE_LAP_TIME);
+      when(raceModel.getName()).thenReturn("Power Test");
       when(raceModel.getHeatRotationType()).thenReturn(HeatRotationType.RoundRobin);
       when(raceModel.getHeatScoring()).thenReturn(heatScoring);
+      when(raceModel.getOverallScoring()).thenReturn(new OverallScoring());
 
       Track track = mock(Track.class);
       ArrayList<Lane> lanes = new ArrayList<>();
@@ -2269,7 +2275,8 @@ public class RaceTest {
       when(track.getLanes()).thenReturn(lanes);
 
       List<RaceParticipant> drivers = new ArrayList<>();
-      drivers.add(new RaceParticipant(Driver.EMPTY_DRIVER));
+      drivers.add(new RaceParticipant(new Driver("Driver 1", "D1", "d1", "1")));
+      drivers.add(new RaceParticipant(new Driver("Driver 2", "D2", "d2", "1")));
 
       race =
           new com.antigravity.race.Race.Builder()
@@ -2355,7 +2362,7 @@ public class RaceTest {
           new com.antigravity.race.Race.Builder()
               .model(modelWithHotStart)
               .track(race.getTrack())
-              .drivers(new ArrayList<>())
+              .drivers(race.getDrivers())
               .isDemoMode(true)
               .build();
       hotRace.injectProtocols(mockProtocols);
@@ -2373,7 +2380,7 @@ public class RaceTest {
           new com.antigravity.race.Race.Builder()
               .model(modelWithHotStart)
               .track(race.getTrack())
-              .drivers(new ArrayList<>())
+              .drivers(race.getDrivers())
               .isDemoMode(true)
               .build();
       hotRace.injectProtocols(mockProtocols);
@@ -2400,7 +2407,7 @@ public class RaceTest {
           new com.antigravity.race.Race.Builder()
               .model(model)
               .track(race.getTrack())
-              .drivers(new ArrayList<>())
+              .drivers(race.getDrivers())
               .isDemoMode(true)
               .build();
       allowRace.injectProtocols(mockProtocols);
@@ -2432,7 +2439,7 @@ public class RaceTest {
           new com.antigravity.race.Race.Builder()
               .model(model)
               .track(race.getTrack())
-              .drivers(new ArrayList<>())
+              .drivers(race.getDrivers())
               .isDemoMode(true)
               .build();
       noAllowRace.injectProtocols(mockProtocols);
@@ -2468,7 +2475,7 @@ public class RaceTest {
           new com.antigravity.race.Race.Builder()
               .model(model)
               .track(track)
-              .drivers(new ArrayList<>())
+              .drivers(race.getDrivers())
               .isDemoMode(true)
               .build();
       resumeRace.injectProtocols(mockProtocols);
@@ -3088,10 +3095,13 @@ public class RaceTest {
               .withId("1")
               .build();
 
+      List<RaceParticipant> warmupDrivers =
+          Collections.singletonList(new RaceParticipant(new Driver("Driver 1", "D1", "d1", "1")));
+
       com.antigravity.race.Race realWarmupRace =
           new com.antigravity.race.Race.Builder()
               .model(warmupModel)
-              .drivers(new ArrayList<>())
+              .drivers(warmupDrivers)
               .track(mockTrack)
               .isDemoMode(true)
               .build();
@@ -3129,10 +3139,13 @@ public class RaceTest {
               .withId("1")
               .build();
 
+      List<RaceParticipant> warmupDrivers =
+          Collections.singletonList(new RaceParticipant(new Driver("Driver 1", "D1", "d1", "1")));
+
       com.antigravity.race.Race realWarmupRace =
           new com.antigravity.race.Race.Builder()
               .model(warmupModel)
-              .drivers(new ArrayList<>())
+              .drivers(warmupDrivers)
               .track(mockTrack)
               .isDemoMode(true)
               .build();
@@ -3413,7 +3426,8 @@ public class RaceTest {
                       .name("T")
                       .lanes(Collections.singletonList(new Lane("r", "w", 100)))
                       .build())
-              .drivers(new ArrayList<>())
+              .drivers(
+                  Collections.singletonList(new RaceParticipant(new Driver("D", "d", "d1", "1"))))
               .isDemoMode(true)
               .build();
 
@@ -3444,7 +3458,8 @@ public class RaceTest {
           new com.antigravity.race.Race.Builder()
               .model(model)
               .track(track)
-              .drivers(new ArrayList<>())
+              .drivers(
+                  Collections.singletonList(new RaceParticipant(new Driver("D", "d", "d1", "1"))))
               .isDemoMode(false)
               .build();
 
@@ -3479,7 +3494,8 @@ public class RaceTest {
           new com.antigravity.race.Race.Builder()
               .model(model)
               .track(track)
-              .drivers(new ArrayList<>())
+              .drivers(
+                  Collections.singletonList(new RaceParticipant(new Driver("D", "d", "d1", "1"))))
               .isDemoMode(false)
               .build();
 
@@ -3696,6 +3712,135 @@ public class RaceTest {
         assertEquals(2, activeCount);
         assertEquals(2, emptyCount);
       }
+    }
+
+    @Test
+    public void testInitialEmptyHeatAutomaticallySkipped() {
+      Track track =
+          new Track.Builder()
+              .name("T")
+              .lanes(Collections.singletonList(new Lane("r", "w", 100)))
+              .build();
+      Race raceModel =
+          new Race.Builder()
+              .withName("T1")
+              .withHeatScoring(new HeatScoring())
+              .withOverallScoring(new OverallScoring())
+              .build();
+
+      RaceParticipant emptyPart = new RaceParticipant(Driver.EMPTY_DRIVER);
+      DriverHeatData emptyDhd = new DriverHeatData(emptyPart);
+      Heat h1 = new Heat(1, Collections.singletonList(emptyDhd), new HeatScoring(), false);
+
+      Driver realDriver = new Driver("Real", "R", "d1", "1");
+      RaceParticipant realPart = new RaceParticipant(realDriver);
+      DriverHeatData realDhd = new DriverHeatData(realPart);
+      Heat h2 = new Heat(2, Collections.singletonList(realDhd), new HeatScoring(), false);
+
+      com.antigravity.race.Race race =
+          new com.antigravity.race.Race.Builder()
+              .model(raceModel)
+              .track(track)
+              .drivers(Arrays.asList(emptyPart, realPart))
+              .heats(Arrays.asList(h1, h2))
+              .isDemoMode(true)
+              .build();
+
+      // Heat 1 was empty, so race should have automatically advanced to Heat 2 in NotStarted
+      assertEquals(h2, race.getCurrentHeat());
+      assertTrue(race.getState() instanceof NotStarted);
+    }
+
+    @Test
+    public void testEmptyIntermediateAndTrailingHeatsAutomaticallySkipped() {
+      Track track =
+          new Track.Builder()
+              .name("T")
+              .lanes(Collections.singletonList(new Lane("r", "w", 100)))
+              .build();
+      Race raceModel =
+          new Race.Builder()
+              .withName("T2")
+              .withHeatScoring(new HeatScoring())
+              .withOverallScoring(new OverallScoring())
+              .build();
+
+      Driver realDriver1 = new Driver("Real1", "R1", "d1", "1");
+      RaceParticipant realPart1 = new RaceParticipant(realDriver1);
+      DriverHeatData realDhd1 = new DriverHeatData(realPart1);
+      Heat h1 = new Heat(1, Collections.singletonList(realDhd1), new HeatScoring(), false);
+
+      RaceParticipant emptyPart = new RaceParticipant(Driver.EMPTY_DRIVER);
+      DriverHeatData emptyDhd = new DriverHeatData(emptyPart);
+      Heat h2 = new Heat(2, Collections.singletonList(emptyDhd), new HeatScoring(), false);
+
+      Driver realDriver2 = new Driver("Real2", "R2", "d2", "1");
+      RaceParticipant realPart2 = new RaceParticipant(realDriver2);
+      DriverHeatData realDhd2 = new DriverHeatData(realPart2);
+      Heat h3 = new Heat(3, Collections.singletonList(realDhd2), new HeatScoring(), false);
+
+      Heat h4 =
+          new Heat(
+              4,
+              Collections.singletonList(new DriverHeatData(emptyPart)),
+              new HeatScoring(),
+              false);
+
+      com.antigravity.race.Race race =
+          new com.antigravity.race.Race.Builder()
+              .model(raceModel)
+              .track(track)
+              .drivers(Arrays.asList(realPart1, emptyPart, realPart2))
+              .heats(Arrays.asList(h1, h2, h3, h4))
+              .isDemoMode(true)
+              .build();
+
+      // Starts on Heat 1
+      assertEquals(h1, race.getCurrentHeat());
+      assertTrue(race.getState() instanceof NotStarted);
+
+      // Advance past Heat 1 -> skips empty Heat 2 -> lands on Heat 3
+      Common.advanceToNextHeat(race);
+      assertEquals(h3, race.getCurrentHeat());
+      assertTrue(race.getState() instanceof NotStarted);
+
+      // Advance past Heat 3 -> skips empty Heat 4 (last heat) -> transitions to RaceOver
+      Common.advanceToNextHeat(race);
+      assertTrue(race.getState() instanceof RaceOver);
+    }
+
+    @Test
+    public void testAllEmptyHeatsTransitionsImmediatelyToRaceOver() {
+      Track track =
+          new Track.Builder()
+              .name("T")
+              .lanes(Collections.singletonList(new Lane("r", "w", 100)))
+              .build();
+      Race raceModel =
+          new Race.Builder()
+              .withName("T3")
+              .withHeatScoring(new HeatScoring())
+              .withOverallScoring(new OverallScoring())
+              .build();
+
+      RaceParticipant emptyPart = new RaceParticipant(Driver.EMPTY_DRIVER);
+      DriverHeatData emptyDhd1 = new DriverHeatData(emptyPart);
+      Heat h1 = new Heat(1, Collections.singletonList(emptyDhd1), new HeatScoring(), false);
+
+      DriverHeatData emptyDhd2 = new DriverHeatData(emptyPart);
+      Heat h2 = new Heat(2, Collections.singletonList(emptyDhd2), new HeatScoring(), false);
+
+      com.antigravity.race.Race race =
+          new com.antigravity.race.Race.Builder()
+              .model(raceModel)
+              .track(track)
+              .drivers(Collections.singletonList(emptyPart))
+              .heats(Arrays.asList(h1, h2))
+              .isDemoMode(true)
+              .build();
+
+      // All heats empty -> should end up in RaceOver
+      assertTrue(race.getState() instanceof RaceOver);
     }
   }
 }

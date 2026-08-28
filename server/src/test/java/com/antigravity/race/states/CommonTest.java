@@ -24,6 +24,7 @@ public class CommonTest {
 
     when(h1.getObjectId()).thenReturn("h1-id");
     when(h2.getObjectId()).thenReturn("h2-id");
+    when(h2.getActiveDriverCount()).thenReturn(1);
 
     List<Heat> heats = new ArrayList<>(Arrays.asList(h1, h2));
     when(race.getHeats()).thenReturn(heats);
@@ -55,6 +56,100 @@ public class CommonTest {
     assertTrue(broadcastData.hasRace());
     assertNotNull(broadcastData.getRace().getCurrentHeat());
     assertEquals(2, broadcastData.getRace().getHeatsCount());
+  }
+
+  @Test
+  public void testAdvanceToNextHeat_SkipsEmptyHeat() {
+    Race race = mock(Race.class);
+    Heat h1 = mock(Heat.class);
+    Heat h2 = mock(Heat.class);
+    Heat h3 = mock(Heat.class);
+
+    when(h1.getObjectId()).thenReturn("h1-id");
+    when(h2.getObjectId()).thenReturn("h2-id");
+    when(h3.getObjectId()).thenReturn("h3-id");
+
+    when(h1.getActiveDriverCount()).thenReturn(1);
+    when(h2.getActiveDriverCount()).thenReturn(0); // empty heat
+    when(h3.getActiveDriverCount()).thenReturn(2); // non-empty heat
+
+    List<Heat> heats = new ArrayList<>(Arrays.asList(h1, h2, h3));
+    when(race.getHeats()).thenReturn(heats);
+    when(race.getCurrentHeat()).thenReturn(h1);
+
+    RaceParticipant p1 = mock(RaceParticipant.class);
+    when(p1.getObjectId()).thenReturn("p1-id");
+    when(race.getDrivers()).thenReturn(Collections.singletonList(p1));
+
+    Common.advanceToNextHeat(race);
+
+    // Should skip h2 and set current heat to h3
+    verify(race).setCurrentHeat(h3);
+    verify(race, never()).setCurrentHeat(h2);
+
+    ArgumentCaptor<IRaceState> stateCaptor = ArgumentCaptor.forClass(IRaceState.class);
+    verify(race).changeState(stateCaptor.capture());
+    assertTrue(stateCaptor.getValue() instanceof NotStarted);
+  }
+
+  @Test
+  public void testAdvanceToNextHeat_MultipleEmptyHeats() {
+    Race race = mock(Race.class);
+    Heat h1 = mock(Heat.class);
+    Heat h2 = mock(Heat.class);
+    Heat h3 = mock(Heat.class);
+    Heat h4 = mock(Heat.class);
+
+    when(h1.getObjectId()).thenReturn("h1-id");
+    when(h2.getObjectId()).thenReturn("h2-id");
+    when(h3.getObjectId()).thenReturn("h3-id");
+    when(h4.getObjectId()).thenReturn("h4-id");
+
+    when(h1.getActiveDriverCount()).thenReturn(1);
+    when(h2.getActiveDriverCount()).thenReturn(0);
+    when(h3.getActiveDriverCount()).thenReturn(0);
+    when(h4.getActiveDriverCount()).thenReturn(1);
+
+    List<Heat> heats = new ArrayList<>(Arrays.asList(h1, h2, h3, h4));
+    when(race.getHeats()).thenReturn(heats);
+    when(race.getCurrentHeat()).thenReturn(h1);
+
+    Common.advanceToNextHeat(race);
+
+    verify(race).setCurrentHeat(h4);
+    verify(race, never()).setCurrentHeat(h2);
+    verify(race, never()).setCurrentHeat(h3);
+
+    ArgumentCaptor<IRaceState> stateCaptor = ArgumentCaptor.forClass(IRaceState.class);
+    verify(race).changeState(stateCaptor.capture());
+    assertTrue(stateCaptor.getValue() instanceof NotStarted);
+  }
+
+  @Test
+  public void testAdvanceToNextHeat_AllRemainingHeatsEmpty_TransitionsToRaceOver() {
+    Race race = mock(Race.class);
+    Heat h1 = mock(Heat.class);
+    Heat h2 = mock(Heat.class);
+    Heat h3 = mock(Heat.class);
+
+    when(h1.getObjectId()).thenReturn("h1-id");
+    when(h2.getObjectId()).thenReturn("h2-id");
+    when(h3.getObjectId()).thenReturn("h3-id");
+
+    when(h1.getActiveDriverCount()).thenReturn(1);
+    when(h2.getActiveDriverCount()).thenReturn(0);
+    when(h3.getActiveDriverCount()).thenReturn(0);
+
+    List<Heat> heats = new ArrayList<>(Arrays.asList(h1, h2, h3));
+    when(race.getHeats()).thenReturn(heats);
+    when(race.getCurrentHeat()).thenReturn(h1);
+
+    Common.advanceToNextHeat(race);
+
+    verify(race, never()).setCurrentHeat(any());
+    ArgumentCaptor<IRaceState> stateCaptor = ArgumentCaptor.forClass(IRaceState.class);
+    verify(race).changeState(stateCaptor.capture());
+    assertTrue(stateCaptor.getValue() instanceof RaceOver);
   }
 
   @Test

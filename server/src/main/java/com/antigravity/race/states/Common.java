@@ -56,10 +56,20 @@ public class Common {
   public static void advanceToNextHeat(Race race) {
     List<Heat> heats = race.getHeats();
     Heat currentHeat = race.getCurrentHeat();
-    int currentIndex = heats.indexOf(currentHeat);
+    int currentIndex = heats != null ? heats.indexOf(currentHeat) : -1;
 
-    if (currentIndex < heats.size() - 1) {
-      race.setCurrentHeat(heats.get(currentIndex + 1));
+    int nextIndex = -1;
+    if (heats != null) {
+      for (int i = currentIndex + 1; i < heats.size(); i++) {
+        if (heats.get(i).getActiveDriverCount() > 0) {
+          nextIndex = i;
+          break;
+        }
+      }
+    }
+
+    if (nextIndex != -1) {
+      race.setCurrentHeat(heats.get(nextIndex));
       race.resetRaceTime();
       race.prepareHeat();
       race.setAutoStartFired(false);
@@ -68,8 +78,10 @@ public class Common {
 
       // Optimized update: send currentHeat and all heats
       Set<String> sentObjectIds = new HashSet<>();
-      for (RaceParticipant p : race.getDrivers()) {
-        sentObjectIds.add(HeatConverter.PARTICIPANT_PREFIX + p.getObjectId());
+      if (race.getDrivers() != null) {
+        for (RaceParticipant p : race.getDrivers()) {
+          sentObjectIds.add(HeatConverter.PARTICIPANT_PREFIX + p.getObjectId());
+        }
       }
 
       com.antigravity.proto.Race raceProto = // fqn-collision

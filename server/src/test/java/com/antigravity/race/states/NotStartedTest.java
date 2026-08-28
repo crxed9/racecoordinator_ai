@@ -17,8 +17,12 @@ import com.antigravity.models.HeatRotationType;
 import com.antigravity.models.HeatScoring;
 import com.antigravity.proto.RaceFlag;
 import com.antigravity.proto.RaceState;
+import com.antigravity.race.Heat;
 import com.antigravity.race.HeatExecutionManager;
 import com.antigravity.race.Race;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -92,6 +96,24 @@ public class NotStartedTest {
 
     notStarted.exit(race);
     verify(race, org.mockito.Mockito.times(2)).setAutoStartRemaining(0);
+  }
+
+  @Test
+  public void testEnter_EmptyHeat_SkipsAutomatically() {
+    Heat emptyHeat = mock(Heat.class);
+    when(emptyHeat.isEmpty()).thenReturn(true);
+    when(emptyHeat.getActiveDriverCount()).thenReturn(0);
+    when(emptyHeat.getHeatNumber()).thenReturn(1);
+    when(race.getCurrentHeat()).thenReturn(emptyHeat);
+
+    List<Heat> heats = new ArrayList<>(Collections.singletonList(emptyHeat));
+    when(race.getHeats()).thenReturn(heats);
+
+    notStarted.enter(race);
+
+    // Common.advanceToNextHeat should have transitioned the race
+    verify(race, never()).prepareHeat();
+    verify(race).changeState(any(RaceOver.class));
   }
 
   @Test
