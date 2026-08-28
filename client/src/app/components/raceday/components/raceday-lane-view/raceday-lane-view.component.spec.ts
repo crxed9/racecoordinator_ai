@@ -500,6 +500,47 @@ describe("RacedayLaneViewComponent", () => {
     expect(secondRowDate.textContent.trim()).toBe("---");
   });
 
+  it("should render -- for empty lanes when recordLapTime column is configured", () => {
+    mockParent.sortedHeatDrivers = [
+      {
+        objectId: "hd1",
+        laneIndex: 0,
+        driver: { name: "Alice", nickname: "Rocket" },
+        actualDriver: { name: "Alice", nickname: "Rocket" },
+        isEmpty: false,
+        laps: [],
+      },
+      {
+        objectId: "hd2",
+        laneIndex: 1,
+        driver: { name: "", nickname: "" },
+        isEmpty: true,
+        laps: [],
+      },
+    ];
+    mockParent.columns = [
+      {
+        propertyName: "recordLapTime",
+        labelKey: "RD_COL_RECORD_LAP_TIME",
+        layout: {
+          [AnchorPoint.CenterCenter]: "recordLapTime",
+        },
+      } as any,
+    ];
+    fixture.detectChanges();
+
+    const recordContentEls = fixture.nativeElement.querySelectorAll(
+      ".record-lap-content",
+    );
+    expect(recordContentEls.length).toBe(1);
+
+    const cells = fixture.nativeElement.querySelectorAll(".body-cell");
+    expect(cells.length).toBe(2);
+    expect(cells[0].querySelector(".record-lap-content")).toBeTruthy();
+    expect(cells[1].querySelector(".record-lap-content")).toBeFalsy();
+    expect(cells[1].textContent.trim()).toBe("--");
+  });
+
   it("should render laneNumber column in practice race with centered span and reset buttons", () => {
     mockParent.race = { practice: true };
     mockParent.isNameProperty = (prop: string) =>
@@ -615,5 +656,54 @@ describe("RacedayLaneViewComponent", () => {
 
     const pacingEl = fixture.nativeElement.querySelector(".solo-pacing");
     expect(pacingEl).toBeTruthy();
+  });
+
+  it("should render -- at assigned anchor for empty lanes without pacing-entry classes", () => {
+    mockParent.sortedHeatDrivers = [
+      {
+        objectId: "hd1",
+        laneIndex: 0,
+        driver: { name: "Alice" },
+        actualDriver: { name: "Alice" },
+        isEmpty: false,
+        laps: [],
+      },
+      {
+        objectId: "hd2",
+        laneIndex: 1,
+        driver: { name: "" },
+        isEmpty: true,
+        laps: [],
+      },
+    ];
+    mockParent.columns = [
+      {
+        propertyName: "ghostPacing",
+        labelKey: "RD_COL_GHOST_PACING",
+        layout: {
+          [AnchorPoint.TopRight]: "ghostPacing",
+        },
+      } as any,
+    ];
+    mockParent.getLayoutEntries = (_c: any) => [
+      { anchor: "top-right", property: "ghostPacing" },
+    ];
+    fixture.detectChanges();
+
+    const cells = fixture.nativeElement.querySelectorAll(".body-cell");
+    expect(cells.length).toBe(2);
+
+    // Occupied lane has pacing widget and pacing-entry class
+    const firstCellFit = cells[0].querySelector(".anchor-top-right");
+    expect(firstCellFit.classList.contains("pacing-entry")).toBeTrue();
+    expect(firstCellFit.querySelector("app-raceday-ghost-pacing")).toBeTruthy();
+
+    // Empty lane does not have pacing widget or pacing-entry class, but has anchor-top-right and 10px padding
+    const secondCellFit = cells[1].querySelector(".anchor-top-right");
+    expect(secondCellFit.classList.contains("pacing-entry")).toBeFalse();
+    expect(secondCellFit.classList.contains("anchor-top-right")).toBeTrue();
+    expect(secondCellFit.querySelector("app-raceday-ghost-pacing")).toBeFalsy();
+    expect(secondCellFit.textContent.trim()).toBe("--");
+    expect(secondCellFit.style.padding).toBe("10px");
   });
 });

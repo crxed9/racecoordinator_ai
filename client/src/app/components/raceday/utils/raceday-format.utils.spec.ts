@@ -328,6 +328,24 @@ describe("RacedayFormatUtils", () => {
           ctx,
         ),
       ).toBe("--");
+      expect(
+        RacedayFormatUtils.formatValue(
+          "ghostPacingPB",
+          undefined,
+          mockHd,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
+      expect(
+        RacedayFormatUtils.formatValue(
+          "ghostPacingLeaderAvg",
+          undefined,
+          mockHd,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
     });
   });
 
@@ -344,7 +362,10 @@ describe("RacedayFormatUtils", () => {
         return undefined;
       };
 
-      const mockHd = { laneIndex: 0 } as any;
+      const mockHd = {
+        laneIndex: 0,
+        actualDriver: { name: "Speedy" },
+      } as any;
       const result = RacedayFormatUtils.formatValue(
         "recordLapTime",
         undefined,
@@ -362,7 +383,10 @@ describe("RacedayFormatUtils", () => {
         date: new Date(2025, 0, 15).getTime(),
       });
 
-      const mockHd = { laneIndex: 1 } as any;
+      const mockHd = {
+        laneIndex: 1,
+        actualDriver: { name: "Alice" },
+      } as any;
       const result = RacedayFormatUtils.formatValue(
         "recordLapTime",
         undefined,
@@ -380,7 +404,10 @@ describe("RacedayFormatUtils", () => {
         date: { toNumber: () => new Date(2025, 5, 10).getTime() },
       });
 
-      const mockHd = { laneIndex: 0 } as any;
+      const mockHd = {
+        laneIndex: 0,
+        actualDriver: { name: "Racer" },
+      } as any;
       const result = RacedayFormatUtils.formatValue(
         "recordLapTime",
         undefined,
@@ -394,7 +421,10 @@ describe("RacedayFormatUtils", () => {
     it("should return placeholder format when no record exists", () => {
       ctx.getLaneRecordEntry = () => undefined;
 
-      const mockHd = { laneIndex: 0 } as any;
+      const mockHd = {
+        laneIndex: 0,
+        actualDriver: { name: "Driver 1" },
+      } as any;
       const result = RacedayFormatUtils.formatValue(
         "recordLapTime",
         undefined,
@@ -403,6 +433,44 @@ describe("RacedayFormatUtils", () => {
         ctx,
       );
       expect(result).toBe("--.--- (---, ---)");
+    });
+
+    it("should return -- for empty driver or empty lane", () => {
+      const mockHd1 = { laneIndex: 0, isEmpty: true } as any;
+      expect(
+        RacedayFormatUtils.formatValue(
+          "recordLapTime",
+          undefined,
+          mockHd1,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
+
+      const mockHd2 = {
+        laneIndex: 0,
+        actualDriver: { entity_id: "EMPTY_LANE", name: "Empty" },
+      } as any;
+      expect(
+        RacedayFormatUtils.formatValue(
+          "recordLapTime",
+          undefined,
+          mockHd2,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
+
+      const mockHd3 = { laneIndex: 0 } as any;
+      expect(
+        RacedayFormatUtils.formatValue(
+          "recordLapTime",
+          undefined,
+          mockHd3,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
     });
   });
 });

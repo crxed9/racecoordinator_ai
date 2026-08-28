@@ -107,7 +107,9 @@ export class RacedayFormatUtils {
         baseKey === "rankHeat" ||
         baseKey === "rankOverall" ||
         baseKey === "rankGroup" ||
-        baseKey === "lapsLed"
+        baseKey === "lapsLed" ||
+        baseKey === "recordLapTime" ||
+        baseKey.startsWith("ghostPacing")
       ) {
         return "--";
       }
@@ -212,7 +214,7 @@ export class RacedayFormatUtils {
       return String(led);
     } else if (baseKey === "laneNumber") {
       return String((hd?.laneIndex ?? 0) + 1);
-    } else if (baseKey === "ghostPacing") {
+    } else if (baseKey.startsWith("ghostPacing")) {
       if (RacedayFormatUtils.isEmptyDriver(hd)) return "--";
       const ghostLap = (hd as any).ghostLapTime ?? 0;
       const currentLapTime = (hd as any).currentLapTime ?? hd.lastLapTime ?? 0;
