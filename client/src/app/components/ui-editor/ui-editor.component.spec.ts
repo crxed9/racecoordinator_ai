@@ -11,6 +11,7 @@ import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BehaviorSubject, delay, of, Subject, throwError } from "rxjs";
 import { AnchorPoint } from "@app/components/raceday/column_definition";
+import { RacedayLayoutUtils } from "@app/components/raceday/utils/raceday-layout.utils";
 import { DataService } from "@app/data.service";
 import { Settings } from "@app/models/settings";
 import { Theme } from "@app/models/theme";
@@ -23,7 +24,10 @@ import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
 import { deepCopy } from "@app/utils/clone.utils";
 
-import { UIEditorComponent } from "./ui-editor.component";
+import {
+  BASE_AVAILABLE_COLUMNS,
+  UIEditorComponent,
+} from "./ui-editor.component";
 
 @Component({
   selector: "app-image-selector",
@@ -680,6 +684,18 @@ describe("UIEditorComponent", () => {
     expect(lapsLed?.label).toBe("RD_COL_LAPS_LED");
   });
 
+  it("should include QR code columns in availableColumns", () => {
+    const qrCode = component.availableColumns.find((c) => c.key === "qrCode");
+    const driverViewQrCode = component.availableColumns.find(
+      (c) => c.key === "driverViewQrCode",
+    );
+
+    expect(qrCode).toBeTruthy();
+    expect(qrCode?.label).toBe("RD_COL_LANE_QR");
+    expect(driverViewQrCode).toBeTruthy();
+    expect(driverViewQrCode?.label).toBe("RD_COL_DRIVER_VIEW_QR");
+  });
+
   it("should include all 7 pacing columns in availableColumns", () => {
     const pacingCols = [
       { key: "ghostPacing", label: "RD_COL_GHOST_PACING_LANE_RECORD" },
@@ -710,6 +726,76 @@ describe("UIEditorComponent", () => {
       const col = component.availableColumns.find((c) => c.key === key);
       expect(col).toBeTruthy(`Expected column with key ${key} to exist`);
       expect(col?.label).toBe(label);
+    });
+  });
+
+  describe("column integrity guardrails", () => {
+    it("should have unique keys across all BASE_AVAILABLE_COLUMNS", () => {
+      const keys = BASE_AVAILABLE_COLUMNS.map((c) => c.key);
+      const uniqueKeys = new Set(keys);
+      expect(uniqueKeys.size)
+        .withContext("Duplicate keys found in BASE_AVAILABLE_COLUMNS")
+        .toBe(keys.length);
+    });
+
+    it("should include all Settings.DEFAULT_COLUMNS in BASE_AVAILABLE_COLUMNS", () => {
+      Settings.DEFAULT_COLUMNS.forEach((defaultCol) => {
+        const found = BASE_AVAILABLE_COLUMNS.some((c) => c.key === defaultCol);
+        expect(found)
+          .withContext(
+            `Default column ${defaultCol} is missing from BASE_AVAILABLE_COLUMNS`,
+          )
+          .toBeTrue();
+      });
+    });
+
+    it("should include all default columnLayouts properties in BASE_AVAILABLE_COLUMNS", () => {
+      const defaultSettings = new Settings();
+      const anchorProperties = new Set<string>();
+      Object.values(defaultSettings.columnLayouts).forEach((layout) => {
+        Object.values(layout).forEach((val) => {
+          if (val) {
+            anchorProperties.add(val);
+          }
+        });
+      });
+
+      anchorProperties.forEach((prop) => {
+        const found = BASE_AVAILABLE_COLUMNS.some((c) => c.key === prop);
+        expect(found)
+          .withContext(
+            `Anchor property ${prop} from default columnLayouts is missing from BASE_AVAILABLE_COLUMNS`,
+          )
+          .toBeTrue();
+      });
+    });
+
+    it("should preserve every BASE_AVAILABLE_COLUMNS item when loadData executes", () => {
+      component.loadData();
+      BASE_AVAILABLE_COLUMNS.forEach((baseCol) => {
+        const found = component.availableColumns.find(
+          (c) => c.key === baseCol.key,
+        );
+        expect(found)
+          .withContext(`Column ${baseCol.key} was lost after loadData()`)
+          .toBeTruthy();
+        expect(found?.label).toBe(baseCol.label);
+      });
+    });
+
+    it("should resolve valid label keys and widths for all BASE_AVAILABLE_COLUMNS in RacedayLayoutUtils", () => {
+      BASE_AVAILABLE_COLUMNS.forEach((col) => {
+        const labelKey = RacedayLayoutUtils.getLabelKeyForColumn(col.key);
+        expect(labelKey)
+          .withContext(
+            `Column ${col.key} resolved to UNKNOWN in RacedayLayoutUtils.getLabelKeyForColumn`,
+          )
+          .not.toBe("UNKNOWN");
+        const width = RacedayLayoutUtils.getDefaultColumnWidth(col.key);
+        expect(width)
+          .withContext(`Column ${col.key} has invalid default width ${width}`)
+          .toBeGreaterThanOrEqual(0);
+      });
     });
   });
 

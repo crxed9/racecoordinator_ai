@@ -288,6 +288,7 @@ export class RacedayLayoutUtils {
       "driver.avatarUrl": "RD_COL_AVATAR",
       flag: "",
       qrCode: "RD_COL_LANE_QR",
+      driverViewQrCode: "RD_COL_DRIVER_VIEW_QR",
       laneNumber: "RD_COL_LANE",
       ghostPacing: "RD_COL_GHOST_PACING",
       ghostPacingPB: "RD_COL_GHOST_PACING",
