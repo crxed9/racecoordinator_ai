@@ -1283,9 +1283,9 @@ export class DefaultRacedayComponent
 
     if (
       isBestLap &&
-      driver.bestLapAudio.type !== "none" &&
-      (driver.bestLapAudio.url ||
-        (driver.bestLapAudio.type === "tts" && driver.bestLapAudio.text))
+      driver.bestLapAudio?.type !== "none" &&
+      (driver.bestLapAudio?.url ||
+        (driver.bestLapAudio?.type === "tts" && driver.bestLapAudio?.text))
     ) {
       playSound(
         driver.bestLapAudio.type,
@@ -1298,9 +1298,9 @@ export class DefaultRacedayComponent
     } else if (lap.isDrift) {
       this.playThemedSound(THEME_SLOT_KEYS.AUDIO_DRIFT_LAP, ttsContext);
     } else if (
-      driver.lapAudio.type !== "none" &&
-      (driver.lapAudio.url ||
-        (driver.lapAudio.type === "tts" && driver.lapAudio.text))
+      driver.lapAudio?.type !== "none" &&
+      (driver.lapAudio?.url ||
+        (driver.lapAudio?.type === "tts" && driver.lapAudio?.text))
     ) {
       playSound(
         driver.lapAudio.type,

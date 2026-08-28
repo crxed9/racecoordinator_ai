@@ -212,9 +212,10 @@ export class DefaultDriverStationComponent implements OnInit, OnDestroy {
 
             if (
               isBestLap &&
-              (driver.bestLapAudio.url ||
-                (driver.bestLapAudio.type === "tts" &&
-                  driver.bestLapAudio.text))
+              driver.bestLapAudio?.type !== "none" &&
+              (driver.bestLapAudio?.url ||
+                (driver.bestLapAudio?.type === "tts" &&
+                  driver.bestLapAudio?.text))
             ) {
               playSound(
                 driver.bestLapAudio.type,
@@ -225,8 +226,9 @@ export class DefaultDriverStationComponent implements OnInit, OnDestroy {
                 this.logger,
               );
             } else if (
-              driver.lapAudio.url ||
-              (driver.lapAudio.type === "tts" && driver.lapAudio.text)
+              driver.lapAudio?.type !== "none" &&
+              (driver.lapAudio?.url ||
+                (driver.lapAudio?.type === "tts" && driver.lapAudio?.text))
             ) {
               playSound(
                 driver.lapAudio.type,

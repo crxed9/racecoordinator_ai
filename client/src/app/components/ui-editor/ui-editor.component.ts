@@ -46,6 +46,71 @@ export interface UIEditorState {
   themes: Theme[];
 }
 
+export const BASE_AVAILABLE_COLUMNS: readonly {
+  key: string;
+  label: string;
+}[] = [
+  { key: "driver.name", label: "RD_COL_NAME" },
+  { key: "driver.nickname", label: "RD_COL_NICKNAME" },
+  { key: "driver.avatarUrl", label: "RD_COL_AVATAR" },
+  { key: "lapCount", label: "RD_COL_LAP" },
+  { key: "lapsLed", label: "RD_COL_LAPS_LED" },
+  { key: "reactionTime", label: "RD_COL_REACTION_TIME" },
+  { key: "lastLapTime", label: "RD_COL_LAP_TIME" },
+  { key: "lastLaps", label: "RD_COL_LAST_LAPS" },
+  { key: "medianLapTime", label: "RD_COL_MEDIAN_LAP" },
+  { key: "averageLapTime", label: "RD_COL_AVG_LAP" },
+  { key: "bestLapTime", label: "RD_COL_BEST_LAP" },
+  { key: "recordLapTime", label: "RD_COL_RECORD_LAP_TIME" },
+  { key: "totalTime", label: "RD_COL_TOTAL_TIME" },
+  { key: "gapLeader", label: "UI_EDITOR_COL_GAP_LEADER" },
+  { key: "gapPosition", label: "UI_EDITOR_COL_GAP_POSITION" },
+  { key: "gapLeaderF1", label: "UI_EDITOR_COL_GAP_LEADER_F1" },
+  { key: "gapPositionF1", label: "UI_EDITOR_COL_GAP_POSITION_F1" },
+  { key: "seed", label: "RD_COL_SEED" },
+  { key: "rankHeat", label: "RD_COL_RANK_HEAT" },
+  { key: "rankOverall", label: "RD_COL_RANK_OVERALL" },
+  { key: "rankGroup", label: "RD_COL_RANK_GROUP" },
+  { key: "winProbability", label: "RD_COL_WIN_PROB" },
+  { key: "projectedRank", label: "RD_COL_PROJ_RANK" },
+  { key: "projectedLaps", label: "RD_COL_PROJ_LAPS" },
+  { key: "participant.team.name", label: "RD_COL_TEAM" },
+  { key: "participant.fuelLevel", label: "RD_COL_FUEL_LEVEL" },
+  { key: "fuelCapacity", label: "RD_COL_FUEL_CAPACITY" },
+  { key: "fuelPercentage", label: "RD_COL_FUEL_PERCENTAGE" },
+  { key: "imageset_fuel-gauge-builtin", label: "RD_COL_FUEL_GAUGE" },
+  { key: "mph", label: "RD_COL_MPH" },
+  { key: "kph", label: "RD_COL_KPH" },
+  { key: "fph", label: "RD_COL_FPH" },
+  { key: "segmentTime", label: "RD_COL_SEGMENT_TIME" },
+  { key: "flag", label: "RD_COL_DRIVER_FLAG" },
+  { key: "qrCode", label: "RD_COL_LANE_QR" },
+  { key: "driverViewQrCode", label: "RD_COL_DRIVER_VIEW_QR" },
+  { key: "laneNumber", label: "RD_COL_LANE" },
+  { key: "ghostPacing", label: "RD_COL_GHOST_PACING_LANE_RECORD" },
+  { key: "ghostPacingPB", label: "RD_COL_GHOST_PACING_PERSONAL_BEST" },
+  {
+    key: "ghostPacingPersonalAvg",
+    label: "RD_COL_GHOST_PACING_PERSONAL_AVG",
+  },
+  {
+    key: "ghostPacingPersonalMedian",
+    label: "RD_COL_GHOST_PACING_PERSONAL_MEDIAN",
+  },
+  {
+    key: "ghostPacingLeaderAvg",
+    label: "RD_COL_GHOST_PACING_LEADER_AVG",
+  },
+  {
+    key: "ghostPacingLeaderMedian",
+    label: "RD_COL_GHOST_PACING_LEADER_MEDIAN",
+  },
+  {
+    key: "ghostPacingLeaderBest",
+    label: "RD_COL_GHOST_PACING_LEADER_BEST",
+  },
+];
+
 import { WidgetInspectorFieldsComponent } from "./widget-inspector-fields/widget-inspector-fields.component";
 import { WIDGET_REGISTRY } from "./widget-registry";
 
@@ -142,48 +207,10 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   showDiscardConfirm = false;
   private pendingDeactivate: ((result: boolean) => void) | null = null;
 
-  // TODO(aufderheide): I think this list is duplicated below.  If they're the same they should share the code.
   layoutResolutionOptions: { label: string; width: number; height: number }[] =
     [];
-  availableColumns = [
-    { key: "driver.name", label: "RD_COL_NAME" },
-    { key: "driver.nickname", label: "RD_COL_NICKNAME" },
-    { key: "driver.avatarUrl", label: "RD_COL_AVATAR" },
-    { key: "lapCount", label: "RD_COL_LAP" },
-    { key: "lapsLed", label: "RD_COL_LAPS_LED" },
-    { key: "reactionTime", label: "RD_COL_REACTION_TIME" },
-    { key: "lastLapTime", label: "RD_COL_LAP_TIME" },
-    { key: "lastLaps", label: "RD_COL_LAST_LAPS" },
-    { key: "medianLapTime", label: "RD_COL_MEDIAN_LAP" },
-    { key: "averageLapTime", label: "RD_COL_AVG_LAP" },
-    { key: "bestLapTime", label: "RD_COL_BEST_LAP" },
-    { key: "recordLapTime", label: "RD_COL_RECORD_LAP_TIME" },
-    { key: "totalTime", label: "RD_COL_TOTAL_TIME" },
-    { key: "gapLeader", label: "UI_EDITOR_COL_GAP_LEADER" },
-    { key: "gapPosition", label: "UI_EDITOR_COL_GAP_POSITION" },
-    { key: "gapLeaderF1", label: "UI_EDITOR_COL_GAP_LEADER_F1" },
-    { key: "gapPositionF1", label: "UI_EDITOR_COL_GAP_POSITION_F1" },
-    { key: "seed", label: "RD_COL_SEED" },
-    { key: "rankHeat", label: "RD_COL_RANK_HEAT" },
-    { key: "rankOverall", label: "RD_COL_RANK_OVERALL" },
-    { key: "rankGroup", label: "RD_COL_RANK_GROUP" },
-    { key: "winProbability", label: "RD_COL_WIN_PROB" },
-    { key: "projectedRank", label: "RD_COL_PROJ_RANK" },
-    { key: "projectedLaps", label: "RD_COL_PROJ_LAPS" },
-    { key: "participant.team.name", label: "RD_COL_TEAM" },
-    { key: "participant.fuelLevel", label: "RD_COL_FUEL_LEVEL" },
-    { key: "fuelCapacity", label: "RD_COL_FUEL_CAPACITY" },
-    { key: "fuelPercentage", label: "RD_COL_FUEL_PERCENTAGE" },
-    { key: "imageset_fuel-gauge-builtin", label: "RD_COL_FUEL_GAUGE" },
-    { key: "mph", label: "RD_COL_MPH" },
-    { key: "kph", label: "RD_COL_KPH" },
-    { key: "fph", label: "RD_COL_FPH" },
-    { key: "segmentTime", label: "RD_COL_SEGMENT_TIME" },
-    { key: "flag", label: "RD_COL_DRIVER_STATE" },
-    { key: "qrCode", label: "RD_COL_LANE_QR" },
-    { key: "driverViewQrCode", label: "RD_COL_DRIVER_VIEW_QR" },
-    { key: "laneNumber", label: "RD_COL_LANE" },
-    { key: "ghostPacing", label: "RD_COL_GHOST_PACING" },
+  availableColumns: { key: string; label: string }[] = [
+    ...BASE_AVAILABLE_COLUMNS,
   ];
   availableTransitions = [
     { key: "none", label: "UE_TRANSITION_NONE" },
@@ -886,67 +913,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
           }));
 
         // Reset availableColumns to base set + dynamic image sets
-        this.availableColumns = [
-          { key: "driver.name", label: "RD_COL_NAME" },
-          { key: "driver.nickname", label: "RD_COL_NICKNAME" },
-          { key: "driver.avatarUrl", label: "RD_COL_AVATAR" },
-          { key: "lapCount", label: "RD_COL_LAP" },
-          { key: "lapsLed", label: "RD_COL_LAPS_LED" },
-          { key: "reactionTime", label: "RD_COL_REACTION_TIME" },
-          { key: "lastLapTime", label: "RD_COL_LAP_TIME" },
-          { key: "lastLaps", label: "RD_COL_LAST_LAPS" },
-          { key: "medianLapTime", label: "RD_COL_MEDIAN_LAP" },
-          { key: "averageLapTime", label: "RD_COL_AVG_LAP" },
-          { key: "bestLapTime", label: "RD_COL_BEST_LAP" },
-          { key: "recordLapTime", label: "RD_COL_RECORD_LAP_TIME" },
-          { key: "totalTime", label: "RD_COL_TOTAL_TIME" },
-          { key: "gapLeader", label: "UI_EDITOR_COL_GAP_LEADER" },
-          { key: "gapPosition", label: "UI_EDITOR_COL_GAP_POSITION" },
-          { key: "gapLeaderF1", label: "UI_EDITOR_COL_GAP_LEADER_F1" },
-          { key: "gapPositionF1", label: "UI_EDITOR_COL_GAP_POSITION_F1" },
-          { key: "seed", label: "RD_COL_SEED" },
-          { key: "rankHeat", label: "RD_COL_RANK_HEAT" },
-          { key: "rankOverall", label: "RD_COL_RANK_OVERALL" },
-          { key: "rankGroup", label: "RD_COL_RANK_GROUP" },
-          { key: "winProbability", label: "RD_COL_WIN_PROB" },
-          { key: "projectedRank", label: "RD_COL_PROJ_RANK" },
-          { key: "projectedLaps", label: "RD_COL_PROJ_LAPS" },
-          { key: "participant.team.name", label: "RD_COL_TEAM" },
-          { key: "participant.fuelLevel", label: "RD_COL_FUEL_LEVEL" },
-          { key: "fuelCapacity", label: "RD_COL_FUEL_CAPACITY" },
-          { key: "fuelPercentage", label: "RD_COL_FUEL_PERCENTAGE" },
-          { key: "imageset_fuel-gauge-builtin", label: "RD_COL_FUEL_GAUGE" },
-          { key: "mph", label: "RD_COL_MPH" },
-          { key: "kph", label: "RD_COL_KPH" },
-          { key: "fph", label: "RD_COL_FPH" },
-          { key: "segmentTime", label: "RD_COL_SEGMENT_TIME" },
-          { key: "flag", label: "RD_COL_DRIVER_STATE" },
-          { key: "qrCode", label: "RD_COL_LANE_QR" },
-          { key: "laneNumber", label: "RD_COL_LANE" },
-          { key: "ghostPacing", label: "RD_COL_GHOST_PACING_LANE_RECORD" },
-          { key: "ghostPacingPB", label: "RD_COL_GHOST_PACING_PERSONAL_BEST" },
-          {
-            key: "ghostPacingPersonalAvg",
-            label: "RD_COL_GHOST_PACING_PERSONAL_AVG",
-          },
-          {
-            key: "ghostPacingPersonalMedian",
-            label: "RD_COL_GHOST_PACING_PERSONAL_MEDIAN",
-          },
-          {
-            key: "ghostPacingLeaderAvg",
-            label: "RD_COL_GHOST_PACING_LEADER_AVG",
-          },
-          {
-            key: "ghostPacingLeaderMedian",
-            label: "RD_COL_GHOST_PACING_LEADER_MEDIAN",
-          },
-          {
-            key: "ghostPacingLeaderBest",
-            label: "RD_COL_GHOST_PACING_LEADER_BEST",
-          },
-          ...imageSetColumns,
-        ];
+        this.availableColumns = [...BASE_AVAILABLE_COLUMNS, ...imageSetColumns];
         this.sortAvailableColumns();
 
         this.customDirectoryName = result.dirHandle?.name || null;

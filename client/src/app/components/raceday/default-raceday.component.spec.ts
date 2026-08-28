@@ -2710,6 +2710,70 @@ describe("DefaultRacedayComponent", () => {
     });
   });
 
+  describe("Lap Audio", () => {
+    let mockHd: any;
+
+    beforeEach(() => {
+      mockHd = {
+        objectId: "hd1",
+        laneIndex: 0,
+        driver: {
+          name: "Test Driver",
+          penaltyAudio: { type: "none" },
+          bestLapAudio: { type: "none" },
+          lapAudio: { type: "none" },
+        },
+      };
+      const mockHeat = { heatDrivers: [mockHd], heatNumber: 1 };
+      mockRaceService.getCurrentHeat.and.returnValue(mockHeat);
+      component["heat"] = mockHeat as any;
+      mockAudioInstance.play.calls.reset();
+      fixture.detectChanges();
+    });
+
+    it("should not play any sound on best lap if bestLapAudio type is none", () => {
+      mockHd.driver.bestLapAudio = { type: "none" };
+      mockHd.driver.lapAudio = { type: "none" };
+
+      lapsSubject.next({
+        objectId: "hd1",
+        type: LapType.LAP,
+        lapTime: 1.0,
+        bestLapTime: 1.0,
+      });
+
+      expect(mockAudioInstance.play).not.toHaveBeenCalled();
+    });
+
+    it("should not play any sound on normal lap if lapAudio type is none", () => {
+      mockHd.driver.bestLapAudio = { type: "none" };
+      mockHd.driver.lapAudio = { type: "none" };
+
+      lapsSubject.next({
+        objectId: "hd1",
+        type: LapType.LAP,
+        lapTime: 1.5,
+        bestLapTime: 1.0,
+      });
+
+      expect(mockAudioInstance.play).not.toHaveBeenCalled();
+    });
+
+    it("should play best lap sound when bestLapAudio type is preset and isBestLap is true", () => {
+      mockHd.driver.bestLapAudio = { type: "preset", url: "default_driveby" };
+      mockHd.driver.lapAudio = { type: "none" };
+
+      lapsSubject.next({
+        objectId: "hd1",
+        type: LapType.LAP,
+        lapTime: 1.0,
+        bestLapTime: 1.0,
+      });
+
+      expect(mockAudioInstance.play).toHaveBeenCalled();
+    });
+  });
+
   describe("Lane Sorting", () => {
     let mockHd1: any;
     let mockHd2: any;

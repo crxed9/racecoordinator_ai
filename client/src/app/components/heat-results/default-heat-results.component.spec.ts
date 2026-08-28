@@ -214,6 +214,15 @@ describe("DefaultHeatResultsComponent", () => {
     expect(expanderEl).toBeTruthy();
   });
 
+  it("should render empty state message when heatData is empty", () => {
+    component["heatData"] = [];
+    fixture.detectChanges();
+
+    const noDataEl = fixture.nativeElement.querySelector(".no-heats-container");
+    expect(noDataEl).toBeTruthy();
+    expect(fixture.nativeElement.textContent).toContain("HR_NO_HEAT_DATA");
+  });
+
   it("should open driver results window, track it, and close it on destroy or pagehide", () => {
     const mockWindow = jasmine.createSpyObj("Window", ["close"]);
     mockWindow.closed = false;

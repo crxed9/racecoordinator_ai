@@ -310,6 +310,12 @@ describe("RacedayLayoutUtils", () => {
     expect(
       RacedayLayoutUtils.getLabelKeyForColumn("imageset_fuel-gauge-builtin"),
     ).toBe("RD_COL_FUEL_GAUGE");
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("qrCode")).toBe(
+      "RD_COL_LANE_QR",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("driverViewQrCode")).toBe(
+      "RD_COL_DRIVER_VIEW_QR",
+    );
     expect(RacedayLayoutUtils.getLabelKeyForColumn("unknown_prop")).toBe(
       "UNKNOWN",
     );

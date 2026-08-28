@@ -55,6 +55,13 @@ public class NotStarted implements IRaceState {
   public void enter(Race race) {
     logger.info("NotStarted state entered.");
     this.race = race;
+    if (race.getCurrentHeat() != null && race.getCurrentHeat().isEmpty()) {
+      logger.info(
+          "NotStarted.enter(): Current heat {} has no drivers. Automatically skipping.",
+          race.getCurrentHeat().getHeatNumber());
+      Common.advanceToNextHeat(race);
+      return;
+    }
     race.setHasRacedInCurrentHeat(false);
     race.prepareHeat();
     double autoStartTime = race.getRaceModel().getAutoStartTime();

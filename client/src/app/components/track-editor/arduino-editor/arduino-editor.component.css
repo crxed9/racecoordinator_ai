@@ -388,29 +388,6 @@
   font-size: 0.9rem;
   color: #cbd5e1;
   cursor: pointer;
-  transition: all 0.1s;
-}
-
-.dropdown-item:hover {
-  background: rgba(56, 189, 248, 0.1);
-  color: #38bdf8;
-}
-
-.dropdown-item.selected {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-  font-weight: 600;
-}
-
-.dropdown-item.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  color: #64748b;
-}
-
-.dropdown-item.disabled:hover {
-  background: transparent;
-  color: #64748b;
 }
 
 .group-header {
@@ -849,8 +826,8 @@
   box-sizing: border-box;
   border-radius: 8px;
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-              0 8px 10px 1px rgba(0, 0, 0, 0.14),
-              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
   background: rgba(30, 41, 59, 0.9);
 }
 

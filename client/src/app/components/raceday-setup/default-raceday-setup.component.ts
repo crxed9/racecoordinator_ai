@@ -218,16 +218,35 @@ export class DefaultRacedaySetupComponent implements OnInit {
               {
                 type:
                   d.lapAudio?.type ||
-                  (d.lapSoundType === "tts" ? "tts" : "preset"),
+                  (d.lapSoundType === "tts"
+                    ? "tts"
+                    : d.lapSoundType === "none"
+                      ? "none"
+                      : "preset"),
                 url: d.lapAudio?.url || d.lapSoundUrl,
                 text: d.lapAudio?.text || d.lapSoundText,
               },
               {
                 type:
                   d.bestLapAudio?.type ||
-                  (d.bestLapSoundType === "tts" ? "tts" : "preset"),
+                  (d.bestLapSoundType === "tts"
+                    ? "tts"
+                    : d.bestLapSoundType === "none"
+                      ? "none"
+                      : "preset"),
                 url: d.bestLapAudio?.url || d.bestLapSoundUrl,
                 text: d.bestLapAudio?.text || d.bestLapSoundText,
+              },
+              {
+                type:
+                  d.penaltyAudio?.type ||
+                  (d.penaltySoundType === "tts"
+                    ? "tts"
+                    : d.penaltySoundType === "none"
+                      ? "none"
+                      : "preset"),
+                url: d.penaltyAudio?.url || d.penaltySoundUrl,
+                text: d.penaltyAudio?.text || d.penaltySoundText,
               },
             ),
         );
