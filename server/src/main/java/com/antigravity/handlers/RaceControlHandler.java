@@ -314,12 +314,24 @@ public class RaceControlHandler {
       com.antigravity.race.Race race = // fqn-collision
           ClientSubscriptionManager.getInstance().getRace(); // fqn-collision
       if (race == null) {
+        logger.warn("startRace rejected: No active race found");
         ctx.status(404).result("No active race found");
         return;
       }
 
       try {
         boolean success = race.startRace();
+        if (!success) {
+          boolean healthy =
+              race.getHardwareManager() != null
+                  && race.getHardwareManager().getProtocols() != null
+                  && race.getHardwareManager().getProtocols().isHealthy();
+          logger.warn(
+              "startRace rejected: Race could not start (stopped={}, state={}, healthy={})",
+              race.isStopped(),
+              race.getState() != null ? race.getState().getClass().getSimpleName() : "null",
+              healthy);
+        }
 
         StartRaceResponse response =
             StartRaceResponse.newBuilder()

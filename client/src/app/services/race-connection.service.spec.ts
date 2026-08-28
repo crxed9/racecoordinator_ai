@@ -246,6 +246,39 @@ describe("RaceConnectionService", () => {
       flush();
     }));
 
+    it("should log status transitions and watchdog timeouts", fakeAsync(() => {
+      const logger = (service as any).logger;
+      spyOn(logger, "info");
+      spyOn(logger, "debug");
+      spyOn(logger, "warn");
+
+      service.connect();
+
+      // First status change
+      interfaceEventsSubject.next({
+        status: { status: InterfaceStatus.CONNECTED },
+      });
+      expect(logger.info).toHaveBeenCalledWith(
+        `RaceConnectionService: Interface status changed from -1 to ${InterfaceStatus.CONNECTED}`,
+      );
+
+      // Same status should log debug/trace without info spam
+      interfaceEventsSubject.next({
+        status: { status: InterfaceStatus.CONNECTED },
+      });
+      expect(logger.debug).toHaveBeenCalledWith(
+        "RaceConnectionService: Interface status unchanged:",
+        InterfaceStatus.CONNECTED,
+      );
+
+      // Watchdog timeout warning
+      tick(6000); // 5s watchdog after initial connection
+      expect(logger.warn).toHaveBeenCalledWith(
+        jasmine.stringMatching(/Interface watchdog timeout reached/),
+      );
+      flush();
+    }));
+
     it("should reset connection state on each NEW connection session (startConnection)", fakeAsync(() => {
       let emittedAlert: any = null;
       const sub = service.interfaceAlert$.subscribe(

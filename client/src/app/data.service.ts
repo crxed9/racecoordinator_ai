@@ -52,6 +52,7 @@ import {
   ISaveImageSetEntry,
   ISegment,
   IStandingsUpdate,
+  IStartRaceResponse,
   ITeamModel,
   LedString as ProtoLedString,
   ListAssetsResponse,
@@ -780,7 +781,7 @@ export class DataService {
     return this.http.post(`${this.baseUrl}/api/close-interface`, {});
   }
 
-  startRace(): Observable<boolean> {
+  startRace(): Observable<IStartRaceResponse> {
     const request = StartRaceRequest.create({});
     const buffer = StartRaceRequest.encode(request).finish();
 
@@ -796,10 +797,9 @@ export class DataService {
       })
       .pipe(
         map((response) => {
-          const startResponse = StartRaceResponse.decode(
+          return StartRaceResponse.decode(
             Reader.create(new Uint8Array(response as any)),
           );
-          return startResponse.success;
         }),
       );
   }
@@ -1442,6 +1442,7 @@ export class DataService {
   public socketConnected$ = this.socketConnectedSubject.asObservable();
 
   private shouldSubscribeToRaceData = false;
+  private isInterfaceSocketExplicitlyDisconnected = false;
 
   public updateRaceSubscription(subscribe: boolean) {
     this.shouldSubscribeToRaceData = subscribe;
@@ -1607,6 +1608,8 @@ export class DataService {
       return;
     }
 
+    this.isInterfaceSocketExplicitlyDisconnected = false;
+
     if (this.interfaceDataSocket) {
       try {
         this.interfaceDataSocket.close();
@@ -1666,10 +1669,23 @@ export class DataService {
     this.interfaceDataSocket.onclose = () => {
       this.logger.info("Interface Data WebSocket closed.");
       this.interfaceDataSocket = undefined;
+      if (!this.isInterfaceSocketExplicitlyDisconnected) {
+        this.logger.info("Reconnecting Interface WebSocket in 2 seconds...");
+        setTimeout(() => {
+          if (!this.isInterfaceSocketExplicitlyDisconnected) {
+            this.connectToInterfaceDataSocket();
+          }
+        }, 2000);
+      }
+    };
+
+    this.interfaceDataSocket.onerror = (err) => {
+      this.logger.error("Interface Data WebSocket error on " + wsUrl, err);
     };
   }
 
   public disconnectFromInterfaceDataSocket() {
+    this.isInterfaceSocketExplicitlyDisconnected = true;
     if (this.interfaceDataSocket) {
       this.interfaceDataSocket.close();
       this.interfaceDataSocket = undefined;

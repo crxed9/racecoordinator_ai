@@ -94,7 +94,7 @@ export function createRacedayMocks(overrides: any = {}) {
   mockDataService.saveRace.and.returnValue(of("saved_race.json"));
   mockDataService.getRaceFlag.and.returnValue(of(RaceFlag.RED));
   mockDataService.getThemes.and.returnValue(of([]));
-  mockDataService.startRace.and.returnValue(of(true));
+  mockDataService.startRace.and.returnValue(of({ success: true }));
   mockDataService.updateHeatUserLaps.and.returnValue(
     of({ adjustedLapCount: 1.0 }),
   );

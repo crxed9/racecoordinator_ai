@@ -595,10 +595,12 @@ export class DefaultRacedayComponent
     if (this.viewerRaceEndedHandler)
       this.viewerRaceEndedHandler.ackModalButtonText = v;
   }
+  private _raceHasEnded = false;
   get raceHasEnded(): boolean {
-    return this.viewerRaceEndedHandler?.raceHasEnded ?? false;
+    return this.viewerRaceEndedHandler?.raceHasEnded ?? this._raceHasEnded;
   }
   set raceHasEnded(v: boolean) {
+    this._raceHasEnded = v;
     if (this.viewerRaceEndedHandler)
       this.viewerRaceEndedHandler.raceHasEnded = v;
   }
@@ -2818,23 +2820,47 @@ export class DefaultRacedayComponent
     }
     if (action === "START_RESUME") {
       this.dataService.startRace().subscribe(
-        (success) => {
-          if (success) {
+        (response) => {
+          if (response && response.success) {
             this.logger.debug("Race start command sent successfully");
           } else {
-            this.logger.error("Failed to send race start command");
-            this.showInterfaceError(
-              "ACK_MODAL_TITLE_DISCONNECTED",
-              "ACK_MODAL_MSG_DISCONNECTED",
+            this.logger.error(
+              "Failed to send race start command:",
+              response?.message,
             );
+            const msg = response?.message || "";
+            if (msg.toLowerCase().includes("interface")) {
+              this.showInterfaceError(
+                "ACK_MODAL_TITLE_DISCONNECTED",
+                "ACK_MODAL_MSG_DISCONNECTED",
+              );
+            } else {
+              this.showInterfaceError(
+                "ACK_MODAL_TITLE_START_FAILED",
+                msg || "ACK_MODAL_MSG_RACE_INACTIVE",
+              );
+            }
           }
         },
         (error) => {
           this.logger.error("Error starting race:", error);
-          this.showInterfaceError(
-            "ACK_MODAL_TITLE_DISCONNECTED",
-            "ACK_MODAL_MSG_DISCONNECTED",
-          );
+          if (error?.status === 401 || error?.status === 403) {
+            this.showInterfaceError(
+              "ACK_MODAL_TITLE_PERMISSION_DENIED",
+              "ACK_MODAL_MSG_PERMISSION_DENIED",
+            );
+          } else if (error?.status === 404) {
+            this.raceHasEnded = true;
+            this.showInterfaceError(
+              "ACK_MODAL_TITLE_RACE_INACTIVE",
+              "ACK_MODAL_MSG_RACE_INACTIVE",
+            );
+          } else {
+            this.showInterfaceError(
+              "ACK_MODAL_TITLE_START_FAILED",
+              error?.error || error?.message || "ACK_MODAL_MSG_DISCONNECTED",
+            );
+          }
         },
       );
     } else if (action === "PAUSE" || action === "ABORT_TIMERS") {
