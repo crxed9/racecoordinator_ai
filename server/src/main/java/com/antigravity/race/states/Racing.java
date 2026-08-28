@@ -4,7 +4,6 @@ import com.antigravity.models.FuelOptions;
 import com.antigravity.models.HeatScoring;
 import com.antigravity.models.HeatScoring.AllowFinish;
 import com.antigravity.models.HeatScoring.FinishMethod;
-import com.antigravity.proto.Lap;
 import com.antigravity.proto.RaceData;
 import com.antigravity.proto.RaceFlag;
 import com.antigravity.proto.StandingsUpdate;
@@ -516,24 +515,6 @@ public class Racing implements IRaceState {
           dhd.setAutoCalculatedLaps(segments);
         }
       }
-
-      // Broadcast Lap update so client sees the new adjusted lap count
-      Lap lapMsg =
-          Lap.newBuilder()
-              .setObjectId(dhd.getObjectId())
-              .setLapTime(dhd.getLastLapTime())
-              .setLapNumber(dhd.getLapCount())
-              .setAverageLapTime(dhd.getAverageLapTime())
-              .setMedianLapTime(dhd.getMedianLapTime())
-              .setBestLapTime(dhd.getBestLapTime())
-              .setDriverId(dhd.getActualDriver() != null ? dhd.getActualDriver().getEntityId() : "")
-              .setFuelLevel(dhd.getDriver().getFuelLevel())
-              .setAdjustedLapCount(dhd.getAdjustedLapCount())
-              .setType(Lap.LapType.LAP)
-              .setFlag(getLaneFlagType(race, i))
-              .build();
-
-      race.broadcast(RaceData.newBuilder().setLap(lapMsg).build());
     }
   }
 
