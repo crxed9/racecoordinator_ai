@@ -117,14 +117,14 @@
                 {{ "RDS_MENU_SERVER" | translate }}
               </div>
               <app-language-selector
-                wrapperClass="menu-dropdown-item"
-                itemClass="menu-dropdown-item"
+                wrapperClass="setup-menu-dropdown-item"
+                itemClass="setup-menu-dropdown-item"
                 (languageSelected)="onLanguageSelected()"
               ></app-language-selector>
               <hr class="setup-menu-dropdown-divider" />
               <app-update-selector
-                wrapperClass="menu-dropdown-item"
-                itemClass="menu-dropdown-item"
+                wrapperClass="setup-menu-dropdown-item"
+                itemClass="setup-menu-dropdown-item"
                 (checkForUpdatesRequested)="onCheckForUpdates()"
               ></app-update-selector>
               <hr class="setup-menu-dropdown-divider" />
@@ -140,25 +140,30 @@
                 class="setup-menu-dropdown-item has-submenu"
                 (click)="toggleLogDropdown($event)"
               >
-                {{ "RDS_MENU_LOG_LEVELS" | translate }}
+                <span>{{ "RDS_MENU_LOG_LEVELS" | translate }}</span>
                 <span class="setup-submenu-arrow">▶</span>
                 @if (isLogDropdownOpen) {
-                  <div class="menu-dropdown submenu">
+                  <div class="setup-menu-dropdown submenu">
                     <div
                       class="setup-menu-dropdown-item has-submenu"
                       (click)="toggleClientLogDropdown($event)"
                     >
-                      {{ "RDS_LOG_CLIENT" | translate }}
+                      <span>{{ "RDS_LOG_CLIENT" | translate }}</span>
                       <span class="setup-submenu-arrow">▶</span>
                       @if (isClientLogOpen) {
-                        <div class="menu-dropdown submenu">
+                        <div class="setup-menu-dropdown submenu">
                           @for (level of clientLogLevels; track level) {
                             <div
                               class="setup-menu-dropdown-item"
                               (click)="setClientLogLevel(level)"
                               [class.selected]="currentClientLogLevel === level"
                             >
-                              {{ "LOG_LEVEL_" + level | translate }}
+                              <span class="check-slot">{{
+                                currentClientLogLevel === level ? "✓" : ""
+                              }}</span>
+                              <span>{{
+                                "LOG_LEVEL_" + level | translate
+                              }}</span>
                             </div>
                           }
                         </div>
@@ -168,17 +173,22 @@
                       class="setup-menu-dropdown-item has-submenu"
                       (click)="toggleServerLogDropdown($event)"
                     >
-                      {{ "RDS_LOG_SERVER" | translate }}
+                      <span>{{ "RDS_LOG_SERVER" | translate }}</span>
                       <span class="setup-submenu-arrow">▶</span>
                       @if (isServerLogOpen) {
-                        <div class="menu-dropdown submenu">
+                        <div class="setup-menu-dropdown submenu">
                           @for (level of serverLogLevels; track level) {
                             <div
                               class="setup-menu-dropdown-item"
                               (click)="setServerLogLevel(level)"
                               [class.selected]="currentServerLogLevel === level"
                             >
-                              {{ "LOG_LEVEL_" + level | translate }}
+                              <span class="check-slot">{{
+                                currentServerLogLevel === level ? "✓" : ""
+                              }}</span>
+                              <span>{{
+                                "LOG_LEVEL_" + level | translate
+                              }}</span>
                             </div>
                           }
                         </div>
@@ -671,7 +681,10 @@
                         selectedRace?.entity_id === race.entity_id
                       "
                     >
-                      {{ race.name }}
+                      <span class="check-slot">{{
+                        selectedRace?.entity_id === race.entity_id ? "✓" : ""
+                      }}</span>
+                      <span class="dropdown-item-label">{{ race.name }}</span>
                     </div>
                   }
                   @if (filteredEvents.length > 0) {
@@ -686,8 +699,15 @@
                           selectedEvent?.entity_id === ev.entity_id
                         "
                       >
-                        {{ ev.name }} ({{ ev.races ? ev.races.length : 0 }}
-                        races)
+                        <span class="check-slot">{{
+                          selectedEvent?.entity_id === ev.entity_id ? "✓" : ""
+                        }}</span>
+                        <span class="dropdown-item-label"
+                          >{{ ev.name }} ({{
+                            ev.races ? ev.races.length : 0
+                          }}
+                          races)</span
+                        >
                       </div>
                     }
                   }
