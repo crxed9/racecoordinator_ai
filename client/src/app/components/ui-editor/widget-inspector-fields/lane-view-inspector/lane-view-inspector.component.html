@@ -315,21 +315,17 @@
               </option>
             </select>
           </div>
-          <div
-            class="col-width-wrapper"
-            style="display: flex; align-items: center; gap: 2px"
-          >
+          <div class="col-width-wrapper">
             <input
               type="number"
               min="0"
               class="inspector-input col-width-input"
-              style="width: 48px; padding: 3px 4px; font-size: 12px"
               [placeholder]="'0'"
               [ngModel]="getColumnWidth(col)"
               (ngModelChange)="setColumnWidth(col, $event)"
               [title]="'UE_INSPECTOR_LANE_VIEW_COLUMN_WIDTH' | translate"
             />
-            <span style="font-size: 10px; color: #888">px</span>
+            <span class="col-width-unit">px</span>
           </div>
           <button
             class="icon-btn delete-btn"

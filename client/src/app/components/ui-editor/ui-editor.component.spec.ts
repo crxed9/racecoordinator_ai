@@ -684,6 +684,12 @@ describe("UIEditorComponent", () => {
     expect(lapsLed?.label).toBe("RD_COL_LAPS_LED");
   });
 
+  it("should include driver flag column in availableColumns with label RD_COL_DRIVER_FLAG", () => {
+    const flag = component.availableColumns.find((c) => c.key === "flag");
+    expect(flag).toBeTruthy();
+    expect(flag?.label).toBe("RD_COL_DRIVER_FLAG");
+  });
+
   it("should include QR code columns in availableColumns", () => {
     const qrCode = component.availableColumns.find((c) => c.key === "qrCode");
     const driverViewQrCode = component.availableColumns.find(

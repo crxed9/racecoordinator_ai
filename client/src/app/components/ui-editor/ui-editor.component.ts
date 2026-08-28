@@ -83,7 +83,7 @@ export const BASE_AVAILABLE_COLUMNS: readonly {
   { key: "kph", label: "RD_COL_KPH" },
   { key: "fph", label: "RD_COL_FPH" },
   { key: "segmentTime", label: "RD_COL_SEGMENT_TIME" },
-  { key: "flag", label: "RD_COL_DRIVER_STATE" },
+  { key: "flag", label: "RD_COL_DRIVER_FLAG" },
   { key: "qrCode", label: "RD_COL_LANE_QR" },
   { key: "driverViewQrCode", label: "RD_COL_DRIVER_VIEW_QR" },
   { key: "laneNumber", label: "RD_COL_LANE" },

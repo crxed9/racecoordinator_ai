@@ -992,3 +992,32 @@
   border-bottom: 1px solid rgba(148, 163, 184, 0.15);
   padding-bottom: 3px;
 }
+
+.col-width-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.col-width-input::-webkit-inner-spin-button,
+.col-width-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.col-width-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  width: 30px;
+  padding: 3px 2px;
+  font-size: 12px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.col-width-unit {
+  font-size: 10px;
+  color: #888;
+  flex-shrink: 0;
+}
