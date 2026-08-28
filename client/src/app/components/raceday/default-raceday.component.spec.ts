@@ -1357,14 +1357,69 @@ describe("DefaultRacedayComponent", () => {
       expect(mockDataService.startRace).not.toHaveBeenCalled();
     });
 
-    it("should show interface error modal when startRace fails", () => {
+    it("should show interface error modal when startRace fails with interface error message", () => {
       spyOn<any>(component, "showInterfaceError");
       mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
-      mockDataService.startRace.and.returnValue(of(false));
+      mockDataService.startRace.and.returnValue(
+        of({ success: false, message: "Track interface not connected." }),
+      );
       component.onMenuSelect("START_RESUME");
       expect((component as any).showInterfaceError).toHaveBeenCalledWith(
         "ACK_MODAL_TITLE_DISCONNECTED",
         "ACK_MODAL_MSG_DISCONNECTED",
+      );
+    });
+
+    it("should show start failed modal when startRace fails with non-interface message", () => {
+      spyOn<any>(component, "showInterfaceError");
+      mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
+      mockDataService.startRace.and.returnValue(
+        of({ success: false, message: "Race cannot start in current state" }),
+      );
+      component.onMenuSelect("START_RESUME");
+      expect((component as any).showInterfaceError).toHaveBeenCalledWith(
+        "ACK_MODAL_TITLE_START_FAILED",
+        "Race cannot start in current state",
+      );
+    });
+
+    it("should show permission denied modal when startRace returns 401 or 403", () => {
+      spyOn<any>(component, "showInterfaceError");
+      mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
+      mockDataService.startRace.and.returnValue(
+        throwError(() => ({ status: 403 })),
+      );
+      component.onMenuSelect("START_RESUME");
+      expect((component as any).showInterfaceError).toHaveBeenCalledWith(
+        "ACK_MODAL_TITLE_PERMISSION_DENIED",
+        "ACK_MODAL_MSG_PERMISSION_DENIED",
+      );
+    });
+
+    it("should show race inactive modal when startRace returns 404", () => {
+      spyOn<any>(component, "showInterfaceError");
+      mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
+      mockDataService.startRace.and.returnValue(
+        throwError(() => ({ status: 404 })),
+      );
+      component.onMenuSelect("START_RESUME");
+      expect(component.raceHasEnded).toBeTrue();
+      expect((component as any).showInterfaceError).toHaveBeenCalledWith(
+        "ACK_MODAL_TITLE_RACE_INACTIVE",
+        "ACK_MODAL_MSG_RACE_INACTIVE",
+      );
+    });
+
+    it("should show generic start failed modal when startRace throws other error", () => {
+      spyOn<any>(component, "showInterfaceError");
+      mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
+      mockDataService.startRace.and.returnValue(
+        throwError(() => ({ status: 500, message: "Internal server error" })),
+      );
+      component.onMenuSelect("START_RESUME");
+      expect((component as any).showInterfaceError).toHaveBeenCalledWith(
+        "ACK_MODAL_TITLE_START_FAILED",
+        "Internal server error",
       );
     });
 

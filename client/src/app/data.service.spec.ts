@@ -260,8 +260,8 @@ describe("DataService", () => {
   });
 
   it("should call race control protobuf endpoints (start, pause, end, abort, nextHeat, restartHeat, skipHeat, skipRace)", (done) => {
-    service.startRace().subscribe((startOk) => {
-      expect(startOk).toBeTrue();
+    service.startRace().subscribe((startResp) => {
+      expect(startResp.success).toBeTrue();
       service.pauseRace().subscribe((pauseOk) => {
         expect(pauseOk).toBeTrue();
         service.endRace().subscribe((endOk) => {
@@ -1418,6 +1418,23 @@ describe("DataService", () => {
       createdSocket.onmessage({ data: { unknown: true } });
       // Invalid base64
       createdSocket.onmessage({ data: "!!!not_base64!!!" });
+
+      // Trigger onerror & onclose
+      jasmine.clock().install();
+      createdSocket.onerror(new Event("error"));
+      createdSocket.onclose();
+      expect((service as any).interfaceDataSocket).toBeUndefined();
+
+      // Fast-forward 2000ms for reconnect
+      jasmine.clock().tick(2001);
+      expect((service as any).interfaceDataSocket).toBeDefined();
+
+      // Test explicit disconnect
+      service.disconnectFromInterfaceDataSocket();
+      expect(
+        (service as any).isInterfaceSocketExplicitlyDisconnected,
+      ).toBeTrue();
+      jasmine.clock().uninstall();
     });
 
     it("should provide observable streams for race events, telemetry, and system state", () => {

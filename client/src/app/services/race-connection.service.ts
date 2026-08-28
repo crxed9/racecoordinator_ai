@@ -602,6 +602,10 @@ export class RaceConnectionService implements OnDestroy {
     if (event.status) {
       const status = event.status.status;
       if (status === this.lastInterfaceStatus) {
+        this.logger.debug(
+          "RaceConnectionService: Interface status unchanged:",
+          status,
+        );
         if (
           status !== InterfaceStatus.DISCONNECTED &&
           status !== InterfaceStatus.NO_DATA
@@ -610,6 +614,10 @@ export class RaceConnectionService implements OnDestroy {
         }
         return;
       }
+
+      this.logger.info(
+        `RaceConnectionService: Interface status changed from ${this.lastInterfaceStatus} to ${status}`,
+      );
 
       this.resetWatchdog();
       this.lastInterfaceStatus = status ?? -1;
@@ -656,6 +664,9 @@ export class RaceConnectionService implements OnDestroy {
       : this.INITIAL_WATCHDOG_TIMEOUT;
     this.noStatusWatchdog = setTimeout(() => {
       this.ngZone.run(() => {
+        this.logger.warn(
+          `RaceConnectionService: Interface watchdog timeout reached (${timeout}ms). InitialConnected=${this.hasInitiallyConnected}, LastStatus=${this.lastInterfaceStatus}`,
+        );
         this.lastInterfaceStatus = -1;
         if (!this.hasInitiallyConnected) {
           this.emitAlert(
