@@ -529,6 +529,7 @@
   "HELP_TUTORIAL_NEXT": "Avanti",
   "HR_HEAT_POSITION": "Posizione",
   "HR_LAP_TIMES_HEADER": "TEMPI SUL GIRO",
+  "HR_NO_HEAT_DATA": "Nessun dato del pilota disponibile per questa manche.",
   "HR_RANKINGS_HEADER": "CLASSIFICHE",
   "HR_TITLE": "RISULTATI DELLA MANCHE {{heat}}",
   "HR_X_AXIS": "Tempo di corsa assoluto (Secondi)",

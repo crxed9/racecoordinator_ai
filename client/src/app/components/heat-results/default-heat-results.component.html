@@ -26,34 +26,32 @@
       }
     </div>
 
-    <!-- Standings Grid Glass Overlay -->
-    <div class="results-container">
-      <div class="section-container">
-        <div class="heats-section-container">
-          @if (heatData && heatData.length > 0) {
-            @for (dh of heatData; track dh.heatDriver.objectId) {
-              <app-heat-driver-expander
-                [heatData]="dh"
-                [isExpanded]="expandedHeats.has(dh.heatDriver.objectId)"
-                [isTeam]="!!dh.heatDriver.participant.team"
-                [participants]="participants"
-                [allHeats]="[dh.heat]"
-                [customStatsTitle]="dh.driverName"
-                [isGroupRace]="race?.group_options?.enabled ?? false"
-                [groupNames]="race?.group_options?.names ?? []"
-                (toggle)="toggleHeat(dh.heatDriver.objectId)"
-              ></app-heat-driver-expander>
-            }
-          } @else {
-            <div class="no-data-row">
-              <div class="no-data-msg">
-                <span class="material-icons warning-icon">warning</span>
-                <span>No driver data available for this heat.</span>
-              </div>
+    <!-- Heat Drivers Section -->
+    <div class="heats-section-container">
+      @if (heatData && heatData.length > 0) {
+        @for (dh of heatData; track dh.heatDriver.objectId) {
+          <app-heat-driver-expander
+            [heatData]="dh"
+            [isExpanded]="expandedHeats.has(dh.heatDriver.objectId)"
+            [isTeam]="!!dh.heatDriver.participant.team"
+            [participants]="participants"
+            [allHeats]="[dh.heat]"
+            [customStatsTitle]="dh.driverName"
+            [isGroupRace]="race?.group_options?.enabled ?? false"
+            [groupNames]="race?.group_options?.names ?? []"
+            (toggle)="toggleHeat(dh.heatDriver.objectId)"
+          ></app-heat-driver-expander>
+        }
+      } @else {
+        <div class="results-container no-heats-container">
+          <div class="no-data-row">
+            <div class="no-data-msg">
+              <span class="material-icons warning-icon">warning</span>
+              <span>{{ "HR_NO_HEAT_DATA" | translate }}</span>
             </div>
-          }
+          </div>
         </div>
-      </div>
+      }
     </div>
 
     @if (driverLines.length > 0) {

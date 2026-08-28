@@ -529,6 +529,7 @@
   "HELP_TUTORIAL_NEXT": "Siguiente",
   "HR_HEAT_POSITION": "Posición",
   "HR_LAP_TIMES_HEADER": "TIEMPOS DE VUELTA",
+  "HR_NO_HEAT_DATA": "No hay datos de pilotos disponibles para esta manga.",
   "HR_RANKINGS_HEADER": "CLASIFICACIONES",
   "HR_TITLE": "RESULTADOS DE LA MANGA {{heat}}",
   "HR_X_AXIS": "Tiempo Absoluto de Carrera (Segundos)",
