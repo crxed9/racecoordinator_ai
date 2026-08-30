@@ -8,6 +8,8 @@ test.describe("Race Editor Visuals", () => {
     // Setup standard mocks
     await TestSetupHelper.setupStandardMocks(page);
     await TestSetupHelper.setupRaceWebSocketMocks(page);
+    await TestSetupHelper.setupThemeMocks(page);
+    await TestSetupHelper.setupCustomUiMocks(page);
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.waitForLoadState("networkidle");
 

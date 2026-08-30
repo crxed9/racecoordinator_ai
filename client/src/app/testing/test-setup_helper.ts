@@ -1,4 +1,5 @@
 import { Locator, Page } from "@playwright/test";
+import { Settings } from "@app/models/settings";
 import {
   GetPhidgetDevicesResponse,
   InitializeInterfaceResponse,
@@ -76,6 +77,20 @@ export class TestSetupHelper {
     await this.setupSeasonMocks(page);
     await this.setupAssetMocks(page);
     await this.setupThemeMocks(page);
+    await page.route("**/api/custom-ui", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    });
+    await page.route("**/api/custom-ui/*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+    });
 
     // Mock Server Version API
     await page.route("**/api/version", async (route) => {
@@ -2091,13 +2106,14 @@ export class TestSetupHelper {
       }
     }, settings);
   }
-  static async setupThemeMocks(page: Page) {
+  static async setupThemeMocks(page: Page, customThemesList?: any[]) {
     await page.route("**/api/themes", async (route) => {
-      const themes = [
+      const themes = customThemesList ?? [
         {
-          entity_id: "t-default",
-          name: "Default Theme",
+          entity_id: "default_classic_rc_ai",
+          name: "Classic Theme",
           is_default: true,
+          uiId: "default_ui_layout_rc_ai",
           slots: {
             "flag.racing": "default_flag_green",
             "flag.heat_paused": "default_flag_yellow",
@@ -2116,11 +2132,13 @@ export class TestSetupHelper {
             "lamp.green": "default_start_green",
             "gauge.fuel": "fuel-gauge-builtin",
           },
+          audio_slots: {},
         },
         {
-          entity_id: "t-custom",
-          name: "Custom Theme",
-          is_default: false,
+          entity_id: "practice_theme_rc_ai",
+          name: "Practice Theme",
+          is_default: true,
+          uiId: "practice_ui_layout_rc_ai",
           slots: {
             "flag.racing": "default_flag_green",
             "flag.heat_paused": "default_flag_yellow",
@@ -2139,6 +2157,57 @@ export class TestSetupHelper {
             "lamp.green": "default_start_green",
             "gauge.fuel": "fuel-gauge-builtin",
           },
+          audio_slots: {},
+        },
+        {
+          entity_id: "default_fuel_theme_rc_ai",
+          name: "Fuel Theme",
+          is_default: true,
+          uiId: "default_fuel_ui_layout_rc_ai",
+          slots: {
+            "flag.racing": "default_flag_green",
+            "flag.heat_paused": "default_flag_yellow",
+            "flag.heat_over": "default_flag_red",
+            "flag.race_over": "default_flag_checkered",
+            "flag.not_started": "default_flag_red",
+            "flag.starting": "default_flag_red",
+            "flag.restarting": "default_flag_yellow",
+            "flag.one_lap_to_go": "default_flag_white",
+            "flag.heat_finishing": "default_flag_checkered",
+            "flag.warmup": "default_flag_green_yellow",
+            "flag.driver_finished": "default_flag_red",
+            "flag.penalty": "default_flag_black",
+            "lamp.red.on": "default_start_red_on",
+            "lamp.red.dim": "default_start_red_dim",
+            "lamp.green": "default_start_green",
+            "gauge.fuel": "fuel-gauge-builtin",
+          },
+          audio_slots: {},
+        },
+        {
+          entity_id: "custom_theme_1",
+          name: "Custom Theme",
+          is_default: false,
+          uiId: "default_ui_layout_rc_ai",
+          slots: {
+            "flag.racing": "default_flag_green",
+            "flag.heat_paused": "default_flag_yellow",
+            "flag.heat_over": "default_flag_red",
+            "flag.race_over": "default_flag_checkered",
+            "flag.not_started": "default_flag_red",
+            "flag.starting": "default_flag_red",
+            "flag.restarting": "default_flag_yellow",
+            "flag.one_lap_to_go": "default_flag_white",
+            "flag.heat_finishing": "default_flag_checkered",
+            "flag.warmup": "default_flag_green_yellow",
+            "flag.driver_finished": "default_flag_red",
+            "flag.penalty": "default_flag_black",
+            "lamp.red.on": "default_start_red_on",
+            "lamp.red.dim": "default_start_red_dim",
+            "lamp.green": "default_start_green",
+            "gauge.fuel": "fuel-gauge-builtin",
+          },
+          audio_slots: {},
         },
       ];
       await route.fulfill({
@@ -2149,6 +2218,54 @@ export class TestSetupHelper {
     });
 
     await page.route("**/api/themes/*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true }),
+      });
+    });
+  }
+
+  static async setupCustomUiMocks(page: Page, customUIsList?: any[]) {
+    await page.route("**/api/custom-ui", async (route) => {
+      const customUIs = customUIsList ?? [
+        {
+          entity_id: "default_ui_layout_rc_ai",
+          name: "Default UI Layout",
+          is_default: true,
+          layoutJson: JSON.stringify(Settings.DEFAULT_LAYOUT),
+          columnsJson: JSON.stringify(Settings.DEFAULT_COLUMNS),
+        },
+        {
+          entity_id: "practice_ui_layout_rc_ai",
+          name: "Practice UI Layout",
+          is_default: true,
+          layoutJson: JSON.stringify(Settings.DEFAULT_PRACTICE_LAYOUT),
+          columnsJson: JSON.stringify(Settings.DEFAULT_PRACTICE_COLUMNS),
+        },
+        {
+          entity_id: "default_fuel_ui_layout_rc_ai",
+          name: "Fuel Race UI Layout",
+          is_default: true,
+          layoutJson: JSON.stringify(Settings.DEFAULT_LAYOUT),
+          columnsJson: JSON.stringify(Settings.DEFAULT_COLUMNS),
+        },
+        {
+          entity_id: "custom_ui_1",
+          name: "Custom UI Layout",
+          is_default: false,
+          layoutJson: JSON.stringify(Settings.DEFAULT_LAYOUT),
+          columnsJson: JSON.stringify(Settings.DEFAULT_COLUMNS),
+        },
+      ];
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(customUIs),
+      });
+    });
+
+    await page.route("**/api/custom-ui/*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -2389,5 +2506,104 @@ export class TestSetupHelper {
         body: JSON.stringify(tracks),
       });
     });
+  }
+
+  static async setupCustomWidgets(
+    page: Page,
+    widgetFilesByFolder: Record<string, Record<string, string>>,
+  ) {
+    await page.addInitScript((filesMap) => {
+      function createMockHandle(
+        filesByFolder: Record<string, Record<string, string>>,
+      ) {
+        return {
+          name: "MockWidgetsDir",
+          kind: "directory",
+          queryPermission: async () => "granted",
+          requestPermission: async () => "granted",
+          async *values() {
+            for (const folderName of Object.keys(filesByFolder)) {
+              yield createSubHandle(folderName, filesByFolder[folderName]);
+            }
+          },
+          async getDirectoryHandle(name: string) {
+            if (filesByFolder[name]) {
+              return createSubHandle(name, filesByFolder[name]);
+            }
+            throw new Error("Directory not found: " + name);
+          },
+        };
+
+        function createSubHandle(
+          folderName: string,
+          files: Record<string, string>,
+        ) {
+          return {
+            name: folderName,
+            kind: "directory",
+            queryPermission: async () => "granted",
+            requestPermission: async () => "granted",
+            async *values() {
+              for (const fileName of Object.keys(files)) {
+                yield {
+                  name: fileName,
+                  kind: "file",
+                  async getFile() {
+                    return new File([files[fileName]], fileName, {
+                      type: "text/plain",
+                    });
+                  },
+                };
+              }
+            },
+            async getFileHandle(fileName: string) {
+              if (files[fileName] !== undefined) {
+                return {
+                  name: fileName,
+                  kind: "file",
+                  async getFile() {
+                    return new File([files[fileName]], fileName, {
+                      type: "text/plain",
+                    });
+                  },
+                  async createWritable() {
+                    return {
+                      write: async (content: string) => {
+                        files[fileName] = content;
+                      },
+                      close: async () => {},
+                    };
+                  },
+                };
+              }
+              throw new Error("File not found: " + fileName);
+            },
+          };
+        }
+      }
+
+      const mockHandle = createMockHandle(filesMap);
+
+      if (typeof IDBObjectStore !== "undefined") {
+        const origGet = IDBObjectStore.prototype.get;
+        IDBObjectStore.prototype.get = function (query: any) {
+          if (this.name === "handles" && query === "custom-widgets-dir") {
+            const req = {
+              result: mockHandle,
+              onsuccess: null as any,
+              onerror: null as any,
+              readyState: "done",
+            };
+            setTimeout(() => {
+              if (typeof req.onsuccess === "function") {
+                req.onsuccess({ target: req });
+              }
+            }, 0);
+            return req as any;
+          }
+          return origGet.apply(this, arguments as any);
+        };
+      }
+    }, widgetFilesByFolder);
   }
 }

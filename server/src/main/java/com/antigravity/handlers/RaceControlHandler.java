@@ -28,7 +28,6 @@ import com.antigravity.race.Heat;
 import com.antigravity.race.RaceParticipant;
 import com.antigravity.race.states.NotStarted;
 import com.antigravity.race.states.RaceOver;
-import com.antigravity.repository.SqliteRepository;
 import com.antigravity.service.AnalyticsService;
 import com.antigravity.service.DatabaseService;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -243,15 +242,27 @@ public class RaceControlHandler {
       return TaskResult.success(response.toByteArray());
     }
 
+    String themeIdToResolve =
+        (request.getThemeId() != null && !request.getThemeId().trim().isEmpty())
+            ? request.getThemeId().trim()
+            : raceModel.getThemeId();
+
     Theme raceTheme = null;
-    if (request.getThemeId() != null && !request.getThemeId().trim().isEmpty()) {
+    if (themeIdToResolve != null && !themeIdToResolve.isEmpty()) {
       try {
-        SqliteRepository<Theme> themeRepo =
-            new SqliteRepository<>(databaseContext, "themes", Theme.class);
-        raceTheme = themeRepo.findByEntityId(request.getThemeId().trim());
+        raceTheme = DatabaseService.getInstance().getTheme(databaseContext, themeIdToResolve);
       } catch (Exception e) {
-        logger.warn("Could not load requested theme {}: {}", request.getThemeId(), e.getMessage());
+        logger.warn("Could not load requested theme {}: {}", themeIdToResolve, e.getMessage());
       }
+    }
+
+    if (raceTheme == null) {
+      InitializeRaceResponse response =
+          InitializeRaceResponse.newBuilder()
+              .setSuccess(false)
+              .setErrorCode("THEME_DELETED")
+              .build();
+      return TaskResult.success(response.toByteArray());
     }
 
     com.antigravity.race.Race runtimeRace = null; // fqn-collision

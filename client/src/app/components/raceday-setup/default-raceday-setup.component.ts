@@ -1097,9 +1097,8 @@ export class DefaultRacedaySetupComponent implements OnInit {
       : undefined;
 
     const themeId =
-      this.themeService.getActiveTheme()?.entity_id ||
       (raceId ? settings.raceThemeOverrides?.[raceId] : undefined) ||
-      settings.activeThemeId ||
+      this.selectedRace?.theme_id ||
       undefined;
 
     const initializeObservable =
@@ -1146,7 +1145,12 @@ export class DefaultRacedaySetupComponent implements OnInit {
           } else if (response.errorCode === "TRACK_DELETED") {
             this.errorMessage = "RDS_ERR_TRACK_DELETED";
             this.errorMessageParams = {
-              race: this.selectedRace?.name || "",
+              race: this.selectedRace?.name || this.selectedEvent?.name || "",
+            };
+          } else if (response.errorCode === "THEME_DELETED") {
+            this.errorMessage = "RDS_ERR_THEME_DELETED";
+            this.errorMessageParams = {
+              race: this.selectedRace?.name || this.selectedEvent?.name || "",
             };
           } else if (response.errorCode === "NO_CUSTOM_ROTATIONS") {
             this.errorMessage = "RDS_ERR_NO_CUSTOM_ROTATIONS";
@@ -1167,7 +1171,9 @@ export class DefaultRacedaySetupComponent implements OnInit {
                 ? "RDS_ERR_NO_CUSTOM_ROTATIONS_FIX"
                 : response.errorCode === "TRACK_DELETED"
                   ? "RDS_ERR_TRACK_DELETED_FIX"
-                  : "RDS_ERR_START_RACE_FIX_DESCRIPTION";
+                  : response.errorCode === "THEME_DELETED"
+                    ? "RDS_ERR_THEME_DELETED_FIX"
+                    : "RDS_ERR_START_RACE_FIX_DESCRIPTION";
             const fixDescription = this.translationService.translate(fixKey);
             this.errorMessage = translatedMessage + "\n\n" + fixDescription;
             // Clear messageParams since we've already done the translation for the main part
@@ -1759,6 +1765,59 @@ export class DefaultRacedaySetupComponent implements OnInit {
       return this.translationService.translate("GEN_INFINITE");
     }
     return val !== undefined && val !== null ? String(val) : "";
+  }
+
+  getThemeDisplayNameKey(theme: any): string {
+    if (!theme) return "";
+    if (
+      theme.entity_id === "default_classic_rc_ai" ||
+      theme.id === "default_classic_rc_ai" ||
+      theme._id === "default_classic_rc_ai"
+    ) {
+      return "UE_LABEL_DEFAULT_THEME";
+    }
+    if (
+      theme.entity_id === "practice_theme_rc_ai" ||
+      theme.id === "practice_theme_rc_ai" ||
+      theme._id === "practice_theme_rc_ai"
+    ) {
+      return "UE_LABEL_PRACTICE_THEME";
+    }
+    if (
+      theme.entity_id === "default_fuel_theme_rc_ai" ||
+      theme.id === "default_fuel_theme_rc_ai" ||
+      theme._id === "default_fuel_theme_rc_ai"
+    ) {
+      return "UE_LABEL_FUEL_THEME";
+    }
+    return theme.name || theme.entity_id || "";
+  }
+
+  getThemeDisplay(race: any): string {
+    const themeId = race?.theme_id || "default_classic_rc_ai";
+    const themes = this.themeService.getThemes() || [];
+    const theme = themes.find(
+      (t) => (t.entity_id || (t as any).id || (t as any)._id) === themeId,
+    );
+    if (theme) {
+      const key = this.getThemeDisplayNameKey(theme);
+      return this.translationService.translate(key) || theme.name || themeId;
+    }
+    if (themeId === "default_classic_rc_ai") {
+      return (
+        this.translationService.translate("UE_LABEL_DEFAULT_THEME") || "Default"
+      );
+    }
+    if (themeId === "practice_theme_rc_ai") {
+      return (
+        this.translationService.translate("UE_LABEL_PRACTICE_THEME") ||
+        "Practice"
+      );
+    }
+    if (themeId === "default_fuel_theme_rc_ai") {
+      return this.translationService.translate("UE_LABEL_FUEL_THEME") || "Fuel";
+    }
+    return themeId;
   }
 
   openHelpCenter() {

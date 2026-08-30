@@ -1095,6 +1095,36 @@ export class DataService {
     return this.http.delete<any>(`${this.baseUrl}/api/teams/${id}`);
   }
 
+  // --- Custom UI API ---
+  getCustomUIs(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/custom-ui`);
+  }
+
+  getCustomUI(id: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/custom-ui/${id}`);
+  }
+
+  createCustomUI(ui: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/custom-ui`, ui);
+  }
+
+  updateCustomUI(id: string, ui: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/api/custom-ui/${id}`, ui);
+  }
+
+  deleteCustomUI(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/api/custom-ui/${id}`);
+  }
+
+  duplicateCustomUI(id: string, name?: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/api/custom-ui/${id}/duplicate`,
+      {
+        name,
+      },
+    );
+  }
+
   // --- Theme API ---
 
   getThemes(): Observable<any[]> {

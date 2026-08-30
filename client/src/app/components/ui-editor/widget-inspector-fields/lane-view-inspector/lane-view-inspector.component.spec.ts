@@ -132,14 +132,6 @@ describe("LaneViewInspectorComponent", () => {
     expect(changeSpy).toHaveBeenCalled();
   });
 
-  it("should handle changeColumnVisibility", () => {
-    component.changeColumnVisibility("col2", "NonFuelRaceOnly");
-    expect(component.globalSettings()?.columnVisibility["col2"]).toBe(
-      "NonFuelRaceOnly" as any,
-    );
-    expect(changeSpy).toHaveBeenCalled();
-  });
-
   it("should return the correct column label", () => {
     expect(component.getColumnLabel("col1")).toBe("Col 1");
     expect(component.getColumnLabel("imageset_fuel-gauge-builtin")).toBe(
@@ -272,5 +264,44 @@ describe("LaneViewInspectorComponent", () => {
 
     component.setColumnWidth("col1", "abc");
     expect(component.getColumnWidth("col1")).toBe(0);
+  });
+
+  it("should use customUi columnsJson when provided", () => {
+    const customUi = {
+      entity_id: "custom_ui_1",
+      name: "Custom UI 1",
+      columnsJson: JSON.stringify(["colA", "ghostPacingPersonalAvg"]),
+    } as any;
+    fixture.componentRef.setInput("customUi", customUi);
+    fixture.componentRef.setInput("availableColumns", [
+      { key: "colA", label: "Col A" },
+      { key: "ghostPacingPersonalAvg", label: "Pacing Personal Avg" },
+      { key: "unusedCol", label: "Unused Col" },
+    ]);
+    fixture.detectChanges();
+
+    expect(component.currentColumns).toEqual([
+      "colA",
+      "ghostPacingPersonalAvg",
+    ]);
+    expect(component.unusedColumns).toEqual([
+      { key: "unusedCol", label: "Unused Col" },
+    ]);
+
+    // Test drop reordering with customUi
+    const dropEvent: any = { previousIndex: 0, currentIndex: 1 };
+    component.drop(dropEvent);
+    expect(JSON.parse(customUi.columnsJson)).toEqual([
+      "ghostPacingPersonalAvg",
+      "colA",
+    ]);
+    expect(changeSpy).toHaveBeenCalled();
+
+    // Test deleteColumn with customUi
+    component.deleteColumn("colA");
+    expect(JSON.parse(customUi.columnsJson)).toEqual([
+      "ghostPacingPersonalAvg",
+    ]);
+    expect(component.unusedColumns.map((c) => c.key)).toContain("colA");
   });
 });

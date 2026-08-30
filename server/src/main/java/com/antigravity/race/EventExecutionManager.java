@@ -423,10 +423,19 @@ public class EventExecutionManager {
       throw new IllegalStateException("Track not found for race: " + raceModel.getName());
     }
 
-    Theme activeTheme =
-        ClientSubscriptionManager.getInstance().getRace() != null
-            ? ClientSubscriptionManager.getInstance().getRace().getTheme()
-            : null;
+    Theme activeTheme = null;
+    if (raceModel.getThemeId() != null && !raceModel.getThemeId().trim().isEmpty()) {
+      activeTheme = dbService.getTheme(databaseContext, raceModel.getThemeId().trim());
+      if (activeTheme == null) {
+        throw new IllegalStateException("Theme not found for race: " + raceModel.getName());
+      }
+    }
+    if (activeTheme == null && ClientSubscriptionManager.getInstance().getRace() != null) {
+      activeTheme = ClientSubscriptionManager.getInstance().getRace().getTheme();
+    }
+    if (activeTheme == null) {
+      throw new IllegalStateException("Theme not found for race: " + raceModel.getName());
+    }
 
     Race runtimeRace =
         new Race.Builder()

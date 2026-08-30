@@ -99,6 +99,23 @@ describe("ChildWindowManagerService", () => {
       service.clearDriverStationTabs();
       expect(service.getDriverStationTabs().length).toBe(0);
     });
+
+    it("should manage themeTabs correctly via openThemeWindow", () => {
+      const win = service.openThemeWindow("/default-raceday?themeId=t1");
+      expect(window.open).toHaveBeenCalledWith(
+        "/default-raceday?themeId=t1",
+        "_blank",
+      );
+      expect(win).toBe(mockWindow);
+      expect(service.getThemeTabs().length).toBe(1);
+      expect(service.getThemeTabs()[0]).toBe(mockWindow);
+
+      service.addThemeTab(null);
+      expect(service.getThemeTabs().length).toBe(1);
+
+      service.clearThemeTabs();
+      expect(service.getThemeTabs().length).toBe(0);
+    });
   });
 
   describe("closeAllWindows", () => {
@@ -113,6 +130,14 @@ describe("ChildWindowManagerService", () => {
         close: jasmine.createSpy("closeTabClosed"),
         closed: true,
       };
+      const themeTab1 = {
+        close: jasmine.createSpy("closeTheme1"),
+        closed: false,
+      };
+      const themeTabClosed = {
+        close: jasmine.createSpy("closeThemeClosed"),
+        closed: true,
+      };
 
       service.setLeaderBoardWindow(win1 as any);
       service.setHeatResultsWindow(win2 as any);
@@ -121,6 +146,8 @@ describe("ChildWindowManagerService", () => {
       service.setPredictionResultsWindow(win5 as any);
       service.addDriverStationTab(tab1 as any);
       service.addDriverStationTab(tabClosed as any);
+      service.addThemeTab(themeTab1 as any);
+      service.addThemeTab(themeTabClosed as any);
 
       service.closeAllWindows();
 
@@ -131,6 +158,8 @@ describe("ChildWindowManagerService", () => {
       expect(win5.close).toHaveBeenCalled();
       expect(tab1.close).toHaveBeenCalled();
       expect(tabClosed.close).not.toHaveBeenCalled();
+      expect(themeTab1.close).toHaveBeenCalled();
+      expect(themeTabClosed.close).not.toHaveBeenCalled();
 
       expect(service.getLeaderBoardWindow()).toBeNull();
       expect(service.getHeatResultsWindow()).toBeNull();
@@ -138,6 +167,7 @@ describe("ChildWindowManagerService", () => {
       expect(service.getSeasonResultsWindow()).toBeNull();
       expect(service.getPredictionResultsWindow()).toBeNull();
       expect(service.getDriverStationTabs().length).toBe(0);
+      expect(service.getThemeTabs().length).toBe(0);
     });
   });
 
