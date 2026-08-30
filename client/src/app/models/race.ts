@@ -40,6 +40,7 @@ export class Race implements Model {
   readonly practice: boolean;
   readonly adjust_drift_laps: boolean;
   readonly theme_id?: string;
+  readonly start_time_millis?: number;
 
   readonly heat_rotation_type: string;
   readonly solo_lane_index: number;
@@ -87,6 +88,7 @@ export class Race implements Model {
     adjust_drift_laps: boolean = false,
     theme_id?: string,
     season_scoring?: SeasonScoring,
+    start_time_millis?: number,
   ) {
     this.entity_id = entity_id;
     this.name = name;
@@ -124,6 +126,7 @@ export class Race implements Model {
     this.adjust_drift_laps = adjust_drift_laps;
     this.theme_id = theme_id;
     this.season_scoring = season_scoring;
+    this.start_time_millis = start_time_millis;
   }
 
   get objectId(): string {

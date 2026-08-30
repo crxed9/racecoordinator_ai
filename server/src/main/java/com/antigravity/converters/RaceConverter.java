@@ -282,6 +282,10 @@ public class RaceConverter {
       }
     }
 
+    if (race.getStatistics() != null && race.getStatistics().getStartMillis() > 0) {
+      builder.setStartTimeMillis(race.getStatistics().getStartMillis());
+    }
+
     return builder.build();
   }
 }

@@ -46,4 +46,12 @@ describe('find_changed_screendiff_tests', () => {
     assert.ok(hasRaceday, 'Should include raceday tests');
     assert.strictEqual(hasDriverEditor, false, 'Should not include unrelated manager/editor tests');
   });
+
+  test('should ignore non-component layer files (models, services, converters, etc.)', () => {
+    assert.deepStrictEqual(resolveTestsForFile('client/src/app/models/race.ts'), []);
+    assert.deepStrictEqual(resolveTestsForFile('client/src/app/services/race-connection.service.ts'), []);
+    assert.deepStrictEqual(resolveTestsForFile('client/src/app/converters/race.converter.ts'), []);
+    assert.deepStrictEqual(resolveTestsForFile('client/src/app/guards/auth.guard.ts'), []);
+    assert.deepStrictEqual(resolveTestsForFile('client/src/app/pipes/translate.pipe.ts'), []);
+  });
 });
