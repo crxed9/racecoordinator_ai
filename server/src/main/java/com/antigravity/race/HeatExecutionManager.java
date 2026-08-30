@@ -271,6 +271,7 @@ public class HeatExecutionManager {
           driverData.getLapCount());
 
       if (allowFinish == AllowFinish.None
+          || allowFinish == AllowFinish.NoneAutoSegments
           || finishedLanes.size() >= race.getCurrentHeat().getActiveDriverCount()) {
         // Heat ends
         if (race.isLastHeat()) {
