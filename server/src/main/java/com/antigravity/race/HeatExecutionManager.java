@@ -264,6 +264,8 @@ public class HeatExecutionManager {
 
     if (driverFinished) {
       finishedLanes.add(lane);
+      driverData.setFinished(true);
+      driverData.setFlag(race.getState().getLaneFlagType(race, lane));
       logger.info(
           "Driver {} finished on lane {} ({} laps)",
           driverData.getDriver().getDriver().getName(),

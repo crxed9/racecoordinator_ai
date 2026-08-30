@@ -4089,17 +4089,10 @@ export class DefaultRacedayComponent
 
   isDriverFinished(
     hd: DriverHeatData,
-    scoring: HeatScoring | null | undefined,
+    _scoring?: HeatScoring | null | undefined,
   ): boolean {
-    if (!scoring || !hd) return false;
-
-    if (scoring.finishMethod === FinishMethod.Lap) {
-      return hd.lapCount >= scoring.finishValue;
-    } else if (scoring.finishMethod === FinishMethod.Timed) {
-      // In a timed race, a driver is finished if their total time is at or beyond the finish value.
-      return hd.totalTime >= scoring.finishValue;
-    }
-    return false;
+    if (!hd) return false;
+    return !!hd.isFinished;
   }
 
   public getFlagUrl(flag: any): string {

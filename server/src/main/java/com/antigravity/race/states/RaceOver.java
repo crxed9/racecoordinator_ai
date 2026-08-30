@@ -33,7 +33,9 @@ public class RaceOver implements IRaceState {
     if (race.isLastHeat()
         && race.getRaceModel() != null
         && race.getRaceModel().getHeatScoring() != null
-        && race.getRaceModel().getHeatScoring().getAllowFinish() == HeatScoring.AllowFinish.None) {
+        && (race.getRaceModel().getHeatScoring().getAllowFinish() == HeatScoring.AllowFinish.None
+            || race.getRaceModel().getHeatScoring().getAllowFinish()
+                == HeatScoring.AllowFinish.NoneAutoSegments)) {
       return race.getTheme() != null
           ? race.getTheme()
               .resolveFlag("flag.race_over", RaceFlag.CHECKERED, race.getDatabaseContext())

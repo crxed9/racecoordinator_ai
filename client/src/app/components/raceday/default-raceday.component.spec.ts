@@ -1932,6 +1932,28 @@ describe("DefaultRacedayComponent", () => {
       );
     });
 
+    it("should use driver finished flag if driver isFinished is true", () => {
+      mockRaceFlagService.getFlagUrl.and.returnValue(
+        "http://localhost/driver_finished.png",
+      );
+      const finishedHd = { ...mockHd, isFinished: true } as any;
+      const result = component.formatValue("flag", RaceFlag.RED, finishedHd);
+      expect(result).toBe("http://localhost/driver_finished.png");
+      expect(mockRaceFlagService.getFlagUrl).toHaveBeenCalledWith(
+        "flag.driver_finished",
+      );
+    });
+
+    it("should evaluate isDriverFinished based on server isFinished state", () => {
+      expect(component.isDriverFinished(null as any)).toBeFalse();
+      expect(
+        component.isDriverFinished({ isFinished: false } as any),
+      ).toBeFalse();
+      expect(
+        component.isDriverFinished({ isFinished: true } as any),
+      ).toBeTrue();
+    });
+
     it("should format laneNumber correctly (1-indexed)", () => {
       const mockLaneHd = { ...mockHd, laneIndex: 2 } as any;
       const result = component.formatValue("laneNumber", null, mockLaneHd);
