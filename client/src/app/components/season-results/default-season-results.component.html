@@ -40,6 +40,10 @@
               }}</span>
             }
             <span class="meta-pill">
+              {{ "SM_DROPS_COUNT" | translate }}:
+              <strong>{{ season?.drops || 0 }}</strong>
+            </span>
+            <span class="meta-pill">
               {{ "SM_RACES_RUN" | translate }}:
               <strong>{{ season?.races?.length || 0 }}</strong>
             </span>
@@ -52,58 +56,11 @@
             <div class="sub-section-header">
               <h4>{{ "SM_STANDINGS_TITLE" | translate }}</h4>
             </div>
-            @if (standings.length === 0) {
-              <div class="empty-standings">
-                {{ "SM_NO_RACES_RUN" | translate }}
-              </div>
-            } @else {
-              <table class="standings-table">
-                <thead>
-                  <tr>
-                    <th class="col-rank">{{ "SM_RANK" | translate }}</th>
-                    <th class="col-driver">{{ "SM_DRIVER" | translate }}</th>
-                    <th class="col-pts">{{ "SM_NET_POINTS" | translate }}</th>
-                    <th class="col-pts">{{ "SM_GROSS_POINTS" | translate }}</th>
-                    <th class="col-races">{{ "SM_RACES" | translate }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (
-                    item of standings;
-                    track item.driver_id;
-                    let rankIdx = $index
-                  ) {
-                    <tr
-                      [class.podium-1]="rankIdx === 0"
-                      [class.podium-2]="rankIdx === 1"
-                      [class.podium-3]="rankIdx === 2"
-                    >
-                      <td class="col-rank">
-                        @if (rankIdx === 0) {
-                          🥇 1
-                        } @else if (rankIdx === 1) {
-                          🥈 2
-                        } @else if (rankIdx === 2) {
-                          🥉 3
-                        } @else {
-                          {{ rankIdx + 1 }}
-                        }
-                      </td>
-                      <td class="col-driver">
-                        <strong>{{ item.driver_name }}</strong>
-                      </td>
-                      <td class="col-pts net-highlight">
-                        <strong>{{ item.net_points | number: "1.0-2" }}</strong>
-                      </td>
-                      <td class="col-pts">
-                        {{ item.gross_points | number: "1.0-2" }}
-                      </td>
-                      <td class="col-races">{{ item.races_run }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            }
+            <app-season-summary
+              [season]="season"
+              [standings]="standings"
+              [showHeader]="false"
+            ></app-season-summary>
           </div>
 
           <!-- Race Breakdown Section -->

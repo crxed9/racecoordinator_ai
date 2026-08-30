@@ -359,4 +359,44 @@ describe("SeasonSummaryComponent", () => {
     const racesCell = row.querySelector("td.col-races");
     expect(racesCell.textContent.trim()).toBe("1234567");
   });
+
+  it("should hide detail-header when showHeader input is false", () => {
+    const season: Season = {
+      entity_id: "s_no_header",
+      name: "Headerless Season",
+      drops: 1,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [
+            {
+              driver_id: "d1",
+              driver_name: "Driver 1",
+              overall_rank: 1,
+              overall_points: 25,
+              total_points: 25,
+              heat_points: 0,
+            },
+          ],
+        },
+      ],
+    };
+
+    fixture.componentRef.setInput("season", season);
+    fixture.componentRef.setInput("showHeader", false);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector(".detail-header")).toBeNull();
+    expect(compiled.querySelector(".standings-wrapper")).toBeTruthy();
+
+    fixture.componentRef.setInput("showHeader", true);
+    fixture.detectChanges();
+    expect(compiled.querySelector(".detail-header")).toBeTruthy();
+    expect(compiled.querySelector("#season-detail-name")?.textContent).toBe(
+      "Headerless Season",
+    );
+  });
 });

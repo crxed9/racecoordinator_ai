@@ -14,6 +14,7 @@ import {
   PdfExportDialogComponent,
   PdfExportOptions,
 } from "@app/components/shared/pdf-export-dialog/pdf-export-dialog.component";
+import { SeasonSummaryComponent } from "@app/components/shared/season-summary/season-summary.component";
 import { DataService } from "@app/data.service";
 import {
   Season,
@@ -42,6 +43,7 @@ import { TranslationService } from "@app/services/translation.service";
     DecimalPipe,
     PdfExportDialogComponent,
     BrowserNavigationComponent,
+    SeasonSummaryComponent,
   ],
 })
 export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
@@ -368,11 +370,17 @@ export class DefaultSeasonResultsComponent implements OnInit, OnDestroy {
         }
       }
 
+      const netPoints = Math.round(net * 100) / 100;
+      const grossPoints = Math.round(gross * 100) / 100;
+      const droppedPoints =
+        Math.round(Math.max(0, grossPoints - netPoints) * 100) / 100;
+
       result.push({
         driver_id: driverId,
         driver_name: entry.driver_name,
-        net_points: net,
-        gross_points: gross,
+        net_points: netPoints,
+        gross_points: grossPoints,
+        dropped_points: droppedPoints,
         races_run: racesRun,
         race_scores: scores,
       });
