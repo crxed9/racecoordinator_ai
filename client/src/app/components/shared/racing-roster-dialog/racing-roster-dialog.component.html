@@ -1,0 +1,85 @@
+@if (visible()) {
+  <div class="roster-backdrop" (click)="onBackdropClick($event)">
+    <div
+      class="roster-dialog-container"
+      (click)="$event.stopPropagation()"
+      [style.--grid-cols]="gridColumns()"
+      [style.--grid-rows]="gridRows()"
+    >
+      <div class="modal-header">
+        <div class="header-left">
+          <div class="header-icon">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"
+              />
+            </svg>
+          </div>
+          <h2>{{ "RDS_ROSTER_DIALOG_TITLE" | translate }}</h2>
+          <span class="count-badge">
+            {{
+              "RDS_ROSTER_TOTAL_DRIVERS"
+                | translate: { count: rosterItems().length }
+            }}
+          </span>
+        </div>
+        <button
+          class="close-btn"
+          (click)="onClose()"
+          [attr.aria-label]="'RDS_ROSTER_CLOSE' | translate"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="modal-body" [class]="densityClass()">
+        @if (rosterItems().length === 0) {
+          <div class="empty-roster-message">
+            <svg
+              class="empty-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{{ "RDS_ROSTER_EMPTY" | translate }}</span>
+          </div>
+        } @else {
+          <div class="roster-grid">
+            @for (item of rosterItems(); track item.seed) {
+              <div class="roster-card" [title]="getItemTooltip(item)">
+                <div class="seed-badge">
+                  {{ item.seed }}
+                </div>
+                <div class="driver-info">
+                  <div class="driver-name">{{ item.name }}</div>
+                  @if (item.nickname) {
+                    <div class="driver-nickname">"{{ item.nickname }}"</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-close" (click)="onClose()">
+          {{ "RDS_ROSTER_CLOSE" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
