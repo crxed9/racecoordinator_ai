@@ -280,63 +280,63 @@ describe("RacingRosterDialogComponent", () => {
     expect(dialogComponent.getItemTooltip(itemSameNick)).toBe(
       "(#3) Driver Three",
     );
+  });
 
-    it("should sort by seed by default, and allow toggling to alphabetical sort", async () => {
-      const participants = [
-        new Driver("d1", "Zack", "Zero"),
-        new Driver("d2", "Alice", "The Rocket"),
-        new Driver("d3", "Bob", "Drift King"),
-      ];
+  it("should sort by seed by default, and allow toggling to alphabetical sort", async () => {
+    const participants = [
+      new Driver("d1", "Zack", "Zero"),
+      new Driver("d2", "Alice", "The Rocket"),
+      new Driver("d3", "Bob", "Drift King"),
+    ];
 
-      hostComponent.visible.set(true);
-      hostComponent.participants.set(participants);
-      fixture.detectChanges();
+    hostComponent.visible.set(true);
+    hostComponent.participants.set(participants);
+    fixture.detectChanges();
 
-      // Default: Sort by seed
-      expect(await harness.isSortBySeedActive()).toBeTrue();
-      expect(await harness.isSortByNameActive()).toBeFalse();
+    // Default: Sort by seed
+    expect(await harness.isSortBySeedActive()).toBeTrue();
+    expect(await harness.isSortByNameActive()).toBeFalse();
 
-      expect(await harness.getItemCount()).toBe(3);
-      expect(await harness.getItemSeed(0)).toBe("1");
-      expect(await harness.getItemName(0)).toBe("Zack");
-      expect(await harness.getItemNickname(0)).toBe('"Zero"');
+    expect(await harness.getItemCount()).toBe(3);
+    expect(await harness.getItemSeed(0)).toBe("1");
+    expect(await harness.getItemName(0)).toBe("Zack");
+    expect(await harness.getItemNickname(0)).toBe('"Zero"');
 
-      expect(await harness.getItemSeed(1)).toBe("2");
-      expect(await harness.getItemName(1)).toBe("Alice");
+    expect(await harness.getItemSeed(1)).toBe("2");
+    expect(await harness.getItemName(1)).toBe("Alice");
 
-      expect(await harness.getItemSeed(2)).toBe("3");
-      expect(await harness.getItemName(2)).toBe("Bob");
+    expect(await harness.getItemSeed(2)).toBe("3");
+    expect(await harness.getItemName(2)).toBe("Bob");
 
-      // Toggle: Sort by name (A-Z)
-      await harness.clickSortByName();
-      fixture.detectChanges();
+    // Toggle: Sort by name (A-Z)
+    await harness.clickSortByName();
+    fixture.detectChanges();
 
-      expect(await harness.isSortBySeedActive()).toBeFalse();
-      expect(await harness.isSortByNameActive()).toBeTrue();
+    expect(await harness.isSortBySeedActive()).toBeFalse();
+    expect(await harness.isSortByNameActive()).toBeTrue();
 
-      // Alice is first, but retains original seed #2
-      expect(await harness.getItemSeed(0)).toBe("2");
-      expect(await harness.getItemName(0)).toBe("Alice");
-      expect(await harness.getItemNickname(0)).toBe('"The Rocket"');
+    // Alice is first, but retains original seed #2
+    expect(await harness.getItemSeed(0)).toBe("2");
+    expect(await harness.getItemName(0)).toBe("Alice");
+    expect(await harness.getItemNickname(0)).toBe('"The Rocket"');
 
-      // Bob is second, retains original seed #3
-      expect(await harness.getItemSeed(1)).toBe("3");
-      expect(await harness.getItemName(1)).toBe("Bob");
-      expect(await harness.getItemNickname(1)).toBe('"Drift King"');
+    // Bob is second, retains original seed #3
+    expect(await harness.getItemSeed(1)).toBe("3");
+    expect(await harness.getItemName(1)).toBe("Bob");
+    expect(await harness.getItemNickname(1)).toBe('"Drift King"');
 
-      // Zack is third, retains original seed #1
-      expect(await harness.getItemSeed(2)).toBe("1");
-      expect(await harness.getItemName(2)).toBe("Zack");
-      expect(await harness.getItemNickname(2)).toBe('"Zero"');
+    // Zack is third, retains original seed #1
+    expect(await harness.getItemSeed(2)).toBe("1");
+    expect(await harness.getItemName(2)).toBe("Zack");
+    expect(await harness.getItemNickname(2)).toBe('"Zero"');
 
-      // Toggle back to sort by seed
-      await harness.clickSortBySeed();
-      fixture.detectChanges();
+    // Toggle back to sort by seed
+    await harness.clickSortBySeed();
+    fixture.detectChanges();
 
-      expect(await harness.isSortBySeedActive()).toBeTrue();
-      expect(await harness.isSortByNameActive()).toBeFalse();
-      expect(await harness.getItemName(0)).toBe("Zack");
-      expect(await harness.getItemSeed(0)).toBe("1");
-    });
+    expect(await harness.isSortBySeedActive()).toBeTrue();
+    expect(await harness.isSortByNameActive()).toBeFalse();
+    expect(await harness.getItemName(0)).toBe("Zack");
+    expect(await harness.getItemSeed(0)).toBe("1");
   });
 });

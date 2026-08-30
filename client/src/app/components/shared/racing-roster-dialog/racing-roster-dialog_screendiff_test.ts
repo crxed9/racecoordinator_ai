@@ -186,7 +186,7 @@ test.describe("Racing Roster Dialog Visuals", () => {
       timeout: 10000,
     });
   });
-  await page.waitForTimeout(100);
+
   test("should display racing roster dialog with all drivers added (sorted by seed)", async ({
     page,
   }) => {
@@ -202,24 +202,24 @@ test.describe("Racing Roster Dialog Visuals", () => {
         timeout: 10000,
       },
     );
+  });
 
-    test("should display racing roster dialog with all drivers sorted alphabetically", async ({
-      page,
-    }) => {
-      await setupLargeRoster(page);
-      const rosterHarness = await openRosterDialog(page);
-      await rosterHarness.clickSortByName();
-      await page.mouse.move(0, 0);
-      await page.waitForTimeout(150);
+  test("should display racing roster dialog with all drivers sorted alphabetically", async ({
+    page,
+  }) => {
+    await setupLargeRoster(page);
+    const rosterHarness = await openRosterDialog(page);
+    await rosterHarness.clickSortByName();
+    await page.mouse.move(0, 0);
+    await page.waitForTimeout(150);
 
-      await expect(page).toHaveScreenshot(
-        "racing-roster-dialog-all-drivers-alphabetical.png",
-        {
-          maxDiffPixelRatio: 0.05,
-          animations: "disabled",
-          timeout: 10000,
-        },
-      );
-    });
+    await expect(page).toHaveScreenshot(
+      "racing-roster-dialog-all-drivers-alphabetical.png",
+      {
+        maxDiffPixelRatio: 0.05,
+        animations: "disabled",
+        timeout: 10000,
+      },
+    );
   });
 });
