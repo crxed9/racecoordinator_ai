@@ -846,6 +846,12 @@ describe("RacedaySetupComponent", () => {
       expect(mockDataService.getServerIp).toHaveBeenCalled();
     });
 
+    it("should update clientVersion when server version is refreshed", () => {
+      mockDataService.getServerVersion.and.returnValue(of("2.5.0"));
+      (component as any).refreshServerInfo();
+      expect(component.serverVersion).toBe("2.5.0");
+    });
+
     it("should rotate quotes on quote click", fakeAsync(() => {
       component.showSplash = true;
       component.onQuoteClick();

@@ -5,7 +5,7 @@ import { forkJoin, Observable, of } from "rxjs";
 import { catchError, filter, map } from "rxjs/operators";
 import { LoggerService } from "@app/services/logger.service";
 import { SettingsService } from "@app/services/settings.service";
-import { CLIENT_VERSION } from "@app/version";
+import { CLIENT_VERSION, getClientVersion } from "@app/version";
 
 import { DataService } from "./data.service";
 
@@ -128,6 +128,7 @@ export class AnalyticsService {
       next: (res) => {
         const config = res.config;
         this.serverVersion = res.version;
+        this.clientVersion = getClientVersion(res.version);
 
         this.logger.info("Analytics: Received config from server", {
           measurementId: !!config.measurementId,

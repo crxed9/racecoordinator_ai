@@ -91,6 +91,12 @@ describe("RacedayComponent", () => {
     expect(component.clientVersion).toBe(CLIENT_VERSION);
   });
 
+  it("should update clientVersion when server version is refreshed", () => {
+    mockDataService.getServerVersion.and.returnValue(of("3.0.0"));
+    (component as any).refreshServerInfo();
+    expect(component.serverVersion).toBe("3.0.0");
+  });
+
   it("should display about dialog when child component requests about", fakeAsync(() => {
     mockFileSystemService.hasCustomFiles.and.returnValue(
       Promise.resolve(false),

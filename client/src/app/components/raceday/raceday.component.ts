@@ -31,7 +31,7 @@ import { RacePredictionService } from "@app/services/race-prediction.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
-import { CLIENT_VERSION } from "@app/version";
+import { CLIENT_VERSION, getClientVersion } from "@app/version";
 
 import { DefaultRacedayComponent } from "./default-raceday.component";
 
@@ -160,6 +160,7 @@ export class RacedayComponent
     this.dataService.getServerVersion().subscribe({
       next: (version) => {
         this.serverVersion = version;
+        this.clientVersion = getClientVersion(version);
         this.cdr.detectChanges();
       },
       error: (err) => {
