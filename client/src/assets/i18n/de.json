@@ -1909,12 +1909,10 @@
   "UE_HELP_PRACTICE_UI": "Konfigurieren Sie das Trainingslayout, das während der Trainingssitzungen verwendet wird. Dies funktioniert auf die gleiche Weise wie das Hauptrenntag-Layout, wird jedoch nur verwendet, wenn ein Rennen als Trainingsrennen konfiguriert ist.",
   "UE_HELP_RACEDAY_CANVAS": "Dies ist der Leinwandbereich, in dem Sie Ihr Layout erstellen können. Sie können Widgets hierher ziehen und ablegen, deren Größe ändern und sie auswählen, um ihre Eigenschaften zu konfigurieren.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Leinwandbereich",
-  "UE_HELP_RACEDAY_DIMENSIONS": "Zeigt die aktuelle Auflösung an. Sie können diese Werte ändern, um eine benutzerdefinierte Auflösung für Ihr Layout zu definieren.",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Schalten Sie um, ob die Zeile eines Fahrers kurz hervorgehoben werden soll, wenn er eine Runde beendet.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Verwenden Sie die Schaltflächen zum Importieren und Exportieren, um Ihr Layout in einer Datei zu speichern oder ein zuvor gespeichertes Layout zu laden. Dies ist nützlich, um Ihre Arbeit zu sichern oder Layouts mit anderen zu teilen.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Layout importieren / exportieren",
   "UE_HELP_RACEDAY_RESET": "Setzen Sie das gesamte Layout auf die Werkseinstellungen zurück.",
-  "UE_HELP_RACEDAY_RESOLUTION": "Wählen Sie eine Basisauflösung für das Layout, um sicherzustellen, dass es auf Ihrem Display richtig skaliert wird. Im Allgemeinen sollten Sie die 'aktuelle Auflösung' verwenden, die die aktuelle Auflösung des verwendeten Displays unter Berücksichtigung von Browser-Rändern und Ähnlichem verwendet. Das Ändern der 'aktuellen Auflösung' ist normalerweise nicht erforderlich.",
   "UE_HELP_RACEDAY_SORT": "Schalten Sie um, ob die Fahrer während des Rennens nach ihrem aktuellen Stand sortiert werden sollen.",
   "UE_HELP_RACEDAY_UI": "Benutzerdefinierte UI-Layouts ermöglichen das Entwerfen und Verwalten mehrerer Bildschirmlayouts für Renntag- und Trainingssitzungen. Sie können neue Layouts erstellen, vorhandene duplizieren und Widget-Platzierungen sowie Spalten anpassen.<br><br><a href=\"javascript:void(0)\" class=\"help-link help-article-ui-editor\">Erfahren Sie mehr über den UI-Editor</a>",
   "UE_HELP_RACEDAY_WIDGET_INSPECTOR": "Wenn ein Widget auf der Leinwand ausgewählt ist, wird hier der Widget-Inspektor angezeigt. Damit können Sie die spezifischen Eigenschaften des Widgets anpassen, wie Skalierung, Farben, Schriftarten usw. Einige Widgets sind ziemlich einfach, andere wie die Spuransicht sind ziemlich komplex.",
@@ -2169,14 +2167,5 @@
   "UI_EDITOR_COL_GAP_POSITION_F1": "ABSTAND POSITION RUNDE",
   "UI_EDITOR_COL_REACTION_TIME": "REAKTIONSZEIT",
   "UI_EDITOR_COL_TEAM": "TEAMNAME",
-  "UI_EDITOR_LAYOUT_RESOLUTION": "Layout-Auflösung:",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Layout auf Standardeinstellungen zurücksetzen",
-  "UI_EDITOR_RESOLUTION_1280_1024": "1280x1024 (5:4 - Older PC)",
-  "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY": "Aktuelle Anzeige",
-  "UI_EDITOR_RESOLUTION_DESKTOP_TV": "1920x1080 (16:9 - Desktop/TV)",
-  "UI_EDITOR_RESOLUTION_IPAD_TABLET": "1024x768 (4:3 - iPad/Tablet)",
-  "UI_EDITOR_RESOLUTION_MAC_PC": "1920x1200 (16:10 - Mac/PC)",
-  "UI_EDITOR_RESOLUTION_MODERN_PHONES": "2532x1170 (19.5:9 - Moderne Handys)",
-  "UI_EDITOR_RESOLUTION_OLDER_PC": "1600x1200 (4:3 - Älterer PC)",
-  "UI_EDITOR_RESOLUTION_ULTRAWIDE": "2560x1080 (21:9 - Ultra-breit)"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Layout auf Standardeinstellungen zurücksetzen"
 }

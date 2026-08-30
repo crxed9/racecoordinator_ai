@@ -2850,26 +2850,7 @@ export class DefaultRacedayComponent
     const targetWidth = layout?.baseWidth || 1920;
     const targetHeight = layout?.baseHeight || 1080;
 
-    if (this.isUIEditorMode()) {
-      this.scale = 1;
-      if (
-        this.dashboardWidth !== targetWidth ||
-        this.dashboardHeight !== targetHeight
-      ) {
-        this.dashboardWidth = targetWidth;
-        this.dashboardHeight = targetHeight;
-        this.loadColumns();
-      }
-
-      return;
-    }
-
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-
-    const scaleX = windowWidth / targetWidth;
-    const scaleY = windowHeight / targetHeight;
-    this.scale = Math.min(scaleX, scaleY);
+    this.scale = 1;
 
     if (
       this.dashboardWidth !== targetWidth ||

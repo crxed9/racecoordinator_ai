@@ -1906,12 +1906,10 @@
   "UE_HELP_PRACTICE_UI": "Configure el diseño de Práctica, utilizado durante las sesiones de práctica. Funciona de la misma manera que el diseño principal del Día de Carrera, sin embargo, solo se usa cuando una carrera está configurada como una carrera de Práctica.",
   "UE_HELP_RACEDAY_CANVAS": "Esta es el área del lienzo donde puede construir su diseño. Puede arrastrar y soltar widgets aquí, cambiar su tamaño y seleccionarlos para configurar sus propiedades.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Área del Lienzo",
-  "UE_HELP_RACEDAY_DIMENSIONS": "Muestra la resolución actual. Puede cambiar estos valores para definir una resolución personalizada para su diseño.",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Alterne si desea resaltar brevemente la fila de un piloto cuando completa una vuelta.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Utilice los botones de importación y exportación para guardar su diseño en un archivo o cargar un diseño guardado anteriormente. Esto es útil para hacer una copia de seguridad de su trabajo o compartir diseños con otros.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Importar / Exportar Diseño",
   "UE_HELP_RACEDAY_RESET": "Restablezca todo el diseño a la configuración predeterminada de fábrica.",
-  "UE_HELP_RACEDAY_RESOLUTION": "Seleccione una resolución base para el diseño para garantizar que se escale correctamente en su pantalla. En general, deseará utilizar la 'resolución actual', que utiliza la resolución actual de la pantalla en la que se encuentra teniendo en cuenta los bordes del navegador y similares. Cambiar la 'resolución actual' no es algo habitual.",
   "UE_HELP_RACEDAY_SORT": "Alterne si desea ordenar los pilotos según su clasificación actual durante la carrera.",
   "UE_HELP_RACEDAY_UI": "Los diseños de interfaz personalizados te permiten diseñar y administrar múltiples diseños de pantalla para el día de carrera y sesiones de práctica. Puedes crear nuevos diseños, duplicar los existentes y personalizar la ubicación de widgets y columnas.<br><br><a href=\"javascript:void(0)\" class=\"help-link help-article-ui-editor\">Más información sobre el Editor de interfaz</a>",
   "UE_HELP_RACEDAY_WIDGET_INSPECTOR": "Cuando se selecciona un widget en el lienzo, el Inspector de Widgets aparece aquí. Le permite personalizar las propiedades específicas del widget, como la escala, colores, fuentes, etc. Algunos widgets son bastante simples, y otros, como la vista de carril, son bastante complicados.",
@@ -2166,14 +2164,5 @@
   "UI_EDITOR_COL_GAP_POSITION_F1": "DIFERENCIA POSICIÓN VUELTA",
   "UI_EDITOR_COL_REACTION_TIME": "TIEMPO DE REACCIÓN",
   "UI_EDITOR_COL_TEAM": "NOMBRE DEL EQUIPO",
-  "UI_EDITOR_LAYOUT_RESOLUTION": "Resolución de Diseño:",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Restablecer diseño a valores predeterminados",
-  "UI_EDITOR_RESOLUTION_1280_1024": "1280x1024 (5:4 - Older PC)",
-  "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY": "Pantalla Actual",
-  "UI_EDITOR_RESOLUTION_DESKTOP_TV": "1920x1080 (16:9 - Escritorio/TV)",
-  "UI_EDITOR_RESOLUTION_IPAD_TABLET": "1024x768 (4:3 - iPad/Tableta)",
-  "UI_EDITOR_RESOLUTION_MAC_PC": "1920x1200 (16:10 - Mac/PC)",
-  "UI_EDITOR_RESOLUTION_MODERN_PHONES": "2532x1170 (19.5:9 - Teléfonos Modernos)",
-  "UI_EDITOR_RESOLUTION_OLDER_PC": "1600x1200 (4:3 - PC Antiguo)",
-  "UI_EDITOR_RESOLUTION_ULTRAWIDE": "2560x1080 (21:9 - Ultra ancho)"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Restablecer diseño a valores predeterminados"
 }

@@ -1905,12 +1905,10 @@
   "UE_HELP_PRACTICE_UI": "Configureer de lay-out voor Trainingen, gebruikt tijdens trainingssessies. Dit werkt op dezelfde manier als de belangrijkste Racedag-lay-out, maar wordt alleen gebruikt wanneer een race is geconfigureerd als een Trainingsrace.",
   "UE_HELP_RACEDAY_CANVAS": "Dit is het canvasgebied waar u uw lay-out kunt bouwen. U kunt hier widgets naartoe slepen en neerzetten, het formaat ervan wijzigen en ze selecteren om hun eigenschappen te configureren.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Canvasgebied",
-  "UE_HELP_RACEDAY_DIMENSIONS": "Toont de huidige resolutie. U kunt deze waarden wijzigen om een aangepaste resolutie voor uw lay-out te definiëren.",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Wissel of de rij van een coureur kort moet worden gemarkeerd wanneer deze een ronde voltooit.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Gebruik de knoppen voor importeren en exporteren om uw lay-out in een bestand op te slaan, of laad een eerder opgeslagen lay-out. Dit is handig voor het maken van een back-up van uw werk of het delen van lay-outs met anderen.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Lay-out importeren / exporteren",
   "UE_HELP_RACEDAY_RESET": "Zet de volledige lay-out terug naar de fabrieksinstellingen.",
-  "UE_HELP_RACEDAY_RESOLUTION": "Selecteer een basisresolutie voor de lay-out om ervoor te zorgen dat deze correct wordt geschaald op uw scherm. Over het algemeen wilt u de 'huidige resolutie' gebruiken, die de huidige resolutie van uw beeldscherm gebruikt rekening houdend met browserranden en dergelijke. Afwijken van de 'huidige resolutie' is niet gebruikelijk.",
   "UE_HELP_RACEDAY_SORT": "Wissel of u de coureurs tijdens de race wilt sorteren op hun huidige tussenstand.",
   "UE_HELP_RACEDAY_UI": "Met aangepaste UI-layouts kunt u meerdere schermlayouts ontwerpen en beheren voor racedag- en trainingssessies. U kunt nieuwe layouts maken, bestaande dupliceren en widgetplaatsing en kolommen aanpassen.<br><br><a href=\"javascript:void(0)\" class=\"help-link help-article-ui-editor\">Meer informatie over de UI Editor</a>",
   "UE_HELP_RACEDAY_WIDGET_INSPECTOR": "Wanneer een widget op het canvas is geselecteerd, verschijnt de Widget Inspector hier. Hiermee kunt u de specifieke eigenschappen van de widget aanpassen, zoals schaal, kleuren, lettertypen, enz. Sommige widgets zijn vrij eenvoudig, en sommige, zoals de baanweergave, zijn vrij ingewikkeld.",
@@ -2165,14 +2163,5 @@
   "UI_EDITOR_COL_GAP_POSITION_F1": "GAT POSITIE RONDE",
   "UI_EDITOR_COL_REACTION_TIME": "REACTIETIJD",
   "UI_EDITOR_COL_TEAM": "TEAMNAAM",
-  "UI_EDITOR_LAYOUT_RESOLUTION": "Lay-outresolutie:",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Lay-out resetten naar standaardinstellingen",
-  "UI_EDITOR_RESOLUTION_1280_1024": "1280x1024 (5:4 - Older PC)",
-  "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY": "Huidig Scherm",
-  "UI_EDITOR_RESOLUTION_DESKTOP_TV": "1920x1080 (16:9 - Desktop/TV)",
-  "UI_EDITOR_RESOLUTION_IPAD_TABLET": "1024x768 (4:3 - iPad/Tablet)",
-  "UI_EDITOR_RESOLUTION_MAC_PC": "1920x1200 (16:10 - Mac/PC)",
-  "UI_EDITOR_RESOLUTION_MODERN_PHONES": "2532x1170 (19.5:9 - Moderne Telefoons)",
-  "UI_EDITOR_RESOLUTION_OLDER_PC": "1600x1200 (4:3 - Oudere PC)",
-  "UI_EDITOR_RESOLUTION_ULTRAWIDE": "2560x1080 (21:9 - Ultrabreed)"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Lay-out resetten naar standaardinstellingen"
 }

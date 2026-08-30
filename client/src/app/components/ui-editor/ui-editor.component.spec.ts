@@ -2377,9 +2377,6 @@ describe("UIEditorComponent", () => {
     it("should reset raceday layout", () => {
       spyOn(component.undoManager, "captureState");
       spyOn(component, "refreshDisplayProperties");
-      component.layoutResolutionOptions = [
-        { label: "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY", width: 0, height: 0 },
-      ];
 
       component.resetRacedayLayout();
 
@@ -2389,12 +2386,6 @@ describe("UIEditorComponent", () => {
       expect(component.editingState.settings.racedayLayout).toEqual(
         expectedLayout,
       );
-      expect(component.layoutResolutionOptions[0].width).toEqual(
-        window.innerWidth,
-      );
-      expect(component.layoutResolutionOptions[0].height).toEqual(
-        window.innerHeight,
-      );
       expect(component.undoManager.captureState).toHaveBeenCalled();
       expect(component.refreshDisplayProperties).toHaveBeenCalled();
     });
@@ -2402,9 +2393,6 @@ describe("UIEditorComponent", () => {
     it("should reset practice raceday layout", () => {
       spyOn(component.undoManager, "captureState");
       spyOn(component, "refreshDisplayProperties");
-      component.layoutResolutionOptions = [
-        { label: "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY", width: 0, height: 0 },
-      ];
 
       component.editingSettings.practiceRacedayLayout = { widgets: [] };
       component.editingSettings.practiceRacedayColumns = ["test"];
@@ -2432,96 +2420,6 @@ describe("UIEditorComponent", () => {
       );
       expect(component.undoManager.captureState).toHaveBeenCalled();
       expect(component.refreshDisplayProperties).toHaveBeenCalled();
-    });
-
-    it("should handle getLayoutResolution and setLayoutResolution", () => {
-      component.editingSettings.racedayLayout = {
-        baseWidth: 1600,
-        baseHeight: 900,
-        widgets: [
-          { x: 100, y: 100, width: 200, height: 200, name: "lane-view" } as any,
-        ],
-      } as any;
-      expect(component.getLayoutResolution()).toEqual("1600x900");
-
-      spyOn(component as any, "captureState");
-
-      const mockEvent = { target: { value: "800x450" } } as any;
-      component.setLayoutResolution(mockEvent);
-
-      expect(component.editingSettings.racedayLayout!.baseWidth).toEqual(800);
-      expect(component.editingSettings.racedayLayout!.baseHeight).toEqual(450);
-      expect(component.editingSettings.racedayLayout!.widgets![0].x).toEqual(
-        50,
-      );
-      expect(component.editingSettings.racedayLayout!.widgets![0].y).toEqual(
-        50,
-      );
-      expect(
-        component.editingSettings.racedayLayout!.widgets![0].width,
-      ).toEqual(100);
-      expect(
-        component.editingSettings.racedayLayout!.widgets![0].height,
-      ).toEqual(100);
-
-      expect((component as any).captureState).toHaveBeenCalled();
-    });
-
-    it("should handle getLayoutResolutionOptions dynamically appending missing resolutions", () => {
-      component.layoutResolutionOptions = [
-        { label: "Standard", width: 1920, height: 1080 },
-      ];
-      component.editingSettings.racedayLayout = {
-        baseWidth: 1920,
-        baseHeight: 1080,
-      } as any;
-
-      let options = component.getLayoutResolutionOptions();
-      expect(options.length).toEqual(1);
-      expect(options[0].width).toEqual(1920);
-
-      component.editingSettings.racedayLayout = {
-        baseWidth: 1440,
-        baseHeight: 900,
-      } as any;
-      options = component.getLayoutResolutionOptions();
-      expect(options.length).toEqual(2);
-      expect(options[1].width).toEqual(1440);
-      expect(options[1].height).toEqual(900);
-      expect(options[1].label).toEqual("1440x900");
-    });
-
-    it("should handle onCustomResolutionChange correctly", () => {
-      component.editingSettings.racedayLayout = {
-        baseWidth: 1000,
-        baseHeight: 1000,
-        widgets: [{ x: 10, y: 10, width: 100, height: 100 }],
-      } as any;
-      spyOn(component as any, "captureState");
-
-      // Mock Event target
-      const mockEvent = { target: { value: "1500" } } as unknown as Event;
-
-      component.onCustomResolutionChange("width", mockEvent);
-
-      expect(component.editingSettings.racedayLayout?.baseWidth).toEqual(1500);
-      expect(component.editingSettings.racedayLayout?.baseHeight).toEqual(1000);
-      // X and Width should scale by 1.5
-      expect(component.editingSettings.racedayLayout!.widgets![0].x).toEqual(
-        15,
-      );
-      expect(
-        component.editingSettings.racedayLayout!.widgets![0].width,
-      ).toEqual(150);
-      // Y and Height should not scale (1.0)
-      expect(component.editingSettings.racedayLayout!.widgets![0].y).toEqual(
-        10,
-      );
-      expect(
-        component.editingSettings.racedayLayout!.widgets![0].height,
-      ).toEqual(100);
-
-      expect((component as any).captureState).toHaveBeenCalled();
     });
 
     describe("Layout Import/Export", () => {
@@ -2754,8 +2652,6 @@ describe("UIEditorComponent", () => {
       expect(selectors).toContain("#help-default-ui");
       expect(selectors).toContain("#help-raceday-sort");
       expect(selectors).toContain("#help-raceday-highlight");
-      expect(selectors).toContain("#help-raceday-resolution");
-      expect(selectors).toContain("#help-raceday-dimensions");
       expect(selectors).toContain("#help-raceday-reset");
       expect(selectors).toContain("#help-raceday-import-export");
       expect(selectors).toContain("#help-raceday-canvas");
@@ -3381,55 +3277,6 @@ describe("UIEditorComponent", () => {
         customUi,
       );
       expect(customUiService.initialize).toHaveBeenCalled();
-    });
-
-    it("should update layout resolution on custom UIs and rescale widgets", () => {
-      const customUi: CustomUI = {
-        entity_id: "c_res",
-        name: "Resolution Test UI",
-        is_default: false,
-        layoutJson: JSON.stringify({
-          baseWidth: 1920,
-          baseHeight: 1080,
-          widgets: [
-            {
-              id: "w1",
-              widgetType: "timer",
-              x: 100,
-              y: 100,
-              width: 200,
-              height: 200,
-              zIndex: 1,
-            },
-          ],
-        }),
-      };
-      component.editingState.customUIs = [
-        ...(component.editingState.customUIs || []),
-        customUi,
-      ];
-      component.refreshDisplayProperties();
-
-      const fakeSelectEvent = {
-        target: { value: "3840x2160" } as HTMLSelectElement,
-      } as unknown as Event;
-
-      component.setLayoutResolution(fakeSelectEvent, customUi);
-
-      const parsedLayout = JSON.parse(customUi.layoutJson!);
-      expect(parsedLayout.baseWidth).toBe(3840);
-      expect(parsedLayout.baseHeight).toBe(2160);
-      expect(parsedLayout.widgets[0].x).toBe(200);
-      expect(parsedLayout.widgets[0].width).toBe(400);
-
-      // Custom resolution input change
-      const fakeInputEvent = {
-        target: { value: "1920" } as HTMLInputElement,
-      } as unknown as Event;
-      component.onCustomResolutionChange("width", fakeInputEvent, customUi);
-      const parsedLayout2 = JSON.parse(customUi.layoutJson!);
-      expect(parsedLayout2.baseWidth).toBe(1920);
-      expect(parsedLayout2.widgets[0].x).toBe(100);
     });
 
     it("should calculate consistent scale regardless of widget selection due to uniform inspector width", () => {

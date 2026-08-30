@@ -9,8 +9,8 @@ import {
 export function applyResetLayout(
   ui: CustomUI,
   editingSettings: Settings,
-  windowWidth: number,
-  windowHeight: number,
+  windowWidth?: number,
+  windowHeight?: number,
 ): void {
   const isPractice = ui.entity_id === "practice_ui_layout_rc_ai";
   const data = getDefaultLayoutResetData(isPractice, windowWidth, windowHeight);
@@ -76,18 +76,8 @@ export function applyImportLayout(
 export function executeResetLayout(
   ui: CustomUI,
   editingSettings: Settings,
-  windowWidth: number,
-  windowHeight: number,
-  resolutionOptions: { label: string; width?: number; height?: number }[],
 ): void {
-  const opt = resolutionOptions.find(
-    (o) => o.label === "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY",
-  );
-  if (opt) {
-    opt.width = windowWidth;
-    opt.height = windowHeight;
-  }
-  applyResetLayout(ui, editingSettings, windowWidth, windowHeight);
+  applyResetLayout(ui, editingSettings);
 }
 
 export function executeExportLayout(

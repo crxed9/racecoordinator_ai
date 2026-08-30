@@ -162,14 +162,7 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
   }
 
   private updateScale() {
-    const targetWidth = 1600;
-    const targetHeight = 900;
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-
-    const scaleX = windowWidth / targetWidth;
-    const scaleY = windowHeight / targetHeight;
-    this.scale = Math.min(scaleX, scaleY);
+    this.scale = 1;
   }
 
   get isServerConnected(): boolean {

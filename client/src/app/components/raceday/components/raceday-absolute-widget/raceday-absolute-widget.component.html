@@ -21,7 +21,11 @@
     '%'
   "
   [style.z-index]="
-    widget().widgetType === 'menu-bar' ? 99999 : widget().zIndex || 100
+    isCustomizing()
+      ? widget().zIndex || 100
+      : widget().widgetType === 'menu-bar'
+        ? 99999
+        : widget().zIndex || 100
   "
   [style.font-family]="widget().fontFamily || null"
   [style.color]="widget().textColor || null"

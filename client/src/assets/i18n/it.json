@@ -1905,12 +1905,10 @@
   "UE_HELP_PRACTICE_UI": "Configura il layout di Pratica, utilizzato durante le sessioni di pratica. Funziona allo stesso modo del layout principale del Giorno di Gara, tuttavia viene utilizzato solo quando una gara è configurata come gara di Pratica.",
   "UE_HELP_RACEDAY_CANVAS": "Questa è l'area della tela in cui puoi creare il tuo layout. Puoi trascinare e rilasciare i widget qui, ridimensionarli e selezionarli per configurarne le proprietà.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Area della Tela",
-  "UE_HELP_RACEDAY_DIMENSIONS": "Mostra la risoluzione attuale. È possibile modificare questi valori per definire una risoluzione personalizzata per il layout.",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Attiva o disattiva l'evidenziazione breve della riga di un pilota quando completa un giro.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Usa i pulsanti di importazione ed esportazione per salvare il tuo layout in un file o caricare un layout precedentemente salvato. Questo è utile per eseguire il backup del tuo lavoro o condividere i layout con altri.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Importa / Esporta Layout",
   "UE_HELP_RACEDAY_RESET": "Reimposta l'intero layout alle impostazioni predefinite di fabbrica.",
-  "UE_HELP_RACEDAY_RESOLUTION": "Seleziona una risoluzione di base per il layout per assicurarti che venga ridimensionato correttamente sul display. In generale, vorrai utilizzare la 'risoluzione corrente', che utilizza la risoluzione corrente del display su cui ti trovi tenendo conto dei bordi del browser e simili. Modificare la 'risoluzione corrente' non è un'operazione comune.",
   "UE_HELP_RACEDAY_SORT": "Attiva o disattiva l'ordinamento dei piloti in base alla loro classifica attuale durante la gara.",
   "UE_HELP_RACEDAY_UI": "I layout UI personalizzati consentono di progettare e gestire più layout di schermata per il giorno di gara e le sessioni di prova. Puoi creare nuovi layout, duplicare quelli esistenti e personalizzare il posizionamento dei widget e le colonne.<br><br><a href=\"javascript:void(0)\" class=\"help-link help-article-ui-editor\">Maggiori informazioni sull'editor UI</a>",
   "UE_HELP_RACEDAY_WIDGET_INSPECTOR": "Quando un widget è selezionato sulla tela, qui appare l'Ispettore Widget. Ti consente di personalizzare le proprietà specifiche del widget, come ridimensionamento, colori, caratteri, ecc. Alcuni widget sono abbastanza semplici e altri come la vista corsia sono piuttosto complicati.",
@@ -2165,14 +2163,5 @@
   "UI_EDITOR_COL_GAP_POSITION_F1": "DISTACCO POSIZIONE GIRO",
   "UI_EDITOR_COL_REACTION_TIME": "TEMPO DI REAZIONE",
   "UI_EDITOR_COL_TEAM": "NOME SQUADRA",
-  "UI_EDITOR_LAYOUT_RESOLUTION": "Risoluzione del Layout:",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Ripristina layout predefinito",
-  "UI_EDITOR_RESOLUTION_1280_1024": "1280x1024 (5:4 - Older PC)",
-  "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY": "Schermo Attuale",
-  "UI_EDITOR_RESOLUTION_DESKTOP_TV": "1920x1080 (16:9 - Desktop/TV)",
-  "UI_EDITOR_RESOLUTION_IPAD_TABLET": "1024x768 (4:3 - iPad/Tablet)",
-  "UI_EDITOR_RESOLUTION_MAC_PC": "1920x1200 (16:10 - Mac/PC)",
-  "UI_EDITOR_RESOLUTION_MODERN_PHONES": "2532x1170 (19.5:9 - Telefoni Moderni)",
-  "UI_EDITOR_RESOLUTION_OLDER_PC": "1600x1200 (4:3 - Vecchio PC)",
-  "UI_EDITOR_RESOLUTION_ULTRAWIDE": "2560x1080 (21:9 - Ultra largo)"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Ripristina layout predefinito"
 }

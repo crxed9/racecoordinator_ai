@@ -47,8 +47,6 @@ import {
   ThemeTemplateType,
 } from "./components/theme-template-modal/theme-template-modal";
 import {
-  applyCustomDimensionChange,
-  applyLayoutResolutionChange,
   applyLoadedUiEditorData,
   areSettingsEqual,
   areUIEditorStatesEqual,
@@ -76,9 +74,6 @@ import {
   findDefaultWidgetId,
   getCustomUiDisplayNameKey,
   getDefaultLayoutResetData,
-  getDefaultResolutionOptions,
-  getLayoutResolution,
-  getLayoutResolutionOptions,
   getThemeAudioConfigForSlot,
   getThemeAudioUrl,
   getThemeDisplayNameKey,
@@ -106,7 +101,6 @@ import {
   loadExpanderStateFromStorage,
   MAIN_AUDIO_SLOTS,
   MOCK_RACEDAY_PROPERTIES,
-  ResolutionOption,
   resolveActiveLayout,
   resolveTargetCustomUi,
   resolveThemeAsset,
@@ -232,7 +226,6 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   showDiscardConfirm = false;
   private pendingDeactivate: ((result: boolean) => void) | null = null;
 
-  layoutResolutionOptions: ResolutionOption[] = getDefaultResolutionOptions();
   availableColumns: { key: string; label: string }[] = [
     ...BASE_AVAILABLE_COLUMNS,
   ];
@@ -331,13 +324,6 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   @HostListener("window:resize")
   onResize() {
     this.updateScale();
-    const opt = this.layoutResolutionOptions.find(
-      (o) => o.label === "UI_EDITOR_RESOLUTION_CURRENT_DISPLAY",
-    );
-    if (opt) {
-      opt.width = window.innerWidth;
-      opt.height = window.innerHeight;
-    }
   }
 
   @HostListener("window:keydown", ["$event"])
@@ -498,11 +484,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   getScaledDefaultLayout(isPractice = false) {
-    return getDefaultLayoutResetData(
-      isPractice,
-      window.innerWidth,
-      window.innerHeight,
-    ).defaultLayout;
+    return getDefaultLayoutResetData(isPractice).defaultLayout;
   }
 
   getTargetCustomUi(kind?: "practice" | "raceday" | "current") {
@@ -549,13 +531,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   resetLayout(ui: CustomUI) {
-    executeResetLayout(
-      ui,
-      this.editingSettings,
-      window.innerWidth,
-      window.innerHeight,
-      this.layoutResolutionOptions,
-    );
+    executeResetLayout(ui, this.editingSettings);
     if (this.editingState?.settings)
       this.editingState.settings = deepCopy(this.editingSettings);
     this.undoManager.captureState();
@@ -1027,38 +1003,6 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     if (!this.isDestroyed) this.cdr.markForCheck();
   }
 
-  getLayoutResolution(ui?: CustomUI) {
-    return getLayoutResolution(this.getLayout(ui));
-  }
-  getLayoutResolutionOptions(ui?: CustomUI) {
-    return getLayoutResolutionOptions(
-      this.layoutResolutionOptions,
-      this.getLayout(ui),
-    );
-  }
-  setLayoutResolution(event: Event, ui?: CustomUI) {
-    applyLayoutResolutionChange(
-      (event.target as HTMLSelectElement).value,
-      this.getLayout(ui),
-      ui,
-      this.editingSettings,
-    );
-    this.captureState();
-  }
-  onCustomResolutionChange(
-    dimension: "width" | "height",
-    event: Event,
-    ui?: CustomUI,
-  ) {
-    applyCustomDimensionChange(
-      dimension,
-      parseInt((event.target as HTMLInputElement).value, 10),
-      this.getLayout(ui),
-      ui,
-      this.editingSettings,
-    );
-    this.captureState();
-  }
   getPreviewScale(ui?: CustomUI) {
     return `scale(${this.getPreviewScaleNumber(ui)})`;
   }
