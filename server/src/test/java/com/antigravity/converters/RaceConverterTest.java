@@ -275,6 +275,21 @@ public class RaceConverterTest {
   }
 
   @Test
+  public void testToProto_ThemeId() {
+    Race race =
+        new Race.Builder()
+            .withName("Practice Race")
+            .withTrackEntityId("t1")
+            .withThemeId("practice_theme_rc_ai")
+            .build();
+    Track track = new Track.Builder().name("Track").lanes(new ArrayList<>()).entityId("t1").build();
+
+    RaceModel proto = RaceConverter.toProto(race, track, new HashSet<>());
+    assertNotNull(proto);
+    assertEquals("practice_theme_rc_ai", proto.getThemeId());
+  }
+
+  @Test
   public void testToProto_SeasonStandingBreakdownFields() {
     com.antigravity.models.SeasonScoring scoring =
         new com.antigravity.models.SeasonScoring(

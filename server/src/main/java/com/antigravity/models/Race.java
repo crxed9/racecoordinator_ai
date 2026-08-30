@@ -126,6 +126,10 @@ public class Race extends Model {
   @JsonAlias("adjustDriftLaps")
   private final boolean adjustDriftLaps;
 
+  @JsonProperty("theme_id")
+  @JsonAlias("themeId")
+  private final String themeId;
+
   @JsonCreator
   public Race(
       @JsonProperty("name") String name,
@@ -177,6 +181,7 @@ public class Race extends Model {
           Boolean startBehindSensor,
       @JsonProperty("practice") @JsonAlias("practice") Boolean practice,
       @JsonProperty("adjust_drift_laps") @JsonAlias("adjustDriftLaps") Boolean adjustDriftLaps,
+      @JsonProperty("theme_id") @JsonAlias("themeId") String themeId,
       @JsonProperty("entity_id") String entityId,
       @JsonProperty("_id") String id) {
     super(id, entityId);
@@ -219,6 +224,7 @@ public class Race extends Model {
     this.startBehindSensor = startBehindSensor != null ? startBehindSensor : true;
     this.practice = practice != null ? practice : false;
     this.adjustDriftLaps = adjustDriftLaps != null ? adjustDriftLaps : false;
+    this.themeId = themeId != null ? themeId : Theme.DEFAULT_THEME_ID;
   }
 
   public static class Builder {
@@ -257,6 +263,7 @@ public class Race extends Model {
     private boolean startBehindSensor = true;
     private boolean practice = false;
     private boolean adjustDriftLaps = false;
+    private String themeId = Theme.DEFAULT_THEME_ID;
     private String entityId;
     private String id;
 
@@ -295,6 +302,7 @@ public class Race extends Model {
       this.startBehindSensor = other.isStartBehindSensor();
       this.practice = other.isPractice();
       this.adjustDriftLaps = other.isAdjustDriftLaps();
+      this.themeId = other.getThemeId();
       this.entityId = other.getEntityId();
       this.id = other.getId();
       return this;
@@ -470,6 +478,11 @@ public class Race extends Model {
       return this;
     }
 
+    public Builder withThemeId(String themeId) {
+      this.themeId = themeId;
+      return this;
+    }
+
     public Builder withEntityId(String entityId) {
       this.entityId = entityId;
       return this;
@@ -517,6 +530,7 @@ public class Race extends Model {
           startBehindSensor,
           practice,
           adjustDriftLaps,
+          themeId,
           entityId,
           id);
     }
@@ -658,5 +672,10 @@ public class Race extends Model {
   @JsonProperty("adjust_drift_laps")
   public boolean isAdjustDriftLaps() {
     return adjustDriftLaps;
+  }
+
+  @JsonProperty("theme_id")
+  public String getThemeId() {
+    return themeId;
   }
 }

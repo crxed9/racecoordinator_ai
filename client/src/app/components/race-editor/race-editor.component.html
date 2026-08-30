@@ -223,10 +223,26 @@
                         [(ngModel)]="editingRace.track_entity_id"
                         (ngModelChange)="captureState()"
                       >
-                        <option value="">-- Select Track --</option>
+                        <option value="">
+                          -- {{ "RE_SELECT_TRACK" | translate }} --
+                        </option>
                         @for (track of tracks; track track) {
                           <option [value]="track.entity_id">
                             {{ track.name }}
+                          </option>
+                        }
+                      </select>
+                    </div>
+                    <div class="editor-section">
+                      <label>{{ "RM_LABEL_THEME" | translate }}</label>
+                      <select
+                        id="theme-select"
+                        [(ngModel)]="editingRace.theme_id"
+                        (ngModelChange)="captureState()"
+                      >
+                        @for (theme of themes; track theme.entity_id) {
+                          <option [value]="theme.entity_id">
+                            {{ getThemeDisplayNameKey(theme) | translate }}
                           </option>
                         }
                       </select>

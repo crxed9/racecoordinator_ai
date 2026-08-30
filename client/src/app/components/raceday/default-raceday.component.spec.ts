@@ -18,7 +18,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { DataService } from "@app/data.service";
 import { AllowFinish, FinishMethod } from "@app/models/heat_scoring";
 import { OverallRanking } from "@app/models/overall_scoring";
-import { ColumnVisibility, Settings } from "@app/models/settings";
+import { Settings } from "@app/models/settings";
+import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
 import { HelpLinkService } from "@app/services/help-link.service";
 import { LoggerService } from "@app/services/logger.service";
 import { RaceService } from "@app/services/race.service";
@@ -27,6 +28,8 @@ import { RacePredictionService } from "@app/services/race-prediction.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
+
+import { CustomUiService } from "../../services/custom-ui.service";
 
 @Pipe({ name: "translate" })
 class MockTranslatePipe implements PipeTransform {
@@ -345,18 +348,50 @@ describe("DefaultRacedayComponent", () => {
     mockSettings = createDefaultSettings({
       sortByStandings: true,
       racedayColumns: ["driver.nickname", "lapCount", "fuelPercentage"],
-      columnVisibility: {
-        fuelPercentage: ColumnVisibility.FuelRaceOnly,
-      },
     });
 
     const mockActivatedRoute = {
       queryParams: of({}),
       snapshot: {
+        queryParams: {},
         queryParamMap: {
           get: jasmine.createSpy("get").and.returnValue(null),
         },
       },
+    };
+
+    const mockCustomUiService = {
+      getCustomUI: jasmine.createSpy("getCustomUI").and.returnValue(undefined),
+      getCustomUIs: jasmine.createSpy("getCustomUIs").and.returnValue([]),
+      initialize: jasmine
+        .createSpy("initialize")
+        .and.returnValue(Promise.resolve()),
+      isInitialized: jasmine.createSpy("isInitialized").and.returnValue(true),
+      customUIs$: of([]),
+    };
+
+    const mockThemeService = {
+      resolveAssetId: jasmine.createSpy("resolveAssetId"),
+      resolveAudioConfig: jasmine.createSpy("resolveAudioConfig"),
+      getActiveTheme: jasmine
+        .createSpy("getActiveTheme")
+        .and.returnValue({ entity_id: "t1" }),
+      setTransientActiveTheme: jasmine
+        .createSpy("setTransientActiveTheme")
+        .and.returnValue(Promise.resolve()),
+      getTransientThemeId: jasmine
+        .createSpy("getTransientThemeId")
+        .and.returnValue(null),
+      clearTransientActiveTheme: jasmine.createSpy("clearTransientActiveTheme"),
+      activateForRace: jasmine
+        .createSpy("activateForRace")
+        .and.returnValue(Promise.resolve()),
+      isInitialized: jasmine.createSpy("isInitialized").and.returnValue(true),
+      initialize: jasmine
+        .createSpy("initialize")
+        .and.returnValue(Promise.resolve()),
+      getThemes: jasmine.createSpy("getThemes").and.returnValue([]),
+      activeTheme$: of(null),
     };
 
     await TestBed.configureTestingModule({
@@ -368,6 +403,7 @@ describe("DefaultRacedayComponent", () => {
         MockTranslatePipe,
       ],
       providers: [
+        { provide: CustomUiService, useValue: mockCustomUiService },
         { provide: DataService, useValue: mockDataService },
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: RaceService, useValue: mockRaceService },
@@ -382,10 +418,7 @@ describe("DefaultRacedayComponent", () => {
         },
         {
           provide: ThemeService,
-          useValue: jasmine.createSpyObj("ThemeService", [
-            "resolveAssetId",
-            "resolveAudioConfig",
-          ]),
+          useValue: mockThemeService,
         },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -1999,8 +2032,8 @@ describe("DefaultRacedayComponent", () => {
     });
   });
 
-  describe("loadColumns with visibility", () => {
-    it("should filter out FuelRaceOnly columns when fuel is disabled", () => {
+  describe("loadColumns", () => {
+    it("should load all configured columns regardless of race fuel settings", () => {
       const mockRace = { fuel_options: { enabled: false } };
       mockRaceService.getRace.and.returnValue(mockRace);
 
@@ -2008,32 +2041,7 @@ describe("DefaultRacedayComponent", () => {
 
       expect(
         component["columns"].some((c) => c.propertyName === "fuelPercentage"),
-      ).toBeFalse();
-    });
-
-    it("should include FuelRaceOnly columns when fuel is enabled", () => {
-      const mockRace = { fuel_options: { enabled: true } };
-      mockRaceService.getRace.and.returnValue(mockRace);
-
-      (component as any).loadColumns();
-
-      expect(
-        component["columns"].some((c) => c.propertyName === "fuelPercentage"),
       ).toBeTrue();
-    });
-
-    it("should filter out NonFuelRaceOnly columns when fuel is enabled", () => {
-      mockSettings.columnVisibility["lapCount"] =
-        ColumnVisibility.NonFuelRaceOnly;
-
-      const mockRace = { fuel_options: { enabled: true } };
-      mockRaceService.getRace.and.returnValue(mockRace);
-
-      (component as any).loadColumns();
-
-      expect(
-        component["columns"].some((c) => c.propertyName === "lapCount"),
-      ).toBeFalse();
     });
 
     it("should return correct label key for driver.avatarUrl", () => {
@@ -4894,9 +4902,6 @@ describe("DefaultRacedayComponent", () => {
             "center-center": "driver.nickname",
           },
         },
-        columnVisibility: {
-          "driver.nickname": ColumnVisibility.Always,
-        },
       });
 
       fixture.componentRef.setInput("editingSettings", mockSettings);
@@ -5000,18 +5005,6 @@ describe("DefaultRacedayComponent", () => {
       expect((component as any).columnsChanged.emit).toHaveBeenCalled();
     });
 
-    it("should change column visibility on changeColumnVisibility", () => {
-      spyOn((component as any).columnsChanged, "emit");
-      const colData = { propertyName: "driver.nickname" } as any;
-
-      component.changeColumnVisibility(colData, "FuelRaceOnly");
-
-      expect(mockSettings.columnVisibility["driver.nickname"]).toBe(
-        ColumnVisibility.FuelRaceOnly,
-      );
-      expect((component as any).columnsChanged.emit).toHaveBeenCalled();
-    });
-
     it("should drop column key into anchor slot", () => {
       spyOn((component as any).columnsChanged, "emit");
       const element = document.createElement("div");
@@ -5054,6 +5047,40 @@ describe("DefaultRacedayComponent", () => {
 
       expect(event.stopPropagation).toHaveBeenCalled();
       expect(component.hasAnchorValue(colData, "center-center")).toBeFalse();
+      expect((component as any).columnsChanged.emit).toHaveBeenCalled();
+    });
+
+    it("should reorder columns and emit columnsChanged on onColumnDrop", () => {
+      spyOn((component as any).columnsChanged, "emit");
+      const dropEvent = {
+        previousIndex: 0,
+        currentIndex: 1,
+      } as any;
+
+      component.onColumnDrop(dropEvent);
+
+      expect(mockSettings.racedayColumns[1]).toBe("driver.nickname");
+      expect(mockSettings.racedayColumns[0]).toBe("lapCount");
+      expect((component as any).columnsChanged.emit).toHaveBeenCalled();
+    });
+
+    it("should update customUi columnsJson when activeCustomUi is present", () => {
+      spyOn((component as any).columnsChanged, "emit");
+      const customUi = {
+        entity_id: "custom_ui_test",
+        name: "Custom UI Test",
+        columnsJson: JSON.stringify(["col1", "col2"]),
+      } as any;
+      fixture.componentRef.setInput("activeCustomUi", customUi);
+      fixture.detectChanges();
+
+      const dropEvent = {
+        previousIndex: 0,
+        currentIndex: 1,
+      } as any;
+      component.onColumnDrop(dropEvent);
+
+      expect(JSON.parse(customUi.columnsJson)).toEqual(["col2", "col1"]);
       expect((component as any).columnsChanged.emit).toHaveBeenCalled();
     });
   });
@@ -5746,6 +5773,105 @@ describe("DefaultRacedayComponent", () => {
       expect(mockChildWindow.close).not.toHaveBeenCalled();
       expect((component as any).raceResultsWindow).toBe(mockChildWindow);
     });
+
+    it("should open theme window when onThemeMenuSelect is called", () => {
+      const childWindowManager = TestBed.inject(ChildWindowManagerService);
+      spyOn(childWindowManager, "openThemeWindow");
+      (component as any).onThemeMenuSelect("t_leaderboard");
+      expect(childWindowManager.openThemeWindow).toHaveBeenCalledWith(
+        "mock-url",
+      );
+    });
+
+    it("should handle THEME: action in onWindowsMenuSelect", () => {
+      spyOn(component as any, "onThemeMenuSelect");
+      (component as any).onWindowsMenuSelect("THEME:t_custom");
+      expect((component as any).onThemeMenuSelect).toHaveBeenCalledWith(
+        "t_custom",
+      );
+    });
+  });
+
+  describe("Theme & Custom UI Transient Layout Management", () => {
+    it("should update layout in updateRacedayLayout when not in UI editor mode", () => {
+      const mockLayout = { widgets: [{ type: "leaderboard", id: "w1" }] };
+      spyOnProperty(component, "currentRacedayLayout", "get").and.returnValue(
+        mockLayout as any,
+      );
+      (component as any).updateRacedayLayout();
+      expect(component.layout).toEqual(mockLayout as any);
+    });
+
+    it("should skip updateRacedayLayout when in UI editor mode", () => {
+      fixture.componentRef.setInput("isUIEditorMode", true);
+      const originalLayout = { widgets: [{ type: "lane-view" }] };
+      component.layout = originalLayout as any;
+
+      const mockLayout = { widgets: [{ type: "leaderboard" }] };
+      spyOnProperty(component, "currentRacedayLayout", "get").and.returnValue(
+        mockLayout as any,
+      );
+
+      (component as any).updateRacedayLayout();
+      expect(component.layout).toBe(originalLayout as any);
+    });
+
+    it("should skip activateForRace on race update when transientThemeId is set", () => {
+      const themeService = TestBed.inject(ThemeService);
+      const raceService = TestBed.inject(RaceService);
+      (raceService.getRace as jasmine.Spy).and.returnValue({
+        entity_id: "race-1",
+        track: { lanes: [] },
+      });
+      (themeService.getTransientThemeId as jasmine.Spy).and.returnValue(
+        "theme-1",
+      );
+      (themeService.activateForRace as jasmine.Spy).calls.reset();
+
+      (component as any).loadRaceData();
+      expect(themeService.activateForRace).not.toHaveBeenCalled();
+    });
+
+    it("should skip activateForRace on race update when queryParam themeId is present", () => {
+      const themeService = TestBed.inject(ThemeService);
+      const raceService = TestBed.inject(RaceService);
+      (raceService.getRace as jasmine.Spy).and.returnValue({
+        entity_id: "race-1",
+        track: { lanes: [] },
+      });
+      (themeService.getTransientThemeId as jasmine.Spy).and.returnValue(null);
+      (themeService.activateForRace as jasmine.Spy).calls.reset();
+      if (!(component as any).route.snapshot.queryParams) {
+        (component as any).route.snapshot.queryParams = {};
+      }
+      (component as any).route.snapshot.queryParams["themeId"] = "theme-1";
+
+      (component as any).loadRaceData();
+      expect(themeService.activateForRace).not.toHaveBeenCalled();
+      delete (component as any).route.snapshot.queryParams["themeId"];
+    });
+
+    it("should initialize customUiService and activate theme on themeId query param", async () => {
+      const themeService = TestBed.inject(ThemeService);
+      const customUiService = TestBed.inject(CustomUiService);
+
+      const updateSpy = spyOn(component as any, "updateRacedayLayout");
+
+      const queryParamsSubject = new BehaviorSubject<{ [key: string]: any }>({
+        themeId: "theme-1",
+      });
+      (component as any).route.queryParams = queryParamsSubject.asObservable();
+      (component as any).subscribeToUIEvents();
+
+      expect(themeService.setTransientActiveTheme).toHaveBeenCalledWith(
+        "theme-1",
+      );
+      expect(customUiService.initialize).toHaveBeenCalled();
+
+      await fixture.whenStable();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(updateSpy).toHaveBeenCalled();
+    });
   });
 
   describe("PDF Export handling", () => {
@@ -5796,22 +5922,6 @@ describe("DefaultRacedayComponent", () => {
 
       component.onLayoutEditorDragEnded(mockDragEvent);
       expect(component.layoutEditorPosition).toEqual({ x: 120, y: 240 });
-    });
-
-    it("should get and set column visibility for practice and standard layouts", () => {
-      fixture.componentRef.setInput("isPracticeLayoutEditor", false);
-      component.currentColumnVisibility = { col1: ColumnVisibility.Always };
-      expect(component.currentColumnVisibility["col1"]).toBe(
-        ColumnVisibility.Always,
-      );
-
-      fixture.componentRef.setInput("isPracticeLayoutEditor", true);
-      component.currentColumnVisibility = {
-        col2: ColumnVisibility.FuelRaceOnly,
-      };
-      expect(component.currentColumnVisibility["col2"]).toBe(
-        ColumnVisibility.FuelRaceOnly,
-      );
     });
 
     it("should get and set column layouts for practice and standard layouts", () => {
@@ -6191,6 +6301,30 @@ describe("DefaultRacedayComponent", () => {
       const updatedUnused = component.getUnusedWidgets();
       expect(updatedUnused).not.toContain("action-master-power-on");
       expect(updatedUnused).not.toContain("action-master-power-off");
+    });
+
+    it("should include custom widgets in getUnusedWidgets and format labels", () => {
+      const mockCustomService = {
+        getCustomWidgets: () => [
+          { manifest: { id: "telemetry", name: "Live Telemetry" } },
+        ],
+        getWidgetDefinition: (key: string) => {
+          if (key === "custom:telemetry") {
+            return { manifest: { id: "telemetry", name: "Live Telemetry" } };
+          }
+          return undefined;
+        },
+      };
+      (component as any).customWidgetService = mockCustomService;
+
+      component.layout = { widgets: [] } as any;
+      const unused = component.getUnusedWidgets();
+      expect(unused).toContain("custom:telemetry");
+
+      expect(component.getWidgetTypeLabelKey("custom:telemetry")).toBe(
+        "Live Telemetry",
+      );
+      expect(component.getWidgetTypeLabelKey("custom:unknown")).toBe("unknown");
     });
 
     it("should execute master power actions on executeWidgetAction", () => {

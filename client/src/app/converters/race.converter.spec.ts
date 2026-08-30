@@ -243,4 +243,15 @@ describe("RaceConverter", () => {
     const resultExplicit = RaceConverter.fromProto(mockProtoExplicit);
     expect(resultExplicit.min_lap_time).toBe(3.2);
   });
+
+  it("should map themeId / theme_id from proto", () => {
+    const mockProto: IRaceModel = {
+      model: { entityId: "r16" },
+      name: "Themed Race",
+      track: { model: { entityId: "t1" }, name: "Track", lanes: [] },
+      themeId: "practice_theme_rc_ai",
+    };
+    const result = RaceConverter.fromProto(mockProto);
+    expect(result.theme_id).toBe("practice_theme_rc_ai");
+  });
 });

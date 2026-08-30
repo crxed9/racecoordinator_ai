@@ -15,6 +15,7 @@ import com.antigravity.models.Season;
 import com.antigravity.models.SeasonRaceRecord;
 import com.antigravity.models.SeasonRaceRecord.SeasonDriverResult;
 import com.antigravity.models.Team;
+import com.antigravity.models.Theme;
 import com.antigravity.models.Track;
 import com.antigravity.proto.RecordData;
 import com.antigravity.race.EventExecutionManager;
@@ -91,6 +92,10 @@ public class DatabaseService {
 
   public Track getTrack(DatabaseContext context, String entityId) {
     return new SqliteRepository<>(context, "tracks", Track.class).findByEntityId(entityId);
+  }
+
+  public Theme getTheme(DatabaseContext context, String entityId) {
+    return new SqliteRepository<>(context, "themes", Theme.class).findByEntityId(entityId);
   }
 
   public Driver getDriver(DatabaseContext context, String entityId) {

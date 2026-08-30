@@ -512,5 +512,55 @@ describe("RaceManagerComponent", () => {
         tick(50);
       }));
     });
+
+    describe("theme display", () => {
+      it("should return correct translation keys and names from getThemeDisplayNameKey", () => {
+        expect(
+          component.getThemeDisplayNameKey({
+            entity_id: "default_classic_rc_ai",
+          }),
+        ).toBe("UE_LABEL_DEFAULT_THEME");
+        expect(
+          component.getThemeDisplayNameKey({
+            entity_id: "practice_theme_rc_ai",
+          }),
+        ).toBe("UE_LABEL_PRACTICE_THEME");
+        expect(
+          component.getThemeDisplayNameKey({
+            entity_id: "default_fuel_theme_rc_ai",
+          }),
+        ).toBe("UE_LABEL_FUEL_THEME");
+        expect(
+          component.getThemeDisplayNameKey({
+            entity_id: "custom_1",
+            name: "Custom Theme",
+          }),
+        ).toBe("Custom Theme");
+        expect(component.getThemeDisplayNameKey(null)).toBe("");
+      });
+
+      it("should return correct display string from getThemeDisplay", () => {
+        component.themes = [
+          { entity_id: "default_classic_rc_ai", name: "Default" },
+          { entity_id: "practice_theme_rc_ai", name: "Practice" },
+          { entity_id: "default_fuel_theme_rc_ai", name: "Fuel" },
+          { entity_id: "custom_1", name: "Custom Theme" },
+        ];
+
+        expect(
+          component.getThemeDisplay({ theme_id: "default_classic_rc_ai" }),
+        ).toBe("UE_LABEL_DEFAULT_THEME");
+        expect(
+          component.getThemeDisplay({ theme_id: "practice_theme_rc_ai" }),
+        ).toBe("UE_LABEL_PRACTICE_THEME");
+        expect(
+          component.getThemeDisplay({ theme_id: "default_fuel_theme_rc_ai" }),
+        ).toBe("UE_LABEL_FUEL_THEME");
+        expect(component.getThemeDisplay({ theme_id: "custom_1" })).toBe(
+          "Custom Theme",
+        );
+        expect(component.getThemeDisplay({})).toBe("UE_LABEL_DEFAULT_THEME");
+      });
+    });
   });
 });

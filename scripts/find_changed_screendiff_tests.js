@@ -185,6 +185,14 @@ function resolveTestsForFile(filePath) {
         return [];
     }
 
+    // 0b. Sample widgets are rendered by custom widget components in UI Editor and Raceday
+    if (normalized.includes('/client/src/assets/sample-widgets/')) {
+        return [
+            ...findScreendiffTestsInDir(path.join(APP_DIR, 'components', 'ui-editor')),
+            ...findScreendiffTestsInDir(path.join(APP_DIR, 'components', 'raceday'))
+        ];
+    }
+
     // 1. Global styling, index.html, root component, or global assets (images, fonts)
     if (
         normalized.endsWith('/client/src/styles.scss') ||
@@ -222,6 +230,12 @@ function resolveTestsForFile(filePath) {
 
 function main() {
     const args = process.argv.slice(2);
+    if (args.includes('--count-all')) {
+        const allTests = findAllScreendiffTests();
+        console.log(allTests.length);
+        process.exit(0);
+    }
+
     let baseRef = null;
     for (const arg of args) {
         if (arg.startsWith('--base=')) {

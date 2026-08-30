@@ -44,7 +44,9 @@ export type WidgetType =
   | "action-open-season-results"
   | "action-open-prediction-results"
   | "action-master-power-on"
-  | "action-master-power-off";
+  | "action-master-power-off"
+  | `custom:${string}`
+  | (string & {});
 
 export interface AbsoluteWidgetNode {
   id: string; // Unique ID so we can uniquely identify widgets on the page

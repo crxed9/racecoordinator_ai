@@ -28,6 +28,7 @@ import com.antigravity.models.Lane;
 import com.antigravity.models.OverallScoring;
 import com.antigravity.models.Race;
 import com.antigravity.models.Team;
+import com.antigravity.models.Theme;
 import com.antigravity.models.Track;
 import com.antigravity.proto.InitializeRaceRequest;
 import com.antigravity.proto.InitializeRaceResponse;
@@ -80,6 +81,11 @@ public class ClientCommandTaskHandlerTest {
     tempDir = tempFile.toPath();
 
     databaseContext = new DatabaseContext("testdb", null, tempDir.toString() + File.separator);
+    Theme defaultTheme =
+        new Theme(
+            "Default Theme", true, new HashMap<>(), new HashMap<>(), Theme.DEFAULT_THEME_ID, null);
+    new SqliteRepository<>(databaseContext, "themes", Theme.class).insert(defaultTheme);
+
     app = mock(Javalin.class);
 
     HttpServletRequest req = mock(HttpServletRequest.class);
@@ -885,6 +891,40 @@ public class ClientCommandTaskHandlerTest {
     InitializeRaceResponse response = InitializeRaceResponse.parseFrom((byte[]) result.result);
     assertFalse("Validation should fail", response.getSuccess());
     assertEquals("TRACK_DELETED", response.getErrorCode());
+  }
+
+  @Test
+  public void testInitializeRace_ThemeDeleted_ShouldFail() throws Exception {
+    // 1. Setup Data
+    String raceId = "race-1";
+    String driverId = "driver-1";
+    String trackId = "track-1";
+
+    List<Lane> lanes = Arrays.asList(new Lane("Red", "red", 1));
+    Track track = new Track.Builder().name("Test Track").lanes(lanes).entityId(trackId).build();
+    Race race =
+        new Race.Builder()
+            .withName("Test Race")
+            .withTrackEntityId(trackId)
+            .withThemeId("deleted-theme-id")
+            .withEntityId(raceId)
+            .build();
+    Driver driver = new Driver("Dave", "D", driverId, null);
+    new SqliteRepository<>(databaseContext, "tracks", Track.class).insert(track);
+    new SqliteRepository<>(databaseContext, "races", Race.class).insert(race);
+    new SqliteRepository<>(databaseContext, "drivers", Driver.class).insert(driver);
+
+    // 2. Request
+    InitializeRaceRequest request =
+        InitializeRaceRequest.newBuilder().setRaceId(raceId).addDriverIds("d_" + driverId).build();
+
+    // 3. Execute
+    TaskResult result = handler.handleInitializeRace(request);
+
+    // 4. Verify
+    InitializeRaceResponse response = InitializeRaceResponse.parseFrom((byte[]) result.result);
+    assertFalse("Validation should fail", response.getSuccess());
+    assertEquals("THEME_DELETED", response.getErrorCode());
   }
 
   @Test

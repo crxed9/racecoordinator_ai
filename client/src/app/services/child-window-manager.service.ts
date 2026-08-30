@@ -10,6 +10,7 @@ export class ChildWindowManagerService {
   private predictionResultsWindow: Window | null = null;
   private leaderBoardWindow: Window | null = null;
   private driverStationTabs: Window[] = [];
+  private themeTabs: Window[] = [];
 
   getHeatResultsWindow(): Window | null {
     return this.heatResultsWindow;
@@ -65,6 +66,28 @@ export class ChildWindowManagerService {
     this.driverStationTabs = [];
   }
 
+  getThemeTabs(): Window[] {
+    return this.themeTabs;
+  }
+
+  addThemeTab(win: Window | null): void {
+    if (win) {
+      this.themeTabs.push(win);
+    }
+  }
+
+  clearThemeTabs(): void {
+    this.themeTabs = [];
+  }
+
+  openThemeWindow(url: string): Window | null {
+    const win = window.open(url, "_blank");
+    if (win) {
+      this.themeTabs.push(win);
+    }
+    return win;
+  }
+
   openWindow(action: string, url: string): Window | null {
     const win = window.open(url, "_blank");
     if (!win) {
@@ -81,6 +104,8 @@ export class ChildWindowManagerService {
       this.predictionResultsWindow = win;
     } else if (action === "LEADERBOARD") {
       this.leaderBoardWindow = win;
+    } else if (action.startsWith("THEME:") || action === "THEME") {
+      this.themeTabs.push(win);
     }
 
     return win;
@@ -118,6 +143,13 @@ export class ChildWindowManagerService {
       }
     });
     this.driverStationTabs = [];
+
+    this.themeTabs.forEach((tab) => {
+      if (tab && !tab.closed) {
+        tab.close();
+      }
+    });
+    this.themeTabs = [];
   }
 
   isRacePreservingRoute(url?: string): boolean {

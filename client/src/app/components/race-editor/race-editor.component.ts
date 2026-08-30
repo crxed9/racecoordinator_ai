@@ -28,6 +28,7 @@ import { DataService } from "@app/data.service";
 import { DirtyComponent } from "@app/interfaces/dirty-component";
 import { FuelUsageType, OutOfFuelAction } from "@app/models/fuel_options";
 import { Role } from "@app/models/role";
+import { Theme } from "@app/models/theme";
 import { Track } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { AuthService } from "@app/services/auth.service";
@@ -72,6 +73,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   public navigateBackOnSave = false;
   undoManager: UndoManager<any>;
   tracks: Track[] = [];
+  themes: Theme[] = [];
   races: any[] = [];
   driverCount: number = 4;
   generatedHeats: any[] = [];
@@ -556,6 +558,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       }
     }
     this.loadTracks();
+    this.loadThemes();
     this.loadRaces();
     this.loadCustomRotationAssets();
 
@@ -745,6 +748,17 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         } else {
           this.createNewRace();
         }
+        if (
+          this.editingRace &&
+          !this.editingRace.theme_id &&
+          this.themes.length > 0
+        ) {
+          const defaultTheme =
+            this.themes.find(
+              (t) => t.is_default || t.entity_id === "default_classic_rc_ai",
+            ) || this.themes[0];
+          this.editingRace.theme_id = defaultTheme.entity_id;
+        }
         if (!this.editingRace.digital_fuel_options) {
           this.editingRace.digital_fuel_options = {
             enabled: false,
@@ -777,6 +791,42 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         this.isLoading = false;
       },
     });
+  }
+
+  loadThemes() {
+    this.dataService.getThemes().subscribe({
+      next: (themes) => {
+        this.themes = themes || [];
+        if (
+          this.editingRace &&
+          !this.editingRace.theme_id &&
+          this.themes.length > 0
+        ) {
+          const defaultTheme =
+            this.themes.find(
+              (t) => t.is_default || t.entity_id === "default_classic_rc_ai",
+            ) || this.themes[0];
+          this.editingRace.theme_id = defaultTheme.entity_id;
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.logger.error("Failed to load themes", err);
+      },
+    });
+  }
+
+  getThemeDisplayNameKey(theme: Theme): string {
+    if (theme.entity_id === "practice_theme_rc_ai") {
+      return "UE_LABEL_PRACTICE_THEME";
+    }
+    if (theme.entity_id === "default_fuel_theme_rc_ai") {
+      return "UE_LABEL_FUEL_THEME";
+    }
+    if (theme.is_default || theme.entity_id === "default_classic_rc_ai") {
+      return "UE_LABEL_DEFAULT_THEME";
+    }
+    return theme.name;
   }
 
   loadTracks() {
@@ -908,6 +958,10 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       entity_id: "new",
       name: "",
       track_entity_id: this.tracks.length > 0 ? this.tracks[0].entity_id : "",
+      theme_id:
+        this.themes.length > 0
+          ? this.themes[0].entity_id
+          : "default_classic_rc_ai",
       heat_rotation_type: "RoundRobin",
       heat_scoring: {
         finish_method: "Lap",
@@ -1428,7 +1482,7 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   canSaveAsNew(): boolean {
-    if (!this.editingRace?.name) {
+    if (!this.editingRace?.name || !this.editingRace?.theme_id) {
       return false;
     }
     return true;
@@ -1440,8 +1494,12 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       return false;
     }
 
-    // And the name must not be a duplicate and rotation must be valid
-    return !this.isNameDuplicate() && !this.isRotationInvalid;
+    // And the name must not be a duplicate, rotation must be valid, and theme must be selected
+    return (
+      !this.isNameDuplicate() &&
+      !this.isRotationInvalid &&
+      !!this.editingRace?.theme_id
+    );
   }
 
   getUpdateTooltip(): string {
@@ -2062,6 +2120,17 @@ export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
         selector: "#track-select",
         title: this.translationService.translate("RM_LABEL_TRACK"),
         content: this.translationService.translate("RE_HELP_TRACK_CONTENT"),
+        position: "bottom",
+        onEnter: () => {
+          if (!this.sectionsExpanded.general) {
+            this.sectionsExpanded.general = true;
+          }
+        },
+      },
+      {
+        selector: "#theme-select",
+        title: this.translationService.translate("RM_LABEL_THEME"),
+        content: this.translationService.translate("RE_HELP_THEME_CONTENT"),
         position: "bottom",
         onEnter: () => {
           if (!this.sectionsExpanded.general) {

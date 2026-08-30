@@ -495,18 +495,18 @@ describe("DefaultRacedaySetupComponent", () => {
       jasmine.any(Object),
       undefined,
       undefined,
-      undefined,
+      "default_classic_rc_ai",
     );
   }));
 
-  it("should pass active theme ID and activate theme when race is selected", fakeAsync(() => {
+  it("should pass race theme ID and activate theme when race is selected", fakeAsync(() => {
     const themeService = TestBed.inject(ThemeService);
     spyOn(themeService, "activateForRace").and.callThrough();
-    spyOn(themeService, "getActiveTheme").and.returnValue({
-      entity_id: "custom-theme-123",
-    } as any);
 
-    const testRace = (component as any).races[0];
+    const testRace = {
+      ...(component as any).races[0],
+      theme_id: "custom-theme-123",
+    };
     component.selectRace(testRace);
     expect(themeService.activateForRace).toHaveBeenCalledWith(
       testRace.entity_id,
@@ -1034,6 +1034,30 @@ describe("DefaultRacedaySetupComponent", () => {
     );
   }));
 
+  it("should show error modal when server returns THEME_DELETED", fakeAsync(() => {
+    component.selectedRace = { entity_id: "r1", name: "Grand Prix" } as any;
+    component.selectedParticipants = [
+      { entity_id: "d1", name: "Alice" },
+    ] as any;
+
+    mockDataService.getSavedRaces.and.returnValue(of([]));
+    mockDataService.initializeRace.and.returnValue(
+      of({
+        success: false,
+        errorCode: "THEME_DELETED",
+      } as any),
+    );
+
+    component.startRace();
+    flush();
+
+    expect(component.showErrorModal).toBeTrue();
+    expect(component.errorTitle).toBe("RDS_ERR_VALIDATION_TITLE");
+    expect(component.errorMessage).toBe(
+      "RDS_ERR_THEME_DELETED Grand Prix\n\nRDS_ERR_THEME_DELETED_FIX",
+    );
+  }));
+
   describe("Natural Sorting", () => {
     it("should sort participants naturally using naturalSortParticipants method", () => {
       const participants = [
@@ -1392,7 +1416,7 @@ describe("DefaultRacedaySetupComponent", () => {
       const summaryGrid = raceSummaryCard.querySelector(".summary-grid");
       expect(summaryGrid).toBeTruthy();
       const items = summaryGrid.querySelectorAll(".summary-item");
-      expect(items.length).toBe(6);
+      expect(items.length).toBe(7);
 
       const labels = Array.from(items).map((item: any) =>
         item.querySelector(".summary-label")?.textContent?.trim(),
@@ -1403,6 +1427,31 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(labels[3]).toBe("RM_LABEL_FINISH_VALUE:");
       expect(labels[4]).toBe("RM_LABEL_HEAT_ROTATION:");
       expect(labels[5]).toBe("RM_LABEL_FUEL_RACE:");
+      expect(labels[6]).toBe("RM_LABEL_THEME:");
+    });
+
+    it("should correctly return theme display name in getThemeDisplay", () => {
+      const themeService = TestBed.inject(ThemeService);
+      spyOn(themeService, "getThemes").and.returnValue([
+        { entity_id: "default_classic_rc_ai", name: "Default Theme" } as any,
+        { entity_id: "practice_theme_rc_ai", name: "Practice Theme" } as any,
+        { entity_id: "default_fuel_theme_rc_ai", name: "Fuel Theme" } as any,
+        { entity_id: "custom_theme", name: "Custom Theme" } as any,
+      ]);
+
+      expect(
+        component.getThemeDisplay({ theme_id: "default_classic_rc_ai" }),
+      ).toBe("UE_LABEL_DEFAULT_THEME");
+      expect(
+        component.getThemeDisplay({ theme_id: "practice_theme_rc_ai" }),
+      ).toBe("UE_LABEL_PRACTICE_THEME");
+      expect(
+        component.getThemeDisplay({ theme_id: "default_fuel_theme_rc_ai" }),
+      ).toBe("UE_LABEL_FUEL_THEME");
+      expect(component.getThemeDisplay({ theme_id: "custom_theme" })).toBe(
+        "Custom Theme",
+      );
+      expect(component.getThemeDisplay({})).toBe("UE_LABEL_DEFAULT_THEME");
     });
 
     it("should update recentRaceIds and quickStartRaces when an event is started", fakeAsync(() => {

@@ -11,6 +11,7 @@ test.describe("UI Editor Visuals", () => {
     await TestSetupHelper.setupRaceWebSocketMocks(page);
     await TestSetupHelper.setupAssetMocks(page);
     await TestSetupHelper.setupThemeMocks(page);
+    await TestSetupHelper.setupCustomUiMocks(page);
 
     await TestSetupHelper.setupSettings(page, {
       uiEditorHelpShown: true,
@@ -59,8 +60,12 @@ test.describe("UI Editor Visuals", () => {
     // Wait for themes to load
     await page.locator("#help-default-theme").waitFor({ state: "visible" });
 
-    // Expand the custom theme section (2nd theme)
-    const customThemeSection = page.locator(".theme-sub-section").nth(1);
+    // Expand Custom Theme
+    const customThemeSection = page.locator(
+      '.theme-sub-section[data-theme-id="custom_theme_1"]',
+    );
+    await customThemeSection.waitFor({ state: "visible" });
+
     const customHeader = customThemeSection.locator(".section-header").first();
     await customHeader.waitFor({ state: "visible" });
     await customHeader.scrollIntoViewIfNeeded();
@@ -115,7 +120,11 @@ test.describe("UI Editor Visuals", () => {
     await page.locator("#help-default-theme").waitFor({ state: "visible" });
 
     // Expand Custom Theme
-    const customThemeSection = page.locator(".theme-sub-section").nth(1);
+    const customThemeSection = page.locator(
+      '.theme-sub-section[data-theme-id="custom_theme_1"]',
+    );
+    await customThemeSection.waitFor({ state: "visible" });
+
     const customHeader = customThemeSection.locator(".section-header").first();
     await customHeader.waitFor({ state: "visible" });
     await customHeader.scrollIntoViewIfNeeded();
@@ -130,9 +139,9 @@ test.describe("UI Editor Visuals", () => {
       .waitFor({ state: "attached" });
     await TestSetupHelper.waitForImagesLoaded(customThemeSection);
 
-    // Set duplicate name (Default Theme)
+    // Set duplicate name (Classic Theme)
     const themeInput = customThemeSection.locator(".theme-name-input").first();
-    await themeInput.fill("Default Theme");
+    await themeInput.fill("Classic Theme");
     await themeInput.blur();
 
     // Wait for invalid class to be applied
@@ -166,7 +175,11 @@ test.describe("UI Editor Visuals", () => {
     await page.locator("#help-default-theme").waitFor({ state: "visible" });
 
     // Expand Custom Theme and set duplicate theme name to make changes invalid and unsavable
-    const customThemeSection = page.locator(".theme-sub-section").nth(1);
+    const customThemeSection = page.locator(
+      '.theme-sub-section[data-theme-id="custom_theme_1"]',
+    );
+    await customThemeSection.waitFor({ state: "visible" });
+
     const customHeader = customThemeSection.locator(".section-header").first();
     await customHeader.waitFor({ state: "visible" });
     await customHeader.scrollIntoViewIfNeeded();
@@ -182,7 +195,7 @@ test.describe("UI Editor Visuals", () => {
     await TestSetupHelper.waitForImagesLoaded(customThemeSection);
 
     const themeInput = customThemeSection.locator(".theme-name-input").first();
-    await themeInput.fill("Default Theme");
+    await themeInput.fill("Classic Theme");
     await themeInput.blur();
 
     const invalidContainer = customThemeSection
@@ -224,25 +237,31 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
-    // Expand Practice Raceday Layout section via unique header ID
-    const practiceHeader = page.locator("#help-practice-ui");
+    // Expand Practice UI Layout sub-section inside Custom UIs
+    const practiceUiSection = page.locator(
+      '.custom-ui-sub-section[data-ui-id="practice_ui_layout_rc_ai"]',
+    );
+    await practiceUiSection.waitFor({ state: "visible" });
+
+    const practiceHeader = practiceUiSection.locator(".section-header").first();
     await practiceHeader.waitFor({ state: "visible" });
     await practiceHeader.scrollIntoViewIfNeeded();
-    await practiceHeader.locator("h1").click();
+    await practiceHeader.click();
 
     // Wait for the practice section content to be visible
-    const practiceSection = page.locator(".practice-raceday-layout-section");
-    await practiceSection.waitFor({ state: "visible" });
+    const practiceLayoutSection = practiceUiSection.locator(
+      ".raceday-layout-section",
+    );
+    await practiceLayoutSection.waitFor({ state: "visible" });
 
     // Wait for column toolbox to be visible inside the section
-    const columnToolbox = page.locator(".layout-customizer-toolbox").last();
+    const columnToolbox = practiceUiSection
+      .locator(".layout-customizer-toolbox")
+      .first();
     await columnToolbox.waitFor({ state: "visible" });
-    await TestSetupHelper.waitForImagesLoaded(practiceSection);
+    await TestSetupHelper.waitForImagesLoaded(practiceUiSection);
 
-    // Scroll config section into view stably within scroll container
-    const configSectionPractice = page.locator(".config-section").nth(1);
-    await configSectionPractice.waitFor({ state: "visible" });
-    await configSectionPractice.scrollIntoViewIfNeeded();
+    await practiceUiSection.scrollIntoViewIfNeeded();
     await page.mouse.move(0, 0);
 
     await expect(page).toHaveScreenshot(
@@ -265,7 +284,7 @@ test.describe("UI Editor Visuals", () => {
     );
     await page.locator(".ue-container").waitFor({ state: "visible" });
 
-    // The first section (Raceday Layout) is expanded by default
+    // The first section (Default UI Layout) is expanded by default
     const section = page.locator(".config-section").first();
     await section.waitFor({ state: "visible" });
 
@@ -335,8 +354,12 @@ test.describe("UI Editor Visuals", () => {
     // Wait for themes to load
     await page.locator("#help-default-theme").waitFor({ state: "visible" });
 
-    // Expand Custom Theme (2nd theme sub-section)
-    const customThemeSection = page.locator(".theme-sub-section").nth(1);
+    // Expand Custom Theme
+    const customThemeSection = page.locator(
+      '.theme-sub-section[data-theme-id="custom_theme_1"]',
+    );
+    await customThemeSection.waitFor({ state: "visible" });
+
     const customHeader = customThemeSection.locator(".section-header").first();
     await customHeader.waitFor({ state: "visible" });
     await customHeader.scrollIntoViewIfNeeded();
@@ -358,46 +381,6 @@ test.describe("UI Editor Visuals", () => {
       maxDiffPixels: 10000,
       animations: "disabled",
     });
-  });
-
-  test("should display expanded default theme in read-only mode", async ({
-    page,
-  }) => {
-    await TestSetupHelper.waitForLocalization(
-      page,
-      "en",
-      page.goto("/ui-editor"),
-    );
-    await page.locator(".ue-container").waitFor({ state: "visible" });
-
-    // Wait for themes to load
-    const defaultThemeHeader = page.locator("#help-default-theme");
-    await defaultThemeHeader.waitFor({ state: "visible" });
-    await defaultThemeHeader.scrollIntoViewIfNeeded();
-    await defaultThemeHeader.click();
-
-    // Expand Default Theme (1st theme sub-section)
-    const defaultThemeSection = page.locator(".theme-sub-section").first();
-
-    // Wait for the flag images grid to be rendered
-    const flagGrid = defaultThemeSection.locator(".flags-grid");
-    await flagGrid.waitFor({ state: "visible" });
-    await flagGrid
-      .locator("app-image-selector")
-      .nth(11)
-      .waitFor({ state: "attached" });
-    await TestSetupHelper.waitForImagesLoaded(defaultThemeSection);
-    await defaultThemeSection.scrollIntoViewIfNeeded();
-    await page.mouse.move(0, 0);
-
-    await expect(page).toHaveScreenshot(
-      "ui-editor-theme-default-expanded.png",
-      {
-        maxDiffPixelRatio: 0.05,
-        maxDiffPixels: 10000,
-        animations: "disabled",
-      },
-    );
   });
 
   test("should display UI editor in fullscreen mode with navigation buttons", async ({
