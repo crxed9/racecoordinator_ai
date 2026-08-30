@@ -6,6 +6,8 @@ export abstract class RacingRosterDialogHarnessBase {
     container: ".roster-dialog-container",
     title: ".modal-header h2",
     countBadge: ".count-badge",
+    sortSeedBtn: '[data-testid="sort-seed-btn"]',
+    sortNameBtn: '[data-testid="sort-name-btn"]',
     closeBtn: ".close-btn",
     footerCloseBtn: ".modal-footer .btn-close",
     rosterGrid: ".roster-grid",
@@ -23,6 +25,10 @@ export abstract class RacingRosterDialogHarnessBase {
   abstract getItemSeed(index: number): Promise<string>;
   abstract getItemName(index: number): Promise<string>;
   abstract getItemNickname(index: number): Promise<string>;
+  abstract clickSortBySeed(): Promise<void>;
+  abstract clickSortByName(): Promise<void>;
+  abstract isSortBySeedActive(): Promise<boolean>;
+  abstract isSortByNameActive(): Promise<boolean>;
   abstract clickCloseButton(): Promise<void>;
   abstract clickFooterCloseButton(): Promise<void>;
   abstract clickBackdrop(): Promise<void>;

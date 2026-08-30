@@ -46,6 +46,12 @@ export class RacingRosterDialogHarness
   private getCountBadge = this.locatorForOptional(
     RacingRosterDialogHarnessBase.selectors.countBadge,
   );
+  private getSortSeedBtn = this.locatorForOptional(
+    RacingRosterDialogHarnessBase.selectors.sortSeedBtn,
+  );
+  private getSortNameBtn = this.locatorForOptional(
+    RacingRosterDialogHarnessBase.selectors.sortNameBtn,
+  );
   private getCloseBtn = this.locatorForOptional(
     RacingRosterDialogHarnessBase.selectors.closeBtn,
   );
@@ -93,6 +99,26 @@ export class RacingRosterDialogHarness
     const cards = await this.getCards();
     if (index >= cards.length) return "";
     return await cards[index].getNickname();
+  }
+
+  async clickSortBySeed(): Promise<void> {
+    const btn = await this.getSortSeedBtn();
+    if (btn) await btn.click();
+  }
+
+  async clickSortByName(): Promise<void> {
+    const btn = await this.getSortNameBtn();
+    if (btn) await btn.click();
+  }
+
+  async isSortBySeedActive(): Promise<boolean> {
+    const btn = await this.getSortSeedBtn();
+    return btn ? await btn.hasClass("active") : false;
+  }
+
+  async isSortByNameActive(): Promise<boolean> {
+    const btn = await this.getSortNameBtn();
+    return btn ? await btn.hasClass("active") : false;
   }
 
   async clickCloseButton(): Promise<void> {

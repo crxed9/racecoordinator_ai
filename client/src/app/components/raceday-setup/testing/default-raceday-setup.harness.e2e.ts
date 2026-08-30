@@ -13,10 +13,13 @@ export class DefaultRacedaySetupHarnessE2e implements DefaultRacedaySetupHarness
     return this.locator.locator(this.base.selectors.removeAllBtn);
   }
   private get addAllBtn() {
-    return this.locator.locator(this.base.selectors.driverActionBarBtn).nth(0);
+    return this.locator.locator(this.base.selectors.addAllBtn);
   }
   private get randomizeBtn() {
-    return this.locator.locator(this.base.selectors.driverActionBarBtn).nth(2);
+    return this.locator.locator(this.base.selectors.randomizeBtn);
+  }
+  private get viewRosterBtn() {
+    return this.locator.locator(this.base.selectors.viewRosterBtn);
   }
   private get startBtn() {
     return this.locator.locator(this.base.selectors.startBtn);
@@ -74,6 +77,10 @@ export class DefaultRacedaySetupHarnessE2e implements DefaultRacedaySetupHarness
 
   async clickRandomize(): Promise<void> {
     await this.randomizeBtn.click();
+  }
+
+  async clickOpenRoster(): Promise<void> {
+    await this.viewRosterBtn.click();
   }
 
   async isStartEnabled(): Promise<boolean> {

@@ -41,6 +41,34 @@ const LARGE_ROSTER_TEAMS = [
     driverIds: ["dt1", "dt2"],
   },
 ];
+// Non-alphabetical seed order for the 25 participants
+const LARGE_ROSTER_SELECTED_IDS = [
+  "d_d24", // Seed #1: Zack
+  "d_d6", // Seed #2: Frank
+  "d_d23", // Seed #3: Wendy
+  "t_t1", // Seed #4: Team Redline
+  "d_d1", // Seed #5: Alice
+  "d_d16", // Seed #6: Pete
+  "d_d11", // Seed #7: Kate
+  "d_d20", // Seed #8: Tom
+  "d_d3", // Seed #9: Charlie
+  "d_d14", // Seed #10: Noah
+  "d_d8", // Seed #11: Hank
+  "d_d22", // Seed #12: Victor
+  "d_d2", // Seed #13: Bob
+  "d_d18", // Seed #14: Rachel
+  "d_d5", // Seed #15: Emma
+  "d_d12", // Seed #16: Leo
+  "d_d19", // Seed #17: Sam
+  "d_d7", // Seed #18: Grace
+  "d_d15", // Seed #19: Olivia
+  "d_d4", // Seed #20: Dave
+  "d_d17", // Seed #21: Quinn
+  "d_d9", // Seed #22: Ivy
+  "d_d21", // Seed #23: Uma
+  "d_d13", // Seed #24: Mia
+  "d_d10", // Seed #25: Jack
+];
 
 test.describe("Racing Roster Dialog Visuals", () => {
   test.beforeEach(async ({ page }) => {
@@ -91,9 +119,44 @@ test.describe("Racing Roster Dialog Visuals", () => {
     await expect(async () => {
       expect(await rosterHarness.isVisible()).toBe(true);
     }).toPass();
+    await page.mouse.move(0, 0);
 
     await page.waitForTimeout(200);
     return rosterHarness;
+  }
+
+  async function setupLargeRoster(page: Page): Promise<void> {
+    await page.route("**/api/drivers", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(LARGE_ROSTER_DRIVERS),
+      });
+    });
+
+    await page.route("**/api/teams", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(LARGE_ROSTER_TEAMS),
+      });
+    });
+
+    await TestSetupHelper.setupLocalStorage(page, {
+      recentRaceIds: ["r1", "r2"],
+      selectedDriverIds: LARGE_ROSTER_SELECTED_IDS,
+      racedaySetupWalkthroughSeen: true,
+      language: "en",
+    });
+
+    await TestSetupHelper.waitForLocalization(page, "en", page.goto("/"));
+
+    await expect(page.locator(".setup-container")).toBeVisible({
+      timeout: 15000,
+    });
+
+    await TestSetupHelper.disableAnimations(page);
+    await expect(page.getByText("Team Redline")).toBeVisible();
   }
 
   test("should display racing roster dialog with selected drivers", async ({
@@ -123,49 +186,11 @@ test.describe("Racing Roster Dialog Visuals", () => {
       timeout: 10000,
     });
   });
-
-  test("should display racing roster dialog with all drivers added", async ({
+  await page.waitForTimeout(100);
+  test("should display racing roster dialog with all drivers added (sorted by seed)", async ({
     page,
   }) => {
-    await page.route("**/api/drivers", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(LARGE_ROSTER_DRIVERS),
-      });
-    });
-
-    await page.route("**/api/teams", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(LARGE_ROSTER_TEAMS),
-      });
-    });
-
-    const selectedIds = [
-      "t_t1",
-      ...LARGE_ROSTER_DRIVERS.filter((d) => !d.entity_id.startsWith("dt")).map(
-        (d) => `d_${d.entity_id}`,
-      ),
-    ];
-
-    await TestSetupHelper.setupLocalStorage(page, {
-      recentRaceIds: ["r1", "r2"],
-      selectedDriverIds: selectedIds,
-      racedaySetupWalkthroughSeen: true,
-      language: "en",
-    });
-
-    await TestSetupHelper.waitForLocalization(page, "en", page.goto("/"));
-
-    await expect(page.locator(".setup-container")).toBeVisible({
-      timeout: 15000,
-    });
-
-    await TestSetupHelper.disableAnimations(page);
-    await expect(page.getByText("Team Redline")).toBeVisible();
-    await page.waitForTimeout(100);
+    await setupLargeRoster(page);
 
     await openRosterDialog(page);
 
@@ -177,5 +202,24 @@ test.describe("Racing Roster Dialog Visuals", () => {
         timeout: 10000,
       },
     );
+
+    test("should display racing roster dialog with all drivers sorted alphabetically", async ({
+      page,
+    }) => {
+      await setupLargeRoster(page);
+      const rosterHarness = await openRosterDialog(page);
+      await rosterHarness.clickSortByName();
+      await page.mouse.move(0, 0);
+      await page.waitForTimeout(150);
+
+      await expect(page).toHaveScreenshot(
+        "racing-roster-dialog-all-drivers-alphabetical.png",
+        {
+          maxDiffPixelRatio: 0.05,
+          animations: "disabled",
+          timeout: 10000,
+        },
+      );
+    });
   });
 });

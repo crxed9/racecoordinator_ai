@@ -18,6 +18,12 @@ export class RacingRosterDialogHarnessE2e implements RacingRosterDialogHarnessBa
   private get countBadge() {
     return this.locator.locator(this.base.selectors.countBadge);
   }
+  private get sortSeedBtn() {
+    return this.locator.locator(this.base.selectors.sortSeedBtn);
+  }
+  private get sortNameBtn() {
+    return this.locator.locator(this.base.selectors.sortNameBtn);
+  }
   private get closeBtn() {
     return this.locator.locator(this.base.selectors.closeBtn);
   }
@@ -74,6 +80,24 @@ export class RacingRosterDialogHarnessE2e implements RacingRosterDialogHarnessBa
         await card.locator(this.base.selectors.driverNickname).textContent()
       )?.trim() || ""
     );
+  }
+
+  async clickSortBySeed(): Promise<void> {
+    await this.sortSeedBtn.click();
+  }
+
+  async clickSortByName(): Promise<void> {
+    await this.sortNameBtn.click();
+  }
+
+  async isSortBySeedActive(): Promise<boolean> {
+    const classAttr = (await this.sortSeedBtn.getAttribute("class")) || "";
+    return classAttr.includes("active");
+  }
+
+  async isSortByNameActive(): Promise<boolean> {
+    const classAttr = (await this.sortNameBtn.getAttribute("class")) || "";
+    return classAttr.includes("active");
   }
 
   async clickCloseButton(): Promise<void> {

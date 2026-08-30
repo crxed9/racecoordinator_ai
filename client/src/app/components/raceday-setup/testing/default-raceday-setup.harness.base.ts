@@ -7,6 +7,9 @@ export abstract class DefaultRacedaySetupHarnessBase {
     menuDropdown: ".setup-menu-dropdown, .menu-dropdown",
     menuDropdownItem: ".setup-menu-dropdown-item, .menu-dropdown-item",
     removeAllBtn: '[data-testid="btn-remove-all"]',
+    addAllBtn: '[data-testid="btn-add-all"]',
+    randomizeBtn: '[data-testid="btn-randomize"]',
+    viewRosterBtn: '[data-testid="btn-view-roster"]',
     startBtn: ".btn-start",
     raceCard: ".race-card",
     dropdownTrigger: ".dropdown-trigger",
@@ -21,6 +24,7 @@ export abstract class DefaultRacedaySetupHarnessBase {
   abstract clickRemoveAll(): Promise<void>;
   abstract clickAddAll(): Promise<void>;
   abstract clickRandomize(): Promise<void>;
+  abstract clickOpenRoster(): Promise<void>;
   abstract isStartEnabled(): Promise<boolean>;
   abstract clickStart(): Promise<void>;
 

@@ -5,9 +5,11 @@ import {
   inject,
   input,
   output,
+  signal,
 } from "@angular/core";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { TranslationService } from "@app/services/translation.service";
+import { naturalSortCompare } from "@app/utils/sorting.utils";
 
 export interface RosterItem {
   seed: number;
@@ -16,6 +18,8 @@ export interface RosterItem {
   avatarUrl?: string;
   isTeam?: boolean;
 }
+
+export type RosterSortOption = "seed" | "name";
 
 @Component({
   standalone: true,
@@ -32,6 +36,12 @@ export class RacingRosterDialogComponent {
 
   close = output<void>();
 
+  sortBy = signal<RosterSortOption>("seed");
+
+  setSort(option: RosterSortOption): void {
+    this.sortBy.set(option);
+  }
+
   @HostListener("document:keydown.escape")
   onEscapePress(): void {
     if (this.visible()) {
@@ -41,7 +51,7 @@ export class RacingRosterDialogComponent {
 
   rosterItems = computed<RosterItem[]>(() => {
     const rawList = this.participants() || [];
-    return rawList.map((p, index) => {
+    const items: RosterItem[] = rawList.map((p, index) => {
       let name = p?.name || "";
       if (
         (name === "Empty" || name === "Unknown") &&
@@ -71,6 +81,15 @@ export class RacingRosterDialogComponent {
         isTeam: !!(p && "driverIds" in p),
       };
     });
+
+    if (this.sortBy() === "name") {
+      return [...items].sort((a, b) => {
+        const cmp = naturalSortCompare(a.name || "", b.name || "");
+        return cmp !== 0 ? cmp : a.seed - b.seed;
+      });
+    }
+
+    return items;
   });
 
   gridColumns = computed<number>(() => {
