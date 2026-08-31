@@ -330,6 +330,12 @@
             [parent]="parentComponent()"
           ></app-raceday-action-button>
         }
+        @case ("action-back") {
+          <app-raceday-action-button
+            [widget]="widget()"
+            [parent]="parentComponent()"
+          ></app-raceday-action-button>
+        }
       }
     }
   </div>
