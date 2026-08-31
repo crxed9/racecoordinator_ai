@@ -82,7 +82,8 @@ type Participant = Driver | Team;
 })
 export class DefaultRacedaySetupComponent implements OnInit {
   requestServerConfig = output<void>();
-  @ViewChild("scrollContainer") scrollContainer?: ElementRef;
+  @ViewChild("availScrollContainer") availScrollContainer?: ElementRef;
+  @ViewChild("racingScrollContainer") racingScrollContainer?: ElementRef;
   @ViewChild("importSettingsInput")
   importSettingsInput?: ElementRef<HTMLInputElement>;
 
@@ -98,6 +99,28 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   // Search State
   raceSearchQuery: string = "";
+  availableSearchQuery: string = "";
+  racingSearchQuery: string = "";
+
+  get filteredAvailableParticipants(): Participant[] {
+    if (!this.availableSearchQuery) return this.unselectedParticipants;
+    const lowerQuery = this.availableSearchQuery.toLowerCase();
+    return this.unselectedParticipants.filter((p) => {
+      const name = this.getLocalizedName(p).toLowerCase();
+      const nickname = this.getLocalizedNickname(p).toLowerCase();
+      return name.includes(lowerQuery) || nickname.includes(lowerQuery);
+    });
+  }
+
+  get filteredRacingParticipants(): Participant[] {
+    if (!this.racingSearchQuery) return this.selectedParticipants;
+    const lowerQuery = this.racingSearchQuery.toLowerCase();
+    return this.selectedParticipants.filter((p) => {
+      const name = this.getLocalizedName(p).toLowerCase();
+      const nickname = this.getLocalizedNickname(p).toLowerCase();
+      return name.includes(lowerQuery) || nickname.includes(lowerQuery);
+    });
+  }
 
   // Race / Event State
   get isEventMode(): boolean {
@@ -635,6 +658,71 @@ export class DefaultRacedaySetupComponent implements OnInit {
     });
   }
 
+  addAllFilteredAvailableParticipants(inputElem?: HTMLInputElement) {
+    if (!this.availableSearchQuery) {
+      this.addAllParticipants();
+      return;
+    }
+
+    const unselectedDrivers = this.filteredAvailableParticipants.filter((p) =>
+      this.isDriver(p),
+    );
+    if (unselectedDrivers.length === 0) return;
+
+    const potentialParticipants = [
+      ...this.selectedParticipants,
+      ...unselectedDrivers,
+    ];
+    const validationResult = this.validationService.validate(
+      potentialParticipants,
+      this.allTeams,
+      this.allDrivers,
+    );
+
+    if (!validationResult.isValid) {
+      this.errorTitle = "RDS_ERR_VALIDATION_TITLE";
+      this.errorMessage = this.validationService.getErrorMessage(
+        validationResult,
+        this.translationService,
+      );
+      this.errorMessageParams = {};
+      this.showErrorModal = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.updateListWithRefresh(() => {
+      this.selectedParticipants = [
+        ...this.selectedParticipants,
+        ...unselectedDrivers,
+      ];
+      this.updateUnselectedParticipants();
+    }, inputElem);
+  }
+
+  removeAllFilteredRacingParticipants(inputElem?: HTMLInputElement) {
+    if (!this.racingSearchQuery) {
+      this.removeAllParticipants();
+      return;
+    }
+
+    const filteredSet = new Set(
+      this.filteredRacingParticipants.map(
+        (p) => p.entity_id + (this.isDriver(p) ? "_d" : "_t"),
+      ),
+    );
+
+    const remainingParticipants = this.selectedParticipants.filter((p) => {
+      const id = p.entity_id + (this.isDriver(p) ? "_d" : "_t");
+      return !filteredSet.has(id);
+    });
+
+    this.updateListWithRefresh(() => {
+      this.selectedParticipants = remainingParticipants;
+      this.updateUnselectedParticipants();
+    }, inputElem);
+  }
+
   removeAllParticipants() {
     this.updateListWithRefresh(() => {
       this.selectedParticipants = [];
@@ -680,9 +768,36 @@ export class DefaultRacedaySetupComponent implements OnInit {
     return (this.isDriver(participant) ? "d_" : "t_") + participant.entity_id;
   }
 
-  private updateListWithRefresh(action: () => void) {
-    // Capture scroll position
-    const scrollTop = this.scrollContainer?.nativeElement?.scrollTop || 0;
+  private updateListWithRefresh(
+    action: () => void,
+    forcedFocusElem?: HTMLInputElement,
+  ) {
+    // Capture scroll positions
+    const availScrollTop =
+      this.availScrollContainer?.nativeElement?.scrollTop || 0;
+    const racingScrollTop =
+      this.racingScrollContainer?.nativeElement?.scrollTop || 0;
+
+    // Capture active element before blur
+    const activeElem =
+      forcedFocusElem || (document.activeElement as HTMLElement);
+    const isSearchInput = activeElem?.classList?.contains("search-input");
+
+    // Skip the blur and DOM reset completely if we're triggered by a search input
+    if (forcedFocusElem || isSearchInput) {
+      action();
+      this.saveSettings();
+      this.cdr.detectChanges();
+
+      // Ensure focus remains intact
+      if (
+        document.activeElement !== activeElem &&
+        typeof activeElem.focus === "function"
+      ) {
+        activeElem.focus();
+      }
+      return;
+    }
 
     this.clearSelectionAndBlur();
 
@@ -702,9 +817,12 @@ export class DefaultRacedaySetupComponent implements OnInit {
       this.clearSelectionAsync();
       this.cdr.detectChanges();
 
-      // Restore scroll position after DOM is re-rendered
-      if (this.scrollContainer) {
-        this.scrollContainer.nativeElement.scrollTop = scrollTop;
+      // Restore scroll positions after DOM is re-rendered
+      if (this.availScrollContainer?.nativeElement) {
+        this.availScrollContainer.nativeElement.scrollTop = availScrollTop;
+      }
+      if (this.racingScrollContainer?.nativeElement) {
+        this.racingScrollContainer.nativeElement.scrollTop = racingScrollTop;
       }
     }, 0);
   }
@@ -712,16 +830,23 @@ export class DefaultRacedaySetupComponent implements OnInit {
   private clearSelectionAndBlur() {
     // Blur whatever button might have focus
     if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
+      if (!document.activeElement.classList.contains("search-input")) {
+        document.activeElement.blur();
+      }
     }
     // Clear selection immediately
-    if (window.getSelection) {
+    const isSearchInput =
+      document.activeElement?.classList?.contains("search-input");
+    if (window.getSelection && !isSearchInput) {
       window.getSelection()?.removeAllRanges();
     }
   }
 
   private clearSelectionAsync() {
     setTimeout(() => {
+      const activeElem = document.activeElement as HTMLElement;
+      if (activeElem?.classList?.contains("search-input")) return;
+
       if (window.getSelection) {
         window.getSelection()?.removeAllRanges();
       }
@@ -749,6 +874,10 @@ export class DefaultRacedaySetupComponent implements OnInit {
         event.container.id === "selected-list" &&
         event.isPointerOverContainer
       ) {
+        if (this.racingSearchQuery) {
+          // Disable reordering while searching
+          return;
+        }
         moveItemInArray(
           this.selectedParticipants,
           event.previousIndex,
@@ -760,7 +889,9 @@ export class DefaultRacedaySetupComponent implements OnInit {
       // Dragging between containers
       if (event.container.id === "selected-list") {
         // Dragging from available-list to selected-list
-        const participant = this.unselectedParticipants[event.previousIndex];
+        const participant = event.previousContainer.data[
+          event.previousIndex
+        ] as Participant;
         if (!participant) return;
 
         // Perform validation

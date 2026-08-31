@@ -2164,5 +2164,7 @@
   "UI_EDITOR_COL_LAP_COUNT": "AANTAL RONDEN",
   "UI_EDITOR_COL_REACTION_TIME": "REACTIETIJD",
   "UI_EDITOR_COL_TEAM": "TEAMNAAM",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Lay-out resetten naar standaardinstellingen"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Lay-out resetten naar standaardinstellingen",
+  "RDS_SEARCH_AVAILABLE": "Zoek beschikbare...",
+  "RDS_SEARCH_RACING": "Zoek racende..."
 }

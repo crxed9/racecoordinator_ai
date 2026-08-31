@@ -2165,5 +2165,7 @@
   "UI_EDITOR_COL_LAP_COUNT": "NOMBRE DE TOURS",
   "UI_EDITOR_COL_REACTION_TIME": "TEMPS DE RÉACTION",
   "UI_EDITOR_COL_TEAM": "NOM DE L'ÉQUIPE",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Réinitialiser la disposition aux valeurs par défaut"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Réinitialiser la disposition aux valeurs par défaut",
+  "RDS_SEARCH_AVAILABLE": "Rechercher disponibles...",
+  "RDS_SEARCH_RACING": "Rechercher en course..."
 }

@@ -2165,5 +2165,7 @@
   "UI_EDITOR_COL_LAP_COUNT": "LAP COUNT",
   "UI_EDITOR_COL_REACTION_TIME": "REACTION TIME",
   "UI_EDITOR_COL_TEAM": "TEAM NAME",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Reset Layout to Defaults"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Reset Layout to Defaults",
+  "RDS_SEARCH_AVAILABLE": "Search available...",
+  "RDS_SEARCH_RACING": "Search racing..."
 }

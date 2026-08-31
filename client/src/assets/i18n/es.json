@@ -2165,5 +2165,7 @@
   "UI_EDITOR_COL_LAP_COUNT": "NÚMERO DE VUELTAS",
   "UI_EDITOR_COL_REACTION_TIME": "TIEMPO DE REACCIÓN",
   "UI_EDITOR_COL_TEAM": "NOMBRE DEL EQUIPO",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Restablecer diseño a valores predeterminados"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Restablecer diseño a valores predeterminados",
+  "RDS_SEARCH_AVAILABLE": "Buscar disponibles...",
+  "RDS_SEARCH_RACING": "Buscar en carrera..."
 }

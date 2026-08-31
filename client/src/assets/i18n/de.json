@@ -832,8 +832,8 @@
   "RDS_RACE_TYPE_LABEL": "Renntyp",
   "RDS_RACE_TYPE_SINGLE": "Einzelrennen",
   "RDS_ROSTER_CLOSE": "Schließen",
-  "RDS_ROSTER_DIALOG_TITLE": "Rennaufstellung",
-  "RDS_ROSTER_EMPTY": "Derzeit sind keine Fahrer zur Rennliste hinzugefügt.",
+  "RDS_ROSTER_DIALOG_TITLE": "Rennteilnehmer",
+  "RDS_ROSTER_EMPTY": "Derzeit befinden sich keine Fahrer in der Teilnehmerliste.",
   "RDS_ROSTER_SORT_BY": "Sortieren nach",
   "RDS_ROSTER_SORT_NAME": "A-Z",
   "RDS_ROSTER_SORT_SEED": "Setzplatz",
@@ -851,10 +851,6 @@
   "RDS_RENAME_SAVE_TITLE": "Speicherstand umbenennen",
   "RDS_RENAME_SAVE_MSG": "Geben Sie einen neuen Namen für das gespeicherte Rennen ein:",
   "RDS_RENAME_SAVE_TOOLTIP": "Speicherstand umbenennen",
-  "RDS_ROSTER_CLOSE": "Schließen",
-  "RDS_ROSTER_DIALOG_TITLE": "Rennteilnehmer",
-  "RDS_ROSTER_EMPTY": "Derzeit befinden sich keine Fahrer in der Teilnehmerliste.",
-  "RDS_ROSTER_TOTAL_DRIVERS": "Fahrer insgesamt: {{count}}",
   "RDS_ENTER_SAVE_NAME": "Speichername eingeben",
   "RDS_SAVED_RACE_NAME": "Speichername",
   "RDS_ENTER_RACE_NAME": "Speichername eingeben",
@@ -2168,5 +2164,7 @@
   "UI_EDITOR_COL_LAP_COUNT": "RUNDENANZAHL",
   "UI_EDITOR_COL_REACTION_TIME": "REAKTIONSZEIT",
   "UI_EDITOR_COL_TEAM": "TEAMNAME",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Layout auf Standardeinstellungen zurücksetzen"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Layout auf Standardeinstellungen zurücksetzen",
+  "RDS_SEARCH_AVAILABLE": "Verfügbare suchen...",
+  "RDS_SEARCH_RACING": "Rennen suchen..."
 }

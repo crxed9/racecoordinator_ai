@@ -2164,5 +2164,7 @@
   "UI_EDITOR_COL_LAP_COUNT": "NUMERO DI GIRI",
   "UI_EDITOR_COL_REACTION_TIME": "TEMPO DI REAZIONE",
   "UI_EDITOR_COL_TEAM": "NOME SQUADRA",
-  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Ripristina layout predefinito"
+  "UI_EDITOR_RESET_LAYOUT_DEFAULTS": "Ripristina layout predefinito",
+  "RDS_SEARCH_AVAILABLE": "Cerca disponibili...",
+  "RDS_SEARCH_RACING": "Cerca in gara..."
 }

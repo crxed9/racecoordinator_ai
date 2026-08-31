@@ -521,17 +521,20 @@
   box-shadow: 0 0 4px rgba(56, 189, 248, 0.2);
 }
 
-#available-drivers-section .section-header {
+#available-drivers-section .section-header,
+#racing-drivers-section .section-header {
   flex-direction: column;
   align-items: stretch;
   gap: 8px;
 }
 
-#available-drivers-section .header-title-container {
+#available-drivers-section .header-title-container,
+#racing-drivers-section .header-title-container {
   width: 100%;
 }
 
-#available-drivers-section .header-actions {
+#available-drivers-section .header-actions,
+#racing-drivers-section .header-actions {
   margin-left: 0;
   width: 100%;
   display: flex;
@@ -543,6 +546,16 @@
   flex: 1;
   justify-content: center;
   padding: 3px 8px;
+}
+
+#racing-drivers-section .action-btn {
+  flex: 1;
+  height: 24px;
+  padding: 0;
+}
+
+.search-wrapper.list-search {
+  margin: 8px 0;
 }
 
 .section-header .header-actions {

@@ -625,11 +625,20 @@ describe("DefaultRacedaySetupComponent", () => {
   });
 
   it("should preserve scroll position during refresh", fakeAsync(() => {
-    const mockElement = { scrollTop: 150 };
-    const mockViewChild = { nativeElement: mockElement };
+    const mockAvailElement = { scrollTop: 150 };
+    const mockAvailViewChild = { nativeElement: mockAvailElement };
 
-    Object.defineProperty(component, "scrollContainer", {
-      get: () => mockViewChild,
+    const mockRacingElement = { scrollTop: 250 };
+    const mockRacingViewChild = { nativeElement: mockRacingElement };
+
+    Object.defineProperty(component, "availScrollContainer", {
+      get: () => mockAvailViewChild,
+      set: () => {},
+      configurable: true,
+    });
+
+    Object.defineProperty(component, "racingScrollContainer", {
+      get: () => mockRacingViewChild,
       set: () => {},
       configurable: true,
     });
@@ -637,14 +646,16 @@ describe("DefaultRacedaySetupComponent", () => {
     let _actionCalled = false;
     component["updateListWithRefresh"](() => {
       _actionCalled = true;
-      mockElement.scrollTop = 0;
+      mockAvailElement.scrollTop = 0;
+      mockRacingElement.scrollTop = 0;
     });
 
     flush();
     fixture.detectChanges();
 
     expect(component.isRefreshingList).toBeFalse();
-    expect(mockElement.scrollTop).toBe(150);
+    expect(mockAvailElement.scrollTop).toBe(150);
+    expect(mockRacingElement.scrollTop).toBe(250);
   }));
 
   it("should toggle help dropdown", () => {
@@ -1710,7 +1721,7 @@ describe("DefaultRacedaySetupComponent", () => {
         previousIndex: 0,
         currentIndex: 0,
         container: { id: "selected-list" },
-        previousContainer: { id: "available-list" },
+        previousContainer: { id: "available-list", data: [d2] },
       };
       component.drop(addEvent);
       tick(50);
