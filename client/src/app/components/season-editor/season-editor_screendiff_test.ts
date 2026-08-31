@@ -26,7 +26,6 @@ test.describe("Season Editor Visuals", () => {
     await expect(page.locator(".editor-panel-right")).toBeVisible();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("season-editor-no-races.png", {
       animations: "disabled",
@@ -49,7 +48,6 @@ test.describe("Season Editor Visuals", () => {
     await expect(page.locator(".editor-panel-right")).toBeVisible();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("season-editor-races-run.png", {
       animations: "disabled",
@@ -77,7 +75,6 @@ test.describe("Season Editor Visuals", () => {
     await expect(page.locator(".modal-race-item").first()).toBeVisible();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot(
       "season-editor-add-finished-race-modal.png",

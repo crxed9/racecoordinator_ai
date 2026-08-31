@@ -69,6 +69,7 @@ test.describe("UI Editor Visuals", () => {
     const expander = customThemeSection.locator(".expander-icon").first();
     await expander.waitFor({ state: "visible" });
     await expander.scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await expander.click();
 
     // Wait for flags grid to be visible and rendered
@@ -96,6 +97,7 @@ test.describe("UI Editor Visuals", () => {
       .first()
       .waitFor({ state: "visible" });
     await TestSetupHelper.waitForImagesLoaded(modalContent);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await page.mouse.move(0, 0);
 
     await expect(modalContent).toHaveScreenshot(
@@ -128,6 +130,7 @@ test.describe("UI Editor Visuals", () => {
     const expander = customThemeSection.locator(".expander-icon").first();
     await expander.waitFor({ state: "visible" });
     await expander.scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await expander.click();
 
     // Wait for the flag images grid to be rendered before interacting
@@ -153,6 +156,7 @@ test.describe("UI Editor Visuals", () => {
     // Clear hover/focus and scroll into view
     await page.mouse.move(0, 0);
     await expander.scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(requestAnimationFrame));
 
     await expect(page).toHaveScreenshot("ui-editor-duplicate-name-error.png", {
       maxDiffPixelRatio: 0.15,
@@ -183,6 +187,7 @@ test.describe("UI Editor Visuals", () => {
     const expander = customThemeSection.locator(".expander-icon").first();
     await expander.waitFor({ state: "visible" });
     await expander.scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await expander.click();
 
     // Wait for flag grid to render before interacting
@@ -246,6 +251,7 @@ test.describe("UI Editor Visuals", () => {
     const expander = practiceUiSection.locator(".expander-icon").first();
     await expander.waitFor({ state: "visible" });
     await expander.scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await expander.click();
 
     // Wait for the practice section content to be visible
@@ -296,6 +302,7 @@ test.describe("UI Editor Visuals", () => {
     const expander = customThemeSection.locator(".expander-icon").first();
     await expander.waitFor({ state: "visible" });
     await expander.scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await expander.click();
 
     // Wait for the flag images grid to be rendered
@@ -307,6 +314,7 @@ test.describe("UI Editor Visuals", () => {
       .waitFor({ state: "attached" });
     await TestSetupHelper.waitForImagesLoaded(customThemeSection);
     await customThemeSection.scrollIntoViewIfNeeded();
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await page.mouse.move(0, 0);
 
     await expect(page).toHaveScreenshot("ui-editor-theme-custom-expanded.png", {

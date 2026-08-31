@@ -50,7 +50,6 @@ test.describe("Toolbar Component Visuals", () => {
     const harness = new ToolbarHarnessE2e(toolbar);
 
     await harness.hoverHelp();
-    await page.waitForTimeout(200); // Wait for hover transition
 
     await expect(toolbar).toHaveScreenshot("toolbar-help-hover.png");
   });
@@ -66,7 +65,6 @@ test.describe("Toolbar Component Visuals", () => {
     const harness = new ToolbarHarnessE2e(toolbar);
 
     await harness.hoverDelete();
-    await page.waitForTimeout(200);
 
     await expect(toolbar).toHaveScreenshot("toolbar-delete-hover.png");
   });

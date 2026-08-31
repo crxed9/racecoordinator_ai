@@ -70,7 +70,6 @@ test.describe("Raceday Menu Bar Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(200);
 
     const menuBar = page.locator("app-raceday-menu-bar");
     await expect(menuBar).toBeVisible();
@@ -140,7 +139,6 @@ test.describe("Raceday Menu Bar Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(200);
 
     const menuBar = page.locator("app-raceday-menu-bar");
     await expect(menuBar).toBeVisible();
@@ -262,7 +260,6 @@ test.describe("Raceday Menu Bar Visuals", () => {
     await page.locator(".dashboard-wrapper").waitFor();
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(200);
 
     const menuBar = page.locator("app-raceday-menu-bar");
     await expect(menuBar).toBeVisible();

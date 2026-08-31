@@ -129,7 +129,6 @@ test.describe("Raceday Action Button Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(500);
 
     const dashboard = page.locator(".dashboard-wrapper");
     await expect(dashboard).toHaveScreenshot("raceday-action-buttons.png", {

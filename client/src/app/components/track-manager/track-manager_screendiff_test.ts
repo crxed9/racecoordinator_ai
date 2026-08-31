@@ -37,7 +37,6 @@ test.describe("Track Manager Visuals", () => {
         img.src = "/assets/images/track_framing.png";
       });
     });
-    await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("track-manager-initial.png");
   });
 
@@ -55,7 +54,6 @@ test.describe("Track Manager Visuals", () => {
 
     // Check if detail panel updates
 
-    await page.waitForTimeout(3000);
     await expect(page).toHaveScreenshot("track-manager-selected-speedway.png");
   });
 
@@ -74,7 +72,6 @@ test.describe("Track Manager Visuals", () => {
     // summaries might be needed for something or not, let's just make sure list is loaded if needed,
     // but the screenshot takes care of it.
 
-    await page.waitForTimeout(3000);
     await expect(page).toHaveScreenshot("track-manager-arduino-summary.png");
   });
 
@@ -90,7 +87,6 @@ test.describe("Track Manager Visuals", () => {
 
     await harness.selectTrack("Trakmate Track");
 
-    await page.waitForTimeout(3000);
     await expect(page).toHaveScreenshot("track-manager-trackmate-summary.png");
   });
 
@@ -105,7 +101,6 @@ test.describe("Track Manager Visuals", () => {
     const harness = new TrackManagerHarnessE2e(managerHost);
 
     await harness.selectTrack("BART Track");
-    await page.waitForTimeout(1000);
 
     const summary = page.locator("app-bart-summary");
     await expect(summary).toBeVisible();
@@ -123,7 +118,6 @@ test.describe("Track Manager Visuals", () => {
     const harness = new TrackManagerHarnessE2e(managerHost);
 
     await harness.selectTrack("Phidget Track");
-    await page.waitForTimeout(1000);
 
     const summary = page.locator("app-phidget-summary");
     await expect(summary).toBeVisible();
@@ -147,7 +141,6 @@ test.describe("Track Manager Visuals", () => {
     // Wait for the editor to load
     await expect(page.locator("app-track-editor")).toBeVisible();
 
-    await page.waitForTimeout(100);
     await expect(page).toHaveScreenshot("track-manager-after-create-new.png");
   });
 
@@ -164,7 +157,6 @@ test.describe("Track Manager Visuals", () => {
     const overlay = page.locator("app-help-overlay");
     await overlay.locator(".help-popover").waitFor({ state: "visible" });
 
-    await page.waitForTimeout(100);
     await expect(page).toHaveScreenshot("track-manager-guided-help.png");
   });
 });

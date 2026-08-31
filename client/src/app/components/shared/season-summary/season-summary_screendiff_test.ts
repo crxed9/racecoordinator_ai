@@ -24,7 +24,6 @@ test.describe("Season Summary Visuals", () => {
     await summaryHost.waitFor();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(summaryHost).toHaveScreenshot("season-summary-no-races.png", {
       animations: "disabled",
@@ -45,7 +44,6 @@ test.describe("Season Summary Visuals", () => {
     await summaryHost.waitFor();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(summaryHost).toHaveScreenshot("season-summary-races-run.png", {
       animations: "disabled",

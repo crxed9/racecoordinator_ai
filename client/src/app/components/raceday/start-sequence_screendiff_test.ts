@@ -44,7 +44,6 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(200);
 
     // Transition to STARTING state
     await TestSetupHelper.sendRaceState(page, RaceState.STARTING);
@@ -98,7 +97,6 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(200);
 
     // Transition to STARTING state and tick down
     // At T=2.5, 5 - floor(2.5) = 5 - 2 = 3 lamps should be ON
@@ -149,7 +147,6 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(200);
 
     // Transition to STARTING then RACING
     await TestSetupHelper.sendRaceState(page, RaceState.STARTING);
@@ -202,7 +199,6 @@ test.describe("Raceday Start Sequence Visuals", () => {
       },
     };
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(200);
 
     // 1. Transition to STARTING then RACING
     await TestSetupHelper.sendRaceState(page, RaceState.STARTING);
@@ -213,7 +209,6 @@ test.describe("Raceday Start Sequence Visuals", () => {
     await TestSetupHelper.sendRaceState(page, RaceState.RACING);
 
     // 2. Wait a tiny bit, but less than 1s (overlay still visible)
-    await page.waitForTimeout(200);
 
     // 3. Send a late RACETIME message that would normally show red lamps if the state check wasn't there
     // For example, if we were back in STARTING at 2.5s
@@ -268,7 +263,6 @@ test.describe("Raceday Start Sequence Visuals", () => {
     };
     await TestSetupHelper.mockRaceData(page, raceData);
     // Ensure the app has processed the new race data before we trigger the state change
-    await page.waitForTimeout(200);
 
     // Transition to STARTING state
     await TestSetupHelper.sendRaceState(page, RaceState.STARTING);
@@ -324,7 +318,6 @@ test.describe("Raceday Start Sequence Visuals", () => {
     };
     await TestSetupHelper.mockRaceData(page, raceData);
     // Ensure the app has processed the new race data before we trigger the state change
-    await page.waitForTimeout(200);
 
     // 1. Initial State: RACING
     await TestSetupHelper.sendRaceState(page, RaceState.RACING);

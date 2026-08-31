@@ -151,6 +151,7 @@ test.describe("Raceday Visuals for Fuel", () => {
     };
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await TestSetupHelper.waitForImagesLoaded(
       page.locator(".dashboard-wrapper"),
     );
@@ -248,6 +249,7 @@ test.describe("Raceday Visuals for Fuel", () => {
     };
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await TestSetupHelper.waitForImagesLoaded(
       page.locator(".dashboard-wrapper"),
     );
@@ -323,10 +325,9 @@ test.describe("Raceday Visuals for Fuel", () => {
     };
     await TestSetupHelper.mockRaceData(page, raceData);
 
-    await page.waitForTimeout(500);
-
     // Fuel column visibility checked visually
     await page.locator(".table-row").first().waitFor({ state: "visible" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await TestSetupHelper.waitForImagesLoaded(
       page.locator(".dashboard-wrapper"),
     );
@@ -435,6 +436,7 @@ test.describe("Raceday Visuals for Fuel", () => {
     };
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await TestSetupHelper.waitForImagesLoaded(
       page.locator(".dashboard-wrapper"),
     );
@@ -530,6 +532,7 @@ test.describe("Raceday Visuals for Fuel", () => {
     };
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
     await TestSetupHelper.waitForImagesLoaded(
       page.locator(".dashboard-wrapper"),
     );
@@ -811,7 +814,7 @@ test.describe("Raceday Visuals for Fuel", () => {
 
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
-    await page.waitForTimeout(500);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
 
     await expect(page).toHaveScreenshot("raceday-connection-recovery.png", {
       maxDiffPixelRatio: 0.001,
@@ -878,7 +881,7 @@ test.describe("Raceday Visuals for Fuel", () => {
 
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
-    await page.waitForTimeout(500);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
 
     await expect(page).toHaveScreenshot("default-practice-layout.png", {
       maxDiffPixelRatio: 0.001,
@@ -937,6 +940,7 @@ test.describe("Raceday Visuals for Fuel", () => {
 
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
 
     // Emulate print media and manually dispatch beforeprint
     await page.setViewportSize({ width: 1920, height: 1080 });
@@ -1012,6 +1016,7 @@ test.describe("Raceday Visuals for Fuel", () => {
 
     await TestSetupHelper.mockRaceData(page, raceData);
     await page.locator(".table-row").first().waitFor({ state: "visible" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
 
     // Emulate print media with no background and dispatch beforeprint
     await page.setViewportSize({ width: 1920, height: 1080 });

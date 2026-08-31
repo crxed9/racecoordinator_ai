@@ -53,7 +53,6 @@ test.describe("Race Results Visuals", () => {
     await harness.clickLegendItem("Alice");
 
     // Small delay to let the click timeout run and the path transitions complete (or animations are disabled)
-    await page.waitForTimeout(400);
 
     // Verify Alice is visually hidden (grayed out legend)
     await expect(page).toHaveScreenshot("race-results-alice-hidden.png", {
@@ -77,9 +76,7 @@ test.describe("Race Results Visuals", () => {
 
     // Click "Alice" legend item to toggle her visibility off, then on
     await harness.clickLegendItem("Alice");
-    await page.waitForTimeout(400);
     await harness.clickLegendItem("Alice");
-    await page.waitForTimeout(400);
 
     await expect(page).toHaveScreenshot("race-results-alice-restored.png", {
       maxDiffPixelRatio: 0.05,
@@ -100,8 +97,6 @@ test.describe("Race Results Visuals", () => {
 
     // Double-click "Bob" legend item to solo Bob
     await harness.doubleClickLegendItem("Bob");
-
-    await page.waitForTimeout(400);
 
     // Verify only Bob's graph line is visible, other lines hidden
     await expect(page).toHaveScreenshot("race-results-bob-soloed.png", {
@@ -125,9 +120,7 @@ test.describe("Race Results Visuals", () => {
 
     // Double-click Bob to solo, then double click again to restore all
     await harness.doubleClickLegendItem("Bob");
-    await page.waitForTimeout(400);
     await harness.doubleClickLegendItem("Bob");
-    await page.waitForTimeout(400);
 
     await expect(page).toHaveScreenshot("race-results-all-restored.png", {
       maxDiffPixelRatio: 0.05,
@@ -150,8 +143,6 @@ test.describe("Race Results Visuals", () => {
 
     // Hover over the "Bob" legend item
     await harness.hoverLegendItem("Bob");
-
-    await page.waitForTimeout(400);
 
     // Verify Bob's graph is highlighted, and others are faded
     await expect(page).toHaveScreenshot("race-results-bob-hovered.png", {
@@ -203,7 +194,6 @@ test.describe("Race Results Visuals", () => {
       document.body.classList.add("print-full-scroll");
       document.body.classList.add("print-no-background");
     });
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("race-results-no-background.png", {
       maxDiffPixelRatio: 0.05,

@@ -21,7 +21,6 @@ test.describe("Event Editor Visuals", () => {
     await expect(page.locator(".editor-panel-right")).toBeVisible();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("event-editor.png", {
       animations: "disabled",

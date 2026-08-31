@@ -103,7 +103,6 @@ test.describe("Racing Roster Dialog Visuals", () => {
 
     await TestSetupHelper.disableAnimations(page);
     await expect(page.getByText("Alice")).toBeVisible();
-    await page.waitForTimeout(100);
   });
 
   async function openRosterDialog(
@@ -121,7 +120,6 @@ test.describe("Racing Roster Dialog Visuals", () => {
     }).toPass();
     await page.mouse.move(0, 0);
 
-    await page.waitForTimeout(200);
     return rosterHarness;
   }
 
@@ -211,7 +209,6 @@ test.describe("Racing Roster Dialog Visuals", () => {
     const rosterHarness = await openRosterDialog(page);
     await rosterHarness.clickSortByName();
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(150);
 
     await expect(page).toHaveScreenshot(
       "racing-roster-dialog-all-drivers-alphabetical.png",

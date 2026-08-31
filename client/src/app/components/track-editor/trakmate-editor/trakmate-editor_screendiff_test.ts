@@ -96,7 +96,6 @@ test.describe("Trakmate Editor Component Visuals", () => {
     // click on the main config header
     const mainHeader = editor.locator(".section-header").nth(0);
     await mainHeader.click();
-    await page.waitForTimeout(600);
 
     await expect(editor).toHaveScreenshot(
       "trakmate-editor-main-collapsed.png",
