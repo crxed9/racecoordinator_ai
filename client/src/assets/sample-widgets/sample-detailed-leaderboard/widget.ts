@@ -51,7 +51,9 @@ export class DetailedLeaderboardComponent extends CustomWidgetBaseComponent {
           position: d.rank || i + 1,
           name: d.name || "Driver",
           timeFormatted: this.formatTotalTime(d.total_time),
-          laps: d.lapCount !== undefined ? d.lapCount : d.total_laps || 0,
+          laps: this.formatLaps(
+            d.lapCount !== undefined ? d.lapCount : d.total_laps || 0,
+          ),
           gapFormatted: this.formatGap(d, i, rawStandings),
           bestLapFormatted: this.formatLapTime(d.best_lap_time),
           avgLapFormatted: this.formatLapTime(
@@ -77,8 +79,15 @@ export class DetailedLeaderboardComponent extends CustomWidgetBaseComponent {
   }
 
   formatTotalTime(time: number | undefined): string {
-    if (time === undefined || time === null) return "0.00";
-    return Number(time).toFixed(2);
+    if (time === undefined || time === null || isNaN(Number(time)))
+      return "0.000";
+    return Number(time).toFixed(3);
+  }
+
+  formatLaps(laps: number | undefined): string {
+    if (laps === undefined || laps === null || isNaN(Number(laps)))
+      return "0.00";
+    return Number(laps).toFixed(2);
   }
 
   formatGap(d: any, index: number, list: any[]): string {
@@ -86,19 +95,19 @@ export class DetailedLeaderboardComponent extends CustomWidgetBaseComponent {
 
     if (d.gap_position !== undefined && d.gap_position !== 0) {
       const g = Number(d.gap_position);
-      return g > 0 ? `+${g.toFixed(2)}` : g.toFixed(2);
+      return g > 0 ? `+${g.toFixed(3)}` : g.toFixed(3);
     }
 
     if (d.gap_leader !== undefined && d.gap_leader !== 0) {
       const g = Number(d.gap_leader);
-      return g > 0 ? `+${g.toFixed(2)}` : g.toFixed(2);
+      return g > 0 ? `+${g.toFixed(3)}` : g.toFixed(3);
     }
 
     const prev = list[index - 1];
     if (prev && prev.total_time !== undefined && d.total_time !== undefined) {
       const delta = Number(d.total_time) - Number(prev.total_time);
       if (delta !== 0) {
-        return delta > 0 ? `+${delta.toFixed(2)}` : delta.toFixed(2);
+        return delta > 0 ? `+${delta.toFixed(3)}` : delta.toFixed(3);
       }
     }
 
@@ -110,7 +119,7 @@ export class DetailedLeaderboardComponent extends CustomWidgetBaseComponent {
   }
 
   formatLapTime(val: number | undefined): string {
-    if (!val || val <= 0) return "--";
+    if (!val || val <= 0 || isNaN(Number(val))) return "--";
     return Number(val).toFixed(3);
   }
 }
