@@ -1980,6 +1980,13 @@ export class DefaultRacedayComponent
   }
 
   ngOnDestroy() {
+    if (this.isUIEditorMode()) {
+      this.isDestroyed = true;
+      this.subscriptions.forEach((sub) => sub.unsubscribe());
+      this.subscriptions = [];
+      return;
+    }
+
     if (this.viewerRaceEndedHandler) {
       this.viewerRaceEndedHandler.stopListening();
     }
@@ -3230,6 +3237,9 @@ export class DefaultRacedayComponent
 
   @HostListener("window:pagehide", ["$event"])
   onPageHide(_event: any) {
+    if (this.isUIEditorMode()) {
+      return;
+    }
     this.raceConnectionService.disconnect();
     this.childWindowManagerService.closeAllWindows();
   }

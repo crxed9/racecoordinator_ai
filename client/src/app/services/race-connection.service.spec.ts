@@ -137,6 +137,12 @@ describe("RaceConnectionService", () => {
       expect((service as any).stopConnection).toHaveBeenCalledTimes(1);
     }));
 
+    it("should not decrement connectionCount below 0 on excessive disconnect calls", () => {
+      service.disconnect();
+      service.disconnect();
+      expect((service as any).connectionCount).toBe(0);
+    });
+
     it("should call closeAllWindows on childWindowManagerService when stopConnection runs", () => {
       const childWindowManager = TestBed.inject(ChildWindowManagerService);
       spyOn(childWindowManager, "closeAllWindows");

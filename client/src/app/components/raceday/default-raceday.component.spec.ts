@@ -5858,6 +5858,24 @@ describe("DefaultRacedayComponent", () => {
         "t_custom",
       );
     });
+
+    it("should not call disconnect on ngOnDestroy when isUIEditorMode is true", () => {
+      fixture.componentRef.setInput("isUIEditorMode", true);
+      mockRaceConnectionService.disconnect.calls.reset();
+
+      component.ngOnDestroy();
+
+      expect(mockRaceConnectionService.disconnect).not.toHaveBeenCalled();
+    });
+
+    it("should not call disconnect on onPageHide when isUIEditorMode is true", () => {
+      fixture.componentRef.setInput("isUIEditorMode", true);
+      mockRaceConnectionService.disconnect.calls.reset();
+
+      component.onPageHide({});
+
+      expect(mockRaceConnectionService.disconnect).not.toHaveBeenCalled();
+    });
   });
 
   describe("Theme & Custom UI Transient Layout Management", () => {

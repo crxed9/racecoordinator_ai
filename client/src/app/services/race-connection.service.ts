@@ -145,12 +145,11 @@ export class RaceConnectionService implements OnDestroy {
   }
 
   disconnect(force: boolean = false) {
-    this.connectionCount--;
-    this.logger.debug(
+    this.connectionCount = Math.max(0, this.connectionCount - 1);
+    this.logger.info(
       `RaceConnectionService: Connection count decremented to ${this.connectionCount}`,
     );
-    if (this.connectionCount <= 0 || force) {
-      this.connectionCount = 0;
+    if (this.connectionCount === 0 || force) {
       if (this.disconnectedTimeout) clearTimeout(this.disconnectedTimeout);
 
       if (force) {
