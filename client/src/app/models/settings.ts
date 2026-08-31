@@ -74,10 +74,11 @@ export interface LayoutConfig {
 export class Settings {
   static readonly DEFAULT_COLUMNS = [
     "driver.nickname",
-    "imageset_fuel-gauge-builtin",
     "lapCount",
     "lastLapTime",
+    "averageLapTime",
     "gapLeader",
+    "ghostPacingLeaderAvg",
   ];
 
   static readonly DEFAULT_PRACTICE_COLUMNS = [
@@ -175,8 +176,7 @@ export class Settings {
     },
     lastLapTime: {
       [AnchorPoint.CenterCenter]: "lastLapTime",
-      [AnchorPoint.TopRight]: "bestLapTime",
-      [AnchorPoint.BottomRight]: "averageLapTime",
+      [AnchorPoint.BottomRight]: "bestLapTime",
     },
     gapLeader: {
       [AnchorPoint.CenterCenter]: "gapLeader",
@@ -186,7 +186,10 @@ export class Settings {
   columnVisibility: { [columnKey: string]: ColumnVisibility } = {
     "imageset_fuel-gauge-builtin": ColumnVisibility.FuelRaceOnly,
   };
-  columnWidths: { [columnKey: string]: number } = {};
+  columnWidths: { [columnKey: string]: number } = {
+    ghostPacingLeaderAvg: 200,
+    averageLapTime: 310,
+  };
 
   racedayLayout?: LayoutConfig;
 
@@ -339,8 +342,33 @@ export class Settings {
         y: 329,
         width: 1920,
         height: 751,
-        zIndex: 100,
+        zIndex: 111,
         scaleMode: "auto",
+        fontFamily: "",
+        textColor: "",
+        backgroundColor: "",
+        fontSize: 24,
+        textScaleFactor: 1,
+        customSettings: {
+          isVertical: false,
+          timeDecimalPlaces: 3,
+          lapDecimalPlaces: 2,
+          columnFontFamily: "",
+          columnFontSize: 24,
+          columnTextColor: "",
+          dataFontFamily: "",
+          dataFontSize: 54,
+          dataTextColor: "",
+          insetTimeDecimalPlaces: 3,
+          insetLapDecimalPlaces: 2,
+          insetFontFamily: "",
+          insetFontSize: 24,
+          insetTextColor: "",
+          columnWidths: {
+            ghostPacingLeaderAvg: 200,
+            averageLapTime: 310,
+          },
+        },
       },
     ],
   };

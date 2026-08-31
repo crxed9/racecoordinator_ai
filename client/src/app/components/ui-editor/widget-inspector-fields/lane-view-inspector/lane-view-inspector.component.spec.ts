@@ -206,6 +206,7 @@ describe("LaneViewInspectorComponent", () => {
   it("should get default column width when no custom width is set", () => {
     expect(component.getColumnWidth("driver.nickname")).toBe(0);
     expect(component.getColumnWidth("lapCount")).toBe(216);
+    expect(component.getColumnWidth("physicalLapCount")).toBe(210);
   });
 
   it("should get and set custom column width in widget customSettings and globalSettings", () => {

@@ -454,7 +454,11 @@ export class DefaultRacedayComponent
         if (c.propertyName === "lastLaps") {
           return `minmax(0, ${largeHeight * 5}fr)`;
         }
-        if (c.propertyName === "lapCount" || this.isLapTimeColumn(c)) {
+        if (
+          c.propertyName === "lapCount" ||
+          c.propertyName === "physicalLapCount" ||
+          this.isLapTimeColumn(c)
+        ) {
           return `minmax(0, ${largeHeight}fr)`;
         }
         return `minmax(0, ${smallHeight}fr)`;
@@ -1976,6 +1980,13 @@ export class DefaultRacedayComponent
   }
 
   ngOnDestroy() {
+    if (this.isUIEditorMode()) {
+      this.isDestroyed = true;
+      this.subscriptions.forEach((sub) => sub.unsubscribe());
+      this.subscriptions = [];
+      return;
+    }
+
     if (this.viewerRaceEndedHandler) {
       this.viewerRaceEndedHandler.stopListening();
     }
@@ -3226,6 +3237,9 @@ export class DefaultRacedayComponent
 
   @HostListener("window:pagehide", ["$event"])
   onPageHide(_event: any) {
+    if (this.isUIEditorMode()) {
+      return;
+    }
     this.raceConnectionService.disconnect();
     this.childWindowManagerService.closeAllWindows();
   }

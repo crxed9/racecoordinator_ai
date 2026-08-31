@@ -136,6 +136,46 @@ describe("RaceManagerComponent", () => {
     expect(component.races[2].name).toBe("Grand Prix");
   });
 
+  it("should set driverCount from query param when valid and > 0", () => {
+    _activatedRoute.snapshot.queryParamMap.get.and.callFake((key: string) => {
+      if (key === "driverCount") return "6";
+      return null;
+    });
+    component.ngOnInit();
+    expect(component.driverCount).toBe(6);
+  });
+
+  it("should default driverCount to 10 when query param is 0", () => {
+    _activatedRoute.snapshot.queryParamMap.get.and.callFake((key: string) => {
+      if (key === "driverCount") return "0";
+      return null;
+    });
+    component.ngOnInit();
+    expect(component.driverCount).toBe(10);
+  });
+
+  it("should default driverCount to 10 when query param is negative or non-numeric", () => {
+    _activatedRoute.snapshot.queryParamMap.get.and.callFake((key: string) => {
+      if (key === "driverCount") return "-5";
+      return null;
+    });
+    component.ngOnInit();
+    expect(component.driverCount).toBe(10);
+
+    _activatedRoute.snapshot.queryParamMap.get.and.callFake((key: string) => {
+      if (key === "driverCount") return "abc";
+      return null;
+    });
+    component.ngOnInit();
+    expect(component.driverCount).toBe(10);
+  });
+
+  it("should default driverCount to 10 when query param is absent", () => {
+    _activatedRoute.snapshot.queryParamMap.get.and.returnValue(null);
+    component.ngOnInit();
+    expect(component.driverCount).toBe(10);
+  });
+
   it("should select race from NavigationService lastEditedId on loadData", fakeAsync(() => {
     const navService = TestBed.inject(NavigationService);
     spyOn(navService, "getLastEditedId").and.returnValue("r3");

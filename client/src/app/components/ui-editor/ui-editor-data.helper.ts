@@ -127,7 +127,9 @@ export function ensureDefaultCustomUis(
       columnVisibilityJson: JSON.stringify(
         s.columnVisibility || new Settings().columnVisibility,
       ),
-      columnWidthsJson: JSON.stringify(s.columnWidths || {}),
+      columnWidthsJson: JSON.stringify(
+        s.columnWidths || new Settings().columnWidths,
+      ),
       columnAnchorsJson: JSON.stringify(s.columnAnchors || {}),
       entity_id: "default_ui_layout_rc_ai",
       _id: "default_ui_layout_rc_ai",

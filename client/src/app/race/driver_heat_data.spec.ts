@@ -88,4 +88,26 @@ describe("DriverHeatData", () => {
     heatData.adjustedLapCount = 0;
     expect(heatData.lapCount).toBe(1 + -0.5 + 1.0 + 0.25); // 1.75
   });
+
+  it("should calculate physicalLapCount strictly from physical laps regardless of adjustments", () => {
+    expect(heatData.physicalLapCount).toBe(0);
+
+    heatData.addLapTime(1, 10.0, 10.0, 10.0, 10.0, 1);
+    expect(heatData.physicalLapCount).toBe(1);
+
+    heatData.addLapTime(2, 9.8, 9.9, 9.9, 9.8, 2);
+    expect(heatData.physicalLapCount).toBe(2);
+
+    // Modifying adjustedLapCount, userLaps, penalties, autoCalculatedLaps should NOT affect physicalLapCount
+    heatData.adjustedLapCount = 10.5;
+    heatData.penaltyLaps = -1.0;
+    heatData.userLaps = 2.5;
+    heatData.autoCalculatedLaps = 0.5;
+
+    expect(heatData.physicalLapCount).toBe(2);
+    expect(heatData.lapCount).toBe(10.5);
+
+    heatData.reset();
+    expect(heatData.physicalLapCount).toBe(0);
+  });
 });

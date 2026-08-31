@@ -16,6 +16,7 @@ export const BASE_AVAILABLE_COLUMNS: readonly {
   { key: "driver.nickname", label: "RD_COL_NICKNAME" },
   { key: "driver.avatarUrl", label: "RD_COL_AVATAR" },
   { key: "lapCount", label: "RD_COL_LAP" },
+  { key: "physicalLapCount", label: "UI_EDITOR_COL_LAP_COUNT" },
   { key: "lapsLed", label: "RD_COL_LAPS_LED" },
   { key: "reactionTime", label: "RD_COL_REACTION_TIME" },
   { key: "lastLapTime", label: "RD_COL_LAP_TIME" },
