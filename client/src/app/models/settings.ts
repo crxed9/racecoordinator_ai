@@ -45,6 +45,7 @@ export type WidgetType =
   | "action-open-prediction-results"
   | "action-master-power-on"
   | "action-master-power-off"
+  | "action-back"
   | `custom:${string}`
   | (string & {});
 

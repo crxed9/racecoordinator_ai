@@ -96,6 +96,8 @@ export class RacedayActionButtonComponent {
         return "RD_MENU_MAIN_POWER_ON";
       case "action-master-power-off":
         return "RD_MENU_MAIN_POWER_OFF";
+      case "action-back":
+        return "RD_MENU_BACK";
       default:
         return "";
     }
@@ -161,13 +163,17 @@ export class RacedayActionButtonComponent {
       case "action-master-power-off":
         actionString = "MASTER_POWER_OFF";
         break;
+      case "action-back":
+        actionString = "BACK";
+        break;
     }
 
     if (actionString) {
       if (
         actionString === "EXPORT_CSV" ||
         actionString === "EXPORT_XLS" ||
-        actionString === "EXPORT_PDF"
+        actionString === "EXPORT_PDF" ||
+        actionString === "BACK"
       ) {
         this.parent().onFileMenuSelect(actionString);
       } else if (

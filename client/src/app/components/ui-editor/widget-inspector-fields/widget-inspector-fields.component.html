@@ -252,5 +252,12 @@
         (change)="onSettingsChange()"
       ></app-action-button-inspector>
     }
+    @case ("action-back") {
+      <app-action-button-inspector
+        [widget]="widget()"
+        [disableFontSizes]="widget().scaleMode === 'auto'"
+        (change)="onSettingsChange()"
+      ></app-action-button-inspector>
+    }
   }
 }

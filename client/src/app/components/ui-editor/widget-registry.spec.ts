@@ -37,6 +37,7 @@ describe("WIDGET_REGISTRY", () => {
     expect(keys).toContain("action-open-prediction-results");
     expect(keys).toContain("action-master-power-on");
     expect(keys).toContain("action-master-power-off");
+    expect(keys).toContain("action-back");
   });
 
   it("should generate valid default settings for every registered widget", () => {

@@ -68,7 +68,6 @@ export interface LapDisplayInfo {
   lapTime: string;
   segments: string[];
 }
-import { BrowserNavigationComponent } from "@app/components/shared/browser-navigation/browser-navigation.component";
 import { InputDialogComponent } from "@app/components/shared/input-dialog/input-dialog.component";
 import {
   PdfExportDialogComponent,
@@ -121,7 +120,6 @@ import {
     TranslatePipe,
     AddLapSectionsDialogComponent,
     PdfExportDialogComponent,
-    BrowserNavigationComponent,
     InputDialogComponent,
   ],
 })
@@ -3461,6 +3459,8 @@ export class DefaultRacedayComponent
       });
     } else if (action === "SAVE") {
       this.saveRace();
+    } else if (action === "BACK") {
+      window.history.back();
     }
   }
 
@@ -5283,6 +5283,7 @@ export class DefaultRacedayComponent
       "action-open-prediction-results",
       "action-master-power-on",
       "action-master-power-off",
+      "action-back",
     ];
 
     const customWidgets = this.customWidgetService?.getCustomWidgets() || [];
@@ -5360,6 +5361,9 @@ export class DefaultRacedayComponent
           : this.draggedWidgetType === "image"
             ? 300
             : 200;
+    } else if (this.draggedWidgetType === "action-back") {
+      width = 36;
+      height = 36;
     } else if (isActionButton) {
       width = 170;
       height = 80;

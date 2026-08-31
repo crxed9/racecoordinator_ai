@@ -1042,9 +1042,7 @@ test.describe("Raceday Visuals for Fuel", () => {
     );
   });
 
-  test("should display raceday in fullscreen mode with navigation buttons", async ({
-    page,
-  }) => {
+  test("should display raceday in fullscreen mode", async ({ page }) => {
     await TestSetupHelper.waitForLocalization(
       page,
       "en",
@@ -1055,9 +1053,8 @@ test.describe("Raceday Visuals for Fuel", () => {
     await page.evaluate(() => {
       (window as any).fullscreenService?.setFullscreenOverride(true);
     });
-
-    const nav = page.locator("app-browser-navigation");
-    await nav.waitFor({ state: "visible" });
+    await page.evaluate(() => document.fonts.ready);
+    await page.mouse.move(0, 0);
 
     await expect(page).toHaveScreenshot("raceday-fullscreen.png", {
       maxDiffPixelRatio: 0.05,

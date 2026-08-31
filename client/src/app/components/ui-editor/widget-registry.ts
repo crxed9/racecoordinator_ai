@@ -334,4 +334,13 @@ export const WIDGET_REGISTRY: Record<string, WidgetRegistryEntry> = {
       shortcut: "",
     }),
   },
+  "action-back": {
+    defaultSettings: () => ({
+      fontFamily: "",
+      fontSize: 24,
+      textColor: "",
+      backgroundColor: "",
+      shortcut: "",
+    }),
+  },
 };
