@@ -1484,7 +1484,12 @@ export class DefaultRacedaySetupComponent implements OnInit {
   }
 
   closeWindow() {
-    window.close();
+    try {
+      window.open("", "_self", "");
+      window.close();
+    } catch (e) {
+      window.close();
+    }
   }
 
   exportSettings() {

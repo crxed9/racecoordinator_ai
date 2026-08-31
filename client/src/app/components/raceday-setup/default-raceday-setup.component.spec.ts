@@ -694,8 +694,10 @@ describe("DefaultRacedaySetupComponent", () => {
     });
 
     it("should call window.close in closeWindow", () => {
+      spyOn(window, "open");
       spyOn(window, "close");
       component.closeWindow();
+      expect(window.open).toHaveBeenCalledWith("", "_self", "");
       expect(window.close).toHaveBeenCalled();
     });
 
