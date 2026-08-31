@@ -337,4 +337,38 @@ describe("RacedayAbsoluteWidgetComponent", () => {
     fixture.detectChanges();
     expect(wrapper.style.zIndex).toBe("120");
   });
+
+  it("should render next-heat widget with custom settings in fixed scale mode", () => {
+    mockWidget.widgetType = "next-heat";
+    mockWidget.scaleMode = "fixed";
+    mockWidget.customSettings = {
+      titleFontSize: 24,
+      laneFontSize: 12,
+    };
+    fixture.componentRef.setInput("widget", { ...mockWidget });
+    fixture.detectChanges();
+
+    const wrapper = fixture.nativeElement.querySelector(".widget-wrapper");
+    expect(wrapper.classList.contains("scale-fixed")).toBeTrue();
+    const nextHeat = fixture.nativeElement.querySelector(
+      "app-raceday-next-heat",
+    );
+    expect(nextHeat).toBeTruthy();
+  });
+
+  it("should render on-deck widget with custom settings in fixed scale mode", () => {
+    mockWidget.widgetType = "on-deck";
+    mockWidget.scaleMode = "fixed";
+    mockWidget.customSettings = {
+      titleFontSize: 20,
+      laneFontSize: 10,
+    };
+    fixture.componentRef.setInput("widget", { ...mockWidget });
+    fixture.detectChanges();
+
+    const wrapper = fixture.nativeElement.querySelector(".widget-wrapper");
+    expect(wrapper.classList.contains("scale-fixed")).toBeTrue();
+    const onDeck = fixture.nativeElement.querySelector("app-raceday-on-deck");
+    expect(onDeck).toBeTruthy();
+  });
 });

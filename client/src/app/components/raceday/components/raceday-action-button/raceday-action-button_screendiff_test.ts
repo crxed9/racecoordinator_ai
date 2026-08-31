@@ -79,13 +79,52 @@ test.describe("Raceday Action Button Visuals", () => {
             lanes: [{ objectId: "l1", length: 10 }],
           },
         },
-        drivers: [],
+        drivers: [
+          {
+            objectId: "rp1",
+            driver: {
+              model: { entityId: "d1" },
+              name: "Apex Hunter",
+              nickname: "Apex",
+            },
+          },
+        ],
+        heats: [
+          {
+            objectId: "h1",
+            heatNumber: 1,
+            heatDrivers: [
+              {
+                objectId: "hd1",
+                driver: {
+                  model: { entityId: "d1" },
+                  name: "Apex Hunter",
+                  nickname: "Apex",
+                },
+                laneIndex: 0,
+              },
+            ],
+          },
+        ],
         currentHeat: {
           objectId: "h1",
           heatNumber: 1,
-          heatDrivers: [],
+          heatDrivers: [
+            {
+              objectId: "hd1",
+              driver: {
+                model: { entityId: "d1" },
+                name: "Apex Hunter",
+                nickname: "Apex",
+              },
+              laneIndex: 0,
+            },
+          ],
         },
+      },
+      raceTime: {
         time: 15.0,
+        heatTime: 15.0,
       },
     };
 

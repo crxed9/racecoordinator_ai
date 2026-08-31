@@ -19,6 +19,59 @@ test.describe("Raceday Menu Bar Visuals", () => {
 
     await page.locator(".dashboard-wrapper").waitFor();
 
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r1" },
+          name: "Viewer GP",
+          track: {
+            model: { entityId: "t1" },
+            name: "Test Track",
+            lanes: [
+              {
+                objectId: "l1",
+                length: 10,
+                backgroundColor: "#550000",
+                foregroundColor: "#ffffff",
+              },
+              {
+                objectId: "l2",
+                length: 10,
+                backgroundColor: "#005500",
+                foregroundColor: "#ffffff",
+              },
+            ],
+          },
+        },
+        drivers: [
+          {
+            objectId: "rp1",
+            driver: {
+              model: { entityId: "d1" },
+              name: "Solo Driver",
+            },
+          },
+        ],
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [
+            {
+              objectId: "hd1",
+              driver: {
+                model: { entityId: "d1" },
+                name: "Solo Driver",
+              },
+              laneIndex: 0,
+            },
+          ],
+        },
+      },
+    };
+
+    await TestSetupHelper.mockRaceData(page, raceData);
+    await page.waitForTimeout(200);
+
     const menuBar = page.locator("app-raceday-menu-bar");
     await expect(menuBar).toBeVisible();
 
@@ -35,6 +88,59 @@ test.describe("Raceday Menu Bar Visuals", () => {
     );
 
     await page.locator(".dashboard-wrapper").waitFor();
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r1" },
+          name: "Viewer GP",
+          track: {
+            model: { entityId: "t1" },
+            name: "Test Track",
+            lanes: [
+              {
+                objectId: "l1",
+                length: 10,
+                backgroundColor: "#550000",
+                foregroundColor: "#ffffff",
+              },
+              {
+                objectId: "l2",
+                length: 10,
+                backgroundColor: "#005500",
+                foregroundColor: "#ffffff",
+              },
+            ],
+          },
+        },
+        drivers: [
+          {
+            objectId: "rp1",
+            driver: {
+              model: { entityId: "d1" },
+              name: "Solo Driver",
+            },
+          },
+        ],
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [
+            {
+              objectId: "hd1",
+              driver: {
+                model: { entityId: "d1" },
+                name: "Solo Driver",
+              },
+              laneIndex: 0,
+            },
+          ],
+        },
+      },
+    };
+
+    await TestSetupHelper.mockRaceData(page, raceData);
+    await page.waitForTimeout(200);
 
     const menuBar = page.locator("app-raceday-menu-bar");
     await expect(menuBar).toBeVisible();

@@ -36,14 +36,16 @@ test.describe("Raceday Records Visuals", () => {
           heatNumber: 1,
           heatDrivers: [],
         },
-        raceRecordLapNickname: "Alice",
-        raceRecordLapTime: 9.876,
-        raceRecordScoreNickname: "Bob",
-        raceRecordScore: 15.4,
-        currentRaceBestNickname: "Charlie",
-        currentRaceBestTime: 10.123,
-        heatBestNickname: "Dave",
-        heatBestTime: 11.456,
+        recordData: {
+          overall: {
+            fastestLap: { holderNickname: "Alice", value: 9.876 },
+            highestScore: { holderNickname: "Bob", value: 15.4 },
+          },
+          current: {
+            fastestLap: { holderNickname: "Charlie", value: 10.123 },
+            heatFastestLap: { holderNickname: "Dave", value: 11.456 },
+          },
+        },
       },
     };
 
