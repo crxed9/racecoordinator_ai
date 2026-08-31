@@ -38,7 +38,10 @@ test.describe("Raceday Timer Visuals", () => {
           heatNumber: 1,
           heatDrivers: [],
         },
-        time: 15.0,
+      },
+      raceTime: {
+        time: 15.42,
+        heatTime: 15.42,
       },
     };
 

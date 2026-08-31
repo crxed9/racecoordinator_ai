@@ -339,18 +339,18 @@
 .widget-wrapper.scale-fixed .next-heat-title,
 .widget-wrapper.scale-fixed .on-deck-title {
   font-size: var(--custom-title-size, calc(1.125 * var(--widget-font-size)));
-  margin-bottom: calc(0.5 * var(--widget-font-size)) !important;
+  margin-bottom: calc(0.5 * var(--custom-title-size, var(--widget-font-size))) !important;
 }
 
 .widget-wrapper.scale-fixed .next-heat-list,
 .widget-wrapper.scale-fixed .on-deck-list {
-  gap: calc(0.35 * var(--widget-font-size)) !important;
+  gap: calc(0.35 * var(--custom-lane-size, var(--widget-font-size))) !important;
 }
 
 .widget-wrapper.scale-fixed .next-heat-item,
 .widget-wrapper.scale-fixed .on-deck-item {
-  padding: calc(0.35 * var(--widget-font-size)) calc(0.5 * var(--widget-font-size)) !important;
-  border-left-width: calc(0.125 * var(--widget-font-size)) !important;
+  padding: calc(0.35 * var(--custom-lane-size, var(--widget-font-size))) calc(0.5 * var(--custom-lane-size, var(--widget-font-size))) !important;
+  border-left-width: calc(0.125 * var(--custom-lane-size, var(--widget-font-size))) !important;
 }
 
 .widget-wrapper.scale-fixed .driver-nickname,
@@ -361,11 +361,12 @@
 }
 
 .widget-wrapper.scale-fixed .lane-badge {
-  font-size: calc(0.875 * var(--widget-font-size));
-  min-width: calc(1.75 * var(--widget-font-size)) !important;
-  height: calc(1.5 * var(--widget-font-size)) !important;
-  padding: 0 calc(0.375 * var(--widget-font-size)) !important;
-  border-radius: calc(0.75 * var(--widget-font-size)) !important;
+  font-size: calc(0.875 * var(--custom-lane-size, var(--widget-font-size))) !important;
+  min-width: calc(1.75 * var(--custom-lane-size, var(--widget-font-size))) !important;
+  height: calc(1.1 * var(--custom-lane-size, var(--widget-font-size))) !important;
+  padding: 0 calc(0.375 * var(--custom-lane-size, var(--widget-font-size))) !important;
+  border-radius: calc(0.55 * var(--custom-lane-size, var(--widget-font-size))) !important;
+  box-sizing: border-box !important;
 }
 
 /* Auto scaling for next-heat & on-deck */
