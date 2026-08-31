@@ -36,7 +36,6 @@ test.describe("Driver Manager Visuals", () => {
     // Wait for driver items to load
     await page.locator(".list-item").first().waitFor();
     await harness.selectDriver(1);
-    await page.waitForTimeout(100);
     await expect(page).toHaveScreenshot("driver-manager-selected.png");
   });
 
@@ -53,7 +52,6 @@ test.describe("Driver Manager Visuals", () => {
     const overlay = page.locator("app-help-overlay");
     await overlay.locator(".help-popover").waitFor({ state: "visible" });
 
-    await page.waitForTimeout(100);
     await expect(page).toHaveScreenshot("driver-manager-guided-help.png");
   });
 });

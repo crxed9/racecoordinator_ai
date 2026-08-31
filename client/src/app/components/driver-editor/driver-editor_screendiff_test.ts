@@ -55,7 +55,6 @@ test.describe("Driver Editor Visuals", () => {
     // Wait for undo state (Undo button enabled)
     // We can just await a short time or check if harness can check disabled state
     // For now, let's wait a bit to ensure debounce
-    await page.waitForTimeout(300);
 
     // Name change checked visually
 
@@ -95,7 +94,6 @@ test.describe("Driver Editor Visuals", () => {
     // 2. Set name to duplicate
     await harness.setName("Duplicate Name");
     await page.keyboard.press("Tab"); // Commit
-    await page.waitForTimeout(100);
 
     await expect(page).toHaveScreenshot("driver-editor-validation-error.png", {
       animations: "disabled",
@@ -138,7 +136,6 @@ test.describe("Driver Editor Visuals", () => {
 
     // Disable animations and wait for settling
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(100);
 
     await expect(popover).toHaveScreenshot("driver-editor-guided-help.png", {
       animations: "disabled",

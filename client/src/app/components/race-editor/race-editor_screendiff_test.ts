@@ -57,11 +57,9 @@ test.describe("Race Editor Visuals", () => {
     if (expand && isCollapsed) {
       await header.scrollIntoViewIfNeeded();
       await header.click();
-      await page.waitForTimeout(50);
     } else if (!expand && !isCollapsed) {
       await header.scrollIntoViewIfNeeded();
       await header.click();
-      await page.waitForTimeout(50);
     }
   }
 
@@ -75,7 +73,6 @@ test.describe("Race Editor Visuals", () => {
     const _harness = new RaceEditorHarnessE2e(page.locator("body"));
 
     // Verify Editor Form is attached
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -117,7 +114,6 @@ test.describe("Race Editor Visuals", () => {
     await page.keyboard.press("Tab"); // Trigger blur/commit
 
     // With auto-saving, duplicate name triggers an 'invalid' class highlighting
-    await page.waitForTimeout(100);
 
     // Disable animations
     await TestSetupHelper.disableAnimations(page);
@@ -148,8 +144,6 @@ test.describe("Race Editor Visuals", () => {
       .last();
     await customSeqInput.fill("1, 1, 2, 3");
     await page.keyboard.press("Tab"); // Trigger blur/commit
-
-    await page.waitForTimeout(200);
 
     // Disable animations
     await TestSetupHelper.disableAnimations(page);
@@ -191,7 +185,6 @@ test.describe("Race Editor Visuals", () => {
 
     // Click details - Duplication
     await harness.clickCopy();
-    await page.waitForTimeout(100);
 
     // Wait for Error Modal (app-acknowledgement-modal .modal-backdrop)
     await page.waitForSelector("app-acknowledgement-modal .modal-backdrop", {
@@ -219,7 +212,6 @@ test.describe("Race Editor Visuals", () => {
     );
 
     // Verify Editor Form is attached
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -234,7 +226,6 @@ test.describe("Race Editor Visuals", () => {
     await fuelLabel.scrollIntoViewIfNeeded();
     await fuelLabel.waitFor({ state: "visible", timeout: 5000 });
     await fuelLabel.click();
-    await page.waitForTimeout(50);
 
     // Wait for charts to render before screenshotting
     const fuelContainer = page.locator(".fuel-graphs-container");
@@ -261,13 +252,11 @@ test.describe("Race Editor Visuals", () => {
     );
 
     // Verify Editor Form is attached
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
 
     // Wait for loading to complete
-    await page.waitForTimeout(100);
 
     // Ensure Fuel section is expanded
     await ensureSectionState(page, "Analog Fuel", true);
@@ -312,11 +301,9 @@ test.describe("Race Editor Visuals", () => {
     await page
       .locator('.section-header:has-text("Digital Fuel")')
       .scrollIntoViewIfNeeded();
-    await page.waitForTimeout(50);
 
     // Enable digital fuel - click the label since the native checkbox is hidden (0x0)
     await page.locator("#digital-fuel-enabled-label").click();
-    await page.waitForTimeout(50);
 
     // Wait for digital charts to render
     const fuelContainer = page.locator(".fuel-graphs-container");
@@ -338,7 +325,6 @@ test.describe("Race Editor Visuals", () => {
       "en",
       page.goto("/race-editor?id=r1&driverCount=4"),
     );
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -348,7 +334,6 @@ test.describe("Race Editor Visuals", () => {
     await ensureSectionState(page, "Analog Fuel", false);
     await ensureSectionState(page, "Digital Fuel", false);
     await ensureSectionState(page, "Teams", false);
-    await page.waitForTimeout(50);
 
     await TestSetupHelper.disableAnimations(page);
     await expect(page.locator("#scoring-section")).toHaveScreenshot(
@@ -363,7 +348,6 @@ test.describe("Race Editor Visuals", () => {
       "en",
       page.goto("/race-editor?id=r1&driverCount=4"),
     );
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -373,7 +357,6 @@ test.describe("Race Editor Visuals", () => {
     await ensureSectionState(page, "Scoring", false);
     await ensureSectionState(page, "Digital Fuel", false);
     await ensureSectionState(page, "Teams", false);
-    await page.waitForTimeout(50);
 
     await TestSetupHelper.disableAnimations(page);
     await expect(page.locator("#analog-fuel-section")).toHaveScreenshot(
@@ -396,7 +379,6 @@ test.describe("Race Editor Visuals", () => {
     );
 
     // Verify Editor Form is attached
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -451,7 +433,6 @@ test.describe("Race Editor Visuals", () => {
     );
 
     // Verify Editor Form is attached
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -505,7 +486,6 @@ test.describe("Race Editor Visuals", () => {
       "en",
       page.goto("/race-editor?id=r1&driverCount=4"),
     );
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -515,7 +495,6 @@ test.describe("Race Editor Visuals", () => {
     await ensureSectionState(page, "Scoring", false);
     await ensureSectionState(page, "Analog Fuel", false);
     await ensureSectionState(page, "Digital Fuel", false);
-    await page.waitForTimeout(50);
 
     await TestSetupHelper.disableAnimations(page);
     await expect(page.locator("#team-options-section")).toHaveScreenshot(
@@ -530,7 +509,6 @@ test.describe("Race Editor Visuals", () => {
       "en",
       page.goto("/race-editor?id=r1&driverCount=4"),
     );
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -544,7 +522,6 @@ test.describe("Race Editor Visuals", () => {
 
     // Expand Heats
     await ensureSectionState(page, "Heats", true);
-    await page.waitForTimeout(50);
 
     await TestSetupHelper.disableAnimations(page);
     await expect(page.locator("#heats-section")).toHaveScreenshot(
@@ -559,7 +536,6 @@ test.describe("Race Editor Visuals", () => {
       "en",
       page.goto("/race-editor?id=r1&driverCount=4"),
     );
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -571,11 +547,9 @@ test.describe("Race Editor Visuals", () => {
     await ensureSectionState(page, "Digital Fuel", false);
     await ensureSectionState(page, "Teams", false);
     await ensureSectionState(page, "Heats", false);
-    await page.waitForTimeout(50);
 
     // Expand Groups
     await ensureSectionState(page, "Groups", true);
-    await page.waitForTimeout(50);
 
     // Enable groups to show all options - find the first checkbox in the section
     const groupEnabledLabel = page
@@ -583,7 +557,6 @@ test.describe("Race Editor Visuals", () => {
       .first();
     await groupEnabledLabel.scrollIntoViewIfNeeded();
     await groupEnabledLabel.click();
-    await page.waitForTimeout(50);
 
     await TestSetupHelper.disableAnimations(page);
     await expect(page.locator("#group-section")).toHaveScreenshot(
@@ -598,7 +571,6 @@ test.describe("Race Editor Visuals", () => {
       "en",
       page.goto("/race-editor?id=r1&driverCount=4"),
     );
-    await page.waitForTimeout(200);
     await expect(page.locator(".editor-panel")).toBeAttached({
       timeout: 10000,
     });
@@ -614,7 +586,6 @@ test.describe("Race Editor Visuals", () => {
 
     // Expand Season Points
     await ensureSectionState(page, "Season Points", true);
-    await page.waitForTimeout(50);
 
     await TestSetupHelper.disableAnimations(page);
     await expect(page.locator("#season-points-section")).toHaveScreenshot(

@@ -21,7 +21,6 @@ test.describe("Event Manager Visuals", () => {
     await expect(page.locator(".detail-panel")).toBeVisible();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("event-manager.png", {
       animations: "disabled",

@@ -42,7 +42,6 @@ test.describe("BART Editor Component Visuals", () => {
 
     const harness = new BartEditorHarnessE2e(editor);
     await harness.toggleSection("main");
-    await page.waitForTimeout(300);
 
     await expect(editor).toHaveScreenshot("bart-editor-main-collapsed.png", {
       maxDiffPixelRatio: 0.05,

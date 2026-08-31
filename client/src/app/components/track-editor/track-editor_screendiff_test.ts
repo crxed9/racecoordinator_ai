@@ -34,7 +34,6 @@ test.describe("Track Editor Visuals", () => {
     // Lane Editor
 
     // Arduino Config
-    await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("track-editor-existing.png", {
       maxDiffPixelRatio: 0.1,
       animations: "disabled",
@@ -57,7 +56,6 @@ test.describe("Track Editor Visuals", () => {
 
     // Default lanes for new track
 
-    await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("track-editor-new.png", {
       maxDiffPixelRatio: 0.1,
       animations: "disabled",
@@ -85,7 +83,6 @@ test.describe("Track Editor Visuals", () => {
 
     // Verify pin 2 action (checked visually)
 
-    await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("track-editor-pins-grid.png", {
       maxDiffPixelRatio: 0.1,
       animations: "disabled",
@@ -108,7 +105,6 @@ test.describe("Track Editor Visuals", () => {
 
     // Invalid state checked visually
 
-    await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot(
       "track-editor-duplicate-name-error.png",
       { maxDiffPixelRatio: 0.1, animations: "disabled" },

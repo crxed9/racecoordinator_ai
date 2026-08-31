@@ -59,8 +59,6 @@ test.describe("Heat Results Visuals", () => {
     // Hover over the "Bob" legend item
     await harness.hoverLegendItem("Bob");
 
-    await page.waitForTimeout(400);
-
     // Verify Bob's graph is highlighted, and others are faded
     await expect(page).toHaveScreenshot("heat-results-bob-hovered.png", {
       maxDiffPixelRatio: 0.05,
@@ -88,7 +86,6 @@ test.describe("Heat Results Visuals", () => {
       document.body.classList.add("print-full-scroll");
       document.body.classList.add("print-no-background");
     });
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("heat-results-no-background.png", {
       maxDiffPixelRatio: 0.05,

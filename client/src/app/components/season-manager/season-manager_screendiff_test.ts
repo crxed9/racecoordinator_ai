@@ -26,7 +26,6 @@ test.describe("Season Manager Visuals", () => {
     await expect(page.locator(".detail-panel")).toBeVisible();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("season-manager-no-races.png", {
       animations: "disabled",
@@ -50,7 +49,6 @@ test.describe("Season Manager Visuals", () => {
     await expect(page.locator(".standings-wrapper")).toBeVisible();
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("season-manager-races-run.png", {
       animations: "disabled",
@@ -70,7 +68,6 @@ test.describe("Season Manager Visuals", () => {
     await harness.searchSeasons("Pro");
 
     await TestSetupHelper.disableAnimations(page);
-    await page.waitForTimeout(200);
 
     await expect(page).toHaveScreenshot("season-manager-search.png", {
       animations: "disabled",

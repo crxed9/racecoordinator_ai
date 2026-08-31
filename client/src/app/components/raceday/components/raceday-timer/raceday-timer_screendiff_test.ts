@@ -46,7 +46,6 @@ test.describe("Raceday Timer Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(500);
 
     const timer = page.locator("app-raceday-timer");
     await expect(timer).toBeVisible();
@@ -92,7 +91,6 @@ test.describe("Raceday Timer Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(500);
 
     const timer = page.locator("app-raceday-timer");
     await expect(timer).toBeVisible();
@@ -138,7 +136,6 @@ test.describe("Raceday Timer Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(500);
 
     const timer = page.locator("app-raceday-timer");
     await expect(timer).toBeVisible();
@@ -184,7 +181,6 @@ test.describe("Raceday Timer Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(500);
 
     const timer = page.locator("app-raceday-timer");
     await expect(timer).toBeVisible();
@@ -230,7 +226,6 @@ test.describe("Raceday Timer Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(500);
 
     const timer = page.locator("app-raceday-timer");
     await expect(timer).toBeVisible();

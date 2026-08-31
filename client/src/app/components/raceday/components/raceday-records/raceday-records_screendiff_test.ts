@@ -50,7 +50,6 @@ test.describe("Raceday Records Visuals", () => {
     };
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    await page.waitForTimeout(500);
 
     const records = page.locator("app-raceday-records");
     await expect(records).toBeVisible();
