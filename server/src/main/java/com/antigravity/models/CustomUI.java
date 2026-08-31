@@ -85,24 +85,51 @@ public class CustomUI extends Model {
 
   public static CustomUI createDefault() {
     String layoutJson =
-        "{\"widgets\":[{\"id\":\"widget-menu-bar\",\"widgetType\":\"menu-bar\",\"x\":0,\"y\":0,\"width\":1728,\"height\":45,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-race-name\",\"widgetType\":\"race-name\",\"x\":0,\"y\":45,\"width\":180,\"height\":15,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-heat-info\",\"widgetType\":\"heat-info\",\"x\":576,\"y\":45,\"width\":180,\"height\":15,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-track-name\",\"widgetType\":\"track-name\",\"x\":1152,\"y\":45,\"width\":180,\"height\":15,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-branding\",\"widgetType\":\"branding\",\"x\":0,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-qr\",\"widgetType\":\"qr\",\"x\":295,\"y\":227,\"width\":43,\"height\":40,\"zIndex\":110,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-flag\",\"widgetType\":\"flag\",\"x\":346,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-timer\",\"widgetType\":\"timer\",\"x\":691,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\",\"customSettings\":{\"timeFontFamily\":\"\",\"timeFontSize\":100,\"timeTextColor\":\"\",\"timeSubsecondThreshold\":10,\"timeSubsecondDecimals\":2}},"
-            + "{\"id\":\"widget-records\",\"widgetType\":\"records\",\"x\":1037,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-leaderboard\",\"widgetType\":\"leaderboard\",\"x\":1382,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-lane-view\",\"widgetType\":\"lane-view\",\"x\":0,\"y\":274,\"width\":1728,\"height\":625,\"zIndex\":111,\"scaleMode\":\"auto\",\"fontFamily\":\"\",\"textColor\":\"\",\"backgroundColor\":\"\",\"fontSize\":24,\"textScaleFactor\":1,\"customSettings\":{\"isVertical\":false,\"timeDecimalPlaces\":3,\"lapDecimalPlaces\":2,\"columnFontFamily\":\"\",\"columnFontSize\":24,\"columnTextColor\":\"\",\"dataFontFamily\":\"\",\"dataFontSize\":54,\"dataTextColor\":\"\",\"insetTimeDecimalPlaces\":3,\"insetLapDecimalPlaces\":2,\"insetFontFamily\":\"\",\"insetFontSize\":24,\"insetTextColor\":\"\"}}],\"baseWidth\":1728,\"baseHeight\":899}";
+        "{\"widgets\":[{\"id\":\"widget-menu-bar\",\"widgetType\":\"menu-bar\",\"x\":0,\"y\":0,"
+            + "\"width\":1920,\"height\":54,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-race-name\",\"widgetType\":\"race-name\",\"x\":0,\"y\":54,"
+            + "\"width\":200,\"height\":18,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-heat-info\",\"widgetType\":\"heat-info\",\"x\":640,\"y\":54,"
+            + "\"width\":200,\"height\":18,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-track-name\",\"widgetType\":\"track-name\",\"x\":1280,\"y\":54,"
+            + "\"width\":200,\"height\":18,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-branding\",\"widgetType\":\"branding\",\"x\":0,\"y\":90,"
+            + "\"width\":384,\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-qr\",\"widgetType\":\"qr\",\"x\":328,\"y\":273,\"width\":48,"
+            + "\"height\":48,\"zIndex\":110,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-flag\",\"widgetType\":\"flag\",\"x\":384,\"y\":90,\"width\":384,"
+            + "\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-timer\",\"widgetType\":\"timer\",\"x\":768,\"y\":90,\"width\":384,"
+            + "\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\",\"customSettings\":{"
+            + "\"timeFontFamily\":\"\",\"timeFontSize\":100,\"timeTextColor\":\"\","
+            + "\"timeSubsecondThreshold\":10,\"timeSubsecondDecimals\":2}},"
+            + "{\"id\":\"widget-records\",\"widgetType\":\"records\",\"x\":1152,\"y\":90,"
+            + "\"width\":384,\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-leaderboard\",\"widgetType\":\"leaderboard\",\"x\":1536,\"y\":90,"
+            + "\"width\":384,\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-lane-view\",\"widgetType\":\"lane-view\",\"x\":0,\"y\":329,"
+            + "\"width\":1920,\"height\":751,\"zIndex\":111,\"scaleMode\":\"auto\","
+            + "\"fontFamily\":\"\",\"textColor\":\"\",\"backgroundColor\":\"\","
+            + "\"fontSize\":24,\"textScaleFactor\":1,\"customSettings\":{"
+            + "\"isVertical\":false,\"timeDecimalPlaces\":3,\"lapDecimalPlaces\":2,"
+            + "\"columnFontFamily\":\"\",\"columnFontSize\":24,\"columnTextColor\":\"\","
+            + "\"dataFontFamily\":\"\",\"dataFontSize\":54,\"dataTextColor\":\"\","
+            + "\"insetTimeDecimalPlaces\":3,\"insetLapDecimalPlaces\":2,"
+            + "\"insetFontFamily\":\"\",\"insetFontSize\":24,\"insetTextColor\":\"\","
+            + "\"columnWidths\":{\"ghostPacingLeaderAvg\":200,\"averageLapTime\":310}}}]}";
     String columnsJson =
-        "[\"driver.nickname\",\"lapCount\",\"lastLapTime\",\"gapLeader\",\"ghostPacingLeaderAvg\"]";
+        "[\"driver.nickname\",\"lapCount\",\"lastLapTime\",\"averageLapTime\",\"gapLeader\","
+            + "\"ghostPacingLeaderAvg\"]";
     String columnLayoutsJson =
-        "{\"laneNumber\":{\"center-center\":\"laneNumber\"},\"driver.nickname\":{\"center-center\":\"driver.nickname\",\"bottom-right\":\"participant.team.name\",\"bottom-left\":\"driverViewQrCode\"},\"imageset_fuel-gauge-builtin\":{\"center-center\":\"imageset_fuel-gauge-builtin\"},\"lapCount\":{\"center-center\":\"lapCount\",\"bottom-left\":\"flag\"},\"lastLapTime\":{\"center-center\":\"lastLapTime\",\"bottom-right\":\"bestLapTime\"},\"gapLeader\":{\"center-center\":\"gapLeader\",\"bottom-right\":\"gapPosition\"}}";
+        "{\"laneNumber\":{\"center-center\":\"laneNumber\"},\"driver.nickname\":{"
+            + "\"center-center\":\"driver.nickname\",\"bottom-right\":\"participant.team.name\","
+            + "\"bottom-left\":\"driverViewQrCode\"},\"imageset_fuel-gauge-builtin\":{"
+            + "\"center-center\":\"imageset_fuel-gauge-builtin\"},\"lapCount\":{"
+            + "\"center-center\":\"lapCount\",\"bottom-left\":\"flag\"},\"lastLapTime\":{"
+            + "\"center-center\":\"lastLapTime\",\"bottom-right\":\"bestLapTime\"},"
+            + "\"gapLeader\":{\"center-center\":\"gapLeader\",\"bottom-right\":\"gapPosition\"}}";
     String columnVisibilityJson = "{\"imageset_fuel-gauge-builtin\":\"FuelRaceOnly\"}";
-    String columnWidthsJson =
-        "{\"lapCount\":210,\"lastLapTime\":310,\"gapLeader\":310,\"ghostPacingLeaderAvg\":310}";
+    String columnWidthsJson = "{\"ghostPacingLeaderAvg\":200,\"averageLapTime\":310}";
     return new CustomUI(
         "Default UI Layout",
         true,
@@ -145,23 +172,55 @@ public class CustomUI extends Model {
 
   public static CustomUI createFuel() {
     String layoutJson =
-        "{\"widgets\":[{\"id\":\"widget-menu-bar\",\"widgetType\":\"menu-bar\",\"x\":0,\"y\":0,\"width\":1728,\"height\":45,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-race-name\",\"widgetType\":\"race-name\",\"x\":0,\"y\":45,\"width\":180,\"height\":15,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-heat-info\",\"widgetType\":\"heat-info\",\"x\":576,\"y\":45,\"width\":180,\"height\":15,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-track-name\",\"widgetType\":\"track-name\",\"x\":1152,\"y\":45,\"width\":180,\"height\":15,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-branding\",\"widgetType\":\"branding\",\"x\":0,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-qr\",\"widgetType\":\"qr\",\"x\":295,\"y\":227,\"width\":43,\"height\":40,\"zIndex\":110,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-flag\",\"widgetType\":\"flag\",\"x\":346,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":114,\"scaleMode\":\"auto\",\"fontFamily\":\"\",\"textColor\":\"\",\"backgroundColor\":\"\",\"fontSize\":24,\"textScaleFactor\":1},"
-            + "{\"id\":\"widget-timer\",\"widgetType\":\"timer\",\"x\":691,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\",\"customSettings\":{\"timeFontFamily\":\"\",\"timeFontSize\":100,\"timeTextColor\":\"\",\"timeSubsecondThreshold\":10,\"timeSubsecondDecimals\":2}},"
-            + "{\"id\":\"widget-records\",\"widgetType\":\"records\",\"x\":1037,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":116,\"scaleMode\":\"auto\",\"fontFamily\":\"\",\"textColor\":\"\",\"backgroundColor\":\"\",\"fontSize\":24,\"textScaleFactor\":1,\"customSettings\":{\"headerFontFamily\":\"\",\"headerFontSize\":17,\"headerTextColor\":\"\",\"valueFontFamily\":\"\",\"valueFontSize\":19,\"valueTextColor\":\"\"}},"
-            + "{\"id\":\"widget-leaderboard\",\"widgetType\":\"leaderboard\",\"x\":1382,\"y\":75,\"width\":346,\"height\":199,\"zIndex\":100,\"scaleMode\":\"auto\"},"
-            + "{\"id\":\"widget-lane-view\",\"widgetType\":\"lane-view\",\"x\":0,\"y\":274,\"width\":1728,\"height\":625,\"zIndex\":117,\"scaleMode\":\"auto\",\"fontFamily\":\"\",\"textColor\":\"\",\"backgroundColor\":\"\",\"fontSize\":24,\"textScaleFactor\":1,\"customSettings\":{\"isVertical\":false,\"timeDecimalPlaces\":3,\"lapDecimalPlaces\":2,\"columnFontFamily\":\"\",\"columnFontSize\":24,\"columnTextColor\":\"\",\"dataFontFamily\":\"\",\"dataFontSize\":54,\"dataTextColor\":\"\",\"insetTimeDecimalPlaces\":3,\"insetLapDecimalPlaces\":2,\"insetFontFamily\":\"\",\"insetFontSize\":24,\"insetTextColor\":\"\"}}],\"baseWidth\":1728,\"baseHeight\":899}";
+        "{\"widgets\":[{\"id\":\"widget-menu-bar\",\"widgetType\":\"menu-bar\",\"x\":0,\"y\":0,"
+            + "\"width\":1920,\"height\":54,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-race-name\",\"widgetType\":\"race-name\",\"x\":0,\"y\":54,"
+            + "\"width\":200,\"height\":18,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-heat-info\",\"widgetType\":\"heat-info\",\"x\":640,\"y\":54,"
+            + "\"width\":200,\"height\":18,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-track-name\",\"widgetType\":\"track-name\",\"x\":1280,\"y\":54,"
+            + "\"width\":200,\"height\":18,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-branding\",\"widgetType\":\"branding\",\"x\":0,\"y\":90,"
+            + "\"width\":384,\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-qr\",\"widgetType\":\"qr\",\"x\":328,\"y\":273,\"width\":48,"
+            + "\"height\":48,\"zIndex\":110,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-flag\",\"widgetType\":\"flag\",\"x\":384,\"y\":90,\"width\":384,"
+            + "\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-timer\",\"widgetType\":\"timer\",\"x\":768,\"y\":90,\"width\":384,"
+            + "\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\",\"customSettings\":{"
+            + "\"timeFontFamily\":\"\",\"timeFontSize\":100,\"timeTextColor\":\"\","
+            + "\"timeSubsecondThreshold\":10,\"timeSubsecondDecimals\":2}},"
+            + "{\"id\":\"widget-records\",\"widgetType\":\"records\",\"x\":1152,\"y\":90,"
+            + "\"width\":384,\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-leaderboard\",\"widgetType\":\"leaderboard\",\"x\":1536,\"y\":90,"
+            + "\"width\":384,\"height\":239,\"zIndex\":100,\"scaleMode\":\"auto\"},"
+            + "{\"id\":\"widget-lane-view\",\"widgetType\":\"lane-view\",\"x\":0,\"y\":329,"
+            + "\"width\":1920,\"height\":751,\"zIndex\":111,\"scaleMode\":\"auto\","
+            + "\"fontFamily\":\"\",\"textColor\":\"\",\"backgroundColor\":\"\","
+            + "\"fontSize\":24,\"textScaleFactor\":1,\"customSettings\":{"
+            + "\"isVertical\":false,\"timeDecimalPlaces\":3,\"lapDecimalPlaces\":2,"
+            + "\"columnFontFamily\":\"\",\"columnFontSize\":24,\"columnTextColor\":\"\","
+            + "\"dataFontFamily\":\"\",\"dataFontSize\":54,\"dataTextColor\":\"\","
+            + "\"insetTimeDecimalPlaces\":3,\"insetLapDecimalPlaces\":2,"
+            + "\"insetFontFamily\":\"\",\"insetFontSize\":24,\"insetTextColor\":\"\","
+            + "\"columnWidths\":{\"lapCount\":210,\"imageset_fuel-gauge-builtin\":210,"
+            + "\"lastLapTime\":310,\"gapLeader\":310}}}]}";
     String columnsJson =
-        "[\"driver.nickname\",\"imageset_fuel-gauge-builtin\",\"lapCount\",\"lastLapTime\",\"gapLeader\"]";
+        "[\"driver.nickname\",\"imageset_fuel-gauge-builtin\",\"lapCount\",\"lastLapTime\","
+            + "\"gapLeader\"]";
     String columnLayoutsJson =
-        "{\"laneNumber\":{\"center-center\":\"laneNumber\"},\"driver.nickname\":{\"center-center\":\"driver.nickname\",\"bottom-right\":\"participant.team.name\",\"bottom-left\":\"driverViewQrCode\"},\"imageset_fuel-gauge-builtin\":{\"center-center\":\"imageset_fuel-gauge-builtin\"},\"lapCount\":{\"center-center\":\"lapCount\",\"bottom-left\":\"flag\"},\"lastLapTime\":{\"center-center\":\"lastLapTime\",\"top-right\":\"bestLapTime\",\"bottom-right\":\"averageLapTime\"},\"gapLeader\":{\"center-center\":\"gapLeader\",\"bottom-right\":\"gapPosition\"}}";
+        "{\"laneNumber\":{\"center-center\":\"laneNumber\"},\"driver.nickname\":{"
+            + "\"center-center\":\"driver.nickname\",\"bottom-right\":\"participant.team.name\","
+            + "\"bottom-left\":\"driverViewQrCode\"},\"imageset_fuel-gauge-builtin\":{"
+            + "\"center-center\":\"imageset_fuel-gauge-builtin\"},\"lapCount\":{"
+            + "\"center-center\":\"lapCount\",\"bottom-left\":\"flag\"},\"lastLapTime\":{"
+            + "\"center-center\":\"lastLapTime\",\"top-right\":\"bestLapTime\","
+            + "\"bottom-right\":\"averageLapTime\"},\"gapLeader\":{\"center-center\":\"gapLeader\","
+            + "\"bottom-right\":\"gapPosition\"}}";
     String columnVisibilityJson = "{\"imageset_fuel-gauge-builtin\":\"FuelRaceOnly\"}";
-    String columnWidthsJson = "{\"imageset_fuel-gauge-builtin\":210}";
+    String columnWidthsJson =
+        "{\"lapCount\":210,\"imageset_fuel-gauge-builtin\":210,\"lastLapTime\":310,"
+            + "\"gapLeader\":310}";
     return new CustomUI(
         "Default Fuel UI Layout",
         true,
