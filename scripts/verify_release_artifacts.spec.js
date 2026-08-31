@@ -3,7 +3,7 @@ const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { verifyReleaseArtifacts } = require('./verify_release_artifacts');
+const { verifyReleaseArtifacts, parseCliArgs, resolveArg } = require('./verify_release_artifacts');
 
 describe('verify_release_artifacts', () => {
   let tmpDir;
@@ -84,6 +84,19 @@ describe('verify_release_artifacts', () => {
     assert.strictEqual(result.isValid, true);
   });
 
+  test('should skip installer_base.iss validation when installerFile is empty or not provided', () => {
+    const appFile = path.join(tmpDir, 'App.java');
+    fs.writeFileSync(appFile, 'public static final String SERVER_VERSION = "1.0.0";\n');
+
+    const result = verifyReleaseArtifacts({
+      version: '1.0.0',
+      serverFile: appFile,
+      installerFile: ''
+    });
+    assert.strictEqual(result.isValid, true);
+    assert.strictEqual(result.errors.length, 0);
+  });
+
   test('should validate App.java and detect 0.0.0_dev or mismatch', () => {
     const appFile = path.join(tmpDir, 'App.java');
     fs.writeFileSync(appFile, 'public static final String SERVER_VERSION = "0.0.0_dev";\n');
@@ -108,5 +121,52 @@ describe('verify_release_artifacts', () => {
     fs.writeFileSync(versionTsFile, 'export const CLIENT_VERSION_BUILD: string = "1.0.0";\n');
     result = verifyReleaseArtifacts({ version: '1.0.0', versionFile: versionTsFile });
     assert.strictEqual(result.isValid, true);
+  });
+
+  describe('resolveArg and parseCliArgs', () => {
+    test('resolveArg should return defaultVal when undefined', () => {
+      assert.strictEqual(resolveArg(undefined, 'default'), 'default');
+    });
+
+    test('resolveArg should return empty string for empty or sentinel strings', () => {
+      assert.strictEqual(resolveArg('', 'default'), '');
+      assert.strictEqual(resolveArg('""', 'default'), '');
+      assert.strictEqual(resolveArg("''", 'default'), '');
+      assert.strictEqual(resolveArg('none', 'default'), '');
+      assert.strictEqual(resolveArg('null', 'default'), '');
+      assert.strictEqual(resolveArg('-', 'default'), '');
+      assert.strictEqual(resolveArg('   ', 'default'), '');
+    });
+
+    test('resolveArg should return trimmed value when non-empty', () => {
+      assert.strictEqual(resolveArg('  some/path  ', 'default'), 'some/path');
+    });
+
+    test('parseCliArgs should use defaults when only version is passed', () => {
+      const argv = ['node', 'verify.js', '1.0.0-beta.1'];
+      const args = parseCliArgs(argv, {});
+      assert.strictEqual(args.version, '1.0.0-beta.1');
+      assert.strictEqual(args.serverFile, 'server/src/main/java/com/antigravity/App.java');
+      assert.strictEqual(args.installerFile, 'installer_base.iss');
+      assert.strictEqual(args.versionFile, 'client/src/app/version.ts');
+    });
+
+    test('parseCliArgs should allow empty string for installerFile (Linux build pattern)', () => {
+      const argv = [
+        'node',
+        'verify.js',
+        '1.0.0-beta.41',
+        'release/RaceCoordinator_Linux_ARM64/web',
+        'server/src/main/java/com/antigravity/App.java',
+        '',
+        'client/src/app/version.ts'
+      ];
+      const args = parseCliArgs(argv, {});
+      assert.strictEqual(args.version, '1.0.0-beta.41');
+      assert.strictEqual(args.webDir, 'release/RaceCoordinator_Linux_ARM64/web');
+      assert.strictEqual(args.serverFile, 'server/src/main/java/com/antigravity/App.java');
+      assert.strictEqual(args.installerFile, '');
+      assert.strictEqual(args.versionFile, 'client/src/app/version.ts');
+    });
   });
 });

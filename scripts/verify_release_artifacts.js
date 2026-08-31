@@ -133,32 +133,52 @@ function verifyReleaseArtifacts(options = {}) {
   };
 }
 
-function main() {
-  const versionArg = process.argv[2] || process.env.VERSION || '';
-  const webDirArg = process.argv[3] || (fs.existsSync('release/RaceCoordinator/web') ? 'release/RaceCoordinator/web' : (fs.existsSync('client/dist/client') ? 'client/dist/client' : ''));
-  const serverFileArg = process.argv[4] || 'server/src/main/java/com/antigravity/App.java';
-  const installerFileArg = process.argv[5] || 'installer_base.iss';
-  const versionFileArg = process.argv[6] || 'client/src/app/version.ts';
-
-  if (!versionArg) {
-    console.error('❌ Error: Expected version must be provided.');
-    console.error('Usage: node verify_release_artifacts.js <version> [webDir] [serverFile] [installerFile] [versionFile]');
-    process.exit(1);
+function resolveArg(val, defaultVal = '') {
+  if (val === undefined) {
+    return defaultVal;
   }
+  const str = String(val).trim();
+  if (str === '' || str === '""' || str === "''" || str === 'none' || str === 'null' || str === '-') {
+    return '';
+  }
+  return str;
+}
 
-  console.log(`🔍 Verifying Release Artifacts for Version: "${versionArg}"...`);
-  console.log(`   Web Directory:       ${webDirArg || '(none)'}`);
-  console.log(`   Server App File:     ${serverFileArg || '(none)'}`);
-  console.log(`   Installer File:      ${installerFileArg || '(none)'}`);
-  console.log(`   Client Version File: ${versionFileArg || '(none)'}`);
+function parseCliArgs(argv = process.argv, env = process.env) {
+  const versionArg = argv[2] || env.VERSION || '';
+  const defaultWebDir = fs.existsSync('release/RaceCoordinator/web')
+    ? 'release/RaceCoordinator/web'
+    : (fs.existsSync('client/dist/client') ? 'client/dist/client' : '');
+  const webDirArg = resolveArg(argv[3], defaultWebDir);
+  const serverFileArg = resolveArg(argv[4], 'server/src/main/java/com/antigravity/App.java');
+  const installerFileArg = resolveArg(argv[5], 'installer_base.iss');
+  const versionFileArg = resolveArg(argv[6], 'client/src/app/version.ts');
 
-  const result = verifyReleaseArtifacts({
+  return {
     version: versionArg,
     webDir: webDirArg,
     serverFile: serverFileArg,
     installerFile: installerFileArg,
     versionFile: versionFileArg
-  });
+  };
+}
+
+function main() {
+  const args = parseCliArgs(process.argv, process.env);
+
+  if (!args.version) {
+    console.error('❌ Error: Expected version must be provided.');
+    console.error('Usage: node verify_release_artifacts.js <version> [webDir] [serverFile] [installerFile] [versionFile]');
+    process.exit(1);
+  }
+
+  console.log(`🔍 Verifying Release Artifacts for Version: "${args.version}"...`);
+  console.log(`   Web Directory:       ${args.webDir || '(none)'}`);
+  console.log(`   Server App File:     ${args.serverFile || '(none)'}`);
+  console.log(`   Installer File:      ${args.installerFile || '(none)'}`);
+  console.log(`   Client Version File: ${args.versionFile || '(none)'}`);
+
+  const result = verifyReleaseArtifacts(args);
 
   if (!result.isValid) {
     console.error('\n❌ [Release Artifacts Verification FAILED]');
@@ -177,5 +197,7 @@ if (require.main === module) {
 }
 
 module.exports = {
-  verifyReleaseArtifacts
+  verifyReleaseArtifacts,
+  parseCliArgs,
+  resolveArg
 };
