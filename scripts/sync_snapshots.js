@@ -75,7 +75,10 @@ for (const spec of failedSpecs) {
                     const matchingFiles = files.filter(f => f.startsWith(snapshotBaseName) && f.includes(projectName) && f.endsWith('.png'));
 
                     if (matchingFiles.length === 0) {
-                        console.log(`Could not find expected file for snapshot: ${snapshotBaseName} in ${snapshotDir}`);
+                        const targetName = `${snapshotBaseName}-${projectName}-linux.png`;
+                        const destPath = path.join(snapshotDir, targetName);
+                        fs.copyFileSync(actualPath, destPath);
+                        console.log(`✅ Created new snapshot: ${targetName}`);
                         continue;
                     }
 

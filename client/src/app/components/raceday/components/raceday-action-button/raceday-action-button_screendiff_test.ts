@@ -135,4 +135,77 @@ test.describe("Raceday Action Button Visuals", () => {
       maxDiffPixelRatio: 0.05,
     });
   });
+
+  test("should display action back button widget", async ({ page }) => {
+    await TestSetupHelper.setupSettings(page, {
+      racedayLayout: {
+        widgets: [
+          {
+            id: "w-back",
+            widgetType: "action-back",
+            x: 50,
+            y: 50,
+            width: 36,
+            height: 36,
+            scaleMode: "auto",
+            customSettings: { backgroundColor: "", fontSize: 24 },
+          },
+        ],
+      },
+    });
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    await page.locator(".dashboard-wrapper").waitFor();
+    const backBtn = page.locator("app-raceday-action-button button");
+    await backBtn.waitFor({ state: "visible" });
+    await page.evaluate(() => document.fonts.ready);
+    await page.mouse.move(0, 0);
+
+    await expect(backBtn).toHaveScreenshot("raceday-action-back-button.png", {
+      maxDiffPixelRatio: 0.05,
+    });
+  });
+
+  test("should display action back button widget hovered", async ({ page }) => {
+    await TestSetupHelper.setupSettings(page, {
+      racedayLayout: {
+        widgets: [
+          {
+            id: "w-back",
+            widgetType: "action-back",
+            x: 50,
+            y: 50,
+            width: 36,
+            height: 36,
+            scaleMode: "auto",
+            customSettings: { backgroundColor: "", fontSize: 24 },
+          },
+        ],
+      },
+    });
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    await page.locator(".dashboard-wrapper").waitFor();
+    const backBtn = page.locator("app-raceday-action-button button");
+    await backBtn.waitFor({ state: "visible" });
+    await page.evaluate(() => document.fonts.ready);
+    await backBtn.hover();
+
+    await expect(backBtn).toHaveScreenshot(
+      "raceday-action-back-button-hover.png",
+      {
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
 });

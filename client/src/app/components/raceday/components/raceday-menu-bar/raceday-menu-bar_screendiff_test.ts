@@ -283,4 +283,25 @@ test.describe("Raceday Menu Bar Visuals", () => {
       "raceday-menu-bar-driver-view-open.png",
     );
   });
+
+  test("should display menu bar with File dropdown open", async ({ page }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    await page.locator(".dashboard-wrapper").waitFor();
+
+    const menuBar = page.locator("app-raceday-menu-bar");
+    await expect(menuBar).toBeVisible();
+
+    const fileBtn = menuBar.locator(".menu-button-top").first();
+    await fileBtn.click();
+
+    const dropdown = menuBar.locator(".menu-dropdown");
+    await expect(dropdown).toBeVisible();
+
+    await expect(page).toHaveScreenshot("raceday-menu-bar-file-open.png");
+  });
 });
