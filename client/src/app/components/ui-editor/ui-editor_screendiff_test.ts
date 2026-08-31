@@ -66,10 +66,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for flags grid to be visible and rendered
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -125,10 +125,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for the flag images grid to be rendered before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -152,7 +152,7 @@ test.describe("UI Editor Visuals", () => {
 
     // Clear hover/focus and scroll into view
     await page.mouse.move(0, 0);
-    await customHeader.scrollIntoViewIfNeeded();
+    await expander.scrollIntoViewIfNeeded();
 
     await expect(page).toHaveScreenshot("ui-editor-duplicate-name-error.png", {
       maxDiffPixelRatio: 0.15,
@@ -180,10 +180,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for flag grid to render before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -243,10 +243,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await practiceUiSection.waitFor({ state: "visible" });
 
-    const practiceHeader = practiceUiSection.locator(".section-header").first();
-    await practiceHeader.waitFor({ state: "visible" });
-    await practiceHeader.scrollIntoViewIfNeeded();
-    await practiceHeader.click();
+    const expander = practiceUiSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for the practice section content to be visible
     const practiceLayoutSection = practiceUiSection.locator(
@@ -293,10 +293,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for the flag images grid to be rendered
     const flagGrid = customThemeSection.locator(".flags-grid");
