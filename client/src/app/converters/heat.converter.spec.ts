@@ -187,4 +187,26 @@ describe("HeatConverter", () => {
     expect(hd2?.rank).toBe(1);
     expect(hd1?.rank).toBe(2);
   });
+
+  it("should map isFinished from proto", () => {
+    const proto: IHeat = {
+      objectId: "heat1",
+      heatNumber: 1,
+      heatDrivers: [
+        {
+          objectId: "hd1",
+          driver: {
+            objectId: "p1",
+            driver: { name: "Driver 1" },
+          },
+          isFinished: true,
+        } as any,
+      ],
+    };
+
+    const heat = HeatConverter.fromProto(proto);
+    const driverData = heat.heatDrivers[0]!;
+
+    expect(driverData.isFinished).toBeTrue();
+  });
 });

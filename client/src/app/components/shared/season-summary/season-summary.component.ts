@@ -16,6 +16,7 @@ export class SeasonSummaryComponent {
   standings = input<SeasonStandingItem[] | undefined | null>();
   emptyMessage = input<string>("SM_NO_RACES_RUN");
   compact = input<boolean>(false);
+  showHeader = input<boolean>(true);
 
   hasDemoRaces = computed(() => {
     const s = this.season();

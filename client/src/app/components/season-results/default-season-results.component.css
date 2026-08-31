@@ -213,6 +213,28 @@
   text-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
 }
 
+.summary-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-section app-season-summary {
+  display: block;
+  width: 100%;
+  height: auto;
+  flex: none;
+  overflow: visible;
+}
+
+.summary-section app-season-summary ::ng-deep .season-summary-container,
+.summary-section app-season-summary ::ng-deep .detail-content,
+.summary-section app-season-summary ::ng-deep .standings-wrapper,
+.summary-section app-season-summary ::ng-deep .standings-body-container {
+  height: auto;
+  flex: none;
+  overflow: visible;
+}
+
 .empty-standings, .empty-races {
   background: rgba(13, 22, 38, 0.4);
   border: 1px dashed rgba(0, 229, 255, 0.2);
@@ -621,6 +643,15 @@
     break-inside: avoid !important;
     page-break-inside: avoid !important;
     margin-bottom: 30px !important;
+  }
+
+  .summary-section app-season-summary,
+  .summary-section app-season-summary ::ng-deep .season-summary-container,
+  .summary-section app-season-summary ::ng-deep .detail-content,
+  .summary-section app-season-summary ::ng-deep .standings-wrapper,
+  .summary-section app-season-summary ::ng-deep .standings-body-container {
+    height: auto !important;
+    overflow: visible !important;
   }
 
   /* No-background ink-saving print overrides */

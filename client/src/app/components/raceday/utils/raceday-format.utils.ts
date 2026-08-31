@@ -323,10 +323,10 @@ export class RacedayFormatUtils {
         return ctx.getFlagUrl("flag.penalty");
       }
       if (
-        value === RaceFlag.RED &&
         hd &&
-        ctx.isDriverFinished &&
-        ctx.isDriverFinished(hd, ctx.getRace()?.heat_scoring)
+        (hd.isFinished ||
+          (ctx.isDriverFinished &&
+            ctx.isDriverFinished(hd, ctx.getRace()?.heat_scoring)))
       ) {
         return ctx.getFlagUrl("flag.driver_finished");
       }

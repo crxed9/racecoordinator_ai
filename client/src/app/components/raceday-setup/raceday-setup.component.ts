@@ -39,7 +39,7 @@ import {
   UpdateProgress,
   UpdateService,
 } from "@app/services/update.service";
-import { CLIENT_VERSION } from "@app/version";
+import { CLIENT_VERSION, getClientVersion } from "@app/version";
 
 import { DefaultRacedaySetupComponent } from "./default-raceday-setup.component";
 
@@ -162,14 +162,7 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
   }
 
   private updateScale() {
-    const targetWidth = 1600;
-    const targetHeight = 900;
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-
-    const scaleX = windowWidth / targetWidth;
-    const scaleY = windowHeight / targetHeight;
-    this.scale = Math.min(scaleX, scaleY);
+    this.scale = 1;
   }
 
   get isServerConnected(): boolean {
@@ -619,6 +612,7 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
     this.dataService.getServerVersion().subscribe({
       next: (version) => {
         this.serverVersion = version;
+        this.clientVersion = getClientVersion(version);
         this.cdr.detectChanges();
       },
       error: (err) => {

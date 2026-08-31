@@ -218,9 +218,10 @@ describe("DefaultSeasonResultsComponent", () => {
     };
     component.calculateStandings();
     expect(component.standings.length).toBe(1);
-    // Total is 35 (10 + 25), with 1 drop (drops lowest 10), net points should be 25
+    // Total is 35 (10 + 25), with 1 drop (drops lowest 10), net points should be 25, dropped points should be 10
     expect(component.standings[0].gross_points).toBe(35);
     expect(component.standings[0].net_points).toBe(25);
+    expect(component.standings[0].dropped_points).toBe(10);
   });
 
   it("should detect demo races via hasDemoRaces getter", () => {
@@ -824,5 +825,97 @@ describe("DefaultSeasonResultsComponent", () => {
     // scaleY = 1080 / 1080 = 1.0
     // uniform scale = min(0.5, 1.0) = 0.5
     expect(component.scale).toBeCloseTo(0.5, 3);
+  });
+
+  it("should render drops count meta-pill and dropped points column in standings table", () => {
+    fixture.detectChanges(); // Run ngOnInit first
+
+    component.season = {
+      entity_id: "s_drops_display",
+      name: "Championship 2026",
+      drops: 2,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [
+            {
+              driver_id: "d1",
+              driver_name: "Top Racer",
+              overall_rank: 1,
+              overall_points: 25,
+              heat_points: 0,
+              total_points: 25,
+            },
+          ],
+        },
+        {
+          race_id: "r2",
+          race_name: "Race 2",
+          timestamp: 2000,
+          driver_results: [
+            {
+              driver_id: "d1",
+              driver_name: "Top Racer",
+              overall_rank: 2,
+              overall_points: 10,
+              heat_points: 0,
+              total_points: 10,
+            },
+          ],
+        },
+        {
+          race_id: "r3",
+          race_name: "Race 3",
+          timestamp: 3000,
+          driver_results: [
+            {
+              driver_id: "d1",
+              driver_name: "Top Racer",
+              overall_rank: 1,
+              overall_points: 30,
+              heat_points: 0,
+              total_points: 30,
+            },
+          ],
+        },
+      ],
+    };
+
+    component.calculateStandings();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    // Verify panel header has drops count pill
+    const metaPills = compiled.querySelectorAll(".panel-header .meta-pill");
+    expect(metaPills.length).toBe(2);
+    expect(metaPills[0].textContent).toContain("SM_DROPS_COUNT");
+    expect(metaPills[0].querySelector("strong")?.textContent).toBe("2");
+    expect(metaPills[1].textContent).toContain("SM_RACES_RUN");
+    expect(metaPills[1].querySelector("strong")?.textContent).toBe("3");
+
+    // Verify standings table headers have 6 columns including SM_DROPPED_POINTS
+    const headers = compiled.querySelectorAll(".standings-table thead th");
+    expect(headers.length).toBe(6);
+    expect(headers[0].textContent?.trim()).toBe("SM_RANK");
+    expect(headers[1].textContent?.trim()).toBe("SM_DRIVER");
+    expect(headers[2].textContent?.trim()).toBe("SM_NET_POINTS");
+    expect(headers[3].textContent?.trim()).toBe("SM_GROSS_POINTS");
+    expect(headers[4].textContent?.trim()).toBe("SM_DROPPED_POINTS");
+    expect(headers[5].textContent?.trim()).toBe("SM_RACES");
+
+    // Verify standings row values
+    const rowCells = compiled.querySelectorAll(
+      ".standings-table tbody tr:first-child td",
+    );
+    expect(rowCells.length).toBe(6);
+    // Gross = 25 + 10 + 30 = 65, Drops = 2 lowest (10, 25) = 35 dropped, Net = 30
+    expect(rowCells[1].textContent?.trim()).toBe("Top Racer");
+    expect(rowCells[2].textContent?.trim()).toBe("30");
+    expect(rowCells[3].textContent?.trim()).toBe("65");
+    expect(rowCells[4].textContent?.trim()).toBe("35");
+    expect(rowCells[5].textContent?.trim()).toBe("3");
   });
 });

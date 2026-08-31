@@ -60,6 +60,7 @@ export class HeatConverter {
     hd.currentLocation = dProto.currentLocation ?? -1;
     hd.flag = dProto.flag || 0;
     hd.lapsLed = dProto.lapsLed || 0;
+    hd.isFinished = !!(dProto.isFinished ?? (dProto as any).is_finished);
     if (dProto.laps) {
       dProto.laps.forEach((lap: any, i: number) => {
         const time =

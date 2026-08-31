@@ -140,8 +140,8 @@ export function parseLayoutImport(
 
 export function getDefaultLayoutResetData(
   isPractice: boolean,
-  windowInnerWidth: number,
-  windowInnerHeight: number,
+  windowInnerWidth?: number,
+  windowInnerHeight?: number,
 ): {
   defaultLayout: LayoutConfig;
   columns: string[];
@@ -153,11 +153,10 @@ export function getDefaultLayoutResetData(
   const baseLayout = isPractice
     ? Settings.DEFAULT_PRACTICE_LAYOUT
     : Settings.DEFAULT_LAYOUT;
-  const defaultLayout = computeScaledLayout(
-    baseLayout,
-    windowInnerWidth,
-    windowInnerHeight,
-  );
+  const defaultLayout =
+    windowInnerWidth && windowInnerHeight
+      ? computeScaledLayout(baseLayout, windowInnerWidth, windowInnerHeight)
+      : JSON.parse(JSON.stringify(baseLayout));
 
   const defaultSettings = new Settings();
 

@@ -1932,6 +1932,28 @@ describe("DefaultRacedayComponent", () => {
       );
     });
 
+    it("should use driver finished flag if driver isFinished is true", () => {
+      mockRaceFlagService.getFlagUrl.and.returnValue(
+        "http://localhost/driver_finished.png",
+      );
+      const finishedHd = { ...mockHd, isFinished: true } as any;
+      const result = component.formatValue("flag", RaceFlag.RED, finishedHd);
+      expect(result).toBe("http://localhost/driver_finished.png");
+      expect(mockRaceFlagService.getFlagUrl).toHaveBeenCalledWith(
+        "flag.driver_finished",
+      );
+    });
+
+    it("should evaluate isDriverFinished based on server isFinished state", () => {
+      expect(component.isDriverFinished(null as any)).toBeFalse();
+      expect(
+        component.isDriverFinished({ isFinished: false } as any),
+      ).toBeFalse();
+      expect(
+        component.isDriverFinished({ isFinished: true } as any),
+      ).toBeTrue();
+    });
+
     it("should format laneNumber correctly (1-indexed)", () => {
       const mockLaneHd = { ...mockHd, laneIndex: 2 } as any;
       const result = component.formatValue("laneNumber", null, mockLaneHd);
@@ -5222,7 +5244,7 @@ describe("DefaultRacedayComponent", () => {
       expect(component.dashboardWidth).toBe(1920);
     });
 
-    it("should calculate scale based on min aspect ratio and keep dashboardWidth at layout baseWidth in normal mode", () => {
+    it("should keep scale at 1 and dashboardWidth at layout baseWidth in normal mode", () => {
       const _widthSpy = spyOnProperty(
         window,
         "innerWidth",
@@ -5240,21 +5262,21 @@ describe("DefaultRacedayComponent", () => {
       _heightSpy.and.returnValue(900);
 
       component.onResize();
-      expect(component.scale).toBeCloseTo(1440 / 1920, 3); // scaleX (0.75) < scaleY (0.833)
+      expect(component.scale).toBe(1);
       expect(component.dashboardWidth).toBe(1920);
 
       _widthSpy.and.returnValue(2560);
       _heightSpy.and.returnValue(1080);
 
       component.onResize();
-      expect(component.scale).toBeCloseTo(1.0, 3); // scaleY (1.0) < scaleX (1.33)
+      expect(component.scale).toBe(1);
       expect(component.dashboardWidth).toBe(1920);
 
       _widthSpy.and.returnValue(1024);
       _heightSpy.and.returnValue(768);
 
       component.onResize();
-      expect(component.scale).toBeCloseTo(1024 / 1920, 3); // scaleX (0.533) < scaleY (0.711)
+      expect(component.scale).toBe(1);
       expect(component.dashboardWidth).toBe(1920);
     });
   });

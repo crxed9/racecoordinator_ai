@@ -219,8 +219,10 @@ function resolveTestsForFile(filePath) {
         return [fullPath];
     }
 
-    // Only process client/src/app files for component-scoped testing
-    if (!normalized.includes('/client/src/app/')) {
+    // Only process client/src/app/components files for component-scoped testing.
+    // Non-UI layers (models, services, converters, pipes, utils, guards, interfaces, proto, race, testing)
+    // are logic/data layers that do not directly define visual rendering.
+    if (!normalized.includes('/client/src/app/components/')) {
         return [];
     }
 

@@ -306,3 +306,15 @@
 .season-summary-container.compact .net-highlight {
   font-size: 1.1rem;
 }
+
+@media print {
+  :host,
+  .season-summary-container,
+  .detail-content,
+  .standings-wrapper,
+  .standings-body-container {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+

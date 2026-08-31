@@ -1330,10 +1330,58 @@ public class RaceTest {
       assertEquals(1, race.getCurrentHeat().getDrivers().size());
       assertEquals(RaceFlag.GREEN, race.getState().getFlagType(race));
       assertEquals(RaceFlag.GREEN, race.getCurrentHeat().getDrivers().get(0).getFlag());
+      assertFalse(race.getCurrentHeat().getDrivers().get(0).isFinished());
 
       race.changeState(new HeatOver());
       assertEquals(RaceFlag.RED, race.getState().getFlagType(race));
       assertEquals(RaceFlag.RED, race.getCurrentHeat().getDrivers().get(0).getFlag());
+      assertTrue(race.getCurrentHeat().getDrivers().get(0).isFinished());
+    }
+
+    @Test
+    public void testTimedRaceDriversFinishedFlagsOnHeatOverAndRaceOver() {
+      // Set timed scoring with AllowFinish.None
+      HeatScoring scoring =
+          new HeatScoring(
+              HeatScoring.FinishMethod.Timed,
+              60,
+              HeatScoring.HeatRanking.LAP_COUNT,
+              HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+              HeatScoring.AllowFinish.None);
+      com.antigravity.models.Race model =
+          new com.antigravity.models.Race.Builder()
+              .from(race.getRaceModel())
+              .withHeatScoring(scoring)
+              .build();
+      race.setRaceModel(model);
+
+      // Add custom slot in theme for flag.driver_finished to be CHECKERED
+      java.util.Map<String, String> slots = new java.util.HashMap<>();
+      if (race.getTheme() != null && race.getTheme().getSlots() != null) {
+        slots.putAll(race.getTheme().getSlots());
+      }
+      slots.put("flag.driver_finished", "custom_checkered_flag");
+      Theme customTheme =
+          new Theme(
+              "Custom", false, slots, new java.util.HashMap<>(), "custom_theme", "custom_theme");
+      race.setTheme(customTheme);
+
+      race.addRaceTime(60.0f);
+      race.changeState(new Racing());
+
+      DriverHeatData dhd = race.getCurrentHeat().getDrivers().get(0);
+      assertFalse(dhd.isFinished());
+      assertEquals(RaceFlag.GREEN, dhd.getFlag());
+
+      // Transition to HeatOver (time expired or heat finished)
+      race.changeState(new HeatOver());
+      assertTrue(dhd.isFinished());
+      assertEquals(RaceFlag.CHECKERED, dhd.getFlag());
+
+      // Transition to RaceOver
+      race.changeState(new RaceOver());
+      assertTrue(dhd.isFinished());
+      assertEquals(RaceFlag.CHECKERED, dhd.getFlag());
     }
 
     @Test
@@ -2486,6 +2534,96 @@ public class RaceTest {
       assertTrue(resumeRace.isMainPower());
       assertFalse(resumeRace.isLanePower(0));
       assertTrue(resumeRace.isLanePower(1));
+    }
+
+    @Test
+    public void testMasterPowerDuringCheckeredFlag_SingleLap_Timed() {
+      Race model =
+          new Race.Builder()
+              .withHeatScoring(
+                  new HeatScoring(
+                      HeatScoring.FinishMethod.Timed,
+                      60L,
+                      HeatScoring.HeatRanking.LAP_COUNT,
+                      HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+                      HeatScoring.AllowFinish.SingleLap))
+              .build();
+
+      Lane lane0 = new Lane("red", "white", 100);
+      Lane lane1 = new Lane("blue", "white", 100);
+      List<Lane> lanes = new ArrayList<>();
+      lanes.add(lane0);
+      lanes.add(lane1);
+      Track track = new Track.Builder().name("Track").lanes(lanes).build();
+
+      com.antigravity.race.Race singleLapTimedRace =
+          new com.antigravity.race.Race.Builder()
+              .model(model)
+              .track(track)
+              .drivers(race.getDrivers())
+              .isDemoMode(true)
+              .build();
+      singleLapTimedRace.injectProtocols(mockProtocols);
+
+      singleLapTimedRace.updatePowerForFlag(RaceFlag.GREEN);
+      assertTrue(singleLapTimedRace.isMainPower());
+      assertTrue(singleLapTimedRace.isLanePower(0));
+      assertTrue(singleLapTimedRace.isLanePower(1));
+
+      // Checkered flag broadcast
+      singleLapTimedRace.updatePowerForFlag(RaceFlag.CHECKERED);
+      assertTrue(singleLapTimedRace.isMainPower());
+      assertTrue(singleLapTimedRace.isLanePower(0));
+      assertTrue(singleLapTimedRace.isLanePower(1));
+
+      // Lane 0 finishes single lap
+      singleLapTimedRace.getHeatExecutionManager().getFinishedLanes().add(0);
+      singleLapTimedRace.setLanePower(false, 0);
+      assertTrue(singleLapTimedRace.isMainPower());
+      assertFalse(singleLapTimedRace.isLanePower(0));
+      assertTrue(singleLapTimedRace.isLanePower(1));
+    }
+
+    @Test
+    public void testMasterPowerDuringCheckeredFlag_SingleLap_Lap() {
+      Race model =
+          new Race.Builder()
+              .withHeatScoring(
+                  new HeatScoring(
+                      HeatScoring.FinishMethod.Lap,
+                      5L,
+                      HeatScoring.HeatRanking.LAP_COUNT,
+                      HeatScoring.HeatRankingTiebreaker.FASTEST_LAP_TIME,
+                      HeatScoring.AllowFinish.SingleLap))
+              .build();
+
+      Lane lane0 = new Lane("red", "white", 100);
+      Lane lane1 = new Lane("blue", "white", 100);
+      List<Lane> lanes = new ArrayList<>();
+      lanes.add(lane0);
+      lanes.add(lane1);
+      Track track = new Track.Builder().name("Track").lanes(lanes).build();
+
+      com.antigravity.race.Race singleLapRace =
+          new com.antigravity.race.Race.Builder()
+              .model(model)
+              .track(track)
+              .drivers(race.getDrivers())
+              .isDemoMode(true)
+              .build();
+      singleLapRace.injectProtocols(mockProtocols);
+
+      singleLapRace.updatePowerForFlag(RaceFlag.GREEN);
+      assertTrue(singleLapRace.isMainPower());
+
+      singleLapRace.updatePowerForFlag(RaceFlag.CHECKERED);
+      assertTrue(singleLapRace.isMainPower());
+
+      singleLapRace.getHeatExecutionManager().getFinishedLanes().add(0);
+      singleLapRace.setLanePower(false, 0);
+      assertTrue(singleLapRace.isMainPower());
+      assertFalse(singleLapRace.isLanePower(0));
+      assertTrue(singleLapRace.isLanePower(1));
     }
 
     @Test

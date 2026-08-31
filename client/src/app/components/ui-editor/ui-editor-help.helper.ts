@@ -122,20 +122,6 @@ export function getRacedayLayoutHelpSteps(
       onEnter: () => expandCustomUiSection(ctx),
     },
     {
-      selector: "#help-raceday-resolution",
-      title: translationService.translate("UI_EDITOR_LAYOUT_RESOLUTION"),
-      content: translationService.translate("UE_HELP_RACEDAY_RESOLUTION"),
-      position: "bottom",
-      onEnter: () => expandCustomUiSection(ctx),
-    },
-    {
-      selector: "#help-raceday-dimensions",
-      title: translationService.translate("UI_EDITOR_LAYOUT_RESOLUTION"),
-      content: translationService.translate("UE_HELP_RACEDAY_DIMENSIONS"),
-      position: "bottom",
-      onEnter: () => expandCustomUiSection(ctx),
-    },
-    {
       selector: "#help-raceday-reset",
       title: translationService.translate("UI_EDITOR_RESET_LAYOUT_DEFAULTS"),
       content: translationService.translate("UE_HELP_RACEDAY_RESET"),

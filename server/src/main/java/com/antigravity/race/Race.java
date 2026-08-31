@@ -645,6 +645,7 @@ public class Race implements ProtocolListener {
       for (int i = 0; i < currentHeat.getDrivers().size(); i++) {
         DriverHeatData dhd = currentHeat.getDrivers().get(i);
         if (dhd != null) {
+          dhd.setFinished(state.isDriverFinished(this, i, dhd));
           dhd.setFlag(state.getLaneFlagType(this, i));
         }
       }
@@ -679,6 +680,7 @@ public class Race implements ProtocolListener {
       for (int i = 0; i < currentHeat.getDrivers().size(); i++) {
         DriverHeatData dhd = currentHeat.getDrivers().get(i);
         if (dhd != null) {
+          dhd.setFinished(state.isDriverFinished(this, i, dhd));
           dhd.setFlag(state.getLaneFlagType(this, i));
         }
       }

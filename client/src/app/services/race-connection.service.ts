@@ -509,6 +509,11 @@ export class RaceConnectionService implements OnDestroy {
         (race as any).season_name = update.seasonName;
         (race as any).season_standings = update.seasonStandings || [];
       }
+      if (update.startTimeMillis || (update as any).start_time_millis) {
+        const sm = update.startTimeMillis || (update as any).start_time_millis;
+        (race as any).start_time_millis =
+          typeof sm === "number" ? sm : Number(sm);
+      }
       this.raceService.setRace(race);
     }
 

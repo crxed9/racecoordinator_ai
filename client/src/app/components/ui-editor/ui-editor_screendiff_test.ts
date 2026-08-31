@@ -66,10 +66,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for flags grid to be visible and rendered
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -125,10 +125,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for the flag images grid to be rendered before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -152,7 +152,7 @@ test.describe("UI Editor Visuals", () => {
 
     // Clear hover/focus and scroll into view
     await page.mouse.move(0, 0);
-    await customHeader.scrollIntoViewIfNeeded();
+    await expander.scrollIntoViewIfNeeded();
 
     await expect(page).toHaveScreenshot("ui-editor-duplicate-name-error.png", {
       maxDiffPixelRatio: 0.15,
@@ -180,10 +180,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for flag grid to render before interacting
     const flagGrid = customThemeSection.locator(".flags-grid");
@@ -243,10 +243,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await practiceUiSection.waitFor({ state: "visible" });
 
-    const practiceHeader = practiceUiSection.locator(".section-header").first();
-    await practiceHeader.waitFor({ state: "visible" });
-    await practiceHeader.scrollIntoViewIfNeeded();
-    await practiceHeader.click();
+    const expander = practiceUiSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for the practice section content to be visible
     const practiceLayoutSection = practiceUiSection.locator(
@@ -274,73 +274,6 @@ test.describe("UI Editor Visuals", () => {
     );
   });
 
-  test("should display layout resolution dropdown correctly", async ({
-    page,
-  }) => {
-    await TestSetupHelper.waitForLocalization(
-      page,
-      "en",
-      page.goto("/ui-editor"),
-    );
-    await page.locator(".ue-container").waitFor({ state: "visible" });
-
-    // The first section (Default UI Layout) is expanded by default
-    const section = page.locator(".config-section").first();
-    await section.waitFor({ state: "visible" });
-
-    const layoutControls = section.locator(".layout-controls").first();
-    await layoutControls.waitFor({ state: "visible" });
-    await layoutControls.scrollIntoViewIfNeeded();
-
-    const resolutionSelect = layoutControls.locator(
-      ".layout-resolution-select",
-    );
-    await resolutionSelect.waitFor({ state: "visible" });
-
-    await page.mouse.move(0, 0);
-
-    await expect(page).toHaveScreenshot(
-      "ui-editor-layout-resolution-dropdown.png",
-      {
-        maxDiffPixelRatio: 0.05,
-        maxDiffPixels: 10000,
-        animations: "disabled",
-      },
-    );
-  });
-
-  test("should scale preview when selecting resolution in layout controls", async ({
-    page,
-  }) => {
-    await TestSetupHelper.waitForLocalization(
-      page,
-      "en",
-      page.goto("/ui-editor"),
-    );
-    await page.locator(".ue-container").waitFor({ state: "visible" });
-
-    const resolutionSelect = page.locator(".layout-resolution-select").first();
-    await resolutionSelect.waitFor({ state: "visible" });
-    await resolutionSelect.scrollIntoViewIfNeeded();
-
-    await resolutionSelect.selectOption("1920x1080");
-
-    const previewContainer = page.locator(".raceday-preview-container").first();
-    await previewContainer.waitFor({ state: "visible" });
-    await previewContainer.scrollIntoViewIfNeeded();
-
-    const previewScaler = page.locator(".raceday-preview-scaler").first();
-    await previewScaler.waitFor({ state: "visible" });
-    await TestSetupHelper.waitForImagesLoaded(previewContainer);
-    await page.mouse.move(0, 0);
-
-    await expect(page).toHaveScreenshot("ui-editor-layout-preview-scaled.png", {
-      maxDiffPixelRatio: 0.1,
-      maxDiffPixels: 40000,
-      animations: "disabled",
-    });
-  });
-
   test("should display expanded custom theme with all 12 behavioral flags", async ({
     page,
   }) => {
@@ -360,10 +293,10 @@ test.describe("UI Editor Visuals", () => {
     );
     await customThemeSection.waitFor({ state: "visible" });
 
-    const customHeader = customThemeSection.locator(".section-header").first();
-    await customHeader.waitFor({ state: "visible" });
-    await customHeader.scrollIntoViewIfNeeded();
-    await customHeader.click();
+    const expander = customThemeSection.locator(".expander-icon").first();
+    await expander.waitFor({ state: "visible" });
+    await expander.scrollIntoViewIfNeeded();
+    await expander.click();
 
     // Wait for the flag images grid to be rendered
     const flagGrid = customThemeSection.locator(".flags-grid");

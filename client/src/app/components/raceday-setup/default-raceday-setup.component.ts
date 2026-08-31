@@ -26,6 +26,7 @@ import { ConfirmationModalComponent } from "@app/components/shared/confirmation-
 import { DemoConfigModalComponent } from "@app/components/shared/demo-config-modal/demo-config-modal.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import { LanguageSelectorComponent } from "@app/components/shared/language-selector/language-selector.component";
+import { RacingRosterDialogComponent } from "@app/components/shared/racing-roster-dialog/racing-roster-dialog.component";
 import { SeasonSummaryComponent } from "@app/components/shared/season-summary/season-summary.component";
 import { UpdateSelectorComponent } from "@app/components/shared/update-selector/update-selector.component";
 import { DataService } from "@app/data.service";
@@ -71,6 +72,7 @@ type Participant = Driver | Team;
     ConfirmationModalComponent,
     AcknowledgementModalComponent,
     DemoConfigModalComponent,
+    RacingRosterDialogComponent,
     SeasonSummaryComponent,
     TranslatePipe,
     EditorTitleComponent,
@@ -133,10 +135,9 @@ export class DefaultRacedaySetupComponent implements OnInit {
   showErrorModal: boolean = false;
   errorTitle: string = "";
   errorMessage: string = "";
-  errorMessageParams: any = {};
-
-  // Demo Config State
+  errorMessageParams?: Record<string, string>;
   showDemoConfigModal: boolean = false;
+  showRacingRosterDialog: boolean = false;
   demoConfig?: IDemoConfig;
 
   // Season State
@@ -1397,6 +1398,16 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   onDemoConfigCancel() {
     this.showDemoConfigModal = false;
+    this.cdr.detectChanges();
+  }
+
+  openRacingRosterDialog(): void {
+    this.showRacingRosterDialog = true;
+    this.cdr.detectChanges();
+  }
+
+  closeRacingRosterDialog(): void {
+    this.showRacingRosterDialog = false;
     this.cdr.detectChanges();
   }
 

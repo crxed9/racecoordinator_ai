@@ -1,4 +1,4 @@
-import { CommonModule, DecimalPipe } from "@angular/common";
+import { CommonModule, DatePipe, DecimalPipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -96,6 +96,7 @@ import { SettingsService } from "@app/services/settings.service";
   imports: [
     TwinGraphsComponent,
     CommonModule,
+    DatePipe,
     DecimalPipe,
     TranslatePipe,
     AvatarUrlPipe,
@@ -179,7 +180,17 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
   protected driverLines: DriverLine[] = [];
   protected recordData: IRecordData | null = null;
   private subscriptions: Subscription[] = [];
-  private raceStartTime: Date = new Date();
+  private fallbackRaceStartTime: Date = new Date();
+
+  get raceStartTime(): Date {
+    const millis =
+      (this.race as any)?.start_time_millis ||
+      (this.race as any)?.startTimeMillis;
+    if (millis && Number(millis) > 0) {
+      return new Date(Number(millis));
+    }
+    return this.fallbackRaceStartTime;
+  }
 
   protected getDriverId(d: any): string {
     if (!d) return "";
@@ -308,7 +319,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
           !this.participants || this.participants.length === 0;
         this.participants = participants || [];
         if (hadNoParticipants && this.participants.length > 0) {
-          this.raceStartTime = new Date();
+          this.fallbackRaceStartTime = new Date();
         }
         this.recalculateStandings();
       }),

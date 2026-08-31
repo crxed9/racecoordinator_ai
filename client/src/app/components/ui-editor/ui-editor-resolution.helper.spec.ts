@@ -2,46 +2,13 @@ import { CustomUI } from "@app/models/custom-ui";
 import { LayoutConfig, Settings } from "@app/models/settings";
 
 import {
-  applyCustomDimensionChange,
-  applyLayoutResolutionChange,
   calculatePreviewScaleNumber,
   computeScaledLayout,
-  getDefaultResolutionOptions,
-  getLayoutResolution,
-  getLayoutResolutionOptions,
+  persistLayoutState,
   scaleLayoutDimensions,
 } from "./ui-editor-resolution.helper";
 
 describe("ui-editor-resolution.helper", () => {
-  it("should return default resolution options", () => {
-    const options = getDefaultResolutionOptions();
-    expect(options.length).toBeGreaterThan(5);
-    expect(
-      options.some((o) => o.label === "UI_EDITOR_RESOLUTION_DESKTOP_TV"),
-    ).toBeTrue();
-  });
-
-  it("should return formatted layout resolution", () => {
-    expect(getLayoutResolution(undefined)).toBe("1920x1080");
-    const layout: LayoutConfig = {
-      baseWidth: 1280,
-      baseHeight: 720,
-      widgets: [],
-    };
-    expect(getLayoutResolution(layout)).toBe("1280x720");
-  });
-
-  it("should append custom resolution option if not in defaults", () => {
-    const baseOptions = getDefaultResolutionOptions();
-    const customLayout: LayoutConfig = {
-      baseWidth: 1366,
-      baseHeight: 768,
-      widgets: [],
-    };
-    const result = getLayoutResolutionOptions(baseOptions, customLayout);
-    expect(result.some((o) => o.width === 1366 && o.height === 768)).toBeTrue();
-  });
-
   it("should scale layout dimensions and widgets proportionally", () => {
     const layout: LayoutConfig = {
       baseWidth: 1000,
@@ -95,7 +62,7 @@ describe("ui-editor-resolution.helper", () => {
     expect(orig.baseWidth).toBe(1000);
   });
 
-  it("should apply resolution change and update custom UI", () => {
+  it("should persist layout state to default custom UI and editingSettings", () => {
     const ui: CustomUI = {
       _id: "default_ui_layout_rc_ai",
       entity_id: "default_ui_layout_rc_ai",
@@ -104,20 +71,18 @@ describe("ui-editor-resolution.helper", () => {
       layoutJson: "{}",
     };
     const layout: LayoutConfig = {
-      baseWidth: 1000,
-      baseHeight: 500,
+      baseWidth: 1920,
+      baseHeight: 1080,
       widgets: [],
     };
     const settings = new Settings();
 
-    applyLayoutResolutionChange("1920x1080", layout, ui, settings);
-    expect(layout.baseWidth).toBe(1920);
-    expect(layout.baseHeight).toBe(1080);
+    persistLayoutState(layout, ui, settings);
     expect(settings.racedayLayout?.baseWidth).toBe(1920);
     expect(JSON.parse(ui.layoutJson || "{}").baseWidth).toBe(1920);
   });
 
-  it("should apply custom dimension change", () => {
+  it("should persist layout state to practice custom UI and editingSettings", () => {
     const ui: CustomUI = {
       _id: "practice_ui_layout_rc_ai",
       entity_id: "practice_ui_layout_rc_ai",
@@ -126,14 +91,14 @@ describe("ui-editor-resolution.helper", () => {
       layoutJson: "{}",
     };
     const layout: LayoutConfig = {
-      baseWidth: 1000,
-      baseHeight: 500,
+      baseWidth: 1920,
+      baseHeight: 1080,
       widgets: [],
     };
     const settings = new Settings();
 
-    applyCustomDimensionChange("width", 1600, layout, ui, settings);
-    expect(layout.baseWidth).toBe(1600);
-    expect(settings.practiceRacedayLayout?.baseWidth).toBe(1600);
+    persistLayoutState(layout, ui, settings);
+    expect(settings.practiceRacedayLayout?.baseWidth).toBe(1920);
+    expect(JSON.parse(ui.layoutJson || "{}").baseWidth).toBe(1920);
   });
 });

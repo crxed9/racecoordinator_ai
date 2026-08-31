@@ -2062,5 +2062,24 @@ describe("DefaultRacedaySetupComponent", () => {
       // uniform scale = min(0.5, 0.6667) = 0.5
       expect(component.scale).toBeCloseTo(0.5, 3);
     });
+
+    it("should open and close racing roster dialog", () => {
+      expect(component.showRacingRosterDialog).toBeFalse();
+
+      component.openRacingRosterDialog();
+      expect(component.showRacingRosterDialog).toBeTrue();
+
+      component.closeRacingRosterDialog();
+      expect(component.showRacingRosterDialog).toBeFalse();
+    });
+
+    it("should open racing roster dialog when clicking view roster button", async () => {
+      expect(component.showRacingRosterDialog).toBeFalse();
+
+      await harness.clickOpenRoster();
+      fixture.detectChanges();
+
+      expect(component.showRacingRosterDialog).toBeTrue();
+    });
   });
 });

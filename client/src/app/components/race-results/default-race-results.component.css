@@ -103,6 +103,14 @@
   letter-spacing: 1px;
 }
 
+.race-date-text {
+  font-size: 16px;
+  color: #8fa0b5;
+  font-weight: 500;
+  margin-left: 12px;
+  letter-spacing: 0.5px;
+}
+
 /* Export PDF button in header */
 .export-pdf-btn {
   background: transparent;
@@ -815,6 +823,11 @@
 
   :host-context(body.print-no-background) .label-text {
     color: #0284c7 !important;
+    text-shadow: none !important;
+  }
+
+  :host-context(body.print-no-background) .race-date-text {
+    color: #64748b !important;
     text-shadow: none !important;
   }
 

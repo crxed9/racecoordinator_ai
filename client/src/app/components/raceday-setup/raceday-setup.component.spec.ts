@@ -846,6 +846,12 @@ describe("RacedaySetupComponent", () => {
       expect(mockDataService.getServerIp).toHaveBeenCalled();
     });
 
+    it("should update clientVersion when server version is refreshed", () => {
+      mockDataService.getServerVersion.and.returnValue(of("2.5.0"));
+      (component as any).refreshServerInfo();
+      expect(component.serverVersion).toBe("2.5.0");
+    });
+
     it("should rotate quotes on quote click", fakeAsync(() => {
       component.showSplash = true;
       component.onQuoteClick();
@@ -864,16 +870,12 @@ describe("RacedaySetupComponent", () => {
       expect(mockFileSystemService.selectCustomFolder).toHaveBeenCalled();
     });
 
-    it("should calculate uniform scale on resize", () => {
+    it("should keep scale at 1 on resize", () => {
       spyOnProperty(window, "innerWidth", "get").and.returnValue(800);
       spyOnProperty(window, "innerHeight", "get").and.returnValue(600);
 
       component.onResize();
-      // Target width=1600, height=900
-      // scaleX = 800 / 1600 = 0.5
-      // scaleY = 600 / 900 = 0.6667
-      // uniform scale = min(0.5, 0.6667) = 0.5
-      expect(component.scale).toBeCloseTo(0.5, 3);
+      expect(component.scale).toBe(1);
     });
   });
 });
