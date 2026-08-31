@@ -277,6 +277,9 @@ describe("RacedayLayoutUtils", () => {
     expect(RacedayLayoutUtils.getLabelKeyForColumn("lapCount")).toBe(
       "RD_COL_LAP",
     );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("physicalLapCount")).toBe(
+      "RD_COL_LAP",
+    );
     expect(RacedayLayoutUtils.getLabelKeyForColumn("lapsLed")).toBe(
       "RD_COL_LAPS_LED",
     );
@@ -371,6 +374,9 @@ describe("RacedayLayoutUtils", () => {
 
     it("should return correct default widths for standard fixed columns", () => {
       expect(RacedayLayoutUtils.getDefaultColumnWidth("lapCount")).toBe(216);
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("physicalLapCount")).toBe(
+        210,
+      );
       expect(RacedayLayoutUtils.getDefaultColumnWidth("lapsLed")).toBe(216);
       expect(RacedayLayoutUtils.getDefaultColumnWidth("reactionTime")).toBe(
         330,

@@ -454,7 +454,11 @@ export class DefaultRacedayComponent
         if (c.propertyName === "lastLaps") {
           return `minmax(0, ${largeHeight * 5}fr)`;
         }
-        if (c.propertyName === "lapCount" || this.isLapTimeColumn(c)) {
+        if (
+          c.propertyName === "lapCount" ||
+          c.propertyName === "physicalLapCount" ||
+          this.isLapTimeColumn(c)
+        ) {
           return `minmax(0, ${largeHeight}fr)`;
         }
         return `minmax(0, ${smallHeight}fr)`;

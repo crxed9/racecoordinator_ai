@@ -4520,6 +4520,52 @@ describe("DefaultRacedayComponent", () => {
       expect(component.formatValue("lapCount", 2, hdAdjusted)).toBe("2.00");
     });
 
+    it("should format physicalLapCount strictly as whole number physical laps", () => {
+      // 1. No data / not started -> "--"
+      const hdNoData: any = {
+        driver: { name: "Driver 1" },
+        reactionTime: 0,
+        lapTimes: [],
+      };
+      expect(component.formatValue("physicalLapCount", 0, hdNoData)).toBe("--");
+
+      // 2. Reaction time registered, 0 laps -> "0"
+      const hdReaction: any = {
+        driver: { name: "Driver 1" },
+        reactionTime: 0.123,
+        lapTimes: [],
+      };
+      expect(component.formatValue("physicalLapCount", 0, hdReaction)).toBe(
+        "0",
+      );
+
+      // 3. 3 physical laps -> "3"
+      const hdLaps: any = {
+        driver: { name: "Driver 1" },
+        reactionTime: 0.123,
+        lapTimes: [10.2, 10.1, 9.8],
+        userLaps: 0.5,
+        adjustedLapCount: 3.5,
+      };
+      expect(component.formatValue("physicalLapCount", 3, hdLaps)).toBe("3");
+
+      // 4. Empty driver -> "--"
+      const hdEmpty: any = {
+        isEmpty: true,
+        driver: { name: "Driver 1" },
+        reactionTime: 1.0,
+        lapTimes: [10.2],
+      };
+      expect(component.formatValue("physicalLapCount", 1, hdEmpty)).toBe("--");
+    });
+
+    it("should not treat physicalLapCount column as clickable for add lap sections", () => {
+      const hd: any = { laneIndex: 0 };
+      const col: any = { propertyName: "physicalLapCount" };
+      (component as any).heat = { started: true } as any;
+      expect(component.isLapCountColumnClickable(hd, col)).toBeFalse();
+    });
+
     it("should call updateUserLaps with current + 0.25 on shift+click", () => {
       const mockHd: any = {
         laneIndex: 1,

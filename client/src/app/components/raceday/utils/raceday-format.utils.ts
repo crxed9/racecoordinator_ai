@@ -108,6 +108,7 @@ export class RacedayFormatUtils {
         baseKey === "rankOverall" ||
         baseKey === "rankGroup" ||
         baseKey === "lapsLed" ||
+        baseKey === "physicalLapCount" ||
         baseKey === "recordLapTime" ||
         baseKey.startsWith("ghostPacing")
       ) {
@@ -205,6 +206,18 @@ export class RacedayFormatUtils {
         return lapPlaceholder;
       }
       return value.toFixed(lapDecimals);
+    } else if (baseKey === "physicalLapCount") {
+      const hasReactionTime = hd.reactionTime > 0;
+      const hasRealLap = hd.lapTimes && hd.lapTimes.length > 0;
+
+      if (
+        value === null ||
+        value === undefined ||
+        (!hasReactionTime && !hasRealLap)
+      ) {
+        return "--";
+      }
+      return value.toString();
     } else if (baseKey === "lapsLed") {
       if (RacedayFormatUtils.isEmptyDriver(hd)) return "--";
       const led =

@@ -185,6 +185,10 @@ export class DriverHeatData {
     );
   }
 
+  get physicalLapCount(): number {
+    return this.laps ? this.laps.length : 0;
+  }
+
   get adjustedLapCount(): number {
     return this._adjustedLapCount;
   }

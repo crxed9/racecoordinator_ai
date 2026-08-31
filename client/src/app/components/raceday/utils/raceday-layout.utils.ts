@@ -250,6 +250,7 @@ export class RacedayLayoutUtils {
     const baseKey = (propertyKey as string).split("_")[0];
     const labels: { [key: string]: string } = {
       lapCount: "RD_COL_LAP",
+      physicalLapCount: "RD_COL_LAP",
       lapsLed: "RD_COL_LAPS_LED",
       lastLapTime: "RD_COL_LAP_TIME",
       lastLaps: "RD_COL_LAST_LAPS",
@@ -343,6 +344,7 @@ export class RacedayLayoutUtils {
       "driver.nickname": 0,
       "driver.avatarUrl": 120,
       lapCount: 216,
+      physicalLapCount: 210,
       lapsLed: 216,
       reactionTime: 330,
       lastLapTime: 330,
