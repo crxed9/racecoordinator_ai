@@ -1590,7 +1590,9 @@ export class DefaultRacedaySetupComponent implements OnInit {
     const queryParams: any = this.selectedRace
       ? { id: this.selectedRace.entity_id }
       : {};
-    queryParams.driverCount = this.selectedParticipants.length;
+    if (this.selectedParticipants.length > 0) {
+      queryParams.driverCount = this.selectedParticipants.length;
+    }
     this.closeConfigDropdown();
     this.router.navigate(["/race-manager"], { queryParams });
   }

@@ -136,11 +136,14 @@ export class RaceManagerComponent implements OnInit, OnDestroy {
     this.connectionMonitor.startMonitoring();
     this.monitorConnection();
 
-    // Get driver count from query params
+    // Get driver count from query params, default to 10 if missing or <= 0
     const driverCountParam =
       this.route.snapshot.queryParamMap.get("driverCount");
     if (driverCountParam) {
-      this.driverCount = parseInt(driverCountParam, 10);
+      const parsed = parseInt(driverCountParam, 10);
+      this.driverCount = !isNaN(parsed) && parsed > 0 ? parsed : 10;
+    } else {
+      this.driverCount = 10;
     }
 
     this.loadData();
