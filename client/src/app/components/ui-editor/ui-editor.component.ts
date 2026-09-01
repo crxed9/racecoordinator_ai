@@ -763,7 +763,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   scrollToTheme(themeId: string) {
-    this.cdr.markForCheck();
+    this.cdr.detectChanges();
     setTimeout(() => {
       const container = document.querySelector(
         ".sections-wrapper",

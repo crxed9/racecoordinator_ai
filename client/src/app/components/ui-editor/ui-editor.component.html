@@ -495,7 +495,7 @@
                                 [label]="'UE_LABEL_FLAG_RACING' | translate"
                                 [imageUrl]="getFlagUrl('flag.racing', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.racing']"
+                                [assetId]="theme.slots?.['flag.racing']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.racing', theme)?.images
@@ -518,7 +518,7 @@
                                   getFlagUrl('flag.heat_paused', theme)
                                 "
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.heat_paused']"
+                                [assetId]="theme.slots?.['flag.heat_paused']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.heat_paused', theme)
@@ -538,7 +538,7 @@
                                 [label]="'UE_LABEL_FLAG_HEAT_OVER' | translate"
                                 [imageUrl]="getFlagUrl('flag.heat_over', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.heat_over']"
+                                [assetId]="theme.slots?.['flag.heat_over']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.heat_over', theme)
@@ -558,7 +558,7 @@
                                 [label]="'UE_LABEL_FLAG_RACE_OVER' | translate"
                                 [imageUrl]="getFlagUrl('flag.race_over', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.race_over']"
+                                [assetId]="theme.slots?.['flag.race_over']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.race_over', theme)
@@ -582,7 +582,7 @@
                                   getFlagUrl('flag.not_started', theme)
                                 "
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.not_started']"
+                                [assetId]="theme.slots?.['flag.not_started']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.not_started', theme)
@@ -602,7 +602,7 @@
                                 [label]="'UE_LABEL_FLAG_STARTING' | translate"
                                 [imageUrl]="getFlagUrl('flag.starting', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.starting']"
+                                [assetId]="theme.slots?.['flag.starting']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.starting', theme)
@@ -624,7 +624,7 @@
                                   getFlagUrl('flag.restarting', theme)
                                 "
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.restarting']"
+                                [assetId]="theme.slots?.['flag.restarting']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.restarting', theme)
@@ -648,7 +648,7 @@
                                   getFlagUrl('flag.one_lap_to_go', theme)
                                 "
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.one_lap_to_go']"
+                                [assetId]="theme.slots?.['flag.one_lap_to_go']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.one_lap_to_go', theme)
@@ -672,7 +672,7 @@
                                   getFlagUrl('flag.heat_finishing', theme)
                                 "
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.heat_finishing']"
+                                [assetId]="theme.slots?.['flag.heat_finishing']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.heat_finishing', theme)
@@ -692,7 +692,7 @@
                                 [label]="'UE_LABEL_FLAG_WARMUP' | translate"
                                 [imageUrl]="getFlagUrl('flag.warmup', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.warmup']"
+                                [assetId]="theme.slots?.['flag.warmup']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.warmup', theme)?.images
@@ -715,7 +715,9 @@
                                   getFlagUrl('flag.driver_finished', theme)
                                 "
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.driver_finished']"
+                                [assetId]="
+                                  theme.slots?.['flag.driver_finished']
+                                "
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.driver_finished', theme)
@@ -735,7 +737,7 @@
                                 [label]="'UE_LABEL_FLAG_PENALTY' | translate"
                                 [imageUrl]="getFlagUrl('flag.penalty', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['flag.penalty']"
+                                [assetId]="theme.slots?.['flag.penalty']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('flag.penalty', theme)?.images
@@ -781,7 +783,7 @@
                                 [label]="'UE_LABEL_LAMP_RED_OFF' | translate"
                                 [imageUrl]="getLampUrl('lamp.red.dim', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['lamp.red.dim']"
+                                [assetId]="theme.slots?.['lamp.red.dim']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('lamp.red.dim', theme)?.images
@@ -800,7 +802,7 @@
                                 [label]="'UE_LABEL_LAMP_RED_ON' | translate"
                                 [imageUrl]="getLampUrl('lamp.red.on', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['lamp.red.on']"
+                                [assetId]="theme.slots?.['lamp.red.on']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('lamp.red.on', theme)?.images
@@ -819,7 +821,7 @@
                                 [label]="'UE_LABEL_LAMP_GREEN' | translate"
                                 [imageUrl]="getLampUrl('lamp.green', theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['lamp.green']"
+                                [assetId]="theme.slots?.['lamp.green']"
                                 [assetType]="'image'"
                                 [images]="
                                   getAssetForSlot('lamp.green', theme)?.images
@@ -865,7 +867,7 @@
                                 [label]="'UE_HEADER_FUEL_GAUGE' | translate"
                                 [imageUrl]="getFuelGaugeUrl(theme)"
                                 (imageUrlChange)="captureState()"
-                                [assetId]="theme.slots['gauge.fuel']"
+                                [assetId]="theme.slots?.['gauge.fuel']"
                                 [assetType]="'image_set'"
                                 [images]="
                                   getAssetForSlot('gauge.fuel', theme)?.images
