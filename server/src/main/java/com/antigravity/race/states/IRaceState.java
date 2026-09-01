@@ -130,11 +130,10 @@ public interface IRaceState {
 
   default void syncDriverFlags(Race race) {
     if (race == null || race.getCurrentHeat() == null) return;
-    java.util.List<com.antigravity.race.DriverHeatData> drivers =
-        race.getCurrentHeat().getDrivers(); // fqn-collision
+    List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
     if (drivers != null) {
       for (int lane = 0; lane < drivers.size(); lane++) {
-        com.antigravity.race.DriverHeatData dhd = drivers.get(lane); // fqn-collision
+        DriverHeatData dhd = drivers.get(lane);
         if (dhd != null) {
           RaceFlag flag = getLaneFlagType(race, lane);
           dhd.setFlag(flag);
