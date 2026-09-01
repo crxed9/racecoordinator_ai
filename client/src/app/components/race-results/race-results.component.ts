@@ -14,18 +14,20 @@ import { LoggerService } from "@app/services/logger.service";
 import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { DefaultRaceResultsComponent } from "./default-race-results.component";
 
 // Base class for custom components to extend, providing common services
-class CustomRaceResultsBaseComponent extends DefaultRaceResultsComponent {
+export class CustomRaceResultsBaseComponent extends DefaultRaceResultsComponent {
   constructor(
     @Inject(RaceConnectionService) raceConnectionService: RaceConnectionService,
     @Inject(RaceService) raceService: RaceService,
     @Inject(TranslationService) translationService: TranslationService,
     @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     @Inject(PrintService) printService: PrintService,
+    @Inject(RaceFlagService) raceFlagService: RaceFlagService,
   ) {
     super(
       raceConnectionService,
@@ -33,6 +35,7 @@ class CustomRaceResultsBaseComponent extends DefaultRaceResultsComponent {
       translationService,
       cdr,
       printService,
+      raceFlagService,
     );
   }
 }

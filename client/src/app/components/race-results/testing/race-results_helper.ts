@@ -112,6 +112,20 @@ export class RaceResultsHelper {
           },
         ],
       },
+      raceState: 2, // RACING
+      raceTime: {
+        time: 123456,
+        showTime: true,
+        durationMode: false,
+      },
+      heat: {
+        objectId: "h1",
+        heatNumber: 1,
+        started: true,
+        completed: true,
+        standings: ["hd1", "hd2", "hd3"],
+        heatDrivers: [],
+      },
     };
   }
 

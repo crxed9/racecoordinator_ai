@@ -541,6 +541,7 @@
   "HR_LAP_TIMES_HEADER": "TEMPOS DE VOLTA",
   "HR_NO_HEAT_DATA": "Nenhum dado de piloto disponível para esta manga.",
   "HR_RANKINGS_HEADER": "CLASSIFICAÇÕES",
+  "HR_HEAT_X_OF_Y": "Heat {{current}} of {{total}}",
   "HR_TITLE": "RESULTADOS DA MANGA {{heat}}",
   "HR_X_AXIS": "Tempo de Corrida Absoluto (Segundos)",
   "HR_Y_AXIS": "Tempo de Volta (Segundos)",

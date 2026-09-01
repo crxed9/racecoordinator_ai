@@ -8,6 +8,20 @@
           <h1 class="page-title">
             {{ "HR_TITLE" | translate: { heat: heat?.heatNumber } }}
           </h1>
+          @if (totalHeats > 0) {
+            <span class="heat-x-of-y">
+              {{
+                "HR_HEAT_X_OF_Y"
+                  | translate: { current: heat?.heatNumber, total: totalHeats }
+              }}
+            </span>
+          }
+          <div class="header-flag-container">
+            @if (currentFlagUrl) {
+              <img [src]="currentFlagUrl" class="header-flag" alt="Race Flag" />
+            }
+          </div>
+          <div class="header-time">{{ formattedTime }}</div>
         </div>
         <div class="cyberpunk-line"></div>
       </div>

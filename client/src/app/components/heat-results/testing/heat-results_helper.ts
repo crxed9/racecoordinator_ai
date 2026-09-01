@@ -256,6 +256,12 @@ export class HeatResultsHelper {
           ],
         },
       },
+      raceState: 2, // RACING
+      raceTime: {
+        time: 123456,
+        showTime: true,
+        durationMode: false,
+      },
       heat: {
         objectId: "h1",
         heatNumber: 1,
