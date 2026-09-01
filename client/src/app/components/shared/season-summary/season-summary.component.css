@@ -277,23 +277,27 @@
 }
 
 .season-summary-container.compact .col-rank {
+  width: 8%;
   text-align: center;
   padding-left: 2px;
   padding-right: 2px;
 }
 
 .season-summary-container.compact .col-driver {
+  width: auto;
   font-size: 1.05rem;
   padding-left: 4px;
 }
 
 .season-summary-container.compact .col-pts {
+  width: 17%;
   text-align: right;
   padding-right: 4px;
   padding-left: 2px;
 }
 
 .season-summary-container.compact .col-races {
+  width: 10%;
   text-align: center;
   padding-left: 2px;
   padding-right: 2px;
