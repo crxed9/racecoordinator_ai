@@ -126,4 +126,21 @@ public class RaceOverTest {
 
     org.junit.Assert.assertFalse(result);
   }
+
+  @Test
+  public void testEnter_SyncsDriverFlags() {
+    com.antigravity.race.Heat currentHeat = mock(com.antigravity.race.Heat.class);
+    when(currentHeat.getStatistics()).thenReturn(new com.antigravity.race.RaceHeatStatistics());
+    com.antigravity.race.DriverHeatData dhd =
+        new com.antigravity.race.DriverHeatData(
+            new com.antigravity.race.RaceParticipant(
+                new com.antigravity.models.Driver("d1", "Driver 1", "id1", "1"), "id1"));
+    when(currentHeat.getDrivers()).thenReturn(java.util.Collections.singletonList(dhd));
+    when(race.getCurrentHeat()).thenReturn(currentHeat);
+    when(race.isLastHeat()).thenReturn(true);
+
+    raceOver.enter(race);
+
+    assertEquals(RaceFlag.RED, dhd.getFlag());
+  }
 }

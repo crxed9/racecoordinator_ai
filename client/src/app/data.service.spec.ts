@@ -1326,6 +1326,27 @@ describe("DataService", () => {
       );
     });
 
+    it("should dispatch currentHeat from race update to heatSubject observable", (done) => {
+      const mockRaceData = RaceData.encode({
+        race: {
+          currentHeat: {
+            heatNumber: 5,
+          },
+        },
+      }).finish();
+
+      service.getHeats().subscribe((h) => {
+        if (h && h.heatNumber === 5) {
+          expect(h.heatNumber).toBe(5);
+          done();
+        }
+      });
+
+      (service as any).handleRaceDataMessage({
+        data: mockRaceData.slice().buffer,
+      });
+    });
+
     it("should handle connectToRaceDataSocket life cycle and reconnection", () => {
       // Mock WebSocket
       const mockWs: any = {

@@ -1542,6 +1542,9 @@ export class DataService {
           if (raceData.race.flag) {
             this.flagSubject.next(raceData.race.flag);
           }
+          if (raceData.race.currentHeat) {
+            this.heatSubject.next(raceData.race.currentHeat);
+          }
         }
         if (raceData.carData) {
           this.carDataSubject.next(raceData.carData);

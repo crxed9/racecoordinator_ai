@@ -27,6 +27,7 @@ public class Paused implements IRaceState {
     this.race = race;
     logger.info("Paused state entered. Race paused.");
     race.broadcastFlag(getFlagType(race));
+    syncDriverFlags(race);
     this.pauseStartTimeMillis = System.currentTimeMillis();
   }
 

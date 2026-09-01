@@ -325,15 +325,39 @@ export class RacedayFormatUtils {
       if (RacedayFormatUtils.isEmptyDriver(hd)) return "--";
       return "--";
     } else if (baseKey === "flag") {
+      const race = ctx.getRace?.();
+      const isFuelEnabled =
+        (race?.fuel_options && race.fuel_options.enabled) ||
+        (race?.digital_fuel_options && race.digital_fuel_options.enabled) ||
+        (race as any)?.fuelOptions?.enabled ||
+        (race as any)?.digitalFuelOptions?.enabled;
+
+      const isOutOfFuel =
+        Boolean(isFuelEnabled) &&
+        ((hd?.participant &&
+          hd.participant.fuelLevel !== undefined &&
+          hd.participant.fuelLevel <= 0) ||
+          (hd?.driver &&
+            (hd.driver as any).fuelLevel !== undefined &&
+            (hd.driver as any).fuelLevel <= 0));
+
       if (
         hd &&
-        ((hd as any).remainingFalseStartTimePenalty > 0 ||
-          (hd.driver && (hd.driver as any).fuelLevel <= 0))
+        ((hd as any).remainingFalseStartTimePenalty > 0 || isOutOfFuel)
       ) {
         return ctx.getFlagUrl("flag.penalty");
       }
-      if (value === RaceFlag.BLACK) {
+      if (value === RaceFlag.BLACK || hd?.flag === RaceFlag.BLACK) {
         return ctx.getFlagUrl("flag.penalty");
+      }
+      if (
+        value === RaceFlag.GREEN_YELLOW ||
+        hd?.flag === RaceFlag.GREEN_YELLOW
+      ) {
+        return ctx.getFlagUrl("flag.warmup");
+      }
+      if (value === RaceFlag.WHITE || hd?.flag === RaceFlag.WHITE) {
+        return ctx.getFlagUrl("flag.one_lap_to_go");
       }
       if (
         hd &&
