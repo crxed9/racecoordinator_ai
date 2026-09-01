@@ -1,3 +1,5 @@
+import { RaceFlag } from "@app/proto/antigravity";
+
 import { DriverHeatData } from "../../../race/driver_heat_data";
 import { FormatContext, RacedayFormatUtils } from "./raceday-format.utils";
 
@@ -471,6 +473,181 @@ describe("RacedayFormatUtils", () => {
           ctx,
         ),
       ).toBe("--");
+    });
+  });
+
+  describe("formatValue - flag", () => {
+    beforeEach(() => {
+      ctx.getFlagUrl = (flag: any) => `url-for-${flag}`;
+      ctx.getFlagType = () => RaceFlag.GREEN;
+    });
+
+    it("should return penalty flag when driver has false start penalty", () => {
+      const mockHd = { remainingFalseStartTimePenalty: 2.5 } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.GREEN,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.penalty");
+    });
+
+    it("should return penalty flag when driver fuel level is 0 or less and fuel is enabled", () => {
+      ctx.getRace = () => ({ fuel_options: { enabled: true } }) as any;
+      const mockHd = { driver: { fuelLevel: 0 } } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.GREEN,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.penalty");
+    });
+
+    it("should return penalty flag when participant fuel level is 0 or less and fuel is enabled", () => {
+      ctx.getRace = () => ({ fuel_options: { enabled: true } }) as any;
+      const mockHd = { participant: { fuelLevel: 0 } } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.GREEN,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.penalty");
+    });
+
+    it("should not return penalty flag when fuel is disabled even if fuelLevel is 0", () => {
+      ctx.getRace = () => ({ fuel_options: { enabled: false } }) as any;
+      const mockHd = { participant: { fuelLevel: 0 } } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.GREEN,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-2");
+    });
+
+    it("should return penalty flag when hd.flag is RaceFlag.BLACK", () => {
+      const mockHd = { flag: RaceFlag.BLACK } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.UNKNOWN_FLAG,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.penalty");
+    });
+
+    it("should return penalty flag when value is RaceFlag.BLACK", () => {
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.BLACK,
+        hd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.penalty");
+    });
+
+    it("should return one_lap_to_go flag when value is RaceFlag.WHITE", () => {
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.WHITE,
+        hd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.one_lap_to_go");
+    });
+
+    it("should return one_lap_to_go flag when hd.flag is RaceFlag.WHITE", () => {
+      const mockHd = { flag: RaceFlag.WHITE } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.UNKNOWN_FLAG,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.one_lap_to_go");
+    });
+
+    it("should return warmup flag when value is RaceFlag.GREEN_YELLOW", () => {
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.GREEN_YELLOW,
+        hd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.warmup");
+    });
+
+    it("should return warmup flag when hd.flag is RaceFlag.GREEN_YELLOW", () => {
+      const mockHd = { flag: RaceFlag.GREEN_YELLOW } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.UNKNOWN_FLAG,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.warmup");
+    });
+
+    it("should return driver_finished flag when hd.isFinished is true", () => {
+      const mockHd = { isFinished: true } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.GREEN,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.driver_finished");
+    });
+
+    it("should return driver_finished flag when ctx.isDriverFinished returns true", () => {
+      ctx.isDriverFinished = () => true;
+      ctx.getRace = () => ({ heat_scoring: {} }) as any;
+      const mockHd = { isFinished: false } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.GREEN,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("url-for-flag.driver_finished");
+    });
+
+    it("should return flag URL based on value when flag is valid", () => {
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.YELLOW,
+        hd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe(`url-for-${RaceFlag.YELLOW}`);
+    });
+
+    it("should fallback to ctx.getFlagType() when value is UNKNOWN_FLAG or 0", () => {
+      const result = RacedayFormatUtils.formatValue(
+        "flag",
+        RaceFlag.UNKNOWN_FLAG,
+        hd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe(`url-for-${RaceFlag.GREEN}`);
     });
   });
 });

@@ -52,6 +52,7 @@ public class RaceOver implements IRaceState {
     this.race = race;
     this.raceOverStartTimeMillis = System.currentTimeMillis();
     race.broadcastFlag(getFlagType(race));
+    syncDriverFlags(race);
 
     race.getStatistics().setEndTime(OffsetDateTime.now().toString());
     long raceStart = race.getStatistics().getStartMillis();

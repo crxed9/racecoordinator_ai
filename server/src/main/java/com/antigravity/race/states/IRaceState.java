@@ -43,6 +43,15 @@ public interface IRaceState {
 
     // 3) Driver Finished
     if (isDriverFinished(race, lane, dhd)) {
+      RaceFlag warmupFlag =
+          race.getTheme() != null
+              ? race.getTheme()
+                  .resolveFlag("flag.warmup", RaceFlag.GREEN_YELLOW, race.getDatabaseContext())
+              : RaceFlag.GREEN_YELLOW;
+      if (baseFlag == warmupFlag) {
+        return baseFlag;
+      }
+
       return race.getTheme() != null
           ? race.getTheme()
               .resolveFlag("flag.driver_finished", RaceFlag.RED, race.getDatabaseContext())
@@ -60,6 +69,10 @@ public interface IRaceState {
     // In HeatOver or RaceOver, all active drivers in the current heat have finished
     if (this instanceof HeatOver || this instanceof RaceOver) {
       return true;
+    }
+
+    if (this instanceof NotStarted || this instanceof Starting) {
+      return false;
     }
 
     // Check if they are already in the finished lanes list (most authoritative)
@@ -113,5 +126,19 @@ public interface IRaceState {
 
   default boolean canChangeLane(Race race) {
     return false;
+  }
+
+  default void syncDriverFlags(Race race) {
+    if (race == null || race.getCurrentHeat() == null) return;
+    List<DriverHeatData> drivers = race.getCurrentHeat().getDrivers();
+    if (drivers != null) {
+      for (int lane = 0; lane < drivers.size(); lane++) {
+        DriverHeatData dhd = drivers.get(lane);
+        if (dhd != null) {
+          RaceFlag flag = getLaneFlagType(race, lane);
+          dhd.setFlag(flag);
+        }
+      }
+    }
   }
 }

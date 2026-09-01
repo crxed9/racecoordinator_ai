@@ -748,6 +748,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   toggleThemeSection(themeId: string, activate = false) {
+    const isExpanding = !this.sectionsExpanded[`theme_${themeId}`];
     toggleThemeExpander(
       themeId,
       this.displayThemes,
@@ -756,6 +757,34 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
       this.editingSettings.activeThemeId,
       (id) => this.onThemeSelected(id),
     );
+    if (isExpanding) {
+      this.scrollToTheme(themeId);
+    }
+  }
+
+  scrollToTheme(themeId: string) {
+    this.cdr.markForCheck();
+    setTimeout(() => {
+      const container = document.querySelector(
+        ".sections-wrapper",
+      ) as HTMLElement;
+      const element = document.querySelector(
+        `[data-theme-id="${themeId}"]`,
+      ) as HTMLElement;
+      if (element && container) {
+        const topPos =
+          element.getBoundingClientRect().top -
+          container.getBoundingClientRect().top +
+          container.scrollTop;
+
+        container.scrollTo({
+          top: Math.max(0, topPos - 15),
+          behavior: "smooth",
+        });
+      } else if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
   }
 
   saveExpanderState() {

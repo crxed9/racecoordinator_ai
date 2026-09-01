@@ -36,6 +36,7 @@ public class Starting implements IRaceState {
     this.race = race;
     logger.info("Starting state entered. Countdown initiating.");
     race.broadcastFlag(getFlagType(race));
+    syncDriverFlags(race);
 
     // Set auto-start fired to prevent re-triggering from NotStarted
     race.setAutoStartFired(true);

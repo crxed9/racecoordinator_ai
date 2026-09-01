@@ -3232,6 +3232,70 @@ describe("UIEditorComponent", () => {
       expect(component.sectionsExpanded["theme_1"]).toBeTrue();
     });
 
+    it("should call scrollToTheme when expanding a theme section", fakeAsync(() => {
+      spyOn(component, "scrollToTheme").and.callThrough();
+      component.sectionsExpanded["theme_1"] = false;
+      component.toggleThemeSection("1");
+      expect(component.scrollToTheme).toHaveBeenCalledWith("1");
+
+      // Calling toggleThemeSection again to collapse should not trigger scrollToTheme
+      (component.scrollToTheme as jasmine.Spy).calls.reset();
+      component.toggleThemeSection("1");
+      expect(component.scrollToTheme).not.toHaveBeenCalled();
+    }));
+
+    it("should scroll container when scrollToTheme is called with valid elements", fakeAsync(() => {
+      const mockContainer = document.createElement("div");
+      mockContainer.className = "sections-wrapper";
+      spyOn(mockContainer, "getBoundingClientRect").and.returnValue({
+        top: 100,
+      } as any);
+      spyOn(mockContainer, "scrollTo");
+      Object.defineProperty(mockContainer, "scrollTop", {
+        value: 50,
+        configurable: true,
+      });
+
+      const mockElement = document.createElement("div");
+      mockElement.setAttribute("data-theme-id", "t_scroll");
+      spyOn(mockElement, "getBoundingClientRect").and.returnValue({
+        top: 300,
+      } as any);
+
+      spyOn(document, "querySelector").and.callFake((selector: string) => {
+        if (selector === ".sections-wrapper") return mockContainer;
+        if (selector === '[data-theme-id="t_scroll"]') return mockElement;
+        return null;
+      });
+
+      component.scrollToTheme("t_scroll");
+      tick();
+
+      expect(mockContainer.scrollTo as jasmine.Spy).toHaveBeenCalledWith({
+        top: 300 - 100 + 50 - 15,
+        behavior: "smooth",
+      });
+    }));
+
+    it("should fallback to scrollIntoView when container is not found in scrollToTheme", fakeAsync(() => {
+      const mockElement = document.createElement("div");
+      mockElement.setAttribute("data-theme-id", "t_fallback");
+      spyOn(mockElement, "scrollIntoView");
+
+      spyOn(document, "querySelector").and.callFake((selector: string) => {
+        if (selector === '[data-theme-id="t_fallback"]') return mockElement;
+        return null;
+      });
+
+      component.scrollToTheme("t_fallback");
+      tick();
+
+      expect(mockElement.scrollIntoView as jasmine.Spy).toHaveBeenCalledWith({
+        behavior: "smooth",
+        block: "start",
+      });
+    }));
+
     it("should auto-save modified custom UIs and refresh customUiService", async () => {
       const customUi: CustomUI = {
         entity_id: "c_auto",

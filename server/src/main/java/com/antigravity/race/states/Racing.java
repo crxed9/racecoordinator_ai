@@ -100,8 +100,16 @@ public class Racing implements IRaceState {
     this.previousHeatProgress = -1.0;
     this.executionManager = race.getHeatExecutionManager();
 
+    HeatScoring scoring = race.getRaceModel().getHeatScoring();
+    if (scoring != null && scoring.getFinishMethod() == FinishMethod.Timed) {
+      if (race.getRaceTime() == 0) {
+        race.addRaceTime((float) scoring.getFinishValue());
+      }
+    }
+
     RaceFlag initialFlag = getFlagType(race);
     race.broadcastFlag(initialFlag);
+    syncDriverFlags(race);
     this.previousFlag = initialFlag;
 
     if (race.getStatistics().getStartTime() == null) {
@@ -120,13 +128,6 @@ public class Racing implements IRaceState {
                   com.antigravity.converters.HeatConverter.toProto( // fqn-collision
                       race.getCurrentHeat(), new java.util.HashSet<>()))
               .build());
-    }
-
-    HeatScoring scoring = race.getRaceModel().getHeatScoring();
-    if (scoring != null && scoring.getFinishMethod() == FinishMethod.Timed) {
-      if (race.getRaceTime() == 0) {
-        race.addRaceTime((float) scoring.getFinishValue());
-      }
     }
 
     race.setHasRacedInCurrentHeat(true);
