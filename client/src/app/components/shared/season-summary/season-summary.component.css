@@ -262,7 +262,7 @@
 
 .season-summary-container.compact .standings-table th,
 .season-summary-container.compact .standings-table td {
-  padding: 4px 6px;
+  padding: 4px 14px;
   font-size: 1.05rem;
 }
 
@@ -277,27 +277,23 @@
 }
 
 .season-summary-container.compact .col-rank {
-  width: 55px;
   text-align: center;
   padding-left: 2px;
   padding-right: 2px;
 }
 
 .season-summary-container.compact .col-driver {
-  width: auto;
   font-size: 1.05rem;
   padding-left: 4px;
 }
 
 .season-summary-container.compact .col-pts {
-  width: 88px;
   text-align: right;
   padding-right: 4px;
   padding-left: 2px;
 }
 
 .season-summary-container.compact .col-races {
-  width: 52px;
   text-align: center;
   padding-left: 2px;
   padding-right: 2px;
