@@ -158,11 +158,14 @@ test.describe("UI Editor Visuals", () => {
     await expander.scrollIntoViewIfNeeded();
     await page.evaluate(() => new Promise(requestAnimationFrame));
 
-    await expect(page).toHaveScreenshot("ui-editor-duplicate-name-error.png", {
-      maxDiffPixelRatio: 0.15,
-      maxDiffPixels: 10000,
-      animations: "disabled",
-    });
+    await expect(customThemeSection).toHaveScreenshot(
+      "ui-editor-duplicate-name-error.png",
+      {
+        maxDiffPixelRatio: 0.15,
+        maxDiffPixels: 10000,
+        animations: "disabled",
+      },
+    );
   });
 
   test("should show confirmation modal on leave with pending changes", async ({
