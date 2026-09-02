@@ -117,6 +117,8 @@ export class CustomRotationEditorComponent
   virtualDrivers: { id: number; name: string }[] = [];
   numVirtualDrivers: number = 10;
 
+  zoomLevel = 100;
+
   updateVirtualDriversList() {
     this.virtualDrivers = [];
     for (let i = 1; i <= this.numVirtualDrivers; i++) {

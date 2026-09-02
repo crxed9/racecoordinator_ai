@@ -50,6 +50,10 @@ export class EditorTitleComponent implements AfterViewChecked {
   marginTop = input<number>(0);
   marginBottom = input<number>(0);
   isSaving = input(false);
+
+  showZoom = input(false);
+  zoomLevel = input(100);
+
   helpSteps = input<GuideStep[]>([]);
   helpTitle = input("");
   helpRecordName = input<keyof Settings>();
@@ -63,6 +67,7 @@ export class EditorTitleComponent implements AfterViewChecked {
   import = output<void>();
   importRc1 = output<void>();
   export = output<void>();
+  zoomLevelChange = output<number>();
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -105,5 +110,9 @@ export class EditorTitleComponent implements AfterViewChecked {
 
   onExport() {
     this.export.emit();
+  }
+
+  onZoomLevelChange(level: number) {
+    this.zoomLevelChange.emit(level);
   }
 }

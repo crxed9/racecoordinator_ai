@@ -19,6 +19,8 @@
     (add)="addRotation()"
     (import)="fileInput.click()"
     (export)="exportRotations()"
+    [showZoom]="true"
+    [(zoomLevel)]="zoomLevel"
   >
   </app-editor-title>
 
@@ -253,6 +255,7 @@
               <div class="expander-body">
                 <div
                   class="heats-grid"
+                  [style.zoom]="zoomLevel / 100"
                   cdkDropList
                   cdkDropListOrientation="horizontal"
                   [cdkDropListData]="rotation.heats || []"

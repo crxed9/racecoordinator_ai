@@ -1,4 +1,33 @@
 <div class="toolbar-container">
+  <!-- Zoom Control -->
+  @if (showZoom()) {
+    <div class="zoom-control-container">
+      <div class="zoom-control">
+        <span
+          class="material-icons zoom-icon"
+          (click)="onZoomOut()"
+          [title]="'RD_ZOOM_OUT' | translate"
+          >zoom_out</span
+        >
+        <input
+          type="range"
+          class="zoom-slider"
+          min="50"
+          max="150"
+          [ngModel]="zoomLevel()"
+          (ngModelChange)="onZoomSliderChange($event)"
+          [title]="'RD_ZOOM' | translate"
+        />
+        <span
+          class="material-icons zoom-icon"
+          (click)="onZoomIn()"
+          [title]="'RD_ZOOM_IN' | translate"
+          >zoom_in</span
+        >
+      </div>
+    </div>
+  }
+
   <!-- Activate -->
   @if (showActivate()) {
     <button

@@ -136,6 +136,7 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
   protected showExitConfirmation = false;
   protected errorMessage = signal<string | undefined>(undefined);
   protected scale = 1;
+  zoomLevel = 100;
 
   isDirtyState(): boolean {
     return this.undoManager?.hasChanges() ?? false;
