@@ -258,11 +258,7 @@
   color-scheme: dark;
 }
 
-.editor-section select option,
-.editor-section select optgroup {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
+
 
 .config-row {
   display: flex;

@@ -104,11 +104,7 @@
   color-scheme: dark;
 }
 
-.editor-section select option,
-.editor-section select optgroup {
-  background: #0f172a;
-  color: #f1f5f9;
-}
+
 
 .editor-section input[type="text"]:focus,
 .editor-section input[type="number"]:focus,
