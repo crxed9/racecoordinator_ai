@@ -65,63 +65,63 @@
         </div>
         <div class="editor-section" [class.invalid]="isRotationInvalid">
           <label>{{ "RM_LABEL_HEAT_ROTATION" | translate }}</label>
-          <select
+          <app-custom-select
             id="heat-rotation-select"
             [(ngModel)]="editingRace.heat_rotation_type"
             (ngModelChange)="onRotationTypeChange()"
           >
-            <option value="RoundRobin">
+            <app-custom-option value="RoundRobin">
               {{ "RE_ROTATION_ROUND_ROBIN" | translate }}
-            </option>
-            <option value="FriendlyRoundRobin">
+            </app-custom-option>
+            <app-custom-option value="FriendlyRoundRobin">
               {{ "RE_ROTATION_FRIENDLY_ROUND_ROBIN" | translate }}
-            </option>
-            <option value="EuropeanRoundRobin">
+            </app-custom-option>
+            <app-custom-option value="EuropeanRoundRobin">
               {{ "RE_ROTATION_EUROPEAN_ROUND_ROBIN" | translate }}
-            </option>
-            <option value="SingleHeat">
+            </app-custom-option>
+            <app-custom-option value="SingleHeat">
               {{ "RE_ROTATION_SINGLE_HEAT" | translate }}
-            </option>
-            <option value="SingleHeatSolo">
+            </app-custom-option>
+            <app-custom-option value="SingleHeatSolo">
               {{ "RE_ROTATION_SINGLE_HEAT_SOLO" | translate }}
-            </option>
-            <option value="SingleHeatSoloAllLanes">
+            </app-custom-option>
+            <app-custom-option value="SingleHeatSoloAllLanes">
               {{ "RE_ROTATION_SINGLE_HEAT_SOLO_ALL_LANES" | translate }}
-            </option>
-            <option value="SingleHeatSoloAllLanesAccumulate">
+            </app-custom-option>
+            <app-custom-option value="SingleHeatSoloAllLanesAccumulate">
               {{
                 "RE_ROTATION_SINGLE_HEAT_SOLO_ALL_LANES_ACCUMULATE" | translate
               }}
-            </option>
-            <option value="CustomRoundRobin">
+            </app-custom-option>
+            <app-custom-option value="CustomRoundRobin">
               {{ "RE_ROTATION_CUSTOM_ROUND_ROBIN" | translate }}
-            </option>
-            <option value="Custom">
+            </app-custom-option>
+            <app-custom-option value="Custom">
               {{ "RE_ROTATION_CUSTOM" | translate }}
-            </option>
-          </select>
+            </app-custom-option>
+          </app-custom-select>
         </div>
         @if (editingRace.heat_rotation_type === "Custom") {
           <div class="editor-section" [class.invalid]="isRotationInvalid">
             <label>{{ "RE_CUSTOM_ROTATION_ASSET_LABEL" | translate }}</label>
-            <select
+            <app-custom-select
               [(ngModel)]="selectedCustomRotationAssetId"
               (ngModelChange)="onCustomRotationAssetChange()"
             >
               @if (!selectedCustomRotationAssetId) {
-                <option value="">
+                <app-custom-option value="">
                   -- {{ "RE_SELECT_CUSTOM_ROTATION" | translate }} --
-                </option>
+                </app-custom-option>
               }
               @for (
                 asset of filteredCustomRotationAssets;
                 track asset.model?.entityId
               ) {
-                <option [value]="asset.model?.entityId">
+                <app-custom-option [value]="asset.model?.entityId">
                   {{ asset.name }}
-                </option>
+                </app-custom-option>
               }
-            </select>
+            </app-custom-select>
             @if (!selectedCustomRotationAssetId) {
               <div class="error-message">
                 {{ "RE_ERROR_NO_ROTATION_SELECTED" | translate }}
@@ -218,34 +218,34 @@
                   <div class="config-row wrap">
                     <div class="editor-section">
                       <label>{{ "RM_LABEL_TRACK" | translate }}</label>
-                      <select
+                      <app-custom-select
                         id="track-select"
                         [(ngModel)]="editingRace.track_entity_id"
                         (ngModelChange)="captureState()"
                       >
-                        <option value="">
+                        <app-custom-option value="">
                           -- {{ "RE_SELECT_TRACK" | translate }} --
-                        </option>
+                        </app-custom-option>
                         @for (track of tracks; track track) {
-                          <option [value]="track.entity_id">
+                          <app-custom-option [value]="track.entity_id">
                             {{ track.name }}
-                          </option>
+                          </app-custom-option>
                         }
-                      </select>
+                      </app-custom-select>
                     </div>
                     <div class="editor-section">
                       <label>{{ "RM_LABEL_THEME" | translate }}</label>
-                      <select
+                      <app-custom-select
                         id="theme-select"
                         [(ngModel)]="editingRace.theme_id"
                         (ngModelChange)="captureState()"
                       >
                         @for (theme of themes; track theme.entity_id) {
-                          <option [value]="theme.entity_id">
+                          <app-custom-option [value]="theme.entity_id">
                             {{ getThemeDisplayNameKey(theme) | translate }}
-                          </option>
+                          </app-custom-option>
                         }
-                      </select>
+                      </app-custom-select>
                     </div>
                     <div class="editor-section">
                       <label>
@@ -454,21 +454,27 @@
                       </h2>
                       <div class="config-section">
                         <label>{{ "RE_HEAT_RANKING" | translate }}</label>
-                        <select
+                        <app-custom-select
                           id="heat-ranking-select"
                           class="heat-ranking-select"
                           data-testid="heat-ranking-select"
                           [(ngModel)]="editingRace.heat_scoring.heat_ranking"
                           (ngModelChange)="captureState()"
                         >
-                          <option value="LAP_COUNT">Lap Count</option>
-                          <option value="FASTEST_LAP">Fastest Lap</option>
-                          <option value="TOTAL_TIME">Total Time</option>
-                        </select>
+                          <app-custom-option value="LAP_COUNT"
+                            >Lap Count</app-custom-option
+                          >
+                          <app-custom-option value="FASTEST_LAP"
+                            >Fastest Lap</app-custom-option
+                          >
+                          <app-custom-option value="TOTAL_TIME"
+                            >Total Time</app-custom-option
+                          >
+                        </app-custom-select>
                       </div>
                       <div class="config-section">
                         <label>{{ "RE_HEAT_TIEBREAKER" | translate }}</label>
-                        <select
+                        <app-custom-select
                           id="heat-tiebreaker-select"
                           class="heat-tiebreaker-select"
                           data-testid="heat-tiebreaker-select"
@@ -477,30 +483,34 @@
                           "
                           (ngModelChange)="captureState()"
                         >
-                          <option value="FASTEST_LAP_TIME">
+                          <app-custom-option value="FASTEST_LAP_TIME">
                             Fastest Lap Time
-                          </option>
-                          <option value="MEDIAN_LAP_TIME">
+                          </app-custom-option>
+                          <app-custom-option value="MEDIAN_LAP_TIME">
                             Median Lap Time
-                          </option>
-                          <option value="AVERAGE_LAP_TIME">
+                          </app-custom-option>
+                          <app-custom-option value="AVERAGE_LAP_TIME">
                             Average Lap Time
-                          </option>
-                        </select>
+                          </app-custom-option>
+                        </app-custom-select>
                       </div>
                       <div class="config-row">
                         <div class="config-section">
                           <label>{{ "RE_FINISH_METHOD" | translate }}</label>
-                          <select
+                          <app-custom-select
                             id="finish-method-select"
                             class="finish-method-select"
                             data-testid="finish-method-select"
                             [(ngModel)]="editingRace.heat_scoring.finish_method"
                             (ngModelChange)="captureState()"
                           >
-                            <option value="Lap">Lap</option>
-                            <option value="Timed">Timed</option>
-                          </select>
+                            <app-custom-option value="Lap"
+                              >Lap</app-custom-option
+                            >
+                            <app-custom-option value="Timed"
+                              >Timed</app-custom-option
+                            >
+                          </app-custom-select>
                         </div>
                         @if (editingRace.heat_scoring.finish_method === "Lap") {
                           <div class="config-section">
@@ -541,26 +551,26 @@
                       </div>
                       <div class="config-section">
                         <label>{{ "RE_ALLOW_FINISH" | translate }}</label>
-                        <select
+                        <app-custom-select
                           id="allow-finish-select"
                           class="allow-finish-select"
                           data-testid="allow-finish-select"
                           [(ngModel)]="editingRace.heat_scoring.allow_finish"
                           (ngModelChange)="captureState()"
                         >
-                          <option value="None">
+                          <app-custom-option value="None">
                             {{ "RE_AF_NONE" | translate }}
-                          </option>
-                          <option value="Allow">
+                          </app-custom-option>
+                          <app-custom-option value="Allow">
                             {{ "RE_AF_ALLOW" | translate }}
-                          </option>
-                          <option value="SingleLap">
+                          </app-custom-option>
+                          <app-custom-option value="SingleLap">
                             {{ "RE_AF_SINGLE_LAP" | translate }}
-                          </option>
-                          <option value="NoneAutoSegments">
+                          </app-custom-option>
+                          <app-custom-option value="NoneAutoSegments">
                             {{ "RE_AF_NONE_AUTO_SEGMENTS" | translate }}
-                          </option>
-                        </select>
+                          </app-custom-option>
+                        </app-custom-select>
                       </div>
                     </div>
                     <!-- Overall Scoring Section -->
@@ -570,7 +580,7 @@
                       </h2>
                       <div class="config-section">
                         <label>{{ "RE_OVERALL_RANKING" | translate }}</label>
-                        <select
+                        <app-custom-select
                           id="overall-ranking-select"
                           class="overall-ranking-select"
                           data-testid="overall-ranking-select"
@@ -579,32 +589,42 @@
                           "
                           (ngModelChange)="captureState()"
                         >
-                          <option value="LAP_COUNT">Lap Count</option>
-                          <option value="FASTEST_LAP">Fastest Lap</option>
-                          <option value="TOTAL_TIME">Total Time</option>
-                          <option value="AVERAGE_LAP">Average Lap</option>
-                        </select>
+                          <app-custom-option value="LAP_COUNT"
+                            >Lap Count</app-custom-option
+                          >
+                          <app-custom-option value="FASTEST_LAP"
+                            >Fastest Lap</app-custom-option
+                          >
+                          <app-custom-option value="TOTAL_TIME"
+                            >Total Time</app-custom-option
+                          >
+                          <app-custom-option value="AVERAGE_LAP"
+                            >Average Lap</app-custom-option
+                          >
+                        </app-custom-select>
                       </div>
                       <div class="config-section">
                         <label>{{ "RE_OVERALL_TIEBREAKER" | translate }}</label>
-                        <select
+                        <app-custom-select
                           id="overall-tiebreaker-select"
                           class="overall-tiebreaker-select"
                           data-testid="overall-tiebreaker-select"
                           [(ngModel)]="editingRace.overall_scoring.tiebreaker"
                           (ngModelChange)="captureState()"
                         >
-                          <option value="FASTEST_LAP_TIME">
+                          <app-custom-option value="FASTEST_LAP_TIME">
                             Fastest Lap Time
-                          </option>
-                          <option value="MEDIAN_LAP_TIME">
+                          </app-custom-option>
+                          <app-custom-option value="MEDIAN_LAP_TIME">
                             Median Lap Time
-                          </option>
-                          <option value="AVERAGE_LAP_TIME">
+                          </app-custom-option>
+                          <app-custom-option value="AVERAGE_LAP_TIME">
                             Average Lap Time
-                          </option>
-                          <option value="TOTAL_TIME">Total Time</option>
-                        </select>
+                          </app-custom-option>
+                          <app-custom-option value="TOTAL_TIME"
+                            >Total Time</app-custom-option
+                          >
+                        </app-custom-select>
                       </div>
                       <div class="config-section">
                         <label>{{ "RE_DROPPED_HEATS" | translate }}</label>
@@ -1223,7 +1243,7 @@
                       <div class="config-row">
                         <div class="config-section">
                           <label>{{ "RE_FUEL_USAGE_TYPE" | translate }}</label>
-                          <select
+                          <app-custom-select
                             id="fuel-usage-type-select"
                             class="fuel-usage-type-select"
                             data-testid="fuel-usage-type-select"
@@ -1234,16 +1254,16 @@
                               !editingRace.fuel_options.enabled
                             "
                           >
-                            <option value="LINEAR">
+                            <app-custom-option value="LINEAR">
                               {{ "RE_FUEL_USAGE_LINEAR" | translate }}
-                            </option>
-                            <option value="QUADRATIC">
+                            </app-custom-option>
+                            <app-custom-option value="QUADRATIC">
                               {{ "RE_FUEL_USAGE_QUADRATIC" | translate }}
-                            </option>
-                            <option value="CUBIC">
+                            </app-custom-option>
+                            <app-custom-option value="CUBIC">
                               {{ "RE_FUEL_USAGE_CUBIC" | translate }}
-                            </option>
-                          </select>
+                            </app-custom-option>
+                          </app-custom-select>
                         </div>
                         <div class="config-section">
                           <label>{{ "RE_FUEL_USAGE_RATE" | translate }}</label>
@@ -1393,7 +1413,7 @@
                           <label>{{
                             "RE_OUT_OF_FUEL_ACTION" | translate
                           }}</label>
-                          <select
+                          <app-custom-select
                             id="fuel-out-of-fuel-action-select"
                             class="fuel-out-of-fuel-action-select"
                             data-testid="fuel-out-of-fuel-action-select"
@@ -1407,7 +1427,7 @@
                             "
                           >
                             @for (action of outOfFuelActions; track action) {
-                              <option
+                              <app-custom-option
                                 [value]="action"
                                 [disabled]="
                                   action === 'POWER_STUTTER' &&
@@ -1424,9 +1444,9 @@
                                 {{
                                   "RE_OUT_OF_FUEL_ACTION_" + action | translate
                                 }}
-                              </option>
+                              </app-custom-option>
                             }
-                          </select>
+                          </app-custom-select>
                         </div>
                       </div>
                       @if (
@@ -1765,7 +1785,7 @@
                       <div class="config-row">
                         <div class="config-section">
                           <label>{{ "RE_FUEL_USAGE_TYPE" | translate }}</label>
-                          <select
+                          <app-custom-select
                             id="digital-fuel-usage-type-select"
                             class="digital-fuel-usage-type-select"
                             data-testid="digital-fuel-usage-type-select"
@@ -1778,16 +1798,16 @@
                               !editingRace.digital_fuel_options.enabled
                             "
                           >
-                            <option value="LINEAR">
+                            <app-custom-option value="LINEAR">
                               {{ "RE_FUEL_USAGE_LINEAR" | translate }}
-                            </option>
-                            <option value="QUADRATIC">
+                            </app-custom-option>
+                            <app-custom-option value="QUADRATIC">
                               {{ "RE_FUEL_USAGE_QUADRATIC" | translate }}
-                            </option>
-                            <option value="CUBIC">
+                            </app-custom-option>
+                            <app-custom-option value="CUBIC">
                               {{ "RE_FUEL_USAGE_CUBIC" | translate }}
-                            </option>
-                          </select>
+                            </app-custom-option>
+                          </app-custom-select>
                         </div>
                         <div class="config-section">
                           <label>{{ "RE_FUEL_USAGE_RATE" | translate }}</label>
@@ -1922,7 +1942,7 @@
                           <label>{{
                             "RE_OUT_OF_FUEL_ACTION" | translate
                           }}</label>
-                          <select
+                          <app-custom-select
                             id="digital-fuel-out-of-fuel-action-select"
                             class="digital-fuel-out-of-fuel-action-select"
                             data-testid="digital-fuel-out-of-fuel-action-select"
@@ -1940,13 +1960,13 @@
                               action of digitalOutOfFuelActions;
                               track action
                             ) {
-                              <option [value]="action">
+                              <app-custom-option [value]="action">
                                 {{
                                   "RE_OUT_OF_FUEL_ACTION_" + action | translate
                                 }}
-                              </option>
+                              </app-custom-option>
                             }
-                          </select>
+                          </app-custom-select>
                         </div>
                       </div>
                     </div>

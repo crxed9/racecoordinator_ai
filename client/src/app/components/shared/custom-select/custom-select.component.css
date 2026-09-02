@@ -1,0 +1,111 @@
+.custom-select-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  font-family: var(--font-family, inherit);
+  user-select: none;
+}
+
+.custom-select-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  cursor: pointer;
+  min-height: 38px;
+  box-sizing: border-box;
+}
+
+.custom-select-trigger:hover {
+  border-color: #475569;
+}
+
+.custom-select-container.open .custom-select-trigger {
+  border-color: #2563eb;
+  outline: 1px solid #2563eb;
+}
+
+.custom-select-container.disabled .custom-select-trigger {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dropdown-icon {
+  font-size: 0.8em;
+  color: #94a3b8;
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+}
+
+.custom-select-container.open .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.selected-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.custom-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* Scrollbar styles for the dropdown */
+.custom-select-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-select-dropdown::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 4px;
+}
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+  background-color: #475569;
+  border-radius: 4px;
+}
+
+.custom-select-option {
+  padding: 0.5rem 0.75rem;
+  color: #f1f5f9;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.custom-select-option:hover {
+  background-color: #2563eb; /* Vibrant blue hover */
+  color: #ffffff;
+}
+
+.custom-select-option.selected {
+  background-color: #1e40af; /* Darker blue for selected state */
+  color: #ffffff;
+}
+
+.custom-select-option.selected:hover {
+  background-color: #2563eb;
+}
+
+.custom-select-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-select-option.disabled:hover {
+  background-color: transparent;
+}
+

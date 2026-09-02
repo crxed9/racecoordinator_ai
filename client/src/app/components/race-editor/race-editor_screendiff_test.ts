@@ -136,7 +136,10 @@ test.describe("Race Editor Visuals", () => {
     );
 
     // Select Custom Round Robin
-    await page.selectOption(".editor-section select", "CustomRoundRobin");
+    await page.locator(".editor-section app-custom-select").first().click();
+    await page
+      .locator(".custom-select-option[data-value='CustomRoundRobin']")
+      .click();
 
     // Enter an invalid sequence (e.g. duplicate lane 1)
     const customSeqInput = page
@@ -285,9 +288,8 @@ test.describe("Race Editor Visuals", () => {
     );
     const harness = new RaceEditorHarnessE2e(page.locator("body"));
 
-    // Wait for the track options to load in the select
     await page.waitForSelector(
-      '#track-select option:has-text("Digital Haven")',
+      '#track-select app-custom-option:has-text("Digital Haven")',
       { state: "attached", timeout: 10000 },
     );
 
@@ -398,8 +400,11 @@ test.describe("Race Editor Visuals", () => {
     const outOfFuelSelect = page
       .locator("#analog-fuel-section .config-section")
       .filter({ hasText: "Out of Fuel Action" })
-      .locator("select");
-    await outOfFuelSelect.selectOption("POWER_STUTTER");
+      .locator("app-custom-select");
+    await outOfFuelSelect.click();
+    await page
+      .locator(".custom-select-option[data-value='POWER_STUTTER']")
+      .click();
 
     // Wait for the Power Stutter inputs to appear
     await page

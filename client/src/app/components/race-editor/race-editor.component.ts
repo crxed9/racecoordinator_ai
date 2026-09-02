@@ -18,6 +18,10 @@ import { Subscription } from "rxjs";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
 import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
+import {
   EditorTab,
   EditorTabsComponent,
 } from "@app/components/shared/editor-tabs/editor-tabs.component";
@@ -57,6 +61,8 @@ import { deepCopy } from "@app/utils/clone.utils";
     HeatListComponent,
     TranslatePipe,
     ConfirmationModalComponent,
+    CustomSelectComponent,
+    CustomOptionComponent,
   ],
 })
 export class RaceEditorComponent implements OnInit, OnDestroy, DirtyComponent {
