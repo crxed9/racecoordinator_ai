@@ -381,11 +381,7 @@
   z-index: 2;
 }
 
-.teammate-select option {
-  background-color: #1a2332;
-  color: #fff;
-  font-size: 16px;
-}
+
 
 .teammate-display-name {
   pointer-events: none;

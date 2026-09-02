@@ -131,11 +131,7 @@
   color-scheme: dark;
 }
 
-.input-group select option,
-.input-group select optgroup {
-  background: #0f172a;
-  color: #f8fafc;
-}
+
 
 .input-group input:focus,
 .input-group select:focus {

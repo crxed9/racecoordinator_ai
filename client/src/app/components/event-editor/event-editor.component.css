@@ -431,11 +431,7 @@
   color-scheme: dark;
 }
 
-.modal-body select option,
-.modal-body select optgroup {
-  background-color: #0f172a;
-  color: #f8fafc;
-}
+
 
 .modal-body select:focus {
   border-color: #38bdf8;

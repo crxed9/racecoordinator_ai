@@ -142,11 +142,7 @@
   color-scheme: dark;
 }
 
-.editor-section select option,
-.editor-section select optgroup {
-  background-color: #0f172a;
-  color: #f1f5f9;
-}
+
 
 .heat-list-section {
   flex: 1;
@@ -616,11 +612,7 @@
   box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 
-.preview-panel select option,
-.preview-panel select optgroup {
-  background-color: #0f172a;
-  color: #f8fafc;
-}
+
 
 /* RHS Label Overrides (matching Arduino Editor style) */
 .preview-panel label {
