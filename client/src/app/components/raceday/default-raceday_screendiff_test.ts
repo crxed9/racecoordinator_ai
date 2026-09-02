@@ -662,10 +662,15 @@ test.describe("Raceday Visuals for Fuel", () => {
     }, dataArray);
 
     await TestSetupHelper.mockRaceData(page, raceData);
-    const select = page.locator(".scalable-content select").first();
+    const select = page
+      .locator(".scalable-content app-custom-select, .scalable-content select")
+      .first();
 
     // Wait until options are rendered async to avoid timing flakes (check options of the first select specifically)
-    await select.locator("option").nth(1).waitFor({ state: "attached" });
+    await select
+      .locator("app-custom-option, option")
+      .nth(1)
+      .waitFor({ state: "attached" });
 
     // To guarantee visibility in headless screenshots, extract options and render a floating debug overlay list
     await select.evaluate((node) => {
@@ -691,10 +696,14 @@ test.describe("Raceday Visuals for Fuel", () => {
       title.style.borderBottom = "1px solid #ddd";
       ul.appendChild(title);
 
-      const options = node.querySelectorAll("option");
+      const options = node.querySelectorAll("app-custom-option, option");
       let count = 0;
       options.forEach((opt) => {
-        const text = (opt as HTMLOptionElement).innerText.trim();
+        const text = (
+          (opt as HTMLElement).innerText ||
+          (opt as HTMLElement).textContent ||
+          ""
+        ).trim();
         if (text) {
           const li = document.createElement("li");
           li.innerText = `• ${text}`;

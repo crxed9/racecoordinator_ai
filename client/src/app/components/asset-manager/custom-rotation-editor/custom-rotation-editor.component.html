@@ -42,18 +42,21 @@
         </div>
         <div class="input-group">
           <label>{{ "RM_COL_TRACK" | translate }}</label>
-          <select [(ngModel)]="selectedTrackId" (change)="onTrackChange()">
+          <app-custom-select
+            [(ngModel)]="selectedTrackId"
+            (change)="onTrackChange()"
+          >
             @for (
               track of tracks;
               track $any(track).entity_id || track.model?.entityId
             ) {
-              <option
+              <app-custom-option
                 [value]="($any(track).entity_id || track.model?.entityId) ?? ''"
               >
                 {{ track.name }}
-              </option>
+              </app-custom-option>
             }
-          </select>
+          </app-custom-select>
         </div>
       </div>
 

@@ -18,6 +18,10 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { finalize, forkJoin, Subscription } from "rxjs";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import {
   UndoEventType,
@@ -73,6 +77,8 @@ import {
     EditorTitleComponent,
     AcknowledgementModalComponent,
     ConfirmationModalComponent,
+    CustomSelectComponent,
+    CustomOptionComponent,
   ],
 })
 export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
@@ -538,10 +544,12 @@ export class ModifyHeatsModalComponent implements OnInit, OnDestroy {
   protected onTeammateChange(
     heatIdx: number,
     dhd: DriverHeatData,
-    event: Event,
+    eventOrValue: any,
   ) {
-    const select = event.target as HTMLSelectElement;
-    const selectedDriverId = select.value;
+    const selectedDriverId =
+      typeof eventOrValue === "string"
+        ? eventOrValue
+        : ((eventOrValue?.target as HTMLSelectElement)?.value ?? eventOrValue);
     const driver = this.allDrivers.find((d) => {
       const id = d.entity_id;
       return id === selectedDriverId;

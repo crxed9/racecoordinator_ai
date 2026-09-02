@@ -1309,7 +1309,7 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(label).toBeFalsy();
 
       const select = fixture.nativeElement.querySelector(
-        ".season-selection-wrapper select.season-select-input",
+        ".season-selection-wrapper app-custom-select.season-select-input",
       );
       expect(select).toBeTruthy();
     });

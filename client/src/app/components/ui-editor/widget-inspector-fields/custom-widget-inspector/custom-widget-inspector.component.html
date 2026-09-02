@@ -92,14 +92,16 @@
               {{ field.label }}
             </label>
             <div class="select-container select-sm">
-              <select
-                [value]="getSettingValue(field.key, field.default ?? '')"
-                (change)="onSelectChange(field.key, $event)"
+              <app-custom-select
+                [ngModel]="getSettingValue(field.key, field.default ?? '')"
+                (ngModelChange)="onSelectChange(field.key, $event)"
               >
                 @for (opt of field.options || []; track opt.value) {
-                  <option [value]="opt.value">{{ opt.label }}</option>
+                  <app-custom-option [value]="opt.value">{{
+                    opt.label
+                  }}</app-custom-option>
                 }
-              </select>
+              </app-custom-select>
             </div>
           }
 

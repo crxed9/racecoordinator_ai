@@ -49,11 +49,12 @@ test.describe("Timer Inspector Visuals", () => {
     await inspectorFields.waitFor({ state: "visible" });
 
     // Switch to custom scaling mode to enable font size sliders
-    await page
+    const scaleSelect = page
       .locator(".inspector-section")
       .filter({ hasText: "Scaling Mode" })
-      .locator("select")
-      .selectOption("");
+      .locator("app-custom-select");
+    await scaleSelect.locator(".custom-select-trigger").click();
+    await scaleSelect.locator('.custom-select-option[data-value=""]').click();
 
     const harness = new TimerInspectorHarnessE2e(inspectorFields);
     // Interact with options to show they work and are displayed properly

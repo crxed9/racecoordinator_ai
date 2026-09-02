@@ -59,7 +59,7 @@
         <label for="track-scale-select">{{
           "TE_TRACK_SCALE" | translate
         }}</label>
-        <select
+        <app-custom-select
           id="track-scale-select"
           [ngModel]="trackScale"
           (ngModelChange)="onTrackScaleChange($event)"
@@ -68,9 +68,11 @@
           name="trackScaleSelect"
         >
           @for (opt of trackScaleOptions; track opt.label) {
-            <option [value]="opt.value">{{ opt.label }}</option>
+            <app-custom-option [value]="opt.value">{{
+              opt.label
+            }}</app-custom-option>
           }
-        </select>
+        </app-custom-select>
       </div>
 
       <div class="sections-wrapper">

@@ -207,8 +207,7 @@ describe("AddLapSectionsDialogComponent", () => {
     expect(driverInfoText).toContain("Alice");
 
     // Change heat to 2
-    heatSelect.value = "1";
-    heatSelect.dispatchEvent(new Event("change"));
+    component.onHeatSelectChange(1);
     fixture.detectChanges();
 
     // Charlie should be active
@@ -259,11 +258,9 @@ describe("AddLapSectionsDialogComponent", () => {
     const noHeatsPanel = fixture.nativeElement.querySelector(".no-heats-panel");
     expect(noHeatsPanel).toBeNull();
 
-    const heatSelect = fixture.nativeElement.querySelector(
-      "#heatSelect",
-    ) as HTMLSelectElement;
+    const heatSelect = fixture.nativeElement.querySelector("#heatSelect");
     expect(heatSelect).not.toBeNull();
-    expect(heatSelect.options.length).toBe(1);
+    expect(heatSelect.querySelectorAll("app-custom-option").length).toBe(1);
 
     const driverInfoText =
       fixture.nativeElement.querySelector(".driver-info-panel").textContent;
@@ -308,11 +305,7 @@ describe("AddLapSectionsDialogComponent", () => {
     fixture.detectChanges();
 
     // Select Bob
-    const driverSelect = fixture.nativeElement.querySelector(
-      "#driverSelect",
-    ) as HTMLSelectElement;
-    driverSelect.value = "1";
-    driverSelect.dispatchEvent(new Event("change"));
+    component.onDriverSelectChange(1);
     fixture.detectChanges();
 
     // Verify Bob's value loads (2.0 * 100 = 200)
@@ -324,8 +317,7 @@ describe("AddLapSectionsDialogComponent", () => {
     fixture.detectChanges();
 
     // Select Alice again
-    driverSelect.value = "0";
-    driverSelect.dispatchEvent(new Event("change"));
+    component.onDriverSelectChange(0);
     fixture.detectChanges();
 
     // Verify Alice's edited value (50) is preserved

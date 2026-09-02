@@ -146,16 +146,20 @@
       <h2>{{ "EE_BTN_ADD_RACE" | translate }}</h2>
       <div class="modal-body">
         <label>Select Race:</label>
-        <select
+        <app-custom-select
           [ngModel]="selectedRaceToAddId"
           (ngModelChange)="onRaceSelect($event)"
           name="selectedRaceToAddId"
         >
-          <option value="" disabled selected>-- Select Race --</option>
+          <app-custom-option value="" [disabled]="true"
+            >-- Select Race --</app-custom-option
+          >
           @for (r of availableRaces; track getRaceId(r)) {
-            <option [value]="getRaceId(r)">{{ r.name }}</option>
+            <app-custom-option [value]="getRaceId(r)">{{
+              r.name
+            }}</app-custom-option>
           }
-        </select>
+        </app-custom-select>
       </div>
       <div class="modal-actions">
         <button class="btn-secondary" (click)="closeAddRaceModal()">

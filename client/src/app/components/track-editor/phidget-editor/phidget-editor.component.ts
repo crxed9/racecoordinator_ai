@@ -11,6 +11,10 @@ import {
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Subscription } from "rxjs";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { DataService } from "@app/data.service";
 import { PhidgetConfig } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
@@ -47,7 +51,13 @@ export interface PhidgetEditorSections {
   templateUrl: "./phidget-editor.component.html",
   styleUrls: ["./phidget-editor.component.css"],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslatePipe,
+    CustomSelectComponent,
+    CustomOptionComponent,
+  ],
 })
 export class PhidgetEditorComponent implements OnInit, OnDestroy {
   config = model.required<PhidgetConfig>();
