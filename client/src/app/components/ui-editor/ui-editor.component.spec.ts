@@ -1394,6 +1394,7 @@ describe("UIEditorComponent", () => {
         entity_id: "t1",
         is_default: true,
         name: "Default",
+        slots: {},
       } as Theme;
       component.editingState.themes = [defaultTheme];
       component.refreshDisplayProperties();
@@ -1404,6 +1405,7 @@ describe("UIEditorComponent", () => {
         entity_id: "t2",
         is_default: false,
         name: "Default (Copy)",
+        slots: {},
       } as Theme;
       mockThemeService.duplicateTheme.and.returnValue(
         Promise.resolve(newTheme),

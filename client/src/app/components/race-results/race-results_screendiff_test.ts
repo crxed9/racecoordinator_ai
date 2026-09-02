@@ -23,8 +23,6 @@ test.describe("Race Results Visuals", () => {
       page.goto("/race-results"),
     );
 
-    const harness = new RaceResultsHarnessE2e(page.locator("app-race-results"));
-
     // Verify page has finished loading
 
     // Verify initial layout screenshot
@@ -33,10 +31,13 @@ test.describe("Race Results Visuals", () => {
       page.locator("app-twin-graphs .graph-path-rank").first(),
     ).toHaveAttribute("d", /L/);
     await expect(page.locator(".graph-highlight")).toHaveCount(0);
-    await expect(harness.locator).toHaveScreenshot("race-results-initial.png", {
-      maxDiffPixelRatio: 0.05,
-      maxDiffPixels: 8000,
-    });
+    await expect(page.locator("app-race-results")).toHaveScreenshot(
+      "race-results-initial.png",
+      {
+        maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
+      },
+    );
   });
 
   test("should hide driver when clicking a legend item", async ({ page }) => {
@@ -237,8 +238,6 @@ test.describe("Race Results Visuals", () => {
       page.goto("/race-results"),
     );
 
-    const harness = new RaceResultsHarnessE2e(page.locator("app-race-results"));
-
     // Emulate print media and add the class that PrintService uses
     await page.emulateMedia({ media: "print" });
     await page.evaluate(() => document.body.classList.add("print-full-scroll"));
@@ -249,7 +248,7 @@ test.describe("Race Results Visuals", () => {
     await expect(
       page.locator("app-twin-graphs .graph-path-rank").first(),
     ).toHaveAttribute("d", /L/);
-    await expect(harness.locator).toHaveScreenshot(
+    await expect(page.locator("app-race-results")).toHaveScreenshot(
       "race-results-print-layout.png",
       {
         maxDiffPixelRatio: 0.05,
