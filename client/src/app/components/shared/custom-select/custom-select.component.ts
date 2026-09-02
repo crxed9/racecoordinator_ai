@@ -10,7 +10,6 @@ import {
   QueryList,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 @Component({
   standalone: true,
@@ -36,7 +35,6 @@ export class CustomOptionComponent {
   selector: "app-custom-select",
   templateUrl: "./custom-select.component.html",
   styleUrls: ["./custom-select.component.css"],
-  imports: [TranslatePipe],
   host: {
     "[attr.id]": "id()",
     "[attr.data-value]": "value",
