@@ -23,6 +23,10 @@ import { Router } from "@angular/router";
 import { forkJoin } from "rxjs";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { DemoConfigModalComponent } from "@app/components/shared/demo-config-modal/demo-config-modal.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import { LanguageSelectorComponent } from "@app/components/shared/language-selector/language-selector.component";
@@ -78,6 +82,8 @@ type Participant = Driver | Team;
     EditorTitleComponent,
     LanguageSelectorComponent,
     UpdateSelectorComponent,
+    CustomSelectComponent,
+    CustomOptionComponent,
   ],
 })
 export class DefaultRacedaySetupComponent implements OnInit {

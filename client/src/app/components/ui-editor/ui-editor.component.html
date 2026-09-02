@@ -308,7 +308,7 @@
                                       "UE_INSPECTOR_SCALING_MODE" | translate
                                     }}</label>
                                     <div class="select-container select-sm">
-                                      <select
+                                      <app-custom-select
                                         [(ngModel)]="
                                           currentSelectedWidget.scaleMode
                                         "
@@ -319,19 +319,19 @@
                                           )
                                         "
                                       >
-                                        <option value="">
+                                        <app-custom-option value="">
                                           {{
                                             "UE_INSPECTOR_SCALING_DEFAULT"
                                               | translate
                                           }}
-                                        </option>
-                                        <option value="auto">
+                                        </app-custom-option>
+                                        <app-custom-option value="auto">
                                           {{
                                             "UE_INSPECTOR_SCALING_AUTO"
                                               | translate
                                           }}
-                                        </option>
-                                      </select>
+                                        </app-custom-option>
+                                      </app-custom-select>
                                     </div>
                                   </div>
                                 }
@@ -457,16 +457,16 @@
                       id="help-theme-ui-selector"
                     >
                       <label>{{ "UE_LABEL_CUSTOM_UI" | translate }}</label>
-                      <select
+                      <app-custom-select
                         [(ngModel)]="theme.uiId"
                         (ngModelChange)="captureState()"
                       >
                         @for (ui of displayCustomUIs; track ui.entity_id) {
-                          <option [value]="ui.entity_id">
+                          <app-custom-option [value]="ui.entity_id">
                             {{ getCustomUiDisplayNameKey(ui) | translate }}
-                          </option>
+                          </app-custom-option>
                         }
-                      </select>
+                      </app-custom-select>
                     </div>
 
                     <!-- Nested Flag Image Settings -->
@@ -1109,16 +1109,16 @@
                   <div class="transition-selector" id="help-page-transition">
                     <label>{{ "UE_LABEL_PAGE_TRANSITION" | translate }}</label>
                     <div class="select-container">
-                      <select
+                      <app-custom-select
                         [ngModel]="editingSettings.pageTransition || 'slide'"
                         (ngModelChange)="onPageTransitionChange($event)"
                       >
                         @for (trans of availableTransitions; track trans) {
-                          <option [value]="trans.key">
+                          <app-custom-option [value]="trans.key">
                             {{ trans.label | translate }}
-                          </option>
+                          </app-custom-option>
                         }
-                      </select>
+                      </app-custom-select>
                     </div>
                   </div>
                 </div>

@@ -6,6 +6,7 @@ import {
   forwardRef,
   HostListener,
   input,
+  output,
   QueryList,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
@@ -23,6 +24,10 @@ export class CustomOptionComponent {
 
   get label(): string {
     return this.elementRef.nativeElement.textContent?.trim() || "";
+  }
+
+  get text(): string {
+    return this.label;
   }
 }
 
@@ -49,12 +54,16 @@ export class CustomSelectComponent
 {
   id = input<string>("");
   disabled = input(false);
+  compareWith = input<(o1: any, o2: any) => boolean>(
+    (o1: any, o2: any) => o1 === o2,
+  );
+  readonly change = output<any>();
 
   @ContentChildren(CustomOptionComponent)
   customOptions!: QueryList<CustomOptionComponent>;
 
-  value: any = null;
   isOpen = false;
+  value: any = undefined;
   selectedLabel: string = "";
 
   onChange: any = () => {};
@@ -69,16 +78,26 @@ export class CustomSelectComponent
     });
   }
 
+  isSelected(optValue: any): boolean {
+    const fn = this.compareWith() || ((o1: any, o2: any) => o1 === o2);
+    return fn(optValue, this.value);
+  }
+
   updateSelectedLabel() {
     if (!this.customOptions) return;
-    const selected = this.customOptions.find(
-      (opt) => opt.value() === this.value,
+    const selected = this.customOptions.find((opt) =>
+      this.isSelected(opt.value()),
     );
     this.selectedLabel = selected ? selected.label : "";
   }
 
   writeValue(val: any): void {
     this.value = val;
+    if (val !== undefined && val !== null) {
+      this.elementRef.nativeElement.setAttribute("data-value", String(val));
+    } else {
+      this.elementRef.nativeElement.removeAttribute("data-value");
+    }
     this.updateSelectedLabel();
   }
 
@@ -105,8 +124,17 @@ export class CustomSelectComponent
   selectOption(option: CustomOptionComponent, event: Event) {
     event.stopPropagation();
     this.value = option.value();
+    if (this.value !== undefined && this.value !== null) {
+      this.elementRef.nativeElement.setAttribute(
+        "data-value",
+        String(this.value),
+      );
+    } else {
+      this.elementRef.nativeElement.removeAttribute("data-value");
+    }
     this.selectedLabel = option.label;
     this.onChange(this.value);
+    this.change.emit(this.value);
     this.isOpen = false;
   }
 

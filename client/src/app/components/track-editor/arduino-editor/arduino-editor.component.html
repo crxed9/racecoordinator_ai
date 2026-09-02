@@ -39,36 +39,36 @@
                       <div class="board-controls">
                         <div class="control-group">
                           <label>{{ "AE_BOARD_TYPE" | translate }}</label>
-                          <select
+                          <app-custom-select
                             [id]="'arduino-board-type-' + index()"
                             [ngModel]="config()?.hardwareType?.toString()"
                             (ngModelChange)="onHardwareTypeChange(+$event)"
                           >
-                            <option value="0">
+                            <app-custom-option value="0">
                               {{ "AE_BOARD_UNO" | translate }}
-                            </option>
-                            <option value="1">
+                            </app-custom-option>
+                            <app-custom-option value="1">
                               {{ "AE_BOARD_MEGA" | translate }}
-                            </option>
-                          </select>
+                            </app-custom-option>
+                          </app-custom-select>
                         </div>
                         <div class="control-group">
                           <label>{{ "AE_COM_PORT" | translate }}</label>
                           <div class="com-port-row">
-                            <select
+                            <app-custom-select
                               [id]="'arduino-com-port-' + index()"
                               [(ngModel)]="config()!.commPort"
                               (change)="updateArduinoConfig()"
                             >
-                              <option value="" disabled>
+                              <app-custom-option value="" [disabled]="true">
                                 {{ "AE_SELECT_PORT" | translate }}
-                              </option>
+                              </app-custom-option>
                               @for (port of availablePorts; track port) {
-                                <option [value]="port">
+                                <app-custom-option [value]="port">
                                   {{ port }}
-                                </option>
+                                </app-custom-option>
                               }
-                            </select>
+                            </app-custom-select>
                             <button
                               type="button"
                               [id]="'arduino-status-badge-' + index()"
@@ -105,24 +105,24 @@
                             "AE_LAP_PIN_PIT_BEHAVIOR" | translate
                           }}</label>
                           <div class="com-port-row">
-                            <select
+                            <app-custom-select
                               [id]="'arduino-pit-behavior-' + index()"
                               [(ngModel)]="config()!.lapPinPitBehavior"
                               (change)="updateArduinoConfig()"
                             >
-                              <option [value]="0">
+                              <app-custom-option [value]="0">
                                 {{ "AE_LAP_PIN_PIT_NONE" | translate }}
-                              </option>
-                              <option [value]="1">
+                              </app-custom-option>
+                              <app-custom-option [value]="1">
                                 {{ "AE_LAP_PIN_PIT_IN" | translate }}
-                              </option>
-                              <option [value]="2">
+                              </app-custom-option>
+                              <app-custom-option [value]="2">
                                 {{ "AE_LAP_PIN_PIT_OUT" | translate }}
-                              </option>
-                              <option [value]="3">
+                              </app-custom-option>
+                              <app-custom-option [value]="3">
                                 {{ "AE_LAP_PIN_PIT_IN_OUT" | translate }}
-                              </option>
-                            </select>
+                              </app-custom-option>
+                            </app-custom-select>
                             <div
                               class="status-badge"
                               style="visibility: hidden"
@@ -792,7 +792,7 @@
                                     <label>{{
                                       "AE_LED_TYPE" | translate
                                     }}</label>
-                                    <select
+                                    <app-custom-select
                                       [id]="
                                         'arduino-led-type-' + index() + '-' + i
                                       "
@@ -802,17 +802,17 @@
                                       "
                                     >
                                       @for (type of ledTypes; track type) {
-                                        <option [value]="type.value">
+                                        <app-custom-option [value]="type.value">
                                           {{ type.label }}
-                                        </option>
+                                        </app-custom-option>
                                       }
-                                    </select>
+                                    </app-custom-select>
                                   </div>
                                   <div class="control-group">
                                     <label>{{
                                       "AE_COLOR_ORDER" | translate
                                     }}</label>
-                                    <select
+                                    <app-custom-select
                                       [id]="
                                         'arduino-led-color-order-' +
                                         index() +
@@ -825,11 +825,13 @@
                                       "
                                     >
                                       @for (order of colorOrders; track order) {
-                                        <option [value]="order.value">
+                                        <app-custom-option
+                                          [value]="order.value"
+                                        >
                                           {{ order.label }}
-                                        </option>
+                                        </app-custom-option>
                                       }
-                                    </select>
+                                    </app-custom-select>
                                   </div>
                                 </div>
                                 <div

@@ -15,6 +15,10 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { forkJoin, Subscription } from "rxjs";
 import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import { UndoManager } from "@app/components/shared/undo-redo-controls/undo-manager";
 import { DataService } from "@app/data.service";
@@ -39,6 +43,8 @@ import { TranslationService } from "@app/services/translation.service";
     FormsModule,
     DragDropModule,
     ConfirmationModalComponent,
+    CustomSelectComponent,
+    CustomOptionComponent,
   ],
 })
 export class EventEditorComponent implements OnInit, OnDestroy, DirtyComponent {

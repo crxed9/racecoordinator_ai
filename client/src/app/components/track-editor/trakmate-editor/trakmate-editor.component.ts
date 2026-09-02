@@ -11,6 +11,10 @@ import {
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Subscription } from "rxjs";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { DataService } from "@app/data.service";
 import { TrackmateConfig } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
@@ -23,7 +27,13 @@ import { LoggerService } from "@app/services/logger.service";
   templateUrl: "./trakmate-editor.component.html",
   styleUrls: ["./trakmate-editor.component.css"],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslatePipe,
+    CustomSelectComponent,
+    CustomOptionComponent,
+  ],
 })
 export class TrakmateEditorComponent implements OnInit, OnDestroy, OnChanges {
   config = input.required<TrackmateConfig>();

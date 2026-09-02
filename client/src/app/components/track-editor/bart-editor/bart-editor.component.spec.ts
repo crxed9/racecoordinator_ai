@@ -197,9 +197,7 @@ describe("BartEditorComponent", () => {
     expect(component.detectedBleDevices).toContain("BART_0001");
     expect(component.detectedBleDevices).toContain("BART_0002");
 
-    const deviceSelect: HTMLSelectElement = fixture.nativeElement.querySelector(
-      `select[id="deviceName-0"]`,
-    );
+    const deviceSelect = fixture.nativeElement.querySelector("#deviceName-0");
     expect(deviceSelect).toBeTruthy();
   }));
 

@@ -16,11 +16,11 @@
 
   @if (isOpen) {
     <div class="custom-select-dropdown">
-      @for (option of customOptions; track option.value()) {
+      @for (option of customOptions; track $index) {
         <div
           class="custom-select-option"
           [attr.data-value]="option.value()"
-          [class.selected]="option.value() === value"
+          [class.selected]="isSelected(option.value())"
           [class.disabled]="option.disabled()"
           (click)="!option.disabled() && selectOption(option, $event)"
         >

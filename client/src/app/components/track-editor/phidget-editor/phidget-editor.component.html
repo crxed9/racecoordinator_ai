@@ -51,16 +51,18 @@
                         <div class="control-group">
                           <label>{{ "PHIDGET_DEVICE" | translate }}</label>
                           <div class="com-port-row">
-                            <select
+                            <app-custom-select
                               [id]="'device-' + interfaceIndex()"
                               [ngModel]="selectedDeviceKeyStr"
                               (ngModelChange)="onDeviceSelectChange($event)"
                             >
-                              <option value="" disabled>
+                              <app-custom-option value="" [disabled]="true">
                                 {{ "PHIDGET_SELECT_DEVICE" | translate }}
-                              </option>
+                              </app-custom-option>
                               @if (isConfiguredDeviceDisconnected) {
-                                <option [value]="selectedDeviceKeyStr">
+                                <app-custom-option
+                                  [value]="selectedDeviceKeyStr"
+                                >
                                   {{ config().name }} ({{
                                     config().serialNumber
                                   }})
@@ -70,13 +72,13 @@
                                   - ({{
                                     "PHIDGET_STATUS_DISCONNECTED" | translate
                                   }})
-                                </option>
+                                </app-custom-option>
                               }
                               @for (
                                 device of devices;
                                 track getDeviceKey(device)
                               ) {
-                                <option
+                                <app-custom-option
                                   [value]="getDeviceKey(device)"
                                   [disabled]="isDeviceSelectedByOther(device)"
                                 >
@@ -89,9 +91,9 @@
                                       "PHIDGET_DEVICE_IN_USE" | translate
                                     }})
                                   }
-                                </option>
+                                </app-custom-option>
                               }
-                            </select>
+                            </app-custom-select>
                             <button
                               type="button"
                               [id]="'phidget-status-badge-' + interfaceIndex()"
@@ -110,26 +112,26 @@
                               "PHIDGET_LAP_PIN_PIT_BEHAVIOR" | translate
                             }}</label>
                             <div class="com-port-row">
-                              <select
+                              <app-custom-select
                                 [id]="
                                   'phidget-pit-behavior-' + interfaceIndex()
                                 "
                                 [(ngModel)]="config()!.lapPinPitBehavior"
                                 (change)="onConfigChange()"
                               >
-                                <option [value]="0">
+                                <app-custom-option [value]="0">
                                   {{ "PHIDGET_LAP_PIN_PIT_NONE" | translate }}
-                                </option>
-                                <option [value]="1">
+                                </app-custom-option>
+                                <app-custom-option [value]="1">
                                   {{ "PHIDGET_LAP_PIN_PIT_IN" | translate }}
-                                </option>
-                                <option [value]="2">
+                                </app-custom-option>
+                                <app-custom-option [value]="2">
                                   {{ "PHIDGET_LAP_PIN_PIT_OUT" | translate }}
-                                </option>
-                                <option [value]="3">
+                                </app-custom-option>
+                                <app-custom-option [value]="3">
                                   {{ "PHIDGET_LAP_PIN_PIT_IN_OUT" | translate }}
-                                </option>
-                              </select>
+                                </app-custom-option>
+                              </app-custom-select>
                               <div
                                 class="status-badge"
                                 style="visibility: hidden"

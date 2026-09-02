@@ -15,6 +15,10 @@ import {
 import { FormsModule } from "@angular/forms";
 import { Subject, Subscription, timer } from "rxjs";
 import { debounceTime, distinctUntilChanged } from "rxjs/operators";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { DataService } from "@app/data.service";
 import { Lane } from "@app/models/lane";
 import {
@@ -46,7 +50,12 @@ interface PinGroup {
   selector: "app-arduino-editor",
   templateUrl: "./arduino-editor.component.html",
   styleUrls: ["./arduino-editor.component.css"],
-  imports: [FormsModule, TranslatePipe],
+  imports: [
+    FormsModule,
+    TranslatePipe,
+    CustomSelectComponent,
+    CustomOptionComponent,
+  ],
 })
 export class ArduinoEditorComponent implements OnInit, OnDestroy {
   config = model<ArduinoConfig>();

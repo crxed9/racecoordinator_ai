@@ -817,19 +817,21 @@
             </div>
 
             <div class="season-selection-wrapper">
-              <select
+              <app-custom-select
                 class="season-select-input"
                 [(ngModel)]="selectedSeason"
                 (ngModelChange)="onSeasonChange()"
                 [compareWith]="compareSeasons"
               >
-                <option [ngValue]="undefined">
+                <app-custom-option [value]="undefined">
                   {{ "RDS_SEASON_NONE" | translate }}
-                </option>
+                </app-custom-option>
                 @for (season of seasons; track season.entity_id) {
-                  <option [ngValue]="season">{{ season.name }}</option>
+                  <app-custom-option [value]="season">{{
+                    season.name
+                  }}</app-custom-option>
                 }
-              </select>
+              </app-custom-select>
             </div>
           </div>
 

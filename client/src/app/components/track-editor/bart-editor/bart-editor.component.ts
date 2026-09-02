@@ -12,6 +12,10 @@ import {
 import { FormsModule } from "@angular/forms";
 import { of, Subscription, timer } from "rxjs";
 import { catchError, switchMap } from "rxjs/operators";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { DataService } from "@app/data.service";
 import { BartConfig } from "@app/models/bart_config";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
@@ -24,7 +28,13 @@ import { LoggerService } from "@app/services/logger.service";
   templateUrl: "./bart-editor.component.html",
   styleUrls: ["./bart-editor.component.css"],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslatePipe,
+    CustomSelectComponent,
+    CustomOptionComponent,
+  ],
 })
 export class BartEditorComponent implements OnInit, OnDestroy, OnChanges {
   config = input.required<BartConfig>();

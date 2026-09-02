@@ -18,6 +18,10 @@ import { DefaultRacedayComponent } from "@app/components/raceday/default-raceday
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { AudioSelectorComponent } from "@app/components/shared/audio-selector/audio-selector.component";
 import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import { ImageSelectorComponent } from "@app/components/shared/image-selector/image-selector.component";
 import { ToolbarComponent } from "@app/components/shared/toolbar/toolbar.component";
@@ -138,6 +142,8 @@ export { BASE_AVAILABLE_COLUMNS, UIEditorState } from "./ui-editor-constants";
     DefaultRacedayComponent,
     WidgetInspectorFieldsComponent,
     ThemeTemplateModalComponent,
+    CustomSelectComponent,
+    CustomOptionComponent,
   ],
   schemas: [NO_ERRORS_SCHEMA],
 })

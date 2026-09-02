@@ -4654,7 +4654,8 @@ export class DefaultRacedayComponent
   }
 
   onTeammateChange(hd: DriverHeatData, event: any) {
-    const driverId = event.target.value;
+    const driverId =
+      typeof event === "string" ? event : (event?.target?.value ?? event);
     const lane = hd.laneIndex;
 
     const doChange = () => {
@@ -4668,10 +4669,6 @@ export class DefaultRacedayComponent
           this.ackModalMessage = err.error || "RD_ERR_DRIVER_CHANGE_MESSAGE";
           this.showAckModal = true;
           // Rollback select value
-          if (event.target) {
-            event.target.value =
-              hd.actualDriver?.entity_id || hd.driver?.entity_id;
-          }
         },
       });
     };
@@ -4680,7 +4677,8 @@ export class DefaultRacedayComponent
   }
 
   onNextHeatTeammateChange(hd: DriverHeatData, event: any, heatNumber: number) {
-    const driverId = event.target.value;
+    const driverId =
+      typeof event === "string" ? event : (event?.target?.value ?? event);
     const lane = hd.laneIndex;
     this.dataService
       .changeActualDriverForHeat(heatNumber, lane, driverId)

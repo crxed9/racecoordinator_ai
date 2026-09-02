@@ -65,18 +65,34 @@ describe("LaneViewInspectorComponent", () => {
   });
 
   it("should bind timeDecimalPlaces and emit change on selection", () => {
-    const selectEl = fixture.nativeElement.querySelectorAll("select")[1]; // second select
-    selectEl.value = "1";
-    selectEl.dispatchEvent(new Event("change"));
+    const selectEl =
+      fixture.nativeElement.querySelectorAll("app-custom-select")[1];
+    const trigger = selectEl.querySelector(
+      ".custom-select-trigger",
+    ) as HTMLElement;
+    trigger.click();
+    fixture.detectChanges();
+    const opt = selectEl.querySelector(
+      '.custom-select-option[data-value="1"]',
+    ) as HTMLElement;
+    opt?.click();
     fixture.detectChanges();
     expect(Number(component.settings().timeDecimalPlaces)).toBe(1);
     expect(changeSpy).toHaveBeenCalled();
   });
 
   it("should bind lapDecimalPlaces and emit change on selection", () => {
-    const selectEl = fixture.nativeElement.querySelectorAll("select")[2]; // third select
-    selectEl.value = "0";
-    selectEl.dispatchEvent(new Event("change"));
+    const selectEl =
+      fixture.nativeElement.querySelectorAll("app-custom-select")[2];
+    const trigger = selectEl.querySelector(
+      ".custom-select-trigger",
+    ) as HTMLElement;
+    trigger.click();
+    fixture.detectChanges();
+    const opt = selectEl.querySelector(
+      '.custom-select-option[data-value="0"]',
+    ) as HTMLElement;
+    opt?.click();
     fixture.detectChanges();
     expect(Number(component.settings().lapDecimalPlaces)).toBe(0);
     expect(changeSpy).toHaveBeenCalled();
@@ -102,7 +118,7 @@ describe("LaneViewInspectorComponent", () => {
   });
 
   it("should trigger loadLocalFonts on font service when select element is focused", () => {
-    const selectEl = fixture.nativeElement.querySelector("select");
+    const selectEl = fixture.nativeElement.querySelector("app-custom-select");
     selectEl.dispatchEvent(new Event("focus"));
     expect(fontServiceSpy.loadLocalFonts).toHaveBeenCalled();
   });

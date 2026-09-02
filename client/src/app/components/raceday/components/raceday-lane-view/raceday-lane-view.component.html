@@ -347,7 +347,7 @@
                           (parent().authService.currentRole$ | async) !==
                           parent().Role.VIEWER
                         ) {
-                          <select
+                          <app-custom-select
                             class="teammate-select"
                             [style.background-image]="
                               parent().getDropdownArrowBg(hd)
@@ -358,22 +358,19 @@
                                 : 'right center'
                             "
                             [disabled]="parent().isDriverSwapDisabled(hd)"
-                            (change)="
-                              parent().onTeammateChange(hd, $event);
-                              $any($event.target)?.blur()
+                            [ngModel]="
+                              hd.actualDriver?.entity_id ||
+                              $any(hd.driver).entity_id
                             "
+                            (change)="parent().onTeammateChange(hd, $event)"
+                            style="background-repeat: no-repeat"
                           >
                             @for (
                               tm of parent().getTeammates(hd);
                               track $any(tm).entity_id || $any(tm).id
                             ) {
-                              <option
+                              <app-custom-option
                                 [value]="$any(tm).entity_id || $any(tm).id"
-                                [selected]="
-                                  ($any(tm).entity_id || $any(tm).id) ===
-                                  (hd.actualDriver?.entity_id ||
-                                    $any(hd.driver).entity_id)
-                                "
                               >
                                 {{
                                   entry.property === "driver.nickname"
@@ -388,9 +385,9 @@
                                     )
                                   }}
                                 }
-                              </option>
+                              </app-custom-option>
                             }
-                          </select>
+                          </app-custom-select>
                           @if (parent().race?.practice) {
                             <button
                               class="material-icons reset-lane-btn"

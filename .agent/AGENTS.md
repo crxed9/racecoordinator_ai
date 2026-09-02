@@ -31,6 +31,11 @@ Race Coordinator AI uses embedded SQLite (`sqlite-jdbc`) for all persistent data
 - **No hardcoded path separators**: Never hardcode `/` or `\\` path separators in Java server code or cross-platform scripts. Always use `Paths.get()`, `Path.of()`, or `File.separator`.
 - **Support all target platforms**: Code must remain fully compatible across Windows, macOS, and Linux (x86_64 and arm64).
 
+## Custom Select Component (Cross-Platform Windows Consistency)
+- **Always use `app-custom-select` instead of native `<select>`**: Native `<select>` and `<option>` elements cannot be reliably styled across operating systems. In particular, Chromium and Edge on Windows render native `<option>` dropdown lists using OS-level popup widgets that flash white/grey backgrounds, ignore custom hover styles, and drop custom color highlights.
+- **Implementation**: Always use `<app-custom-select>` and `<app-custom-option>` from `@app/components/shared/custom-select/custom-select.component` for all dropdown controls across the application.
+- **Testing & Harnesses**: When writing E2E or screendiff tests, interact with custom selects via the component test harness (`CustomSelectHarnessE2e`) or by clicking the custom trigger and target options (`.custom-select-option[data-value='...']`) rather than using `page.selectOption()`.
+
 ## Git Branching & Release Pipeline Discipline
 - **Develop is the default base**: Standard feature and bugfix work branches from `develop` and merges into `develop`.
 - **Main is the stable trunk**: `main` contains stable, production-ready code and documentation. Pushes/merges to `main` do NOT trigger release builds, allowing docs, READMEs, and maintenance to land cleanly without accidental releases or `[skip ci]`.

@@ -17,6 +17,10 @@ import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
 import { ConfirmationModalComponent } from "@app/components/shared/confirmation-modal/confirmation-modal.component";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import {
   UndoEventType,
@@ -67,6 +71,8 @@ import { parseAndValidateImportFile } from "./rotation-import.utils";
     DragDropModule,
     EditorTitleComponent,
     ConfirmationModalComponent,
+    CustomSelectComponent,
+    CustomOptionComponent,
   ],
 })
 export class CustomRotationEditorComponent

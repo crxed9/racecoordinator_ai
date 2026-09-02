@@ -216,8 +216,13 @@ test.describe("Asset Manager Visuals", () => {
       .waitFor({ state: "visible" });
 
     // Select the 4-lane "Speedway" track (the default "Classic Circuit" only has 2 lanes)
-    const trackSelect = page.locator("app-custom-rotation-editor select");
-    await trackSelect.selectOption({ label: "Speedway" });
+    const trackSelect = page.locator(
+      "app-custom-rotation-editor app-custom-select",
+    );
+    await trackSelect.locator(".custom-select-trigger").click();
+    await trackSelect
+      .locator('.custom-select-option:has-text("Speedway")')
+      .click();
 
     // Add Heat 2 (Heat 1 was auto-added with the rotation)
     await page
@@ -313,8 +318,13 @@ test.describe("Asset Manager Visuals", () => {
       .waitFor({ state: "visible" });
 
     // Select the 4-lane "Speedway" track
-    const trackSelect = page.locator("app-custom-rotation-editor select");
-    await trackSelect.selectOption({ label: "Speedway" });
+    const trackSelect = page.locator(
+      "app-custom-rotation-editor app-custom-select",
+    );
+    await trackSelect.locator(".custom-select-trigger").click();
+    await trackSelect
+      .locator('.custom-select-option:has-text("Speedway")')
+      .click();
 
     // Add Heat 2
     await page

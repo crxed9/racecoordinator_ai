@@ -7,6 +7,10 @@ import { CommonModule } from "@angular/common";
 import { Component, inject, input, output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { RacedayLayoutUtils } from "@app/components/raceday/utils/raceday-layout.utils";
+import {
+  CustomOptionComponent,
+  CustomSelectComponent,
+} from "@app/components/shared/custom-select/custom-select.component";
 import { CustomUI } from "@app/models/custom-ui";
 import { Settings } from "@app/models/settings";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
@@ -18,7 +22,14 @@ import { TranslationService } from "@app/services/translation.service";
   selector: "app-lane-view-inspector",
   templateUrl: "./lane-view-inspector.component.html",
   styleUrls: ["../../ui-editor.component.css"],
-  imports: [CommonModule, FormsModule, TranslatePipe, DragDropModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslatePipe,
+    DragDropModule,
+    CustomSelectComponent,
+    CustomOptionComponent,
+  ],
 })
 export class LaneViewInspectorComponent {
   settings = input.required<any>();

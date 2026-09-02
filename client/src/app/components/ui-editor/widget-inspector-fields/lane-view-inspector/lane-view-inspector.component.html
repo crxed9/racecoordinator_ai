@@ -20,18 +20,19 @@
       "UE_INSPECTOR_FONT_FAMILY" | translate
     }}</label>
     <div class="select-container select-sm">
-      <select
+      <app-custom-select
         [(ngModel)]="settings().columnFontFamily"
         (change)="onSettingsChange()"
         (focus)="fontService.loadLocalFonts()"
+        (click)="fontService.loadLocalFonts()"
       >
-        <option value="">
+        <app-custom-option value="">
           {{ "UE_INSPECTOR_FONT_THEME_DEFAULT" | translate }}
-        </option>
+        </app-custom-option>
         @for (font of fontService.availableFonts(); track font) {
-          <option [value]="font">{{ font }}</option>
+          <app-custom-option [value]="font">{{ font }}</app-custom-option>
         }
-      </select>
+      </app-custom-select>
     </div>
   </div>
 
@@ -97,15 +98,15 @@
       "UE_INSPECTOR_LANE_VIEW_TIME_DECIMAL_PLACES" | translate
     }}</label>
     <div class="select-container select-sm">
-      <select
+      <app-custom-select
         [(ngModel)]="settings().timeDecimalPlaces"
         (change)="onSettingsChange()"
       >
-        <option [value]="0">0</option>
-        <option [value]="1">1</option>
-        <option [value]="2">2</option>
-        <option [value]="3">3</option>
-      </select>
+        <app-custom-option [value]="0">0</app-custom-option>
+        <app-custom-option [value]="1">1</app-custom-option>
+        <app-custom-option [value]="2">2</app-custom-option>
+        <app-custom-option [value]="3">3</app-custom-option>
+      </app-custom-select>
     </div>
   </div>
 
@@ -115,15 +116,15 @@
       "UE_INSPECTOR_LANE_VIEW_LAP_DECIMAL_PLACES" | translate
     }}</label>
     <div class="select-container select-sm">
-      <select
+      <app-custom-select
         [(ngModel)]="settings().lapDecimalPlaces"
         (change)="onSettingsChange()"
       >
-        <option [value]="0">0</option>
-        <option [value]="1">1</option>
-        <option [value]="2">2</option>
-        <option [value]="3">3</option>
-      </select>
+        <app-custom-option [value]="0">0</app-custom-option>
+        <app-custom-option [value]="1">1</app-custom-option>
+        <app-custom-option [value]="2">2</app-custom-option>
+        <app-custom-option [value]="3">3</app-custom-option>
+      </app-custom-select>
     </div>
   </div>
 
@@ -132,18 +133,19 @@
       "UE_INSPECTOR_FONT_FAMILY" | translate
     }}</label>
     <div class="select-container select-sm">
-      <select
+      <app-custom-select
         [(ngModel)]="settings().dataFontFamily"
         (change)="onSettingsChange()"
         (focus)="fontService.loadLocalFonts()"
+        (click)="fontService.loadLocalFonts()"
       >
-        <option value="">
+        <app-custom-option value="">
           {{ "UE_INSPECTOR_FONT_THEME_DEFAULT" | translate }}
-        </option>
+        </app-custom-option>
         @for (font of fontService.availableFonts(); track font) {
-          <option [value]="font">{{ font }}</option>
+          <app-custom-option [value]="font">{{ font }}</app-custom-option>
         }
-      </select>
+      </app-custom-select>
     </div>
   </div>
 
@@ -178,15 +180,15 @@
       "UE_INSPECTOR_LANE_VIEW_TIME_DECIMAL_PLACES" | translate
     }}</label>
     <div class="select-container select-sm">
-      <select
+      <app-custom-select
         [(ngModel)]="settings().insetTimeDecimalPlaces"
         (change)="onSettingsChange()"
       >
-        <option [value]="0">0</option>
-        <option [value]="1">1</option>
-        <option [value]="2">2</option>
-        <option [value]="3">3</option>
-      </select>
+        <app-custom-option [value]="0">0</app-custom-option>
+        <app-custom-option [value]="1">1</app-custom-option>
+        <app-custom-option [value]="2">2</app-custom-option>
+        <app-custom-option [value]="3">3</app-custom-option>
+      </app-custom-select>
     </div>
   </div>
 
@@ -196,15 +198,15 @@
       "UE_INSPECTOR_LANE_VIEW_LAP_DECIMAL_PLACES" | translate
     }}</label>
     <div class="select-container select-sm">
-      <select
+      <app-custom-select
         [(ngModel)]="settings().insetLapDecimalPlaces"
         (change)="onSettingsChange()"
       >
-        <option [value]="0">0</option>
-        <option [value]="1">1</option>
-        <option [value]="2">2</option>
-        <option [value]="3">3</option>
-      </select>
+        <app-custom-option [value]="0">0</app-custom-option>
+        <app-custom-option [value]="1">1</app-custom-option>
+        <app-custom-option [value]="2">2</app-custom-option>
+        <app-custom-option [value]="3">3</app-custom-option>
+      </app-custom-select>
     </div>
   </div>
 
@@ -214,18 +216,19 @@
       "UE_INSPECTOR_FONT_FAMILY" | translate
     }}</label>
     <div class="select-container select-sm">
-      <select
+      <app-custom-select
         [(ngModel)]="settings().insetFontFamily"
         (change)="onSettingsChange()"
         (focus)="fontService.loadLocalFonts()"
+        (click)="fontService.loadLocalFonts()"
       >
-        <option value="">
+        <app-custom-option value="">
           {{ "UE_INSPECTOR_FONT_THEME_DEFAULT" | translate }}
-        </option>
+        </app-custom-option>
         @for (font of fontService.availableFonts(); track font) {
-          <option [value]="font">{{ font }}</option>
+          <app-custom-option [value]="font">{{ font }}</app-custom-option>
         }
-      </select>
+      </app-custom-select>
     </div>
   </div>
 
