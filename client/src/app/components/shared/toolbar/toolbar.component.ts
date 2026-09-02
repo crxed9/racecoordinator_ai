@@ -6,6 +6,7 @@ import {
   OnInit,
   output,
 } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { AnalyticsService } from "@app/analytics.service";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
@@ -23,7 +24,7 @@ import { TranslationService } from "@app/services/translation.service";
   selector: "app-toolbar",
   templateUrl: "./toolbar.component.html",
   styleUrls: ["./toolbar.component.css"],
-  imports: [AcknowledgementModalComponent, TranslatePipe],
+  imports: [AcknowledgementModalComponent, TranslatePipe, FormsModule],
 })
 export class ToolbarComponent implements OnInit {
   showAdd = input(false);
@@ -80,6 +81,9 @@ export class ToolbarComponent implements OnInit {
   disabledLaneCheck = input(false);
   isHeatsEqual = input<boolean | undefined>(undefined);
 
+  showZoom = input(false);
+  zoomLevel = input(100);
+
   showAnalyticsModal = false;
   analyticsModalTitle = "";
   analyticsModalMessage = "";
@@ -132,6 +136,23 @@ export class ToolbarComponent implements OnInit {
   reset = output<void>();
   regenerate = output<void>();
   laneCheck = output<void>();
+  zoomLevelChange = output<number>();
+
+  onZoomIn() {
+    if (this.zoomLevel() < 150) {
+      this.zoomLevelChange.emit(this.zoomLevel() + 10);
+    }
+  }
+
+  onZoomOut() {
+    if (this.zoomLevel() > 50) {
+      this.zoomLevelChange.emit(this.zoomLevel() - 10);
+    }
+  }
+
+  onZoomSliderChange(event: any) {
+    this.zoomLevelChange.emit(Number(event));
+  }
 
   onActivate() {
     this.activate.emit();

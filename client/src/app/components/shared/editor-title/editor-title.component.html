@@ -33,6 +33,9 @@
       [disabledImportRc1]="disabledImportRc1()"
       [disabledExport]="disabledExport()"
       [isSaving]="isSaving()"
+      [showZoom]="showZoom()"
+      [zoomLevel]="zoomLevel()"
+      (zoomLevelChange)="onZoomLevelChange($event)"
       [undoManager]="undoManager()"
       [helpSteps]="helpSteps()"
       [helpTitle]="helpTitle()"
@@ -47,6 +50,9 @@
       (importRc1)="onImportRc1()"
       (export)="onExport()"
     >
+      <div toolbar-left>
+        <ng-content select="[toolbar-left]"></ng-content>
+      </div>
     </app-toolbar>
   </div>
 </div>

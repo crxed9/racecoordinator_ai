@@ -1174,15 +1174,12 @@ describe("CustomRotationEditorComponent", () => {
   });
 
   describe("Layout Scale and Resize", () => {
-    it("should recalculate scale factor on resize host listener", () => {
-      fixture.detectChanges();
-
-      // Spy on updateScale to verify it's called
-      const scaleSpy = spyOn(component as any, "updateScale").and.callThrough();
-
+    it("should update scale on window resize", () => {
+      // Simulate window resize
+      window.innerWidth = 800;
+      window.innerHeight = 450;
       component.onResize();
-      expect(scaleSpy).toHaveBeenCalled();
-      expect(component.scale).toBeGreaterThan(0);
+      expect(component.scale).toBe(0.5); // min(800/1600, 450/900)
     });
   });
 
@@ -1429,6 +1426,22 @@ describe("CustomRotationEditorComponent", () => {
 
       // Should only have called autoSave once
       expect(autoSaveSpy).toHaveBeenCalledTimes(1);
+    });
+    describe("Zoom Support", () => {
+      it("should update zoomLevel and bind it to the heats grid", () => {
+        fixture.detectChanges();
+        component.addRotation();
+        fixture.detectChanges();
+
+        const compiled = fixture.nativeElement as HTMLElement;
+        const grid = compiled.querySelector(".heats-grid") as HTMLElement;
+        expect(grid).toBeTruthy();
+        expect(grid.style.zoom).toBe("1");
+
+        component.zoomLevel = 120;
+        fixture.detectChanges();
+        expect(grid.style.zoom).toBe("1.2");
+      });
     });
   });
 });

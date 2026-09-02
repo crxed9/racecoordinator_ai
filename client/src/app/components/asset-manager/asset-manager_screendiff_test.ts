@@ -281,4 +281,61 @@ test.describe("Asset Manager Visuals", () => {
       },
     );
   });
+
+  test("should zoom custom rotation editor heats list when zoomed in", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/asset-manager"),
+    );
+    await page.locator(".asset-grid").waitFor({ state: "visible" });
+
+    const container = page.locator("app-asset-manager");
+    const harness = new AssetManagerHarnessE2e(container);
+
+    await harness.clickNewCustomRotation();
+    await page
+      .locator("app-custom-rotation-editor .page-container")
+      .waitFor({ state: "visible" });
+
+    // Click "Add Rotation" to add the first rotation.
+    await page
+      .locator("app-editor-title #add-item-btn")
+      .waitFor({ state: "visible" });
+    await page.locator("app-editor-title #add-item-btn").click();
+
+    // Wait for the rotation card to appear.
+    await page
+      .locator("app-custom-rotation-editor .rotation-expander-card")
+      .first()
+      .waitFor({ state: "visible" });
+
+    // Select the 4-lane "Speedway" track
+    const trackSelect = page.locator("app-custom-rotation-editor select");
+    await trackSelect.selectOption({ label: "Speedway" });
+
+    // Add Heat 2
+    await page
+      .locator("app-custom-rotation-editor .add-heat-card-btn")
+      .first()
+      .click();
+
+    // Zoom in twice
+    await page
+      .locator("app-custom-rotation-editor .zoom-icon:has-text('zoom_in')")
+      .click();
+    await page
+      .locator("app-custom-rotation-editor .zoom-icon:has-text('zoom_in')")
+      .click();
+
+    await expect(page).toHaveScreenshot(
+      "asset-manager-custom-rotation-zoomed-in.png",
+      {
+        maxDiffPixelRatio: 0.1,
+        threshold: 0.2,
+      },
+    );
+  });
 });

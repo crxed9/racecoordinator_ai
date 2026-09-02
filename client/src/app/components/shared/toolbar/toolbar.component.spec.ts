@@ -373,4 +373,32 @@ describe("ToolbarComponent", () => {
       );
     });
   });
+
+  describe("Zooming", () => {
+    it("should zoom in up to 150%", () => {
+      fixture.componentRef.setInput("showZoom", true);
+      fixture.componentRef.setInput("zoomLevel", 100);
+      spyOn(component.zoomLevelChange, "emit");
+
+      component.onZoomIn();
+      expect(component.zoomLevelChange.emit).toHaveBeenCalledWith(110);
+
+      fixture.componentRef.setInput("zoomLevel", 150);
+      component.onZoomIn();
+      expect(component.zoomLevelChange.emit).not.toHaveBeenCalledWith(160);
+    });
+
+    it("should zoom out down to 50%", () => {
+      fixture.componentRef.setInput("showZoom", true);
+      fixture.componentRef.setInput("zoomLevel", 100);
+      spyOn(component.zoomLevelChange, "emit");
+
+      component.onZoomOut();
+      expect(component.zoomLevelChange.emit).toHaveBeenCalledWith(90);
+
+      fixture.componentRef.setInput("zoomLevel", 50);
+      component.onZoomOut();
+      expect(component.zoomLevelChange.emit).not.toHaveBeenCalledWith(40);
+    });
+  });
 });
