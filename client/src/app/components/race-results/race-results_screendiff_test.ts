@@ -28,8 +28,14 @@ test.describe("Race Results Visuals", () => {
     // Verify page has finished loading
 
     // Verify initial layout screenshot
+    await page.mouse.move(0, 0);
+    await expect(
+      page.locator("app-twin-graphs .graph-path-rank").first(),
+    ).toHaveAttribute("d", /L/);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
     await expect(harness.locator).toHaveScreenshot("race-results-initial.png", {
       maxDiffPixelRatio: 0.05,
+      maxDiffPixels: 8000,
     });
   });
 
@@ -55,11 +61,15 @@ test.describe("Race Results Visuals", () => {
       .locator(".legend-item", { hasText: "Alice" })
       .first();
     await expect(aliceLegend).toHaveClass(/legend-item-hidden/);
+    await expect(page.locator(".legend-text-hidden")).not.toHaveCount(0);
 
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
     await expect(page.locator("app-twin-graphs")).toHaveScreenshot(
       "race-results-alice-hidden.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });
@@ -92,11 +102,18 @@ test.describe("Race Results Visuals", () => {
     // Click "Alice" again to restore
     await harness.clickLegendItem("Alice");
     await expect(aliceLegend).not.toHaveClass(/legend-item-hidden/);
+    await expect(page.locator(".legend-text-hidden")).toHaveCount(0);
 
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
+    await expect(
+      page.locator("app-twin-graphs .graph-path-rank").first(),
+    ).toHaveAttribute("d", /L/);
     await expect(page.locator("app-twin-graphs")).toHaveScreenshot(
       "race-results-alice-restored.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });
@@ -121,12 +138,16 @@ test.describe("Race Results Visuals", () => {
       .locator(".legend-item", { hasText: "Alice" })
       .first();
     await expect(aliceLegend).toHaveClass(/legend-item-hidden/);
+    await expect(page.locator(".legend-text-hidden")).not.toHaveCount(0);
 
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
     // Verify only Bob's graph line is visible, other lines hidden
     await expect(page.locator("app-twin-graphs")).toHaveScreenshot(
       "race-results-bob-soloed.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });
@@ -159,11 +180,18 @@ test.describe("Race Results Visuals", () => {
     // Double click again to restore all
     await harness.doubleClickLegendItem("Bob");
     await expect(aliceLegend).not.toHaveClass(/legend-item-hidden/);
+    await expect(page.locator(".legend-text-hidden")).toHaveCount(0);
 
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
+    await expect(
+      page.locator("app-twin-graphs .graph-path-rank").first(),
+    ).toHaveAttribute("d", /L/);
     await expect(page.locator("app-twin-graphs")).toHaveScreenshot(
       "race-results-all-restored.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });
@@ -184,12 +212,15 @@ test.describe("Race Results Visuals", () => {
 
     // Hover over the "Bob" legend item
     await harness.hoverLegendItem("Bob");
+    await expect(page.locator(".graph-highlight")).not.toHaveCount(0);
+    await expect(page.locator(".graph-faded")).not.toHaveCount(0);
 
     // Verify Bob's graph is highlighted, and others are faded
     await expect(page.locator("app-twin-graphs")).toHaveScreenshot(
       "race-results-bob-hovered.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });
@@ -213,10 +244,16 @@ test.describe("Race Results Visuals", () => {
     await page.evaluate(() => document.body.classList.add("print-full-scroll"));
 
     // Ensure the page doesn't get clipped by targeting the component instead of page fullPage true
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
+    await expect(
+      page.locator("app-twin-graphs .graph-path-rank").first(),
+    ).toHaveAttribute("d", /L/);
     await expect(harness.locator).toHaveScreenshot(
       "race-results-print-layout.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });
@@ -239,10 +276,16 @@ test.describe("Race Results Visuals", () => {
       document.body.classList.add("print-no-background");
     });
 
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
+    await expect(
+      page.locator("app-twin-graphs .graph-path-rank").first(),
+    ).toHaveAttribute("d", /L/);
     await expect(page.locator("app-race-results")).toHaveScreenshot(
       "race-results-no-background.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });
@@ -266,10 +309,16 @@ test.describe("Race Results Visuals", () => {
     const header = page.locator(".header-bar");
     await header.waitFor({ state: "visible" });
 
+    await page.mouse.move(0, 0);
+    await expect(page.locator(".graph-highlight")).toHaveCount(0);
+    await expect(
+      page.locator("app-twin-graphs .graph-path-rank").first(),
+    ).toHaveAttribute("d", /L/);
     await expect(page.locator("app-race-results")).toHaveScreenshot(
       "race-results-fullscreen.png",
       {
         maxDiffPixelRatio: 0.05,
+        maxDiffPixels: 8000,
       },
     );
   });

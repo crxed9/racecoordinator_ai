@@ -2409,7 +2409,7 @@ export class TestSetupHelper {
 
   static async disableAnimations(page: Page) {
     const css = `
-      *, *::before, *::after {
+      *, *::before, *::after, svg, svg *, path, circle, rect, line, polygon, polyline, ellipse, text {
         transition: none !important;
         animation: none !important;
         transition-duration: 0s !important;
@@ -2418,6 +2418,15 @@ export class TestSetupHelper {
         caret-color: transparent !important;
         clip-path: none !important;
         backdrop-filter: none !important;
+      }
+      
+      ::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+      * {
+        scrollbar-width: none !important;
       }
     `;
 
