@@ -325,6 +325,12 @@ export class Settings {
         height: 239,
         zIndex: 100,
         scaleMode: "auto",
+        customSettings: {
+          showRaceRecordLap: true,
+          showRaceRecordScore: true,
+          showCurrentRaceBest: true,
+          showHeatBest: true,
+        },
       },
       {
         id: "widget-leaderboard",

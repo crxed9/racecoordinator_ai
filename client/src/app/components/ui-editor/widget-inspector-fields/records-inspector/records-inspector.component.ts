@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, input, output } from "@angular/core";
+import { Component, effect, inject, input, output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import {
   CustomOptionComponent,
@@ -26,6 +26,18 @@ export class RecordsInspectorComponent {
   disableFontSizes = input<boolean>(false);
   change = output<void>();
   fontService = inject(FontService);
+
+  constructor() {
+    effect(() => {
+      const s = this.settings();
+      if (s) {
+        if (s.showRaceRecordLap === undefined) s.showRaceRecordLap = true;
+        if (s.showRaceRecordScore === undefined) s.showRaceRecordScore = true;
+        if (s.showCurrentRaceBest === undefined) s.showCurrentRaceBest = true;
+        if (s.showHeatBest === undefined) s.showHeatBest = true;
+      }
+    });
+  }
 
   onSettingsChange() {
     this.change.emit();

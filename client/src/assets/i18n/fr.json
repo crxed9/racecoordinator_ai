@@ -1967,6 +1967,7 @@
   "UE_INSPECTOR_LEADERBOARD_SUBTITLE": "Paramètres du Sous-titre",
   "UE_INSPECTOR_LEADERBOARD_TITLE": "Paramètres du Titre",
   "UE_INSPECTOR_NO_CUSTOM_PROPERTIES": "Aucun paramètre personnalisé défini pour ce widget.",
+  "UE_INSPECTOR_RECORDS_DATA_POINTS": "Records visibles",
   "UE_INSPECTOR_RECORDS_HEADER": "Paramètres d'en-tête",
   "UE_INSPECTOR_RECORDS_VALUE": "Paramètres de valeur",
   "UE_INSPECTOR_SCALING_AUTO": "Ajustement Automatique",

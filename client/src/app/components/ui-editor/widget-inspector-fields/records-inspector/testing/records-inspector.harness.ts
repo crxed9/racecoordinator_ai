@@ -9,6 +9,9 @@ export class RecordsInspectorHarness
 {
   static hostSelector = RecordsInspectorHarnessBase.hostSelector;
 
+  protected getCheckboxes = this.locatorForAll(
+    RecordsInspectorHarnessBase.selectors.checkboxes,
+  );
   protected getSelects = this.locatorForAll(CustomSelectHarness);
   protected getSliders = this.locatorForAll(
     RecordsInspectorHarnessBase.selectors.sliders,
@@ -19,6 +22,58 @@ export class RecordsInspectorHarness
   protected getResetButtons = this.locatorForAll(
     RecordsInspectorHarnessBase.selectors.resetButtons,
   );
+
+  async getShowRaceRecordLap(): Promise<boolean> {
+    const checkboxes = await this.getCheckboxes();
+    return await checkboxes[0].getProperty("checked");
+  }
+
+  async setShowRaceRecordLap(val: boolean): Promise<void> {
+    const checkboxes = await this.getCheckboxes();
+    const current = await checkboxes[0].getProperty("checked");
+    if (current !== val) {
+      await checkboxes[0].click();
+    }
+  }
+
+  async getShowRaceRecordScore(): Promise<boolean> {
+    const checkboxes = await this.getCheckboxes();
+    return await checkboxes[1].getProperty("checked");
+  }
+
+  async setShowRaceRecordScore(val: boolean): Promise<void> {
+    const checkboxes = await this.getCheckboxes();
+    const current = await checkboxes[1].getProperty("checked");
+    if (current !== val) {
+      await checkboxes[1].click();
+    }
+  }
+
+  async getShowCurrentRaceBest(): Promise<boolean> {
+    const checkboxes = await this.getCheckboxes();
+    return await checkboxes[2].getProperty("checked");
+  }
+
+  async setShowCurrentRaceBest(val: boolean): Promise<void> {
+    const checkboxes = await this.getCheckboxes();
+    const current = await checkboxes[2].getProperty("checked");
+    if (current !== val) {
+      await checkboxes[2].click();
+    }
+  }
+
+  async getShowHeatBest(): Promise<boolean> {
+    const checkboxes = await this.getCheckboxes();
+    return await checkboxes[3].getProperty("checked");
+  }
+
+  async setShowHeatBest(val: boolean): Promise<void> {
+    const checkboxes = await this.getCheckboxes();
+    const current = await checkboxes[3].getProperty("checked");
+    if (current !== val) {
+      await checkboxes[3].click();
+    }
+  }
 
   async getHeaderFontFamily(): Promise<string> {
     const selects = await this.getSelects();

@@ -1,4 +1,53 @@
 @if (settings()) {
+  <!-- Visible Records Section -->
+  <div class="inspector-geometry-title">
+    {{ "UE_INSPECTOR_RECORDS_DATA_POINTS" | translate }}
+  </div>
+
+  <div class="inspector-section">
+    <label class="inspector-checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="settings().showRaceRecordLap"
+        (change)="onSettingsChange()"
+      />
+      {{ "RD_RECORD_RACE_LAP" | translate }}
+    </label>
+  </div>
+
+  <div class="inspector-section">
+    <label class="inspector-checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="settings().showRaceRecordScore"
+        (change)="onSettingsChange()"
+      />
+      {{ "RD_RECORD_RACE_SCORE" | translate }}
+    </label>
+  </div>
+
+  <div class="inspector-section">
+    <label class="inspector-checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="settings().showCurrentRaceBest"
+        (change)="onSettingsChange()"
+      />
+      {{ "RD_RECORD_CURRENT_RACE_BEST" | translate }}
+    </label>
+  </div>
+
+  <div class="inspector-section">
+    <label class="inspector-checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="settings().showHeatBest"
+        (change)="onSettingsChange()"
+      />
+      {{ "RD_RECORD_HEAT_BEST" | translate }}
+    </label>
+  </div>
+
   <!-- Header Section -->
   <div class="inspector-geometry-title">
     {{ "UE_INSPECTOR_RECORDS_HEADER" | translate }}

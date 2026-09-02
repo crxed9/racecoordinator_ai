@@ -19,6 +19,10 @@ export const WIDGET_REGISTRY: Record<string, WidgetRegistryEntry> = {
   },
   records: {
     defaultSettings: () => ({
+      showRaceRecordLap: true,
+      showRaceRecordScore: true,
+      showCurrentRaceBest: true,
+      showHeatBest: true,
       headerFontFamily: "",
       headerFontSize: 17,
       headerTextColor: "",

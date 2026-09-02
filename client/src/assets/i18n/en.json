@@ -1967,6 +1967,7 @@
   "UE_INSPECTOR_LEADERBOARD_SUBTITLE": "Subtitle Settings",
   "UE_INSPECTOR_LEADERBOARD_TITLE": "Title Settings",
   "UE_INSPECTOR_NO_CUSTOM_PROPERTIES": "No custom settings defined for this widget.",
+  "UE_INSPECTOR_RECORDS_DATA_POINTS": "Visible Records",
   "UE_INSPECTOR_RECORDS_HEADER": "Header Settings",
   "UE_INSPECTOR_RECORDS_VALUE": "Value Settings",
   "UE_INSPECTOR_SCALING_AUTO": "Auto-Scale to Fit",
