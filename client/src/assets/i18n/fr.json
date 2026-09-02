@@ -541,6 +541,7 @@
   "HR_LAP_TIMES_HEADER": "TEMPS AU TOUR",
   "HR_NO_HEAT_DATA": "Aucune donnée de pilote disponible pour cette manche.",
   "HR_RANKINGS_HEADER": "CLASSEMENTS",
+  "HR_HEAT_X_OF_Y": "Heat {{current}} of {{total}}",
   "HR_TITLE": "RÉSULTATS DE LA MANCHE {{heat}}",
   "HR_X_AXIS": "Temps de course absolu (Secondes)",
   "HR_Y_AXIS": "Temps au tour (Secondes)",

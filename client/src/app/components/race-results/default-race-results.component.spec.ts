@@ -14,6 +14,7 @@ import { AuthService } from "@app/services/auth.service";
 import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { DefaultRaceResultsComponent } from "./default-race-results.component";
@@ -117,6 +118,8 @@ describe("DefaultRaceResultsComponent", () => {
       overallStandingsUpdate$: overallStandingsUpdateSubject.asObservable(),
       laps$: lapsSubject.asObservable(),
       recordData$: new BehaviorSubject(null).asObservable(),
+      raceState$: new BehaviorSubject<any>(0),
+      raceTime$: new BehaviorSubject<any>({ time: 0 }),
     };
 
     mockRaceService = {
@@ -144,6 +147,10 @@ describe("DefaultRaceResultsComponent", () => {
       imports: [DefaultRaceResultsComponent],
       providers: [
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },
+        {
+          provide: RaceFlagService,
+          useValue: { getFlagUrl: () => "test-flag-url" },
+        },
         { provide: RaceService, useValue: mockRaceService },
         { provide: PrintService, useValue: mockPrintService },
         { provide: TranslationService, useValue: mockTranslationService },

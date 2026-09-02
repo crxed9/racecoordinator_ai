@@ -109,6 +109,7 @@
 .standings-body-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior-y: contain;
   min-height: 0;
   padding-right: 8px;
@@ -262,22 +263,24 @@
 
 .season-summary-container.compact .standings-table th,
 .season-summary-container.compact .standings-table td {
-  padding: 4px 6px;
+  padding: 4px 14px;
   font-size: 1.05rem;
 }
 
 .season-summary-container.compact .standings-table th {
-  font-size: 0.7rem;
-  letter-spacing: 0.2px;
+  font-size: 0.65rem;
+  letter-spacing: 0px;
   white-space: normal;
-  line-height: 1.15;
+  line-height: 1.1;
   vertical-align: bottom;
-  overflow: visible;
-  text-overflow: clip;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .season-summary-container.compact .col-rank {
-  width: 55px;
+  width: 14%;
   text-align: center;
   padding-left: 2px;
   padding-right: 2px;
@@ -290,14 +293,14 @@
 }
 
 .season-summary-container.compact .col-pts {
-  width: 88px;
+  width: 16%;
   text-align: right;
   padding-right: 4px;
   padding-left: 2px;
 }
 
 .season-summary-container.compact .col-races {
-  width: 52px;
+  width: 10%;
   text-align: center;
   padding-left: 2px;
   padding-right: 2px;

@@ -14,6 +14,7 @@ import { AuthService } from "@app/services/auth.service";
 import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
+import { RaceFlagService } from "@app/services/race-flag.service";
 
 import { DefaultHeatResultsComponent } from "./default-heat-results.component";
 
@@ -43,13 +44,17 @@ describe("DefaultHeatResultsComponent", () => {
       laps$: new BehaviorSubject<any>(null),
       standingsUpdate$: new BehaviorSubject<any>(null),
       driverRankings: new Map<string, number>(),
+      raceState$: new BehaviorSubject<any>(0),
+      raceTime$: new BehaviorSubject<any>({ time: 0 }),
     };
 
     mockRaceService = jasmine.createSpyObj("RaceService", [
       "getRace",
       "getCurrentHeat",
+      "getHeats",
     ]);
     mockRaceService.currentHeat$ = of(null);
+    mockRaceService.getHeats.and.returnValue([]);
     mockRaceService.participants$ = of([]);
 
     // Mock Setup Data
@@ -98,6 +103,10 @@ describe("DefaultHeatResultsComponent", () => {
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },
         { provide: RaceService, useValue: mockRaceService },
         { provide: PrintService, useValue: mockPrintService },
+        {
+          provide: RaceFlagService,
+          useValue: { getFlagUrl: () => "test-flag-url" },
+        },
         {
           provide: DataService,
           useValue: {

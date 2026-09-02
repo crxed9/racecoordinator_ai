@@ -72,7 +72,7 @@
 
 .cyberpunk-line {
   height: 4px;
-  width: 320px;
+  width: 100%;
   background: linear-gradient(90deg, #00e5ff 0%, #d500f9 100%);
   margin-top: 8px;
   box-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
@@ -866,4 +866,37 @@
   .results-table-body {
     height: auto !important;
   }
+}
+
+.heat-x-of-y {
+  font-size: 24px;
+  font-weight: 600;
+  color: #90a4ae;
+  margin-left: 10px;
+  letter-spacing: 1px;
+}
+
+.header-flag-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  width: 48px;
+  margin-left: 10px;
+}
+
+.header-flag {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+.header-time {
+  font-size: 32px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 800;
+  color: #00e5ff;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+  margin-left: 20px;
 }
