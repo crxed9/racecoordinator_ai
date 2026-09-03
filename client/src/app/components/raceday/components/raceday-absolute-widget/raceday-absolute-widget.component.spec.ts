@@ -371,4 +371,25 @@ describe("RacedayAbsoluteWidgetComponent", () => {
     const onDeck = fixture.nativeElement.querySelector("app-raceday-on-deck");
     expect(onDeck).toBeTruthy();
   });
+
+  it("should render heat-list widget with custom settings in auto and fixed scale modes", () => {
+    mockWidget.widgetType = "heat-list";
+    mockWidget.scaleMode = "auto";
+    mockWidget.customSettings = {
+      showHeader: true,
+      autoScrollToCurrent: true,
+      highlightCurrentHeat: true,
+      heatColumns: "auto",
+      laneColumns: "auto",
+    };
+    fixture.componentRef.setInput("widget", { ...mockWidget });
+    fixture.detectChanges();
+
+    const wrapper = fixture.nativeElement.querySelector(".widget-wrapper");
+    expect(wrapper.classList.contains("scale-auto")).toBeTrue();
+    const heatList = fixture.nativeElement.querySelector(
+      "app-raceday-heat-list",
+    );
+    expect(heatList).toBeTruthy();
+  });
 });

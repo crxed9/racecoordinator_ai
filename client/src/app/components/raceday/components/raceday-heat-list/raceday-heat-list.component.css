@@ -1,0 +1,317 @@
+/* RACEDAY HEAT LIST STYLES */
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.raceday-heat-list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 4px;
+}
+
+/* Title Header */
+.heat-list-title {
+  color: #38bdf8;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+  flex-shrink: 0;
+}
+
+/* Scroll Container */
+.heat-list-scroll-view {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding-right: 4px;
+}
+
+.heat-list-scroll-view::-webkit-scrollbar {
+  width: 8px;
+}
+
+.heat-list-scroll-view::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 4px;
+}
+
+.heat-list-scroll-view::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+}
+
+.heat-list-scroll-view::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.8);
+}
+
+/* Heats Grid */
+.heats-grid {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Individual Heat Card */
+.heat-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+  padding: 8px 10px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.heat-card:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: rgba(56, 189, 248, 0.05);
+}
+
+/* Active / Current Heat Accent */
+.heat-card.current-heat {
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 0 12px rgba(56, 189, 248, 0.1);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.heat-card.completed-heat {
+  opacity: 0.75;
+}
+
+/* Heat Card Header */
+.heat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #38bdf8;
+  line-height: 1.2;
+}
+
+.heat-title-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.heat-label {
+  font-weight: bold;
+}
+
+.heat-group-name {
+  font-weight: normal;
+  opacity: 0.85;
+}
+
+.current-heat-badge {
+  background: #38bdf8;
+  color: #0f172a;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* Lanes Grid inside Heat Card */
+.heat-lanes-grid {
+  display: grid;
+  gap: 4px;
+}
+
+/* Lane Badge Item */
+.lane-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 0;
+  box-sizing: border-box;
+  transition: transform 0.15s ease;
+}
+
+.lane-badge-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.lane-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  font-weight: 800;
+  opacity: 0.95;
+  line-height: 1;
+}
+
+.lane-driver-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.15;
+}
+
+.lane-driver-nickname {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.lane-team-name {
+  font-size: 0.78em;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
+}
+
+.heat-list-empty-msg {
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+/* AUTO-SCALE ADAPTATIONS VIA CONTAINER QUERIES */
+.raceday-heat-list-container.scale-auto .heat-list-title {
+  font-size: calc(min(7cqh, 4.5cqw) * var(--widget-scale-factor, 1));
+  margin-bottom: calc(1.5cqh * var(--widget-scale-factor, 1));
+}
+
+.raceday-heat-list-container.scale-auto .heat-card {
+  padding: calc(min(2cqh, 1.2cqw) * var(--widget-scale-factor, 1))
+    calc(min(2.5cqh, 1.5cqw) * var(--widget-scale-factor, 1));
+  gap: calc(1cqh * var(--widget-scale-factor, 1));
+}
+
+.raceday-heat-list-container.scale-auto .heat-card-header {
+  font-size: calc(min(4.5cqh, 2.5cqw) * var(--widget-scale-factor, 1));
+}
+
+.raceday-heat-list-container.scale-auto .lane-badge-item {
+  font-size: calc(min(4cqh, 2.2cqw) * var(--widget-scale-factor, 1));
+  padding: calc(min(1.5cqh, 1cqw) * var(--widget-scale-factor, 1))
+    calc(min(2cqh, 1.2cqw) * var(--widget-scale-factor, 1));
+}
+
+.raceday-heat-list-container.scale-auto .current-heat-badge {
+  font-size: calc(min(3.2cqh, 1.8cqw) * var(--widget-scale-factor, 1));
+}
+
+/* SCALE TO WINDOW ADAPTATIONS (NO SCROLLBAR, FIT ALL HEATS) */
+.raceday-heat-list-container.scale-to-window {
+  overflow: hidden !important;
+}
+
+.raceday-heat-list-container.scale-to-window .heat-list-scroll-view {
+  overflow: hidden !important;
+  height: 100%;
+  padding-right: 0;
+}
+
+.raceday-heat-list-container.scale-to-window .heats-grid {
+  height: 100%;
+  width: 100%;
+  grid-auto-flow: row;
+}
+
+.raceday-heat-list-container.scale-to-window .heat-card {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: calc(4px * var(--heat-scale, 1)) calc(6px * var(--heat-scale, 1));
+  gap: calc(3px * var(--heat-scale, 1));
+}
+
+.raceday-heat-list-container.scale-to-window .heat-card-header {
+  font-size: calc(13px * var(--heat-scale, 1));
+  line-height: 1.1;
+  flex-shrink: 0;
+}
+
+.raceday-heat-list-container.scale-to-window .heat-lanes-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: calc(2px * var(--heat-scale, 1));
+  align-content: stretch;
+}
+
+.raceday-heat-list-container.scale-to-window .lane-badge-item {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: calc(2px * var(--heat-scale, 1)) calc(5px * var(--heat-scale, 1));
+  font-size: calc(11px * var(--heat-scale, 1));
+  gap: calc(4px * var(--heat-scale, 1));
+}
+
+.raceday-heat-list-container.scale-to-window .lane-badge-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  height: 100%;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.raceday-heat-list-container.scale-to-window .lane-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: inherit;
+}
+
+.raceday-heat-list-container.scale-to-window .lane-driver-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  min-width: 0;
+  flex: 1;
+  height: 100%;
+  line-height: 1.15;
+}
+
+.raceday-heat-list-container.scale-to-window .current-heat-badge {
+  font-size: calc(9px * var(--heat-scale, 1));
+  padding: 0 calc(4px * var(--heat-scale, 1));
+}

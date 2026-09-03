@@ -66,6 +66,13 @@
         (change)="onSettingsChange()"
       ></app-upcoming-inspector>
     }
+    @case ("heat-list") {
+      <app-heat-list-inspector
+        [settings]="widget().customSettings"
+        [disableFontSizes]="widget().scaleMode === 'auto'"
+        (change)="onSettingsChange()"
+      ></app-heat-list-inspector>
+    }
     @case ("heat-info") {
       <app-text-info-inspector
         [settings]="widget().customSettings"

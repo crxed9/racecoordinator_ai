@@ -538,6 +538,17 @@
   color: inherit !important;
 }
 
+.widget-wrapper.has-custom-color .heat-list-title,
+.widget-wrapper.has-custom-color .heat-card-header {
+  color: inherit !important;
+  text-shadow: none !important;
+}
+
+.widget-wrapper.has-custom-color .lane-driver-nickname,
+.widget-wrapper.has-custom-color .lane-team-name {
+  color: inherit !important;
+}
+
 /* Fixed scaling for menu-bar */
 .widget-wrapper.scale-fixed .menu-button-top,
 .widget-wrapper.scale-fixed .menu-item {

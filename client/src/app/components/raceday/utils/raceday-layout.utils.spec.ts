@@ -482,4 +482,46 @@ describe("RacedayLayoutUtils", () => {
       ).toBe(216);
     });
   });
+
+  describe("isPortraitLayout", () => {
+    it("should return true when layout baseWidth is less than baseHeight", () => {
+      const portraitLayout: LayoutConfig = {
+        baseWidth: 1080,
+        baseHeight: 1920,
+        widgets: [],
+      };
+      expect(RacedayLayoutUtils.isPortraitLayout(portraitLayout)).toBeTrue();
+    });
+
+    it("should return false when layout baseWidth is greater than or equal to baseHeight", () => {
+      const landscapeLayout: LayoutConfig = {
+        baseWidth: 1920,
+        baseHeight: 1080,
+        widgets: [],
+      };
+      expect(RacedayLayoutUtils.isPortraitLayout(landscapeLayout)).toBeFalse();
+
+      const squareLayout: LayoutConfig = {
+        baseWidth: 1080,
+        baseHeight: 1080,
+        widgets: [],
+      };
+      expect(RacedayLayoutUtils.isPortraitLayout(squareLayout)).toBeFalse();
+    });
+
+    it("should fall back to dashboardWidth and dashboardHeight when layout dimensions are not defined", () => {
+      expect(
+        RacedayLayoutUtils.isPortraitLayout(undefined, 1920, 1080),
+      ).toBeFalse();
+      expect(
+        RacedayLayoutUtils.isPortraitLayout(undefined, 1080, 1920),
+      ).toBeTrue();
+      expect(
+        RacedayLayoutUtils.isPortraitLayout({ widgets: [] }, 800, 1200),
+      ).toBeTrue();
+      expect(
+        RacedayLayoutUtils.isPortraitLayout({ widgets: [] }, 1200, 800),
+      ).toBeFalse();
+    });
+  });
 });

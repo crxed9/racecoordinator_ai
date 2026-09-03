@@ -17,6 +17,7 @@ import { RacedayEventNameComponent } from "@app/components/raceday/components/ra
 import { RacedayFlagComponent } from "@app/components/raceday/components/raceday-flag/raceday-flag.component";
 import { RacedayGroupLeaderboardComponent } from "@app/components/raceday/components/raceday-group-leaderboard/raceday-group-leaderboard.component";
 import { RacedayHeatInfoComponent } from "@app/components/raceday/components/raceday-heat-info/raceday-heat-info.component";
+import { RacedayHeatListComponent } from "@app/components/raceday/components/raceday-heat-list/raceday-heat-list.component";
 import { RacedayImageComponent } from "@app/components/raceday/components/raceday-image/raceday-image.component";
 import { RacedayLaneViewComponent } from "@app/components/raceday/components/raceday-lane-view/raceday-lane-view.component";
 import { RacedayLeaderboardComponent } from "@app/components/raceday/components/raceday-leaderboard/raceday-leaderboard.component";
@@ -64,6 +65,7 @@ import { CustomWidgetService } from "@app/services/custom-widget.service";
     RacedayLaneViewComponent,
     RacedayOnDeckComponent,
     RacedayNextHeatComponent,
+    RacedayHeatListComponent,
     RacedayImageComponent,
     RacedayActionButtonComponent,
   ],
