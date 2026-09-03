@@ -706,4 +706,45 @@ describe("RacedayLaneViewComponent", () => {
     expect(secondCellFit.textContent.trim()).toBe("--");
     expect(secondCellFit.style.padding).toBe("10px");
   });
+
+  it("should render header cells with fit-text containers and nowrap spans", () => {
+    mockParent.columns = [
+      {
+        propertyName: "driver.nickname",
+        labelKey: "RD_COL_NICKNAME",
+        width: 300,
+      },
+      { propertyName: "lapCount", labelKey: "RD_COL_LAP", width: 100 },
+      { propertyName: "lastLapTime", labelKey: "RD_COL_LAP_TIME", width: 150 },
+    ];
+    fixture.detectChanges();
+
+    const headerCells = fixture.nativeElement.querySelectorAll(".header-cell");
+    expect(headerCells.length).toBe(3);
+
+    headerCells.forEach((hc: HTMLElement) => {
+      const fitTextSpan = hc.querySelector("span");
+      expect(fitTextSpan).toBeTruthy();
+      expect(fitTextSpan?.style.whiteSpace).toBe("nowrap");
+    });
+  });
+
+  it("should apply nowrap to numeric and lap body cell data", () => {
+    mockParent.columns = [
+      {
+        propertyName: "lapCount",
+        labelKey: "RD_COL_LAP",
+        layout: { [AnchorPoint.CenterCenter]: "lapCount" },
+      },
+    ];
+    mockParent.getLayoutEntries = (_c: any) => [
+      { anchor: "center-center", property: "lapCount" },
+    ];
+    mockParent.isNameProperty = () => false;
+    fixture.detectChanges();
+
+    const dataSpan = fixture.nativeElement.querySelector(".body-cell span");
+    expect(dataSpan).toBeTruthy();
+    expect(dataSpan.style.whiteSpace).toBe("nowrap");
+  });
 });

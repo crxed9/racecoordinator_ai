@@ -106,18 +106,33 @@ export function getRacedayLayoutHelpSteps(
   ctx: UiEditorHelpContext,
 ): GuideStep[] {
   const { translationService } = ctx;
+  const selectInspectorWidget = () => {
+    expandCustomUiSection(ctx);
+    const targetUi = ctx.getActiveCustomUi() || ctx.getDefaultCustomUi();
+    if (targetUi && ctx.selectFirstWidget) {
+      ctx.selectFirstWidget(targetUi);
+    }
+  };
+
   return [
     {
-      selector: "#help-raceday-sort",
-      title: translationService.translate("UE_LABEL_SORT_STANDINGS"),
-      content: translationService.translate("UE_HELP_RACEDAY_SORT"),
+      selector: "#help-raceday-zoom",
+      title: translationService.translate("UI_EDITOR_ZOOM_TITLE"),
+      content: translationService.translate("UE_HELP_RACEDAY_ZOOM"),
       position: "bottom",
       onEnter: () => expandCustomUiSection(ctx),
     },
     {
-      selector: "#help-raceday-highlight",
-      title: translationService.translate("UE_LABEL_HIGHLIGHT_LAP"),
-      content: translationService.translate("UE_HELP_RACEDAY_HIGHLIGHT"),
+      selector: "#help-raceday-aspect-ratio",
+      title: translationService.translate("UI_EDITOR_LAYOUT_ASPECT_RATIO"),
+      content: translationService.translate("UE_HELP_RACEDAY_ASPECT_RATIO"),
+      position: "bottom",
+      onEnter: () => expandCustomUiSection(ctx),
+    },
+    {
+      selector: "#help-raceday-scale-mode",
+      title: translationService.translate("UI_EDITOR_LAYOUT_SCALE_MODE"),
+      content: translationService.translate("UE_HELP_RACEDAY_SCALE_MODE"),
       position: "bottom",
       onEnter: () => expandCustomUiSection(ctx),
     },
@@ -130,9 +145,7 @@ export function getRacedayLayoutHelpSteps(
     },
     {
       selector: "#help-raceday-import-export",
-      title:
-        translationService.translate("UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE") ||
-        "Import / Export Layout",
+      title: translationService.translate("UI_EDITOR_IMPORT_EXPORT_TITLE"),
       content: translationService.translate("UE_HELP_RACEDAY_IMPORT_EXPORT"),
       position: "bottom",
       onEnter: () => expandCustomUiSection(ctx),
@@ -154,13 +167,21 @@ export function getRacedayLayoutHelpSteps(
         ) || "Widget Inspector",
       content: translationService.translate("UE_HELP_RACEDAY_WIDGET_INSPECTOR"),
       position: "left",
-      onEnter: () => {
-        expandCustomUiSection(ctx);
-        const targetUi = ctx.getActiveCustomUi() || ctx.getDefaultCustomUi();
-        if (targetUi && ctx.selectFirstWidget) {
-          ctx.selectFirstWidget(targetUi);
-        }
-      },
+      onEnter: selectInspectorWidget,
+    },
+    {
+      selector: "#help-raceday-sort",
+      title: translationService.translate("UE_LABEL_SORT_STANDINGS"),
+      content: translationService.translate("UE_HELP_RACEDAY_SORT"),
+      position: "left",
+      onEnter: selectInspectorWidget,
+    },
+    {
+      selector: "#help-raceday-highlight",
+      title: translationService.translate("UE_LABEL_HIGHLIGHT_LAP"),
+      content: translationService.translate("UE_HELP_RACEDAY_HIGHLIGHT"),
+      position: "left",
+      onEnter: selectInspectorWidget,
     },
   ];
 }

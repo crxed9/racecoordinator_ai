@@ -174,6 +174,17 @@ export function fetchUiEditorData(dataService: any, fileSystem: any): any {
   });
 }
 
+export function sortAvailableColumnsList(
+  columns: { key: string; label: string }[],
+  translationService: any,
+): void {
+  columns.sort((a, b) => {
+    const labelA = translationService?.translate(a.label) || a.label;
+    const labelB = translationService?.translate(b.label) || b.label;
+    return labelA.localeCompare(labelB);
+  });
+}
+
 export function buildDisplayColumnSlots(
   racedayColumns: string[] | undefined,
   availableColumns: { key: string; label: string }[],

@@ -5,6 +5,7 @@ import { deepCopy } from "@app/utils/clone.utils";
 
 import { UIEditorState } from "./ui-editor-constants";
 import { isThemeDefault } from "./ui-editor-crud.helper";
+import { cloneSettings } from "./ui-editor-state.utils";
 import {
   extractAssetId,
   getThemeAudioConfigForSlot,
@@ -271,4 +272,13 @@ export function handleThemeAudioChange(
   applyAudioConfigUpdate(theme, slot, field, value);
   comp.captureState();
   comp.cdr.markForCheck();
+}
+
+export function handleDetachTheme(comp: any): void {
+  comp.themeService.detachToSettings(comp.assets);
+  comp.editingState.settings = cloneSettings(
+    comp.settingsService.getSettings(),
+  );
+  comp.captureState();
+  if (!comp.isDestroyed) comp.cdr.markForCheck();
 }

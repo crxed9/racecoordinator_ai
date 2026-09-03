@@ -46,6 +46,8 @@ export const WIDGET_REGISTRY: Record<string, WidgetRegistryEntry> = {
   "lane-view": {
     defaultSettings: () => ({
       isVertical: false,
+      sortByStandings: true,
+      highlightRowOnLap: true,
       timeDecimalPlaces: 3,
       lapDecimalPlaces: 2,
       columnFontFamily: "",

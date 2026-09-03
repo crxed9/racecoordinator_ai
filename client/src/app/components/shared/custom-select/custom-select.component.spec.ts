@@ -37,4 +37,23 @@ describe("CustomSelectComponent", () => {
     component.toggleOpen();
     expect(component.isOpen).toBeFalse();
   });
+
+  it("should update value and attribute when value property is set", () => {
+    fixture.componentRef.setInput("value", "test-val");
+    fixture.detectChanges();
+    expect(component.value()).toBe("test-val");
+    expect(fixture.nativeElement.getAttribute("data-value")).toBe("test-val");
+
+    component.value.set(undefined);
+    fixture.detectChanges();
+    expect(component.value()).toBeUndefined();
+    expect(fixture.nativeElement.hasAttribute("data-value")).toBeFalse();
+  });
+
+  it("should support writeValue from ControlValueAccessor", () => {
+    component.writeValue("cva-val");
+    fixture.detectChanges();
+    expect(component.value()).toBe("cva-val");
+    expect(fixture.nativeElement.getAttribute("data-value")).toBe("cva-val");
+  });
 });

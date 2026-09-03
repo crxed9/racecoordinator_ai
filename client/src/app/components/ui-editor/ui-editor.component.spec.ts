@@ -2652,6 +2652,7 @@ describe("UIEditorComponent", () => {
       expect(selectors).toContain("#help-custom-uis");
       expect(selectors).toContain("#help-custom-uis-add");
       expect(selectors).toContain("#help-default-ui");
+      expect(selectors).toContain("#help-raceday-zoom");
       expect(selectors).toContain("#help-raceday-sort");
       expect(selectors).toContain("#help-raceday-highlight");
       expect(selectors).toContain("#help-raceday-reset");
@@ -3416,6 +3417,41 @@ describe("UIEditorComponent", () => {
       expect(inspector).toBeTruthy();
     });
 
+    it("should render widget toolbox at workspace level above canvas and widget inspector", () => {
+      component.activeCustomUiId = "default_ui_layout_rc_ai";
+      component.sectionsExpanded["ui_default_ui_layout_rc_ai"] = true;
+      component.editingSettings.racedayLayout = {
+        baseWidth: 1920,
+        baseHeight: 1080,
+        widgets: [{ id: "lv1", widgetType: "lane-view" } as any],
+      };
+      fixture.detectChanges();
+
+      const toolbox = fixture.debugElement.query(
+        By.css(".layout-customizer-toolbox-wrapper"),
+      );
+      expect(toolbox).toBeTruthy();
+
+      // Select widget to show inspector
+      component.onWidgetSelected("lv1");
+      fixture.detectChanges();
+
+      const inspector = fixture.debugElement.query(
+        By.css("#help-widget-inspector"),
+      );
+      expect(inspector).toBeTruthy();
+
+      const workspace = fixture.debugElement.query(
+        By.css(".raceday-editor-workspace"),
+      );
+      expect(workspace).toBeTruthy();
+
+      // Verify toolbox wrapper is inside the workspace alongside canvas and inspector
+      expect(
+        workspace.nativeElement.contains(toolbox.nativeElement),
+      ).toBeTrue();
+    });
+
     it("should select replacement widget when currently selected widget is removed", () => {
       const w1: any = { id: "w1", widgetType: "timer" };
       const w2: any = { id: "w2", widgetType: "lane-view" };
@@ -3471,6 +3507,140 @@ describe("UIEditorComponent", () => {
       const parsed = JSON.parse(customUi.layoutJson);
       expect(parsed.widgets[0].customSettings.showGap).toBeFalse();
       expect(component.undoManager.captureState).toHaveBeenCalled();
+    });
+
+    it("should manage aspect ratio and scale mode settings on layouts", () => {
+      const customUi: CustomUI = {
+        _id: "ui_aspect_test",
+        entity_id: "ui_aspect_test",
+        name: "Aspect Test",
+        is_default: false,
+        layoutJson: JSON.stringify({
+          baseWidth: 1920,
+          baseHeight: 1080,
+          aspectRatio: "16:9",
+          scaleMode: "letterbox",
+          widgets: [],
+        }),
+      };
+      component.displayCustomUIs = [customUi];
+      component.activeCustomUiId = "ui_aspect_test";
+
+      expect(component.getLayoutAspectRatio(customUi)).toBe("16:9");
+      expect(component.getLayoutScaleMode(customUi)).toBe("letterbox");
+
+      const unspecifiedUi: CustomUI = {
+        _id: "ui_default_test",
+        entity_id: "ui_default_test",
+        name: "Unspecified Test",
+        is_default: false,
+        layoutJson: JSON.stringify({
+          widgets: [],
+        }),
+      };
+      expect(component.getLayoutAspectRatio(unspecifiedUi)).toBe("current");
+      expect(component.getLayoutScaleMode(unspecifiedUi)).toBe("stretch");
+
+      const options = component.getLayoutAspectRatioOptions(customUi);
+      expect(options.some((o) => o.ratio === "16:9")).toBeTrue();
+
+      spyOn(component, "captureState");
+      component.setLayoutAspectRatio("9:16", customUi);
+      expect(component.getLayoutAspectRatio(customUi)).toBe("9:16");
+      expect(component.parsedLayouts.get("ui_aspect_test")?.aspectRatio).toBe(
+        "9:16",
+      );
+      expect(component.captureState).toHaveBeenCalled();
+
+      component.setLayoutScaleMode("stretch", customUi);
+      expect(component.getLayoutScaleMode(customUi)).toBe("stretch");
+      expect(component.parsedLayouts.get("ui_aspect_test")?.scaleMode).toBe(
+        "stretch",
+      );
+
+      spyOnProperty(window, "innerWidth", "get").and.returnValue(1440);
+      spyOnProperty(window, "innerHeight", "get").and.returnValue(900);
+      component.onResize();
+      const currentOpt = component.layoutAspectRatioOptions.find(
+        (o) => o.ratio === "current",
+      );
+      expect(currentOpt?.width).toBe(1440);
+      expect(currentOpt?.height).toBe(900);
+    });
+
+    it("should handle canvas zoom operations and calculate preview scale", () => {
+      const customUi: CustomUI = {
+        entity_id: "ui_zoom_test",
+        name: "Zoom Test UI",
+        is_default: false,
+        layoutJson: JSON.stringify({
+          baseWidth: 1080,
+          baseHeight: 1920,
+          aspectRatio: "9:16",
+          widgets: [],
+        }),
+      };
+      component.editingState.customUIs = [customUi];
+      component.activeCustomUiId = "ui_zoom_test";
+
+      // Default zoom is 100%
+      expect(component.getLayoutZoom(customUi)).toBe(100);
+
+      // Set zoom to 150%
+      component.setLayoutZoom(150, customUi);
+      expect(component.getLayoutZoom(customUi)).toBe(150);
+
+      // Clamping: max 500%
+      component.setLayoutZoom(600, customUi);
+      expect(component.getLayoutZoom(customUi)).toBe(500);
+
+      // Clamping: min 75%
+      component.setLayoutZoom(10, customUi);
+      expect(component.getLayoutZoom(customUi)).toBe(75);
+
+      // Stepping zoom
+      component.setLayoutZoom(100, customUi);
+      component.stepZoom(10, customUi);
+      expect(component.getLayoutZoom(customUi)).toBe(110);
+      component.stepZoom(-20, customUi);
+      expect(component.getLayoutZoom(customUi)).toBe(90);
+
+      // Reset zoom
+      component.resetLayoutZoom(customUi);
+      expect(component.getLayoutZoom(customUi)).toBe(100);
+
+      // onZoomInput event
+      const inputEvent = {
+        target: { value: "175" },
+      } as unknown as Event;
+      component.onZoomInput(inputEvent, customUi);
+      expect(component.getLayoutZoom(customUi)).toBe(175);
+
+      // Preview scale includes zoom
+      const scale175 = component.getPreviewScaleNumber(customUi);
+      component.setLayoutZoom(100, customUi);
+      const scale100 = component.getPreviewScaleNumber(customUi);
+      expect(scale175).toBeCloseTo(scale100 * 1.75, 4);
+
+      // Container width & height scale with zoom
+      const width100 = component.getPreviewContainerWidth(customUi);
+      const height100 = component.getPreviewContainerHeight(customUi);
+      component.setLayoutZoom(200, customUi);
+      expect(component.getPreviewContainerWidth(customUi)).toBeCloseTo(
+        width100 * 2,
+        4,
+      );
+      expect(component.getPreviewContainerHeight(customUi)).toBeCloseTo(
+        height100 * 2,
+        4,
+      );
+
+      // Viewport and inspector heights
+      const maxViewportHeight = component.getCanvasViewportMaxHeight(customUi);
+      expect(maxViewportHeight).toBeGreaterThanOrEqual(500);
+      const inspectorHeight = component.getInspectorHeight(customUi);
+      expect(inspectorHeight).toBeGreaterThanOrEqual(400);
+      expect(inspectorHeight).toBeLessThanOrEqual(maxViewportHeight);
     });
   });
 });

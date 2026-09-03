@@ -1,7 +1,10 @@
 import { CustomUI } from "@app/models/custom-ui";
 import { Settings } from "@app/models/settings";
+import { deepCopy } from "@app/utils/clone.utils";
 
 import {
+  buildLayoutExport,
+  downloadJsonFile,
   getDefaultLayoutResetData,
   parseLayoutImport,
 } from "./ui-editor-io.helper";
@@ -138,4 +141,71 @@ export function resolveTargetCustomUi(
     displayCustomUIs.find((u) => u.entity_id === activeCustomUiId) ||
     displayCustomUIs[0]
   );
+}
+
+export function handleResetLayout(comp: any, ui: CustomUI): void {
+  executeResetLayout(ui, comp.editingSettings);
+  if (comp.editingState?.settings) {
+    comp.editingState.settings = deepCopy(comp.editingSettings);
+  }
+  comp.undoManager.captureState();
+  comp.refreshDisplayProperties();
+  comp.cdr.detectChanges();
+}
+
+export function handleExportLayout(comp: any, ui: CustomUI): void {
+  const { layoutExport, fileName } = buildLayoutExport(
+    ui,
+    comp.editingSettings,
+  );
+  if (comp?.downloadJson) {
+    comp.downloadJson(layoutExport, fileName);
+  } else {
+    downloadJsonFile(layoutExport, fileName);
+  }
+}
+
+export function handleImportLayout(
+  comp: any,
+  event: Event,
+  ui: CustomUI,
+): void {
+  executeImportLayout(event, ui, comp.editingSettings, comp.logger, () => {
+    if (comp.editingState?.settings) {
+      comp.editingState.settings = deepCopy(comp.editingSettings);
+    }
+    comp.undoManager.captureState();
+    comp.refreshDisplayProperties();
+    comp.cdr.detectChanges();
+  });
+}
+
+export function handleResetCurrentLayout(comp: any): void {
+  if (comp.isCurrentLayoutPractice) {
+    comp.resetPracticeRacedayLayout();
+  } else if (comp.activeCustomUiId === "default_ui_layout_rc_ai") {
+    comp.resetRacedayLayout();
+  } else if (comp.activeCustomUi) {
+    comp.resetLayout(comp.activeCustomUi);
+  }
+}
+
+export function handleExportCurrentLayout(comp: any): void {
+  if (comp.isCurrentLayoutPractice) {
+    comp.exportPracticeRacedayLayout();
+  } else if (comp.activeCustomUiId === "default_ui_layout_rc_ai") {
+    comp.exportRacedayLayout();
+  } else if (comp.activeCustomUi) {
+    comp.exportLayout(comp.activeCustomUi);
+  }
+}
+
+export function handleImportCurrentLayout(comp: any, event: Event): void {
+  if (comp.isCurrentLayoutPractice) {
+    comp.onImportPracticeRacedayLayout(event);
+  } else if (comp.activeCustomUiId === "default_ui_layout_rc_ai") {
+    comp.onImportRacedayLayout(event);
+  } else if (comp.activeCustomUi) {
+    comp.onImportLayout(event, comp.activeCustomUi);
+  }
 }

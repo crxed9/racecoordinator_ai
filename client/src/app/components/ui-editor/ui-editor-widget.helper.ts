@@ -12,6 +12,18 @@ export function findDefaultWidgetId(
   return laneView ? laneView.id : widgets[0].id;
 }
 
+export function ensureWidgetSelectedHelper(comp: any, ui?: CustomUI): void {
+  const layout = comp.getLayout(ui || comp.activeCustomUi);
+  const widgets = layout?.widgets || [];
+  if (
+    widgets.length > 0 &&
+    (!comp.selectedWidgetId ||
+      !widgets.some((w: any) => w.id === comp.selectedWidgetId))
+  ) {
+    comp.selectedWidgetId = findDefaultWidgetId(layout);
+  }
+}
+
 export function applyWidgetDefaultSettings(widget: any): boolean {
   if (!widget) return false;
   let mutated = false;
@@ -161,4 +173,30 @@ export function handleWidgetColorChange(
     comp.captureState();
     comp.cdr.markForCheck();
   }
+}
+
+export function handleWidgetInspectorChange(
+  comp: any,
+  widget?: any,
+  ui?: CustomUI,
+): void {
+  if (comp.isSaving) return;
+  const targetUi = ui || comp.activeCustomUi;
+  const targetWidget = widget || comp.currentSelectedWidget;
+  const layout = comp.getLayout(targetUi);
+  if (layout && targetWidget && layout.widgets) {
+    const idx = layout.widgets.findIndex((w: any) => w.id === targetWidget.id);
+    if (idx !== -1) {
+      layout.widgets[idx] = targetWidget;
+    }
+    updateLayoutOnModel(
+      layout,
+      targetUi,
+      comp.editingSettings,
+      comp.isCurrentLayoutPractice,
+      comp.parsedLayouts,
+    );
+  }
+  comp.captureState();
+  comp.cdr.markForCheck();
 }

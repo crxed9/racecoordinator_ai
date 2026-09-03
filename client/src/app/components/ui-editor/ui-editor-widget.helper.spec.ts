@@ -92,4 +92,28 @@ describe("ui-editor-widget.helper", () => {
     expect(settings.racedayLayout).toBe(newLayout);
     expect(JSON.parse(ui.layoutJson || "{}").baseWidth).toBe(1600);
   });
+
+  it("should handle widget inspector change and update layout", () => {
+    const {
+      handleWidgetInspectorChange,
+    } = require("./ui-editor-widget.helper");
+    const targetWidget = { id: "w1", width: 200 };
+    const layout = { widgets: [{ id: "w1", width: 100 }] };
+    const comp = {
+      isSaving: false,
+      activeCustomUi: { entity_id: "ui1" },
+      currentSelectedWidget: targetWidget,
+      getLayout: jasmine.createSpy("getLayout").and.returnValue(layout),
+      editingSettings: new Settings(),
+      isCurrentLayoutPractice: false,
+      parsedLayouts: new Map(),
+      captureState: jasmine.createSpy("captureState"),
+      cdr: { markForCheck: jasmine.createSpy("markForCheck") },
+    };
+
+    handleWidgetInspectorChange(comp, targetWidget);
+    expect(layout.widgets[0].width).toBe(200);
+    expect(comp.captureState).toHaveBeenCalled();
+    expect(comp.cdr.markForCheck).toHaveBeenCalled();
+  });
 });

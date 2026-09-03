@@ -773,6 +773,101 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+}
+
+.raceday-canvas-viewport {
+  overflow: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 8px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.raceday-canvas-viewport::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.raceday-canvas-viewport::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+}
+
+.raceday-canvas-viewport::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+}
+
+.raceday-canvas-viewport::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.7);
+}
+
+.zoom-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 3px;
+  outline: none;
+  transition: background 0.2s;
+}
+
+.zoom-slider:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #38bdf8;
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #7dd3fc;
+}
+
+.zoom-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #38bdf8;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.zoom-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #7dd3fc;
+}
+
+.zoom-icon-btn {
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.zoom-icon-btn:hover {
+  color: #38bdf8 !important;
+  transform: scale(1.15);
+}
+
+.zoom-value-btn {
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.zoom-value-btn:hover {
+  background: rgba(56, 189, 248, 0.25) !important;
+  border-color: #38bdf8 !important;
 }
 
 .raceday-preview-container {
@@ -791,6 +886,7 @@
   transform-origin: top left;
   pointer-events: auto;
   position: relative;
+  background: linear-gradient(90deg, #17253d 35%, #2a3d61 50%, #17253d 65%);
 }
 
 .raceday-editor-workspace {
@@ -815,11 +911,24 @@
   overflow-y: auto;
   color: #000;
   position: relative;
-  z-index: 5;
+  z-index: 1000;
+  flex-shrink: 0;
 }
 
 .widget-inspector-panel.lane-view-inspector-panel {
   width: 350px;
+}
+
+.layout-customizer-toolbox-wrapper {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 100000;
+  pointer-events: none;
+}
+
+.layout-customizer-toolbox-wrapper > * {
+  pointer-events: auto;
 }
 
 

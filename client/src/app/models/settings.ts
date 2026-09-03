@@ -66,10 +66,14 @@ export interface AbsoluteWidgetNode {
   customSettings?: Record<string, any>;
 }
 
+export type LayoutScaleMode = "letterbox" | "stretch";
+
 export interface LayoutConfig {
   widgets: AbsoluteWidgetNode[];
   baseWidth?: number;
   baseHeight?: number;
+  scaleMode?: LayoutScaleMode;
+  aspectRatio?: string;
 }
 
 export class Settings {
@@ -358,6 +362,8 @@ export class Settings {
         textScaleFactor: 1,
         customSettings: {
           isVertical: false,
+          sortByStandings: true,
+          highlightRowOnLap: true,
           timeDecimalPlaces: 3,
           lapDecimalPlaces: 2,
           columnFontFamily: "",
@@ -378,6 +384,10 @@ export class Settings {
         },
       },
     ],
+    baseWidth: 1920,
+    baseHeight: 1080,
+    aspectRatio: "current",
+    scaleMode: "stretch",
   };
 
   static readonly DEFAULT_PRACTICE_LAYOUT: LayoutConfig = {
@@ -478,6 +488,8 @@ export class Settings {
         textScaleFactor: 1,
         customSettings: {
           isVertical: true,
+          sortByStandings: true,
+          highlightRowOnLap: true,
           timeDecimalPlaces: 3,
           lapDecimalPlaces: 0,
           columnFontFamily: "",
@@ -496,5 +508,7 @@ export class Settings {
     ],
     baseWidth: 1728,
     baseHeight: 906,
+    aspectRatio: "current",
+    scaleMode: "stretch",
   };
 }

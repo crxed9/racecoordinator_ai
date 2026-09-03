@@ -57,6 +57,8 @@
   padding: 4px;
   box-sizing: border-box;
   position: relative;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .table-body {
@@ -578,9 +580,19 @@
   font-size: calc(var(--custom-font-size, 7.6cqh) * var(--widget-scale-factor, 1) * var(--text-fit-scale, 1)) !important;
 }
 
-/* Fixed scaling when scaleMode is set to 'fixed' */
+/* Scaling when scaleMode is set to 'fixed' */
 .widget-wrapper.scale-fixed .header-cell {
-  font-size: var(--custom-column-font-size, calc(1 * var(--widget-font-size))) !important;
+  font-size: calc(
+    var(--custom-column-font-size, calc(1 * var(--widget-font-size))) *
+      var(--text-fit-scale, 1)
+  ) !important;
+}
+
+.widget-wrapper.scale-auto .header-cell {
+  font-size: calc(
+    var(--custom-column-font-size, 3.4cqh) * var(--widget-scale-factor, 1) *
+      var(--text-fit-scale, 1)
+  ) !important;
 }
 
 
@@ -613,6 +625,16 @@
 .body-cell.clickable-team-cell:hover {
   filter: brightness(1.2);
   background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.body-cell .anchor-center-center,
+.body-cell .anchor-center-left,
+.body-cell .anchor-center-right,
+.body-cell .anchor-top-left,
+.body-cell .anchor-top-right,
+.body-cell .anchor-bottom-left,
+.body-cell .anchor-bottom-right {
+  white-space: nowrap;
 }
 
 /* Vertical Layout overrides */

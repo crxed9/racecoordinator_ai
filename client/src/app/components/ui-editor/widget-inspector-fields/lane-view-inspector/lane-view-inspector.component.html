@@ -10,6 +10,22 @@
     </label>
   </div>
 
+  @if (!isPracticeMode()) {
+    <div class="inspector-section" id="help-raceday-sort">
+      <label class="inspector-checkbox-label">
+        <input type="checkbox" [(ngModel)]="sortByStandings" />
+        {{ "UE_INSPECTOR_LANE_VIEW_SORT_BY_STANDINGS" | translate }}
+      </label>
+    </div>
+  }
+
+  <div class="inspector-section" id="help-raceday-highlight">
+    <label class="inspector-checkbox-label">
+      <input type="checkbox" [(ngModel)]="highlightRowOnLap" />
+      {{ "UE_INSPECTOR_LANE_VIEW_HIGHLIGHT_LAP" | translate }}
+    </label>
+  </div>
+
   <!-- Columns Section -->
   <div class="inspector-geometry-title">
     {{ "UE_INSPECTOR_LANE_VIEW_COLUMNS_SECTION" | translate }}

@@ -321,4 +321,51 @@ describe("LaneViewInspectorComponent", () => {
     ]);
     expect(component.unusedColumns.map((c) => c.key)).toContain("colA");
   });
+
+  it("should handle sortByStandings and highlightRowOnLap defaults and updates", () => {
+    expect(component.sortByStandings).toBeTrue();
+    expect(component.highlightRowOnLap).toBeTrue();
+
+    component.sortByStandings = false;
+    expect(component.settings().sortByStandings).toBeFalse();
+    expect(component.sortByStandings).toBeFalse();
+    expect(changeSpy).toHaveBeenCalled();
+
+    component.highlightRowOnLap = false;
+    expect(component.settings().highlightRowOnLap).toBeFalse();
+    expect(component.highlightRowOnLap).toBeFalse();
+    expect(changeSpy).toHaveBeenCalled();
+  });
+
+  it("should toggle sortByStandings and highlightRowOnLap in template", () => {
+    const sortCheckbox = fixture.nativeElement.querySelector(
+      "#help-raceday-sort input[type='checkbox']",
+    ) as HTMLInputElement;
+    expect(sortCheckbox).toBeTruthy();
+    sortCheckbox.click();
+    fixture.detectChanges();
+    expect(component.sortByStandings).toBeFalse();
+
+    const highlightCheckbox = fixture.nativeElement.querySelector(
+      "#help-raceday-highlight input[type='checkbox']",
+    ) as HTMLInputElement;
+    expect(highlightCheckbox).toBeTruthy();
+    highlightCheckbox.click();
+    fixture.detectChanges();
+    expect(component.highlightRowOnLap).toBeFalse();
+  });
+
+  it("should hide sortByStandings when isPracticeMode is true", () => {
+    fixture.componentRef.setInput("isPracticeMode", true);
+    fixture.detectChanges();
+
+    const sortSection =
+      fixture.nativeElement.querySelector("#help-raceday-sort");
+    expect(sortSection).toBeNull();
+
+    const highlightSection = fixture.nativeElement.querySelector(
+      "#help-raceday-highlight",
+    );
+    expect(highlightSection).toBeTruthy();
+  });
 });
