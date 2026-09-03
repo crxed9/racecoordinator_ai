@@ -215,6 +215,18 @@ describe("RacedayLayoutUtils", () => {
     expect(
       RacedayLayoutUtils.isLapTimeColumn(
         new ColumnDefinition(
+          "BEST_RACE",
+          "bestRaceLapTime",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
           "RECORD",
           "recordLapTime",
           200,
@@ -285,6 +297,9 @@ describe("RacedayLayoutUtils", () => {
     );
     expect(RacedayLayoutUtils.getLabelKeyForColumn("lastLapTime")).toBe(
       "RD_COL_LAP_TIME",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("bestRaceLapTime")).toBe(
+      "RD_COL_BEST_RACE_LAP_TIME",
     );
     expect(RacedayLayoutUtils.getLabelKeyForColumn("recordLapTime")).toBe(
       "RD_COL_RECORD_LAP_TIME",
@@ -433,6 +448,9 @@ describe("RacedayLayoutUtils", () => {
       expect(
         RacedayLayoutUtils.getDefaultColumnWidth("ghostPacingLeaderBest"),
       ).toBe(330);
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("bestRaceLapTime")).toBe(
+        330,
+      );
     });
 
     it("should return 275 for unknown column keys", () => {

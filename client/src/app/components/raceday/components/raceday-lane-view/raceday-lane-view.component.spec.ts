@@ -113,6 +113,10 @@ describe("RacedayLaneViewComponent", () => {
       getLaneRecordHolder: (hd: any) => (hd.laneIndex === 0 ? "Speedy" : "---"),
       getLaneRecordDate: (hd: any) =>
         hd.laneIndex === 0 ? "2026-08-21" : "---",
+      getBestRaceLapTime: (hd: any) =>
+        hd.laneIndex === 0 ? "4.950" : "--.---",
+      getBestRaceLapHolder: (hd: any) => (hd.laneIndex === 0 ? "Flash" : "---"),
+      getBestRaceLapHeat: (hd: any) => (hd.laneIndex === 0 ? "Heat 2" : "---"),
       heatBestTime: 4.9,
       trackByLayout: (idx: number, entry: any) => entry.property,
     };
@@ -538,6 +542,99 @@ describe("RacedayLaneViewComponent", () => {
     expect(cells.length).toBe(2);
     expect(cells[0].querySelector(".record-lap-content")).toBeTruthy();
     expect(cells[1].querySelector(".record-lap-content")).toBeFalsy();
+    expect(cells[1].textContent.trim()).toBe("--");
+  });
+
+  it("should render bestRaceLapTime column with time, nickname, and heat on separate lines", () => {
+    mockParent.columns = [
+      {
+        propertyName: "bestRaceLapTime",
+        labelKey: "RD_COL_BEST_RACE_LAP_TIME",
+        layout: {
+          [AnchorPoint.CenterCenter]: "bestRaceLapTime",
+        },
+      } as any,
+    ];
+    fixture.detectChanges();
+
+    const recordContentEls = fixture.nativeElement.querySelectorAll(
+      ".best-race-lap-content",
+    );
+    expect(recordContentEls.length).toBe(2);
+
+    const firstRowSub = recordContentEls[0].querySelector(".best-race-lap-sub");
+    expect(firstRowSub).toBeTruthy();
+
+    const firstRowTime = recordContentEls[0].querySelector(
+      ".best-race-lap-time",
+    );
+    const firstRowHolder = recordContentEls[0].querySelector(
+      ".best-race-lap-holder",
+    );
+    const firstRowHeat = recordContentEls[0].querySelector(
+      ".best-race-lap-heat",
+    );
+
+    expect(firstRowTime.textContent.trim()).toBe("4.950");
+    expect(firstRowHolder.textContent.trim()).toBe("Flash");
+    expect(firstRowHeat.textContent.trim()).toBe("Heat 2");
+    expect(firstRowHolder.compareDocumentPosition(firstRowHeat)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+
+    const secondRowTime = recordContentEls[1].querySelector(
+      ".best-race-lap-time",
+    );
+    const secondRowHolder = recordContentEls[1].querySelector(
+      ".best-race-lap-holder",
+    );
+    const secondRowHeat = recordContentEls[1].querySelector(
+      ".best-race-lap-heat",
+    );
+
+    expect(secondRowTime.textContent.trim()).toBe("--.---");
+    expect(secondRowHolder.textContent.trim()).toBe("---");
+    expect(secondRowHeat.textContent.trim()).toBe("---");
+  });
+
+  it("should render -- for empty lanes when bestRaceLapTime column is configured", () => {
+    mockParent.sortedHeatDrivers = [
+      {
+        objectId: "hd1",
+        laneIndex: 0,
+        driver: { name: "Alice", nickname: "Rocket" },
+        actualDriver: { name: "Alice", nickname: "Rocket" },
+        isEmpty: false,
+        laps: [],
+      },
+      {
+        objectId: "hd2",
+        laneIndex: 1,
+        driver: { name: "", nickname: "" },
+        isEmpty: true,
+        laps: [],
+      },
+    ];
+    mockParent.columns = [
+      {
+        propertyName: "bestRaceLapTime",
+        labelKey: "RD_COL_BEST_RACE_LAP_TIME",
+        layout: {
+          [AnchorPoint.CenterCenter]: "bestRaceLapTime",
+        },
+      } as any,
+    ];
+    fixture.detectChanges();
+
+    const recordContentEls = fixture.nativeElement.querySelectorAll(
+      ".best-race-lap-content",
+    );
+    expect(recordContentEls.length).toBe(1);
+
+    const cells = fixture.nativeElement.querySelectorAll(".body-cell");
+    expect(cells.length).toBe(2);
+    expect(cells[0].querySelector(".best-race-lap-content")).toBeTruthy();
+    expect(cells[1].querySelector(".best-race-lap-content")).toBeFalsy();
     expect(cells[1].textContent.trim()).toBe("--");
   });
 

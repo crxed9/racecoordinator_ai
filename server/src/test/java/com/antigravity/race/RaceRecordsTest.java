@@ -553,4 +553,42 @@ public class RaceRecordsTest {
     RecordData finalData = race.getRecordData();
     assertEquals(4.2, finalData.getOverall().getLaneFastestLap(0).getValue(), 0.001);
   }
+
+  @Test
+  public void testHeatNumberTrackingInRecords() {
+    race.changeState(new Racing());
+    int currentHeat = race.getCurrentHeat().getHeatNumber();
+
+    DriverHeatData dhd0 = race.getCurrentHeat().getDrivers().get(0);
+    dhd0.addLap(3.85, false, true);
+    race.getRecordsManager().onLap(dhd0, 3.85, 0);
+
+    DriverHeatData dhd1 = race.getCurrentHeat().getDrivers().get(1);
+    dhd1.addLap(4.15, false, true);
+    race.getRecordsManager().onLap(dhd1, 4.15, 1);
+
+    RecordData data = race.getRecordData();
+    assertEquals(3.85, data.getCurrent().getFastestLap().getValue(), 0.001);
+    assertEquals(currentHeat, data.getCurrent().getFastestLap().getHeatNumber());
+    assertEquals(currentHeat, data.getCurrent().getHeatFastestLap().getHeatNumber());
+    assertEquals(3.85, data.getCurrent().getLaneFastestLap(0).getValue(), 0.001);
+    assertEquals(currentHeat, data.getCurrent().getLaneFastestLap(0).getHeatNumber());
+    assertEquals(4.15, data.getCurrent().getLaneFastestLap(1).getValue(), 0.001);
+    assertEquals(currentHeat, data.getCurrent().getLaneFastestLap(1).getHeatNumber());
+
+    // Verify recalculation preserves heat numbers
+    race.getRecordsManager().recalculateScoreRecords();
+    RecordData recalculated = race.getRecordData();
+    assertEquals(currentHeat, recalculated.getCurrent().getFastestLap().getHeatNumber());
+    assertEquals(currentHeat, recalculated.getCurrent().getLaneFastestLap(0).getHeatNumber());
+    assertEquals(currentHeat, recalculated.getCurrent().getLaneFastestLap(1).getHeatNumber());
+
+    // Verify loadCurrentRaceRecords preserves heat numbers
+    RaceRecords newRecords = new RaceRecords(race);
+    newRecords.loadCurrentRaceRecords(data.getCurrent());
+    RecordData loaded = newRecords.getRecordData();
+    assertEquals(currentHeat, loaded.getCurrent().getFastestLap().getHeatNumber());
+    assertEquals(currentHeat, loaded.getCurrent().getHeatFastestLap().getHeatNumber());
+    assertEquals(currentHeat, loaded.getCurrent().getLaneFastestLap(0).getHeatNumber());
+  }
 }

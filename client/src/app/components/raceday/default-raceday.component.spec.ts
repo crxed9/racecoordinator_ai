@@ -3500,6 +3500,52 @@ describe("DefaultRacedayComponent", () => {
       expect(component.getLaneRecordDate(hd0)).toBe("2026-08-21");
       expect(component.getLaneRecordDate(hd2)).toBe("---");
     });
+
+    it("should get best race lap entry, time, holder, and heat correctly", () => {
+      const mockRecords: IRecordData = {
+        current: {
+          laneFastestLap: [
+            {
+              value: 3.9876,
+              holderNickname: "Lightning",
+              heatNumber: 2,
+            },
+            {
+              value: 4.5432,
+              holderName: "Bob Builder",
+              heatNumber: 1,
+            },
+          ],
+        },
+      };
+      recordDataSubject.next(mockRecords);
+
+      const hd0 = { laneIndex: 0 } as any;
+      const hd1 = { laneIndex: 1 } as any;
+      const hd2 = { laneIndex: 2 } as any;
+
+      expect(component.getBestRaceLapEntry(hd0)?.value).toBe(3.9876);
+      expect(component.getBestRaceLapEntry(hd1)?.value).toBe(4.5432);
+      expect(component.getBestRaceLapEntry(hd2)).toBeUndefined();
+      expect(component.getBestRaceLapEntry(0)?.value).toBe(3.9876);
+
+      expect(component.getBestRaceLapTime(hd0)).toBe("3.988");
+      expect(component.getBestRaceLapTime(hd1)).toBe("4.543");
+      expect(component.getBestRaceLapTime(hd2)).toBe("--.---");
+
+      expect(component.getBestRaceLapHolder(hd0)).toBe("Lightning");
+      expect(component.getBestRaceLapHolder(hd1)).toBe("Bob Builder");
+      expect(component.getBestRaceLapHolder(hd2)).toBe("---");
+
+      expect(component.getBestRaceLapHeat(hd0)).toContain("2");
+      expect(component.getBestRaceLapHeat(hd1)).toContain("1");
+      expect(component.getBestRaceLapHeat(hd2)).toBe("---");
+
+      // UI editor mode fallback
+      spyOn(component, "isUIEditorMode").and.returnValue(true);
+      expect(component.getBestRaceLapEntry(hd2)).toBeDefined();
+      expect(component.getBestRaceLapEntry(hd2)?.value).toBeGreaterThan(0);
+    });
   });
 
   describe("Countdown Overlay", () => {

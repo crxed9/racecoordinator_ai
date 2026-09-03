@@ -176,15 +176,71 @@ export function createMockRecordData(): IRecordData {
         holderNickname: "Bowser",
         holderName: "Bowser",
         date: 1749556800000,
+        heatNumber: 1,
       },
       heatFastestLap: {
         value: 2.012,
         holderNickname: "Peach",
         holderName: "Peach",
         date: 1748779200000,
+        heatNumber: 2,
       },
+      laneFastestLap: createMockBestRaceLapEntries(),
     },
   };
+}
+
+export function createMockBestRaceLapEntries(): IRecordEntry[] {
+  return [
+    {
+      value: 1.955,
+      holderNickname: "Bowser",
+      holderName: "Bowser",
+      heatNumber: 1,
+    },
+    {
+      value: 1.982,
+      holderNickname: "Mario",
+      holderName: "Mario",
+      heatNumber: 2,
+    },
+    {
+      value: 2.012,
+      holderNickname: "Peach",
+      holderName: "Peach",
+      heatNumber: 1,
+    },
+    {
+      value: 2.045,
+      holderNickname: "Luigi",
+      holderName: "Luigi",
+      heatNumber: 2,
+    },
+    {
+      value: 2.08,
+      holderNickname: "Yoshi",
+      holderName: "Yoshi",
+      heatNumber: 3,
+    },
+    {
+      value: 2.115,
+      holderNickname: "DK",
+      holderName: "Donkey Kong",
+      heatNumber: 2,
+    },
+    {
+      value: 2.142,
+      holderNickname: "Wario",
+      holderName: "Wario",
+      heatNumber: 1,
+    },
+    {
+      value: 2.19,
+      holderNickname: "Toad",
+      holderName: "Toad",
+      heatNumber: 3,
+    },
+  ];
 }
 
 export function createMockLaneRecordEntries(): IRecordEntry[] {

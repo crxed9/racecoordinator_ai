@@ -102,6 +102,7 @@ import {
 } from "./utils/raceday-format.utils";
 import { RacedayLayoutUtils } from "./utils/raceday-layout.utils";
 import {
+  createMockBestRaceLapEntries,
   createMockEditorData,
   createMockLaneRecordEntries,
 } from "./utils/raceday-mock.utils";
@@ -1870,6 +1871,59 @@ export class DefaultRacedayComponent
     return `${year}-${month}-${day}`;
   }
 
+  getBestRaceLapEntry(hd?: DriverHeatData | number): IRecordEntry | undefined {
+    const laneIndex = typeof hd === "number" ? hd : (hd?.laneIndex ?? 0);
+    const laneFastestLap = this.recordData?.current?.laneFastestLap;
+    if (Array.isArray(laneFastestLap) && laneFastestLap[laneIndex]) {
+      return laneFastestLap[laneIndex];
+    }
+    if (this.isUIEditorMode()) {
+      const mockEntries = createMockBestRaceLapEntries();
+      return mockEntries[laneIndex];
+    }
+    return undefined;
+  }
+
+  getBestRaceLapTime(hd?: DriverHeatData, anchor?: string): string {
+    const entry = this.getBestRaceLapEntry(hd);
+    const isInset = anchor ? !anchor.startsWith("center-") : false;
+    const laneViewWidget = this.currentRacedayLayout?.widgets?.find(
+      (w: any) => w.widgetType === "lane-view",
+    );
+    const timeDecimals = isInset
+      ? laneViewWidget?.customSettings?.["insetTimeDecimalPlaces"] !== undefined
+        ? Number(laneViewWidget.customSettings["insetTimeDecimalPlaces"])
+        : 3
+      : laneViewWidget?.customSettings?.["timeDecimalPlaces"] !== undefined
+        ? Number(laneViewWidget.customSettings["timeDecimalPlaces"])
+        : 3;
+    const timePlaceholder =
+      timeDecimals > 0 ? "--." + "-".repeat(timeDecimals) : "--";
+    if (!entry || !entry.value || entry.value <= 0) return timePlaceholder;
+    return entry.value.toFixed(timeDecimals);
+  }
+
+  getBestRaceLapHolder(hd?: DriverHeatData): string {
+    const entry = this.getBestRaceLapEntry(hd);
+    if (!entry || !entry.value || entry.value <= 0) return "---";
+    return entry.holderNickname || entry.holderName || "---";
+  }
+
+  getBestRaceLapHeat(hd?: DriverHeatData): string {
+    const entry = this.getBestRaceLapEntry(hd);
+    if (
+      !entry ||
+      !entry.value ||
+      entry.value <= 0 ||
+      !entry.heatNumber ||
+      entry.heatNumber <= 0
+    ) {
+      return "---";
+    }
+    const heatLabel = this.translationService?.translate("RD_HEAT") || "Heat";
+    return `${heatLabel} ${entry.heatNumber}`;
+  }
+
   getPersonalBest(hd?: DriverHeatData): number {
     if (!hd) return 0;
     return hd.bestLapTime > 0 ? hd.bestLapTime : 0;
@@ -2805,6 +2859,7 @@ export class DefaultRacedayComponent
       getDriverViewQrCodeUrl: (hd) => this.getDriverViewQrCodeUrl(hd),
       isDriverFinished: (hd, scoring) => this.isDriverFinished(hd, scoring),
       getLaneRecordEntry: (laneIndex) => this.getLaneRecordEntry(laneIndex),
+      getBestRaceLapEntry: (laneIndex) => this.getBestRaceLapEntry(laneIndex),
     };
     return RacedayFormatUtils.formatColumnValue(
       heatDriver,
@@ -4619,6 +4674,7 @@ export class DefaultRacedayComponent
       getDriverViewQrCodeUrl: (hd) => this.getDriverViewQrCodeUrl(hd),
       isDriverFinished: (hd, scoring) => this.isDriverFinished(hd, scoring),
       getLaneRecordEntry: (laneIndex) => this.getLaneRecordEntry(laneIndex),
+      getBestRaceLapEntry: (laneIndex) => this.getBestRaceLapEntry(laneIndex),
     };
     return RacedayFormatUtils.formatValue(
       propertyName,

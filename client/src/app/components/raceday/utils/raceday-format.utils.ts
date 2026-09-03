@@ -26,6 +26,7 @@ export interface FormatContext {
   getDriverViewQrCodeUrl?: (hd: DriverHeatData) => string;
   isDriverFinished?: (hd: DriverHeatData, scoring?: any) => boolean;
   getLaneRecordEntry?: (laneIndex: number) => any;
+  getBestRaceLapEntry?: (laneIndex: number) => any;
 }
 
 export class RacedayFormatUtils {
@@ -110,6 +111,7 @@ export class RacedayFormatUtils {
         baseKey === "lapsLed" ||
         baseKey === "physicalLapCount" ||
         baseKey === "recordLapTime" ||
+        baseKey === "bestRaceLapTime" ||
         baseKey.startsWith("ghostPacing")
       ) {
         return "--";
@@ -160,6 +162,21 @@ export class RacedayFormatUtils {
           }
         }
         return `${timeStr} (${nickname}, ${dateStr})`;
+      }
+      return `${timePlaceholder} (---, ---)`;
+    } else if (baseKey === "bestRaceLapTime") {
+      const entry = ctx.getBestRaceLapEntry
+        ? ctx.getBestRaceLapEntry(hd?.laneIndex ?? 0)
+        : undefined;
+      if (entry && entry.value > 0) {
+        const timeStr = entry.value.toFixed(timeDecimals);
+        const nickname = entry.holderNickname || entry.holderName || "---";
+        let heatStr = "---";
+        if (entry.heatNumber && entry.heatNumber > 0) {
+          const heatPrefix = ctx.translate ? ctx.translate("RD_HEAT") : "Heat";
+          heatStr = `${heatPrefix} ${entry.heatNumber}`;
+        }
+        return `${timeStr} (${nickname}, ${heatStr})`;
       }
       return `${timePlaceholder} (---, ---)`;
     } else if (
