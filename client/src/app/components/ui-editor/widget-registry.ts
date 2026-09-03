@@ -19,6 +19,10 @@ export const WIDGET_REGISTRY: Record<string, WidgetRegistryEntry> = {
   },
   records: {
     defaultSettings: () => ({
+      showRaceRecordLap: true,
+      showRaceRecordScore: true,
+      showCurrentRaceBest: true,
+      showHeatBest: true,
       headerFontFamily: "",
       headerFontSize: 17,
       headerTextColor: "",
@@ -42,6 +46,8 @@ export const WIDGET_REGISTRY: Record<string, WidgetRegistryEntry> = {
   "lane-view": {
     defaultSettings: () => ({
       isVertical: false,
+      sortByStandings: true,
+      highlightRowOnLap: true,
       timeDecimalPlaces: 3,
       lapDecimalPlaces: 2,
       columnFontFamily: "",

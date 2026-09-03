@@ -2,6 +2,7 @@
 /* eslint-disable max-lines-per-function */
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { DragDropModule } from "@angular/cdk/drag-drop";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -15,6 +16,8 @@ import {
   OnInit,
   output,
   SimpleChanges,
+  TemplateRef,
+  ViewChild,
   ViewEncapsulation,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -121,6 +124,7 @@ import {
     AddLapSectionsDialogComponent,
     PdfExportDialogComponent,
     InputDialogComponent,
+    NgTemplateOutlet,
   ],
 })
 export class DefaultRacedayComponent
@@ -676,8 +680,10 @@ export class DefaultRacedayComponent
   }
 
   get toolboxScale(): number {
-    return this.isUIEditorMode() ? this.scale : 1;
+    return 1;
   }
+  @ViewChild("toolboxTemplate", { static: true })
+  toolboxTemplate?: TemplateRef<any>;
   layoutChanged = output<LayoutConfig>();
   columnsChanged = output<void>();
   requestAbout = output<void>();
@@ -1146,6 +1152,27 @@ export class DefaultRacedayComponent
     this.detectShortcutKey();
     this.updateScale();
 
+    if (
+      typeof window !== "undefined" &&
+      window.visualViewport &&
+      typeof window.visualViewport.addEventListener === "function"
+    ) {
+      this.visualViewportHandler = () => {
+        this.updateScale();
+        if (!this.isDestroyed) {
+          this.cdr.markForCheck();
+        }
+      };
+      window.visualViewport.addEventListener(
+        "resize",
+        this.visualViewportHandler,
+      );
+      window.visualViewport.addEventListener(
+        "scroll",
+        this.visualViewportHandler,
+      );
+    }
+
     this.subscriptions.push(
       this.helpService.currentStep$.subscribe((step) => {
         if (step && step.selector === "#help-widget-toolbox") {
@@ -1574,10 +1601,16 @@ export class DefaultRacedayComponent
   }
 
   private handleLapHighlight(lap: any) {
+    const laneViewWidget = this.currentRacedayLayout?.widgets?.find(
+      (w: any) => w.widgetType === "lane-view",
+    );
     const settings = this.settingsService.getSettings();
-    const shouldHighlight = this.isPracticeLayout
-      ? settings.highlightPracticeRowOnLap
-      : settings.highlightRowOnLap;
+    const shouldHighlight =
+      laneViewWidget?.customSettings?.["highlightRowOnLap"] !== undefined
+        ? laneViewWidget.customSettings["highlightRowOnLap"]
+        : this.isPracticeLayout
+          ? settings.highlightPracticeRowOnLap
+          : settings.highlightRowOnLap;
     if (shouldHighlight) {
       this.highlightedDrivers.add(lap.objectId!);
       if (!this.isDestroyed) {
@@ -1978,6 +2011,22 @@ export class DefaultRacedayComponent
   }
 
   ngOnDestroy() {
+    if (
+      typeof window !== "undefined" &&
+      window.visualViewport &&
+      typeof window.visualViewport.removeEventListener === "function" &&
+      this.visualViewportHandler
+    ) {
+      window.visualViewport.removeEventListener(
+        "resize",
+        this.visualViewportHandler,
+      );
+      window.visualViewport.removeEventListener(
+        "scroll",
+        this.visualViewportHandler,
+      );
+    }
+
     if (this.isUIEditorMode()) {
       this.isDestroyed = true;
       this.subscriptions.forEach((sub) => sub.unsubscribe());
@@ -2172,8 +2221,15 @@ export class DefaultRacedayComponent
       (a, b) => a.laneIndex - b.laneIndex,
     );
 
-    const settings = this.settingsService.getSettings();
-    if (settings.sortByStandings && !this.isDragging) {
+    const laneViewWidget = this.currentRacedayLayout?.widgets?.find(
+      (w: any) => w.widgetType === "lane-view",
+    );
+    const sortByStandings =
+      laneViewWidget?.customSettings?.["sortByStandings"] !== undefined
+        ? laneViewWidget.customSettings["sortByStandings"]
+        : this.settingsService.getSettings().sortByStandings;
+
+    if (sortByStandings && !this.isDragging) {
       // Sort a separate copy to determine visual positions using the server-provided standings list
       const ranked = [...this.heat.heatDrivers].sort((a, b) => {
         let idxA = this.heat?.standings?.indexOf(a.objectId) ?? -1;
@@ -2832,6 +2888,18 @@ export class DefaultRacedayComponent
   scale: number = 1;
   dashboardWidth: number = 1920;
   dashboardHeight: number = 1080;
+  displayContentWidth: number = 1920;
+  displayContentHeight: number = 1080;
+  scaleTransform: string = "none";
+  contentLeft: number = 0;
+  contentTop: number = 0;
+  @ViewChild("dashboardWrapper") dashboardWrapperRef?: ElementRef<HTMLElement>;
+  private visualViewportHandler?: () => void;
+
+  get isLetterboxMode(): boolean {
+    if (this.isUIEditorMode()) return false;
+    return this.layout?.scaleMode === "letterbox";
+  }
 
   @HostListener("window:resize")
   onResize() {
@@ -2859,7 +2927,48 @@ export class DefaultRacedayComponent
     const targetWidth = layout?.baseWidth || 1920;
     const targetHeight = layout?.baseHeight || 1080;
 
-    this.scale = 1;
+    if (this.isUIEditorMode()) {
+      this.scale = 1;
+      this.displayContentWidth = targetWidth;
+      this.displayContentHeight = targetHeight;
+      this.scaleTransform = "none";
+      this.contentLeft = 0;
+      this.contentTop = 0;
+    } else {
+      const windowWidth =
+        typeof window !== "undefined"
+          ? window.visualViewport?.width || window.innerWidth
+          : 1920;
+      const windowHeight =
+        typeof window !== "undefined"
+          ? window.visualViewport?.height || window.innerHeight
+          : 1080;
+
+      if (this.isLetterboxMode) {
+        const scaleX = windowWidth / targetWidth;
+        const scaleY = windowHeight / targetHeight;
+        const scale = Math.min(scaleX, scaleY);
+        this.scale = scale;
+        this.displayContentWidth = Math.round(targetWidth * scale);
+        this.displayContentHeight = Math.round(targetHeight * scale);
+        this.contentLeft = Math.round(
+          (windowWidth - this.displayContentWidth) / 2,
+        );
+        this.contentTop = Math.round(
+          (windowHeight - this.displayContentHeight) / 2,
+        );
+        this.scaleTransform = `scale(${scale})`;
+      } else {
+        const scaleX = windowWidth / targetWidth;
+        const scaleY = windowHeight / targetHeight;
+        this.scale = 1;
+        this.displayContentWidth = Math.round(windowWidth);
+        this.displayContentHeight = Math.round(windowHeight);
+        this.contentLeft = 0;
+        this.contentTop = 0;
+        this.scaleTransform = `scale(${scaleX}, ${scaleY})`;
+      }
+    }
 
     if (
       this.dashboardWidth !== targetWidth ||

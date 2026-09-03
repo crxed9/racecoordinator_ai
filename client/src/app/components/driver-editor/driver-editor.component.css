@@ -55,17 +55,22 @@
 }
 
 .editor-panel::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .editor-panel::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 4px;
 }
 
 .editor-panel::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+}
+
+.editor-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.8);
 }
 
 .editor-section {
@@ -134,14 +139,18 @@
 }
 
 .preview-panel::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 4px;
 }
 
 .preview-panel::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
-  border: 2px solid rgba(15, 23, 42, 0.5);
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+}
+
+.preview-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.8);
 }
 
 /* Expander Sections */

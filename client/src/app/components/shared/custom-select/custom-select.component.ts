@@ -2,15 +2,16 @@ import {
   AfterContentInit,
   Component,
   ContentChildren,
+  effect,
   ElementRef,
   forwardRef,
   HostListener,
   input,
+  model,
   output,
   QueryList,
 } from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { TranslatePipe } from "@app/pipes/translate.pipe";
 
 @Component({
   standalone: true,
@@ -36,10 +37,9 @@ export class CustomOptionComponent {
   selector: "app-custom-select",
   templateUrl: "./custom-select.component.html",
   styleUrls: ["./custom-select.component.css"],
-  imports: [TranslatePipe],
   host: {
     "[attr.id]": "id()",
-    "[attr.data-value]": "value",
+    "[attr.data-value]": "value()",
   },
   providers: [
     {
@@ -63,13 +63,18 @@ export class CustomSelectComponent
   customOptions!: QueryList<CustomOptionComponent>;
 
   isOpen = false;
-  value: any = undefined;
+  value = model<any>(undefined);
   selectedLabel: string = "";
 
   onChange: any = () => {};
   onTouch: any = () => {};
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+    effect(() => {
+      this.value();
+      this.updateSelectedLabel();
+    });
+  }
 
   ngAfterContentInit() {
     this.updateSelectedLabel();
@@ -80,7 +85,7 @@ export class CustomSelectComponent
 
   isSelected(optValue: any): boolean {
     const fn = this.compareWith() || ((o1: any, o2: any) => o1 === o2);
-    return fn(optValue, this.value);
+    return fn(optValue, this.value());
   }
 
   updateSelectedLabel() {
@@ -92,13 +97,7 @@ export class CustomSelectComponent
   }
 
   writeValue(val: any): void {
-    this.value = val;
-    if (val !== undefined && val !== null) {
-      this.elementRef.nativeElement.setAttribute("data-value", String(val));
-    } else {
-      this.elementRef.nativeElement.removeAttribute("data-value");
-    }
-    this.updateSelectedLabel();
+    this.value.set(val);
   }
 
   registerOnChange(fn: any): void {
@@ -123,18 +122,10 @@ export class CustomSelectComponent
 
   selectOption(option: CustomOptionComponent, event: Event) {
     event.stopPropagation();
-    this.value = option.value();
-    if (this.value !== undefined && this.value !== null) {
-      this.elementRef.nativeElement.setAttribute(
-        "data-value",
-        String(this.value),
-      );
-    } else {
-      this.elementRef.nativeElement.removeAttribute("data-value");
-    }
+    this.value.set(option.value());
     this.selectedLabel = option.label;
-    this.onChange(this.value);
-    this.change.emit(this.value);
+    this.onChange(this.value());
+    this.change.emit(this.value());
     this.isOpen = false;
   }
 

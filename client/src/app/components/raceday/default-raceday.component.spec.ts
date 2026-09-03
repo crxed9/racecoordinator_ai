@@ -2742,6 +2742,27 @@ describe("DefaultRacedayComponent", () => {
 
       expect(component["highlightedDrivers"].has("hd1")).toBeFalse();
     }));
+
+    it("should honor lane-view customSettings.highlightRowOnLap over global settings", fakeAsync(() => {
+      mockSettings.highlightRowOnLap = true;
+      component.currentRacedayLayout = {
+        widgets: [
+          {
+            widgetType: "lane-view",
+            customSettings: { highlightRowOnLap: false },
+          },
+        ],
+      } as any;
+
+      lapsSubject.next({
+        objectId: "hd1",
+        lapTime: 1.234,
+        bestLapTime: 1.0,
+      });
+      fixture.detectChanges();
+
+      expect(component["highlightedDrivers"].has("hd1")).toBeFalse();
+    }));
   });
 
   describe("False Start", () => {
@@ -2931,6 +2952,27 @@ describe("DefaultRacedayComponent", () => {
 
       expect((component as any).getDriverVisualPosition(mockHd2)).toBe(0); // Rank 1 -> visual pos 0
       expect((component as any).getDriverVisualPosition(mockHd1)).toBe(1); // Rank 2 -> visual pos 1
+    });
+
+    it("should honor lane-view customSettings.sortByStandings over global settings", () => {
+      mockSettings.sortByStandings = true;
+      (component as any).currentRacedayLayout = {
+        widgets: [
+          {
+            widgetType: "lane-view",
+            customSettings: { sortByStandings: false },
+          },
+        ],
+      } as any;
+      (component as any).heat = (component as any).heat || ({} as any);
+      ((component as any).heat as any).standings = ["hd2", "hd1"];
+
+      (component as any).sortHeatDrivers();
+      fixture.detectChanges();
+
+      // Since customSettings.sortByStandings is false, lane index order is preserved (hd1 is pos 0, hd2 is pos 1)
+      expect((component as any).getDriverVisualPosition(mockHd1)).toBe(0);
+      expect((component as any).getDriverVisualPosition(mockHd2)).toBe(1);
     });
 
     it("should update rankings and sort on standingsUpdate$ event", fakeAsync(() => {
@@ -5324,6 +5366,140 @@ describe("DefaultRacedayComponent", () => {
       component.onResize();
       expect(component.scale).toBe(1);
       expect(component.dashboardWidth).toBe(1920);
+    });
+
+    it("should calculate letterbox display dimensions when in letterbox mode", () => {
+      fixture.componentRef.setInput("isUIEditorMode", false);
+      fixture.detectChanges();
+
+      const widthSpy = spyOnProperty(
+        window,
+        "innerWidth",
+        "get",
+      ).and.returnValue(1440);
+      const heightSpy = spyOnProperty(
+        window,
+        "innerHeight",
+        "get",
+      ).and.returnValue(900);
+      const viewportSpy = spyOnProperty(
+        window,
+        "visualViewport",
+        "get",
+      ).and.returnValue({ width: 1440, height: 900 } as any);
+
+      component.layout = {
+        baseWidth: 1920,
+        baseHeight: 1080,
+        scaleMode: "letterbox",
+        widgets: [],
+      };
+
+      component.onResize();
+      expect(component.isLetterboxMode).toBeTrue();
+      // 1440 / 1920 = 0.75; 900 / 1080 = 0.8333... Min scale = 0.75
+      expect(component.displayContentWidth).toBe(1440);
+      expect(component.displayContentHeight).toBe(810);
+
+      // Wider screen (pillarbox): 2560x1080
+      widthSpy.and.returnValue(2560);
+      heightSpy.and.returnValue(1080);
+      viewportSpy.and.returnValue({ width: 2560, height: 1080 } as any);
+      component.onResize();
+      // 2560 / 1920 = 1.333...; 1080 / 1080 = 1.0. Min scale = 1.0
+      expect(component.displayContentWidth).toBe(1920);
+      expect(component.displayContentHeight).toBe(1080);
+    });
+
+    it("should fill window dimensions when in stretch mode", () => {
+      fixture.componentRef.setInput("isUIEditorMode", false);
+      fixture.detectChanges();
+
+      spyOnProperty(window, "innerWidth", "get").and.returnValue(1440);
+      spyOnProperty(window, "innerHeight", "get").and.returnValue(900);
+      spyOnProperty(window, "visualViewport", "get").and.returnValue({
+        width: 1440,
+        height: 900,
+      } as any);
+
+      component.layout = {
+        baseWidth: 1920,
+        baseHeight: 1080,
+        scaleMode: "stretch",
+        widgets: [],
+      };
+
+      component.onResize();
+      expect(component.isLetterboxMode).toBeFalse();
+      expect(component.displayContentWidth).toBe(1440);
+      expect(component.displayContentHeight).toBe(900);
+
+      component.layout.scaleMode = undefined;
+      expect(component.isLetterboxMode).toBeFalse();
+    });
+
+    it("should compute scaleTransform for mobile portrait (9:16) layout on mobile device in stretch mode", () => {
+      fixture.componentRef.setInput("isUIEditorMode", false);
+      fixture.detectChanges();
+
+      spyOnProperty(window, "innerWidth", "get").and.returnValue(393);
+      spyOnProperty(window, "innerHeight", "get").and.returnValue(852);
+      spyOnProperty(window, "visualViewport", "get").and.returnValue({
+        width: 393,
+        height: 852,
+      } as any);
+
+      component.layout = {
+        baseWidth: 1080,
+        baseHeight: 1920,
+        scaleMode: "stretch",
+        widgets: [],
+      };
+
+      component.onResize();
+      expect(component.isLetterboxMode).toBeFalse();
+      expect(component.dashboardWidth).toBe(1080);
+      expect(component.dashboardHeight).toBe(1920);
+      expect(component.contentLeft).toBe(0);
+      expect(component.contentTop).toBe(0);
+      const expectedScaleX = 393 / 1080;
+      const expectedScaleY = 852 / 1920;
+      expect(component.scaleTransform).toBe(
+        `scale(${expectedScaleX}, ${expectedScaleY})`,
+      );
+    });
+
+    it("should compute scaleTransform and letterbox centering for mobile portrait (9:16) in letterbox mode", () => {
+      fixture.componentRef.setInput("isUIEditorMode", false);
+      fixture.detectChanges();
+
+      spyOnProperty(window, "innerWidth", "get").and.returnValue(393);
+      spyOnProperty(window, "innerHeight", "get").and.returnValue(852);
+      spyOnProperty(window, "visualViewport", "get").and.returnValue({
+        width: 393,
+        height: 852,
+      } as any);
+
+      component.layout = {
+        baseWidth: 1080,
+        baseHeight: 1920,
+        scaleMode: "letterbox",
+        widgets: [],
+      };
+
+      component.onResize();
+      expect(component.isLetterboxMode).toBeTrue();
+      expect(component.dashboardWidth).toBe(1080);
+      expect(component.dashboardHeight).toBe(1920);
+      const expectedScale = Math.min(393 / 1080, 852 / 1920);
+      expect(component.scale).toBe(expectedScale);
+      expect(component.scaleTransform).toBe(`scale(${expectedScale})`);
+      expect(component.contentLeft).toBe(
+        Math.round((393 - Math.round(1080 * expectedScale)) / 2),
+      );
+      expect(component.contentTop).toBe(
+        Math.round((852 - Math.round(1920 * expectedScale)) / 2),
+      );
     });
   });
 

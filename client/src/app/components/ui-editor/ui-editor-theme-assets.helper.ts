@@ -203,3 +203,21 @@ export function resolveThemeAsset(
     comp.assets,
   );
 }
+
+export function handleClearCustomTemplate(comp: any): void {
+  if (comp.editingSettings) {
+    delete comp.editingSettings.customExportTemplateBase64;
+    comp.captureState();
+    comp.cdr.markForCheck();
+  }
+}
+
+export function handlePageTransitionChange(
+  comp: any,
+  transition: string,
+): void {
+  if (comp.editingSettings) {
+    comp.editingSettings.pageTransition = transition;
+    comp.captureState();
+  }
+}

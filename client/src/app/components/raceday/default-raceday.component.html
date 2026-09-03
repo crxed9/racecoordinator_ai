@@ -1,5 +1,7 @@
 <div
+  #dashboardWrapper
   class="dashboard-wrapper"
+  [class.ui-editor-mode]="isUIEditorMode()"
   [style.overflow]="isUIEditorMode() ? 'visible' : 'hidden'"
   (dragover)="onCanvasDragOver($event)"
   (drop)="onCanvasDrop($event)"
@@ -74,21 +76,13 @@
   <div
     class="scalable-content"
     [class.edit-mode]="isLayoutCustomizing"
-    [style.width]="
-      isPrinting ? '1920px' : isUIEditorMode() ? dashboardWidth + 'px' : '100%'
-    "
-    [style.min-width]="
-      isPrinting ? '1920px' : isUIEditorMode() ? dashboardWidth + 'px' : '0'
-    "
-    [style.height]="
-      isPrinting ? '1080px' : isUIEditorMode() ? dashboardHeight + 'px' : '100%'
-    "
-    [style.min-height]="
-      isPrinting ? '1080px' : isUIEditorMode() ? dashboardHeight + 'px' : '0'
-    "
-    [style.position]="isPrinting ? 'relative' : 'absolute'"
-    [style.top]="'0'"
-    [style.left]="'0'"
+    [style.width.px]="isPrinting ? 1920 : dashboardWidth"
+    [style.height.px]="isPrinting ? 1080 : dashboardHeight"
+    [style.position]="'absolute'"
+    [style.top.px]="isPrinting || isUIEditorMode() ? 0 : contentTop"
+    [style.left.px]="isPrinting || isUIEditorMode() ? 0 : contentLeft"
+    [style.transform]="isPrinting || isUIEditorMode() ? 'none' : scaleTransform"
+    [style.transform-origin]="'top left'"
   >
     <div
       class="raceday-absolute-layout-root-wrapper"
@@ -131,121 +125,122 @@
   </div>
 
   <!-- Layout Customizer Floating Panel -->
-  @if (isLayoutCustomizing) {
-    <div
-      class="layout-customizer-toolbox-wrapper"
-      [style.transform]="
-        isUIEditorMode() ? 'scale(' + 1 / uiScale() + ')' : 'none'
-      "
-    >
-      <div
-        id="help-widget-toolbox"
-        class="layout-customizer-toolbox"
-        cdkDrag
-        [cdkDragScale]="toolboxScale"
-        [cdkDragBoundary]="
-          isUIEditorMode() ? '.raceday-layout-section' : '.dashboard-wrapper'
-        "
-        [cdkDragFreeDragPosition]="layoutEditorPosition"
-        (cdkDragEnded)="onLayoutEditorDragEnded($event)"
-      >
+  <ng-template #toolboxTemplate>
+    @if (isLayoutCustomizing) {
+      <div class="layout-customizer-toolbox-wrapper" [style.transform]="'none'">
         <div
-          class="toolbox-title"
-          cdkDragHandle
-          style="
-            cursor: move;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            box-sizing: border-box;
+          id="help-widget-toolbox"
+          class="layout-customizer-toolbox"
+          cdkDrag
+          [cdkDragScale]="toolboxScale"
+          [cdkDragBoundary]="
+            isUIEditorMode() ? '.raceday-layout-section' : '.dashboard-wrapper'
           "
+          [cdkDragFreeDragPosition]="layoutEditorPosition"
+          (cdkDragEnded)="onLayoutEditorDragEnded($event)"
         >
-          <div style="display: flex; align-items: center; gap: 6px">
-            <span class="material-icons drag-indicator-icon"
-              >drag_indicator</span
-            >
-            {{ "UE_LABEL_LAYOUT_EDITOR" | translate }}
-          </div>
-          <button
-            class="minimize-btn"
-            (click)="toggleLayoutEditorMinimize($event)"
-            [title]="
-              (isLayoutEditorMinimized ? 'UE_BTN_EXPAND' : 'UE_BTN_MINIMIZE')
-                | translate
-            "
+          <div
+            class="toolbox-title"
+            cdkDragHandle
             style="
-              background: none;
-              border: none;
-              color: #000;
-              cursor: pointer;
+              cursor: move;
               display: flex;
               align-items: center;
-              padding: 2px;
-              margin-left: auto;
+              justify-content: space-between;
+              width: 100%;
+              box-sizing: border-box;
             "
           >
-            <span class="material-icons" style="font-size: 18px">{{
-              isLayoutEditorMinimized
-                ? "keyboard_arrow_down"
-                : "keyboard_arrow_up"
-            }}</span>
-          </button>
-        </div>
-
-        @if (!isLayoutEditorMinimized) {
-          <div class="toolbox-subtitle">
-            {{ "UE_HINT_DRAG_COMPONENTS_DOCK" | translate }}
-          </div>
-
-          <div class="toolbox-widget-list">
-            @for (widget of getUnusedWidgets(); track widget) {
-              <div
-                class="toolbox-widget-item"
-                draggable="true"
-                (dragstart)="onToolboxDragStart($event, widget)"
-                [title]="getWidgetTypeLabelKey(widget) | translate"
+            <div style="display: flex; align-items: center; gap: 6px">
+              <span class="material-icons drag-indicator-icon"
+                >drag_indicator</span
               >
-                <span class="material-icons drag-indicator-icon"
-                  >drag_indicator</span
-                >
-                <span class="material-icons toolbox-widget-icon"
-                  >extension</span
-                >
-                <span class="toolbox-widget-label">{{
-                  getWidgetTypeLabelKey(widget) | translate
-                }}</span>
-              </div>
-            }
-            @if (getUnusedWidgets().length === 0) {
-              <div class="toolbox-empty-msg">
-                {{ "UE_HINT_ALL_COMPONENTS_DOCKED" | translate }}
-              </div>
-            }
-          </div>
-
-          @if (!isUIEditorMode()) {
-            <div class="toolbox-buttons">
-              <button class="toolbox-btn save-btn" (click)="saveLayout()">
-                Save Layout
-              </button>
-              <button
-                class="toolbox-btn cancel-btn"
-                (click)="cancelLayoutCustomize()"
-              >
-                Cancel
-              </button>
-              <button
-                class="toolbox-btn reset-btn"
-                (click)="resetLayoutToDefaults()"
-              >
-                Reset Defaults
-              </button>
+              {{ "UE_LABEL_LAYOUT_EDITOR" | translate }}
             </div>
+            <button
+              class="minimize-btn"
+              (click)="toggleLayoutEditorMinimize($event)"
+              [title]="
+                (isLayoutEditorMinimized ? 'UE_BTN_EXPAND' : 'UE_BTN_MINIMIZE')
+                  | translate
+              "
+              style="
+                background: none;
+                border: none;
+                color: #000;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                padding: 2px;
+                margin-left: auto;
+              "
+            >
+              <span class="material-icons" style="font-size: 18px">{{
+                isLayoutEditorMinimized
+                  ? "keyboard_arrow_down"
+                  : "keyboard_arrow_up"
+              }}</span>
+            </button>
+          </div>
+
+          @if (!isLayoutEditorMinimized) {
+            <div class="toolbox-subtitle">
+              {{ "UE_HINT_DRAG_COMPONENTS_DOCK" | translate }}
+            </div>
+
+            <div class="toolbox-widget-list">
+              @for (widget of getUnusedWidgets(); track widget) {
+                <div
+                  class="toolbox-widget-item"
+                  draggable="true"
+                  (dragstart)="onToolboxDragStart($event, widget)"
+                  [title]="getWidgetTypeLabelKey(widget) | translate"
+                >
+                  <span class="material-icons drag-indicator-icon"
+                    >drag_indicator</span
+                  >
+                  <span class="material-icons toolbox-widget-icon"
+                    >extension</span
+                  >
+                  <span class="toolbox-widget-label">{{
+                    getWidgetTypeLabelKey(widget) | translate
+                  }}</span>
+                </div>
+              }
+              @if (getUnusedWidgets().length === 0) {
+                <div class="toolbox-empty-msg">
+                  {{ "UE_HINT_ALL_COMPONENTS_DOCKED" | translate }}
+                </div>
+              }
+            </div>
+
+            @if (!isUIEditorMode()) {
+              <div class="toolbox-buttons">
+                <button class="toolbox-btn save-btn" (click)="saveLayout()">
+                  Save Layout
+                </button>
+                <button
+                  class="toolbox-btn cancel-btn"
+                  (click)="cancelLayoutCustomize()"
+                >
+                  Cancel
+                </button>
+                <button
+                  class="toolbox-btn reset-btn"
+                  (click)="resetLayoutToDefaults()"
+                >
+                  Reset Defaults
+                </button>
+              </div>
+            }
           }
-        }
+        </div>
       </div>
-    </div>
+    }
+  </ng-template>
+
+  @if (!isUIEditorMode()) {
+    <ng-container *ngTemplateOutlet="toolboxTemplate"></ng-container>
   }
 </div>
 

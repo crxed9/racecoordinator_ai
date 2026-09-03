@@ -39,6 +39,8 @@ import { ThemeService } from "./services/theme.service";
         position: relative;
         width: 100%;
         height: 100%;
+        height: 100dvh;
+        min-height: 100dvh;
         overflow: hidden;
         background-color: #000;
       }

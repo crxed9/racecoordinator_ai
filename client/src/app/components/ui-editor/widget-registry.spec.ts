@@ -64,5 +64,11 @@ describe("WIDGET_REGISTRY", () => {
     const actionSettings =
       WIDGET_REGISTRY["action-start-resume"].defaultSettings!();
     expect(actionSettings["fontSize"]).toBe(24);
+
+    const recordsSettings = WIDGET_REGISTRY["records"].defaultSettings!();
+    expect(recordsSettings["showRaceRecordLap"]).toBe(true);
+    expect(recordsSettings["showRaceRecordScore"]).toBe(true);
+    expect(recordsSettings["showCurrentRaceBest"]).toBe(true);
+    expect(recordsSettings["showHeatBest"]).toBe(true);
   });
 });

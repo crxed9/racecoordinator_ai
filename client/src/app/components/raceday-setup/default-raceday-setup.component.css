@@ -294,22 +294,31 @@
 .preview-panel::-webkit-scrollbar,
 .dropdown-menu::-webkit-scrollbar,
 .saved-races-list::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .driver-pool::-webkit-scrollbar-track,
 .preview-panel::-webkit-scrollbar-track,
 .dropdown-menu::-webkit-scrollbar-track,
 .saved-races-list::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.3);
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 4px;
 }
 
 .driver-pool::-webkit-scrollbar-thumb,
 .preview-panel::-webkit-scrollbar-thumb,
 .dropdown-menu::-webkit-scrollbar-thumb,
 .saved-races-list::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.3);
-  border-radius: 3px;
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+}
+
+.driver-pool::-webkit-scrollbar-thumb:hover,
+.preview-panel::-webkit-scrollbar-thumb:hover,
+.dropdown-menu::-webkit-scrollbar-thumb:hover,
+.saved-races-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.8);
 }
 
 /* Unified Driver Action Toolbar - Used as helper selector for walkthrough tour guide */
@@ -1409,21 +1418,22 @@
 }
 
 .event-races-summary::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .event-races-summary::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 4px;
 }
 
 .event-races-summary::-webkit-scrollbar-thumb {
-  background: #38bdf8;
-  border-radius: 3px;
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.2);
 }
 
 .event-races-summary::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
+  background: rgba(56, 189, 248, 0.8);
 }
 
 .race-sequence-table {

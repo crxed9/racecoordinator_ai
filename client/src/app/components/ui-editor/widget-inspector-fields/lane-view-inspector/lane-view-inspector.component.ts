@@ -43,6 +43,28 @@ export class LaneViewInspectorComponent {
   fontService = inject(FontService);
   private translationService = inject(TranslationService);
 
+  get sortByStandings(): boolean {
+    return this.settings()?.sortByStandings ?? true;
+  }
+
+  set sortByStandings(value: boolean) {
+    if (this.settings()) {
+      this.settings().sortByStandings = value;
+      this.onSettingsChange();
+    }
+  }
+
+  get highlightRowOnLap(): boolean {
+    return this.settings()?.highlightRowOnLap ?? true;
+  }
+
+  set highlightRowOnLap(value: boolean) {
+    if (this.settings()) {
+      this.settings().highlightRowOnLap = value;
+      this.onSettingsChange();
+    }
+  }
+
   onSettingsChange() {
     this.change.emit();
   }

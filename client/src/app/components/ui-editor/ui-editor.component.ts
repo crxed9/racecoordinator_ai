@@ -30,7 +30,7 @@ import { DataService } from "@app/data.service";
 import { DirtyComponent } from "@app/interfaces/dirty-component";
 import { CustomUI } from "@app/models/custom-ui";
 import { AudioConfig } from "@app/models/driver";
-import { LayoutConfig, Settings } from "@app/models/settings";
+import { LayoutConfig, LayoutScaleMode, Settings } from "@app/models/settings";
 import { Theme } from "@app/models/theme";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
@@ -51,51 +51,76 @@ import {
   ThemeTemplateType,
 } from "./components/theme-template-modal/theme-template-modal";
 import {
+  acknowledgeSuccessModal,
   applyLoadedUiEditorData,
   areSettingsEqual,
   areUIEditorStatesEqual,
+  AspectRatioOption,
   AVAILABLE_TRANSITIONS,
   BASE_AVAILABLE_COLUMNS,
   buildAutoSaveContext,
   buildDisplayColumnSlots,
-  buildLayoutExport,
   buildUiEditorHelpContext,
-  calculatePreviewScaleNumber,
+  cancelDeleteCustomUiModal,
+  cancelDeleteThemeModal,
   cloneSettings,
   cloneUIEditorState,
   DEFAULT_SECTIONS_EXPANDED,
   downloadJsonFile,
+  ensureWidgetSelectedHelper,
   executeAutoSaveState,
-  executeClearFolder,
-  executeClearWidgetFolder,
-  executeImportLayout,
-  executeResetLayout,
-  executeSelectFolder,
-  executeSelectWidgetFolder,
+  executeConfirmDiscard,
   executeTemplateFileSelected,
   extractAssetId,
   fetchUiEditorData,
   findDefaultWidgetId,
+  getCanvasViewportMaxHeightHelper,
+  getComponentPreviewContainerHeight,
+  getComponentPreviewContainerWidth,
+  getComponentPreviewScaleNumber,
   getCustomUiDisplayNameKey,
+  getDefaultAspectRatioOptions,
   getDefaultLayoutResetData,
+  getInspectorHeightHelper,
+  getLayoutAspectRatio,
+  getLayoutAspectRatioOptions,
+  getLayoutScaleMode,
+  getLayoutZoomHelper,
   getThemeAudioConfigForSlot,
   getThemeAudioUrl,
   getThemeDisplayNameKey,
   getUiEditorHelpSteps,
+  handleClearCustomTemplate,
   handleConfirmDeleteCustomUi,
   handleConfirmDeleteTheme,
   handleCreateCustomUi,
   handleCreateTheme,
   handleCustomUiSelection,
+  handleDetachTheme,
   handleDuplicateCustomUi,
   handleDuplicateTheme,
+  handleExportCurrentLayout,
+  handleExportLayout,
+  handleImportCurrentLayout,
+  handleImportLayout,
+  handlePageTransitionChange,
+  handleResetCurrentLayout,
+  handleResetDefaultDirectory,
+  handleResetLayout,
+  handleResetWidgetDirectory,
+  handleSelectDirectory,
+  handleSelectWidgetDirectory,
+  handleSetLayoutAspectRatio,
+  handleSetLayoutScaleMode,
   handleThemeAudioChange,
   handleThemeSlotChange,
   handleUiEditorDataLoadError,
   handleUiEditorDestroy,
   handleUiEditorHelpStep,
   handleUiEditorKeyboardShortcut,
+  handleUpdateSampleWidgets,
   handleWidgetColorChange,
+  handleWidgetInspectorChange,
   handleWidgetSelection,
   isCustomUiDefault,
   isCustomUiNameInvalid,
@@ -105,6 +130,9 @@ import {
   loadExpanderStateFromStorage,
   MAIN_AUDIO_SLOTS,
   MOCK_RACEDAY_PROPERTIES,
+  openDeleteCustomUiModal,
+  openDeleteThemeModal,
+  openSuccessModal,
   resolveActiveLayout,
   resolveTargetCustomUi,
   resolveThemeAsset,
@@ -112,6 +140,9 @@ import {
   resolveThemeFuelGauge,
   resolveThemeLamp,
   saveExpanderStateToStorage,
+  scrollToThemeElement,
+  setLayoutZoomHelper,
+  sortAvailableColumnsList,
   sortCustomUisForDisplay,
   sortThemesForDisplay,
   syncEditorCoordinates,
@@ -232,6 +263,8 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   showDiscardConfirm = false;
   private pendingDeactivate: ((result: boolean) => void) | null = null;
 
+  layoutAspectRatioOptions: AspectRatioOption[] =
+    getDefaultAspectRatioOptions();
   availableColumns: { key: string; label: string }[] = [
     ...BASE_AVAILABLE_COLUMNS,
   ];
@@ -330,6 +363,13 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   @HostListener("window:resize")
   onResize() {
     this.updateScale();
+    const opt = this.layoutAspectRatioOptions.find(
+      (o) => o.ratio === "current",
+    );
+    if (opt) {
+      opt.width = window.innerWidth;
+      opt.height = window.innerHeight;
+    }
   }
 
   @HostListener("window:keydown", ["$event"])
@@ -448,27 +488,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   onWidgetInspectorChange(widget?: any, ui?: CustomUI) {
-    if (this.isSaving) return;
-    const targetUi = ui || this.activeCustomUi;
-    const targetWidget = widget || this.currentSelectedWidget;
-    const layout = this.getLayout(targetUi);
-    if (layout && targetWidget && layout.widgets) {
-      const idx = layout.widgets.findIndex(
-        (w: any) => w.id === targetWidget.id,
-      );
-      if (idx !== -1) {
-        layout.widgets[idx] = targetWidget;
-      }
-      updateLayoutOnModel(
-        layout,
-        targetUi,
-        this.editingSettings,
-        this.isCurrentLayoutPractice,
-        this.parsedLayouts,
-      );
-    }
-    this.captureState();
-    this.cdr.markForCheck();
+    handleWidgetInspectorChange(this, widget, ui);
   }
 
   onRacedayLayoutChanged(newLayout: any) {
@@ -503,33 +523,15 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   resetCurrentLayout() {
-    if (this.isCurrentLayoutPractice) {
-      this.resetPracticeRacedayLayout();
-    } else if (this.activeCustomUiId === "default_ui_layout_rc_ai") {
-      this.resetRacedayLayout();
-    } else if (this.activeCustomUi) {
-      this.resetLayout(this.activeCustomUi);
-    }
+    handleResetCurrentLayout(this);
   }
 
   exportCurrentLayout() {
-    if (this.isCurrentLayoutPractice) {
-      this.exportPracticeRacedayLayout();
-    } else if (this.activeCustomUiId === "default_ui_layout_rc_ai") {
-      this.exportRacedayLayout();
-    } else if (this.activeCustomUi) {
-      this.exportLayout(this.activeCustomUi);
-    }
+    handleExportCurrentLayout(this);
   }
 
   onImportCurrentLayout(event: Event) {
-    if (this.isCurrentLayoutPractice) {
-      this.onImportPracticeRacedayLayout(event);
-    } else if (this.activeCustomUiId === "default_ui_layout_rc_ai") {
-      this.onImportRacedayLayout(event);
-    } else if (this.activeCustomUi) {
-      this.onImportLayout(event, this.activeCustomUi);
-    }
+    handleImportCurrentLayout(this, event);
   }
 
   onColumnsChanged(_ui?: CustomUI) {
@@ -537,12 +539,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   resetLayout(ui: CustomUI) {
-    executeResetLayout(ui, this.editingSettings);
-    if (this.editingState?.settings)
-      this.editingState.settings = deepCopy(this.editingSettings);
-    this.undoManager.captureState();
-    this.refreshDisplayProperties();
-    this.cdr.detectChanges();
+    handleResetLayout(this, ui);
   }
 
   resetRacedayLayout() {
@@ -557,11 +554,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   exportLayout(ui: CustomUI) {
-    const { layoutExport, fileName } = buildLayoutExport(
-      ui,
-      this.editingSettings,
-    );
-    this.downloadJson(layoutExport, fileName);
+    handleExportLayout(this, ui);
   }
 
   downloadJson(data: any, filename: string) {
@@ -579,13 +572,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   onImportLayout(event: Event, ui: CustomUI) {
-    executeImportLayout(event, ui, this.editingSettings, this.logger, () => {
-      if (this.editingState?.settings)
-        this.editingState.settings = deepCopy(this.editingSettings);
-      this.undoManager.captureState();
-      this.refreshDisplayProperties();
-      this.cdr.detectChanges();
-    });
+    handleImportLayout(this, event, ui);
   }
 
   onImportRacedayLayout(event: Event) {
@@ -617,37 +604,19 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   async selectDirectory() {
-    const name = await executeSelectFolder(this.fileSystem);
-    if (name) {
-      this.customDirectoryName = name;
-      this.cdr.markForCheck();
-    }
+    await handleSelectDirectory(this);
   }
 
   async resetDefault() {
-    await executeClearFolder(this.fileSystem);
-    this.customDirectoryName = null;
-    this.cdr.markForCheck();
+    await handleResetDefaultDirectory(this);
   }
 
   async selectWidgetDirectory() {
-    const name = await executeSelectWidgetFolder(this.fileSystem);
-    if (name) {
-      this.customWidgetDirectoryName = name;
-      if (this.customWidgetService) {
-        await this.customWidgetService.reloadCustomWidgets();
-      }
-      this.cdr.markForCheck();
-    }
+    await handleSelectWidgetDirectory(this);
   }
 
   async resetWidgetDefault() {
-    await executeClearWidgetFolder(this.fileSystem);
-    this.customWidgetDirectoryName = null;
-    if (this.customWidgetService) {
-      await this.customWidgetService.reloadCustomWidgets();
-    }
-    this.cdr.markForCheck();
+    await handleResetWidgetDirectory(this);
   }
 
   async exportStarterWidgets() {
@@ -655,25 +624,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   async updateSampleWidgets() {
-    if (this.customWidgetService) {
-      try {
-        const result = await this.customWidgetService.exportStarterWidgets();
-        if (result && result.success) {
-          this.openSuccessModal({
-            title: "UE_UPDATE_SAMPLE_WIDGETS_SUCCESS_TITLE",
-            message: "UE_UPDATE_SAMPLE_WIDGETS_SUCCESS_MSG",
-            params: {
-              count: result.count,
-              directory:
-                result.directory || this.customWidgetDirectoryName || "",
-            },
-          });
-        }
-        this.cdr.markForCheck();
-      } catch (e) {
-        this.logger.error("Failed to update sample widgets", e);
-      }
-    }
+    await handleUpdateSampleWidgets(this);
   }
 
   save() {
@@ -691,20 +642,22 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   async confirmDiscard(): Promise<boolean> {
-    this.undoManager.commitState();
-    if (!this.hasChanges()) return true;
-    if (!this.isAnyThemeNameInvalid() && !this.isAnyCustomUiNameInvalid()) {
-      try {
-        await this.autoSaveState();
-        if (!this.hasChanges()) return true;
-      } catch (e) {
-        this.logger.error("Final auto-save failed before navigation", e);
-      }
-    }
-    this.showDiscardConfirm = true;
-    this.cdr.markForCheck();
     return new Promise((resolve) => {
-      this.pendingDeactivate = resolve;
+      executeConfirmDiscard({
+        undoManager: this.undoManager,
+        hasChanges: () => this.hasChanges(),
+        isAnyThemeNameInvalid: () => this.isAnyThemeNameInvalid(),
+        isAnyCustomUiNameInvalid: () => this.isAnyCustomUiNameInvalid(),
+        autoSaveState: () => this.autoSaveState(),
+        logger: this.logger,
+        showConfirm: () => {
+          this.showDiscardConfirm = true;
+          this.pendingDeactivate = resolve;
+          this.cdr.markForCheck();
+        },
+      }).then((canDeactivate) => {
+        if (canDeactivate) resolve(true);
+      });
     });
   }
 
@@ -769,28 +722,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   scrollToTheme(themeId: string) {
-    this.cdr.detectChanges();
-    setTimeout(() => {
-      const container = document.querySelector(
-        ".sections-wrapper",
-      ) as HTMLElement;
-      const element = document.querySelector(
-        `[data-theme-id="${themeId}"]`,
-      ) as HTMLElement;
-      if (element && container) {
-        const topPos =
-          element.getBoundingClientRect().top -
-          container.getBoundingClientRect().top +
-          container.scrollTop;
-
-        container.scrollTo({
-          top: Math.max(0, topPos - 15),
-          behavior: "smooth",
-        });
-      } else if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    });
+    scrollToThemeElement(themeId, this.cdr);
   }
 
   saveExpanderState() {
@@ -826,11 +758,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   private sortAvailableColumns() {
-    this.availableColumns.sort((a, b) => {
-      const labelA = this.translationService.translate(a.label) || a.label;
-      const labelB = this.translationService.translate(b.label) || b.label;
-      return labelA.localeCompare(labelB);
-    });
+    sortAvailableColumnsList(this.availableColumns, this.translationService);
   }
 
   async loadThemes() {
@@ -867,18 +795,11 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   clearCustomTemplate() {
-    if (this.editingSettings) {
-      delete this.editingSettings.customExportTemplateBase64;
-      this.captureState();
-      this.cdr.markForCheck();
-    }
+    handleClearCustomTemplate(this);
   }
 
   onPageTransitionChange(transition: string) {
-    if (this.editingSettings) {
-      this.editingSettings.pageTransition = transition;
-      this.captureState();
-    }
+    handlePageTransitionChange(this, transition);
   }
 
   async onThemeSlotChanged(theme: Theme, slot: string, asset: any) {
@@ -903,15 +824,7 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   }
 
   ensureWidgetSelected(ui?: CustomUI) {
-    const layout = this.getLayout(ui || this.activeCustomUi);
-    const widgets = layout?.widgets || [];
-    if (
-      widgets.length > 0 &&
-      (!this.selectedWidgetId ||
-        !widgets.some((w: any) => w.id === this.selectedWidgetId))
-    ) {
-      this.selectedWidgetId = findDefaultWidgetId(layout);
-    }
+    ensureWidgetSelectedHelper(this, ui);
   }
 
   onCustomUiSelected(uiId: string) {
@@ -937,24 +850,15 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
   async onDuplicateCustomUi(ui: CustomUI) {
     await handleDuplicateCustomUi(this, ui);
   }
-
   onDeleteCustomUi(ui: CustomUI) {
-    this.uiToDelete = ui;
-    this.deleteUiParams = { name: ui.name };
-    this.showDeleteUiConfirm = true;
-    this.cdr.markForCheck();
+    openDeleteCustomUiModal(this, ui);
   }
-
   cancelDeleteCustomUi() {
-    this.showDeleteUiConfirm = false;
-    this.uiToDelete = null;
-    this.cdr.markForCheck();
+    cancelDeleteCustomUiModal(this);
   }
-
   async confirmDeleteCustomUi() {
     await handleConfirmDeleteCustomUi(this);
   }
-
   onCustomUiNameChanged(_ui: CustomUI) {
     this.captureState();
     this.cdr.markForCheck();
@@ -976,87 +880,102 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
     params?: { title?: string; message?: string; params?: any },
     collapseThemeId: string | null = null,
   ) {
-    this.themeToCollapseAfterSuccess = collapseThemeId;
-    this.successModalTitle = params?.title || "";
-    this.successModalMessage = params?.message || "";
-    this.successModalParams = params?.params || {};
-    this.showSuccessModal = true;
+    openSuccessModal(this, params, collapseThemeId);
   }
 
   async createNewTheme() {
     await handleCreateTheme(this);
   }
-
   async onConfirmThemeTemplate(_templateType: ThemeTemplateType) {
     this.showThemeTemplateModal = false;
     await this.createNewTheme();
   }
-
   async onThemeNameChanged(_theme: Theme) {
     this.captureState();
   }
-
   async onDuplicateTheme(theme: Theme) {
     await handleDuplicateTheme(this, theme);
   }
-
   onDeleteTheme(theme: Theme) {
-    this.themeToDelete = theme;
-    this.deleteThemeParams = { name: theme.name };
-    this.showDeleteConfirm = true;
-    this.cdr.markForCheck();
+    openDeleteThemeModal(this, theme);
   }
-
   async onConfirmDeleteTheme() {
     await handleConfirmDeleteTheme(this);
   }
-
   onCancelDeleteTheme() {
-    this.showDeleteConfirm = false;
-    this.themeToDelete = null;
-    this.deleteThemeParams = {};
+    cancelDeleteThemeModal(this);
   }
-
   onSuccessModalAcknowledge() {
-    this.showSuccessModal = false;
-    this.successModalTitle = "";
-    this.successModalMessage = "";
-    this.successModalParams = {};
-    this.themeToCollapseAfterSuccess = null;
-    this.editingState.themes.forEach((t) => {
-      this.sectionsExpanded[`theme_${t.entity_id}`] = false;
-    });
-    this.saveExpanderState();
+    acknowledgeSuccessModal(this);
+  }
+  onDetachTheme() {
+    handleDetachTheme(this);
   }
 
-  onDetachTheme() {
-    this.themeService.detachToSettings(this.assets);
-    this.editingState.settings = cloneSettings(
-      this.settingsService.getSettings(),
+  getLayoutAspectRatio(ui?: CustomUI): string {
+    return getLayoutAspectRatio(this.getLayout(ui));
+  }
+  getLayoutAspectRatioOptions(ui?: CustomUI): AspectRatioOption[] {
+    return getLayoutAspectRatioOptions(
+      this.layoutAspectRatioOptions,
+      this.getLayout(ui),
     );
-    this.captureState();
+  }
+  setLayoutAspectRatio(ratio: string, ui?: CustomUI): void {
+    handleSetLayoutAspectRatio(this, ratio, ui);
+  }
+  getLayoutScaleMode(ui?: CustomUI): LayoutScaleMode {
+    return getLayoutScaleMode(this.getLayout(ui));
+  }
+  setLayoutScaleMode(mode: LayoutScaleMode, ui?: CustomUI): void {
+    handleSetLayoutScaleMode(this, mode, ui);
+  }
+
+  layoutZoomMap: Map<string, number> = new Map();
+
+  getLayoutZoom(ui?: CustomUI): number {
+    return getLayoutZoomHelper(
+      this.layoutZoomMap,
+      ui?.entity_id || this.activeCustomUiId || "default",
+    );
+  }
+  setLayoutZoom(zoom: number, ui?: CustomUI): void {
+    setLayoutZoomHelper(
+      this.layoutZoomMap,
+      ui?.entity_id || this.activeCustomUiId || "default",
+      zoom,
+    );
     if (!this.isDestroyed) this.cdr.markForCheck();
   }
-
+  stepZoom(delta: number, ui?: CustomUI): void {
+    this.setLayoutZoom(this.getLayoutZoom(ui) + delta, ui);
+  }
+  resetLayoutZoom(ui?: CustomUI): void {
+    this.setLayoutZoom(100, ui);
+  }
+  onZoomInput(event: Event, ui?: CustomUI): void {
+    this.setLayoutZoom(Number((event.target as HTMLInputElement).value), ui);
+  }
+  getCanvasViewportMaxHeight(_ui?: CustomUI): number {
+    return getCanvasViewportMaxHeightHelper();
+  }
+  getInspectorHeight(ui?: CustomUI): number {
+    return getInspectorHeightHelper(
+      this.getPreviewContainerHeight(ui),
+      this.getCanvasViewportMaxHeight(ui),
+    );
+  }
   getPreviewScale(ui?: CustomUI) {
     return `scale(${this.getPreviewScaleNumber(ui)})`;
   }
   getPreviewScaleNumber(ui?: CustomUI) {
-    return calculatePreviewScaleNumber(
-      this.getLayout(ui || this.activeCustomUi)?.baseWidth || 1920,
-      !!this.currentSelectedWidget,
-      window.innerWidth,
-    );
+    return getComponentPreviewScaleNumber(this, ui);
   }
   getPreviewContainerWidth(ui?: CustomUI) {
-    return (
-      (this.getLayout(ui)?.baseWidth || 1920) * this.getPreviewScaleNumber(ui)
-    );
+    return getComponentPreviewContainerWidth(this, ui);
   }
   getPreviewContainerHeight(ui?: CustomUI) {
-    return (
-      (this.getLayout(ui)?.baseHeight || 1080) * this.getPreviewScaleNumber(ui)
-    );
+    return getComponentPreviewContainerHeight(this, ui);
   }
 
   getHelpSteps(): GuideStep[] {

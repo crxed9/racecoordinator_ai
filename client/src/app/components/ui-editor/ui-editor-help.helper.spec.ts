@@ -70,9 +70,29 @@ describe("ui-editor-help.helper", () => {
     expect(sectionsExpanded["customUIs"]).toBeTrue();
     expect(sectionsExpanded["ui_default_ui_layout_rc_ai"]).toBeTrue();
 
+    const zoomStep = steps.find((s) => s.selector === "#help-raceday-zoom");
+    expect(zoomStep).toBeDefined();
+    zoomStep?.onEnter?.();
+    expect(sectionsExpanded["customUIs"]).toBeTrue();
+
+    const aspectStep = steps.find(
+      (s) => s.selector === "#help-raceday-aspect-ratio",
+    );
+    expect(aspectStep).toBeDefined();
+    aspectStep?.onEnter?.();
+    expect(sectionsExpanded["customUIs"]).toBeTrue();
+
+    const scaleModeStep = steps.find(
+      (s) => s.selector === "#help-raceday-scale-mode",
+    );
+    expect(scaleModeStep).toBeDefined();
+    scaleModeStep?.onEnter?.();
+    expect(sectionsExpanded["customUIs"]).toBeTrue();
+
     const inspectorStep = steps.find(
       (s) => s.selector === "#help-widget-inspector",
     );
+    expect(inspectorStep).toBeDefined();
     inspectorStep?.onEnter?.();
     expect(ctx.selectFirstWidget).toHaveBeenCalledWith(defaultUi);
   });
