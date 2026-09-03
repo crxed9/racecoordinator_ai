@@ -1,0 +1,127 @@
+<div
+  class="raceday-heat-list-container"
+  [class.scale-auto]="widget()?.scaleMode === 'auto'"
+  [class.scale-fixed]="widget()?.scaleMode !== 'auto'"
+  [class.scale-to-window]="scaleToWindow()"
+  [style.--heat-scale]="scaleToWindow() ? autoFitLayout().scale : null"
+>
+  @if (showHeader()) {
+    <div
+      class="heat-list-title"
+      [style.font-family]="
+        widget()?.customSettings?.['titleFontFamily'] || null
+      "
+      [style.font-size.px]="
+        widget()?.scaleMode === 'auto'
+          ? null
+          : widget()?.customSettings?.['titleFontSize'] || null
+      "
+      [style.color]="widget()?.customSettings?.['titleTextColor'] || null"
+    >
+      {{ "RM_HEADER_HEAT_LIST" | translate }}
+    </div>
+  }
+
+  <div class="heat-list-scroll-view" #scrollContainer>
+    <div
+      class="heats-grid"
+      [style.grid-template-columns]="getHeatColumnsStyle()"
+      [style.grid-template-rows]="scaleToWindow() ? getHeatRowsStyle() : null"
+    >
+      @for (heat of processedHeats(); track trackByHeatNumber($index, heat)) {
+        <div
+          class="heat-card"
+          [id]="'heat-card-' + heat.heatNumber"
+          [class.current-heat]="heat.isCurrent"
+          [class.completed-heat]="heat.isCompleted"
+        >
+          <div
+            class="heat-card-header"
+            [style.font-family]="
+              widget()?.customSettings?.['heatNumberFontFamily'] || null
+            "
+            [style.font-size.px]="
+              widget()?.scaleMode === 'auto' || scaleToWindow()
+                ? null
+                : widget()?.customSettings?.['heatNumberFontSize'] || null
+            "
+            [style.color]="
+              widget()?.customSettings?.['heatNumberTextColor'] || null
+            "
+          >
+            <div class="heat-title-text">
+              <span class="heat-label">{{
+                "RM_LABEL_HEAT_NUMBER" | translate: { number: heat.heatNumber }
+              }}</span>
+              @if (heat.groupName) {
+                <span class="heat-group-name"> - {{ heat.groupName }}</span>
+              } @else if (race()?.group_options?.enabled) {
+                <span class="heat-group-name">
+                  - {{ "RE_GROUPS_LABEL" | translate }}: {{ heat.group + 1 }}
+                </span>
+              }
+            </div>
+
+            @if (heat.isCurrent) {
+              <span class="current-heat-badge">{{
+                "UE_INSPECTOR_HEAT_LIST_CURRENT_BADGE" | translate
+              }}</span>
+            }
+          </div>
+
+          <div
+            class="heat-lanes-grid"
+            [style.grid-template-columns]="getLaneColumnsStyle()"
+          >
+            @for (lane of heat.lanes; track trackByLaneNumber($index, lane)) {
+              <div
+                class="lane-badge-item"
+                [style.background-color]="lane.backgroundColor"
+                [style.color]="lane.foregroundColor"
+                [style.font-family]="
+                  widget()?.customSettings?.['laneFontFamily'] || null
+                "
+                [style.font-size.px]="
+                  widget()?.scaleMode === 'auto' || scaleToWindow()
+                    ? null
+                    : widget()?.customSettings?.['laneFontSize'] || null
+                "
+                [style.color]="
+                  widget()?.customSettings?.['laneTextColor'] ||
+                  lane.foregroundColor
+                "
+              >
+                <div class="lane-badge-header">
+                  <span class="lane-badge-tag">L{{ lane.laneNumber }}</span>
+                </div>
+                <div class="lane-driver-info">
+                  <span
+                    class="lane-driver-nickname"
+                    [title]="lane.driverNickname"
+                  >
+                    {{
+                      lane.isOccupied
+                        ? lane.driverNickname || ("RD_EMPTY_LANE" | translate)
+                        : ("RD_EMPTY_LANE" | translate)
+                    }}
+                  </span>
+                  @if (lane.isTeam && lane.teamName) {
+                    <span class="lane-team-name" [title]="lane.teamName">{{
+                      lane.teamName
+                    }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (processedHeats().length === 0) {
+        <div class="heat-list-empty-msg">
+          {{ "RM_NO_RACE_SELECTED" | translate }}
+        </div>
+      }
+    </div>
+  </div>
+</div>

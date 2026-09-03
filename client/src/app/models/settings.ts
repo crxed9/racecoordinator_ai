@@ -26,6 +26,7 @@ export type WidgetType =
   | "lane-view"
   | "on-deck"
   | "next-heat"
+  | "heat-list"
   | "image"
   | "action-start-resume"
   | "action-pause"

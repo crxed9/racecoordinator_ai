@@ -5,6 +5,7 @@ import { AbsoluteWidgetNode, Settings } from "@app/models/settings";
 
 import { ActionButtonInspectorComponent } from "./action-button-inspector/action-button-inspector.component";
 import { CustomWidgetInspectorComponent } from "./custom-widget-inspector/custom-widget-inspector.component";
+import { HeatListInspectorComponent } from "./heat-list-inspector/heat-list-inspector.component";
 import { ImageInspectorComponent } from "./image-inspector/image-inspector.component";
 import { LaneViewInspectorComponent } from "./lane-view-inspector/lane-view-inspector.component";
 import { LeaderboardInspectorComponent } from "./leaderboard-inspector/leaderboard-inspector.component";
@@ -26,6 +27,7 @@ import { UpcomingInspectorComponent } from "./upcoming-inspector/upcoming-inspec
     TimerInspectorComponent,
     ImageInspectorComponent,
     UpcomingInspectorComponent,
+    HeatListInspectorComponent,
     TextInfoInspectorComponent,
     MenuInspectorComponent,
     ActionButtonInspectorComponent,

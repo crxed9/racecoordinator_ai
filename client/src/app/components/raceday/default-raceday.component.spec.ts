@@ -5824,6 +5824,40 @@ describe("DefaultRacedayComponent", () => {
         expect(droppedWidget.height).toBe(18);
       }
     });
+
+    it("should set default size 384x400 for heat-list widget when dropping onto canvas", () => {
+      const element = document.createElement("div");
+      spyOnProperty(element, "offsetWidth", "get").and.returnValue(1920);
+      spyOnProperty(element, "offsetHeight", "get").and.returnValue(1080);
+      spyOn(element, "getBoundingClientRect").and.returnValue({
+        left: 0,
+        top: 0,
+        width: 1920,
+        height: 1080,
+      } as DOMRect);
+
+      spyOn(component["el"].nativeElement, "querySelector").and.returnValue(
+        element,
+      );
+
+      component.isLayoutCustomizing = true;
+      component.draggedWidgetType = "heat-list";
+      component.layout = { widgets: [] } as any;
+
+      const event = {
+        preventDefault: jasmine.createSpy("preventDefault"),
+        clientX: 400,
+        clientY: 200,
+      } as any;
+
+      component.onCanvasDrop(event);
+
+      expect(component.layout.widgets.length).toBe(1);
+      const droppedWidget = component.layout.widgets[0];
+      expect(droppedWidget.widgetType).toBe("heat-list");
+      expect(droppedWidget.width).toBe(384);
+      expect(droppedWidget.height).toBe(400);
+    });
   });
 
   describe("Printing", () => {
@@ -6637,6 +6671,7 @@ describe("DefaultRacedayComponent", () => {
       expect(unused).toContain("action-master-power-off");
       expect(unused).toContain("action-open-season-results");
       expect(unused).toContain("action-open-prediction-results");
+      expect(unused).toContain("heat-list");
 
       component.layout = {
         widgets: [

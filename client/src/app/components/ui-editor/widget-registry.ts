@@ -83,6 +83,25 @@ export const WIDGET_REGISTRY: Record<string, WidgetRegistryEntry> = {
       laneTextColor: "",
     }),
   },
+  "heat-list": {
+    defaultSettings: () => ({
+      showHeader: true,
+      autoScrollToCurrent: true,
+      highlightCurrentHeat: true,
+      scaleToWindow: false,
+      heatColumns: "auto",
+      laneColumns: "auto",
+      titleFontFamily: "",
+      titleFontSize: 18,
+      titleTextColor: "",
+      heatNumberFontFamily: "",
+      heatNumberFontSize: 14,
+      heatNumberTextColor: "",
+      laneFontFamily: "",
+      laneFontSize: 12,
+      laneTextColor: "",
+    }),
+  },
   "group-leaderboard": {
     defaultSettings: () => ({
       decimalPlaces: 3,

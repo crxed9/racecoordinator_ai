@@ -166,7 +166,7 @@ export class DefaultRacedayComponent
   protected showAddLapSectionsDialog: boolean = false;
   protected isMenuModeForAddLap: boolean = false;
   protected selectedHeatDriver: DriverHeatData | null = null;
-  protected heats: Heat[] = [];
+  public heats: Heat[] = [];
   countdownColor: string = "";
   countdownTotalLamps: number = 0;
   private lastPlayedCountdownSecond: number = -1;
@@ -5379,6 +5379,7 @@ export class DefaultRacedayComponent
       "lane-view",
       "on-deck",
       "next-heat",
+      "heat-list",
       "image",
       "action-start-resume",
       "action-pause",
@@ -5442,6 +5443,7 @@ export class DefaultRacedayComponent
       this.draggedWidgetType === "season-race-leaderboard" ||
       this.draggedWidgetType === "on-deck" ||
       this.draggedWidgetType === "next-heat" ||
+      this.draggedWidgetType === "heat-list" ||
       this.draggedWidgetType === "image";
 
     const isHeaderWidget =
@@ -5468,14 +5470,16 @@ export class DefaultRacedayComponent
     } else if (isLeaderboardOrDeck) {
       width = 384;
       height =
-        this.draggedWidgetType === "leaderboard" ||
-        this.draggedWidgetType === "group-leaderboard" ||
-        this.draggedWidgetType === "season-leaderboard" ||
-        this.draggedWidgetType === "season-race-leaderboard"
-          ? 239
-          : this.draggedWidgetType === "image"
-            ? 300
-            : 200;
+        this.draggedWidgetType === "heat-list"
+          ? 400
+          : this.draggedWidgetType === "leaderboard" ||
+              this.draggedWidgetType === "group-leaderboard" ||
+              this.draggedWidgetType === "season-leaderboard" ||
+              this.draggedWidgetType === "season-race-leaderboard"
+            ? 239
+            : this.draggedWidgetType === "image"
+              ? 300
+              : 200;
     } else if (this.draggedWidgetType === "action-back") {
       width = 36;
       height = 36;
