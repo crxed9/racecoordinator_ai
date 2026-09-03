@@ -94,14 +94,16 @@ describe("ui-editor-resolution.helper", () => {
     expect(orig.baseWidth).toBe(1000);
   });
 
-  it("should return default aspect ratio options with landscape and portrait groups", () => {
+  it("should return default aspect ratio options with current display at the top followed by landscape and portrait groups", () => {
     const options = getDefaultAspectRatioOptions();
     expect(options.length).toBeGreaterThanOrEqual(10);
+    expect(options[0].ratio).toBe("current");
+    expect(options[0].label).toBe("UI_EDITOR_ASPECT_CURRENT_DISPLAY");
+    expect(options[0].separator).toBeTrue();
     const landscapeOpts = options.filter((o) => o.group === "landscape");
     const portraitOpts = options.filter((o) => o.group === "portrait");
     expect(landscapeOpts.some((o) => o.ratio === "16:9")).toBeTrue();
     expect(portraitOpts.some((o) => o.ratio === "9:16")).toBeTrue();
-    expect(options.some((o) => o.ratio === "current")).toBeTrue();
   });
 
   it("should determine layout aspect ratio from explicit field or default to current", () => {

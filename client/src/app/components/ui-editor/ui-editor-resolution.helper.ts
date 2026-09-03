@@ -7,6 +7,7 @@ export interface AspectRatioOption {
   width: number;
   height: number;
   group: "landscape" | "portrait" | "other";
+  separator?: boolean;
 }
 
 export function getDefaultAspectRatioOptions(): AspectRatioOption[] {
@@ -14,6 +15,15 @@ export function getDefaultAspectRatioOptions(): AspectRatioOption[] {
   const innerH = typeof window !== "undefined" ? window.innerHeight : 1080;
 
   return [
+    // Current Display
+    {
+      label: "UI_EDITOR_ASPECT_CURRENT_DISPLAY",
+      ratio: "current",
+      width: innerW,
+      height: innerH,
+      group: "other",
+      separator: true,
+    },
     // Landscape
     {
       label: "UI_EDITOR_ASPECT_16_9",
@@ -85,14 +95,6 @@ export function getDefaultAspectRatioOptions(): AspectRatioOption[] {
       width: 1080,
       height: 1440,
       group: "portrait",
-    },
-    // Other
-    {
-      label: "UI_EDITOR_ASPECT_CURRENT_DISPLAY",
-      ratio: "current",
-      width: innerW,
-      height: innerH,
-      group: "other",
     },
   ];
 }

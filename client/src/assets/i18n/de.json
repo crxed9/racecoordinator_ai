@@ -1913,7 +1913,7 @@
   "UE_HELP_RACEDAY_CANVAS": "Dies ist der Leinwandbereich, in dem Sie Ihr Layout erstellen können. Sie können Widgets hierher ziehen und ablegen, deren Größe ändern und sie auswählen, um ihre Eigenschaften zu konfigurieren.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Leinwandbereich",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Schalten Sie um, ob die Zeile eines Fahrers kurz hervorgehoben werden soll, wenn er eine Runde beendet.",
-  "UE_HELP_RACEDAY_ASPECT_RATIO": "Wählen Sie ein Ziel-Seitenverhältnis für dieses Layout (z. B. 16:9 Breitbild oder 9:16 Mobil-Hochformat). Der Arbeitsbereich passt sich diesem Verhältnis an und füllt auf einem passenden Bildschirm die gesamte Anzeige aus.",
+  "UE_HELP_RACEDAY_ASPECT_RATIO": "Wählen Sie ein Ziel-Seitenverhältnis für dieses Layout (z. B. 16:9 Breitbild oder 9:16 Mobil-Hochformat). Wenn Sie planen, dieses Layout auf dieser Anzeige zu verwenden, wählen Sie für eine perfekte Passform Aktuelle Anzeige. Der Arbeitsbereich passt sich diesem Verhältnis an und füllt auf einem passenden Bildschirm die gesamte Anzeige aus.",
   "UE_HELP_RACEDAY_SCALE_MODE": "Wählen Sie, wie das Layout auf Bildschirmen mit abweichendem Seitenverhältnis skaliert wird. 'Anpassen / Letterbox' behält die exakten Proportionen mit Rändern bei, während 'Auf Vollbild dehnen' den gesamten Bildschirm ausfüllt.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Verwenden Sie die Schaltflächen zum Importieren und Exportieren, um Ihr Layout in einer Datei zu speichern oder ein zuvor gespeichertes Layout zu laden. Dies ist nützlich, um Ihre Arbeit zu sichern oder Layouts mit anderen zu teilen.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Layout importieren / exportieren",

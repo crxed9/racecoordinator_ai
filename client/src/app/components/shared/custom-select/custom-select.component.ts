@@ -1,5 +1,6 @@
 import {
   AfterContentInit,
+  booleanAttribute,
   Component,
   ContentChildren,
   effect,
@@ -21,7 +22,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 export class CustomOptionComponent {
   value = input<any>(undefined);
   disabled = input<boolean>(false);
+  separator = input(false, { transform: booleanAttribute });
+  divider = input(false, { transform: booleanAttribute });
   constructor(public elementRef: ElementRef<HTMLElement>) {}
+
+  get hasSeparator(): boolean {
+    return this.separator() || this.divider();
+  }
 
   get label(): string {
     return this.elementRef.nativeElement.textContent?.trim() || "";

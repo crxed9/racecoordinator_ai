@@ -1913,7 +1913,7 @@
   "UE_HELP_RACEDAY_CANVAS": "Dit is het canvasgebied waar u uw lay-out kunt bouwen. U kunt hier widgets naartoe slepen en neerzetten, het formaat ervan wijzigen en ze selecteren om hun eigenschappen te configureren.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Canvasgebied",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Wissel of de rij van een coureur kort moet worden gemarkeerd wanneer deze een ronde voltooit.",
-  "UE_HELP_RACEDAY_ASPECT_RATIO": "Selecteer een doelbeeldverhouding voor deze lay-out (bijv. 16:9 breedbeeld of 9:16 mobiel staand). Het canvas past zich aan deze verhouding aan en vult het scherm volledig op een passend scherm.",
+  "UE_HELP_RACEDAY_ASPECT_RATIO": "Selecteer een doelbeeldverhouding voor deze lay-out (bijv. 16:9 breedbeeld of 9:16 mobiel staand). Als u van plan bent deze lay-out op dit beeldscherm te gebruiken, selecteert u Huidig beeldscherm voor een perfecte pasvorm. Het canvas past zich aan deze verhouding aan en vult het scherm volledig op een passend scherm.",
   "UE_HELP_RACEDAY_SCALE_MODE": "Kies hoe de lay-out schaalt op schermen met een afwijkende beeldverhouding. 'Aanpassen / Letterbox' behoudt de exacte verhoudingen met zwarte balken indien nodig, terwijl 'Uitrekken tot vullend' het volledige scherm vult.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Gebruik de knoppen voor importeren en exporteren om uw lay-out in een bestand op te slaan, of laad een eerder opgeslagen lay-out. Dit is handig voor het maken van een back-up van uw werk of het delen van lay-outs met anderen.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Lay-out importeren / exporteren",

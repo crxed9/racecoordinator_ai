@@ -1914,7 +1914,7 @@
   "UE_HELP_RACEDAY_CANVAS": "Esta es el área del lienzo donde puede construir su diseño. Puede arrastrar y soltar widgets aquí, cambiar su tamaño y seleccionarlos para configurar sus propiedades.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Área del Lienzo",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Alterne si desea resaltar brevemente la fila de un piloto cuando completa una vuelta.",
-  "UE_HELP_RACEDAY_ASPECT_RATIO": "Seleccione una relación de aspecto objetivo para este diseño (por ejemplo, 16:9 panorámico o 9:16 móvil vertical). El lienzo se adaptará a esta proporción y se mostrará a pantalla completa en dispositivos compatibles.",
+  "UE_HELP_RACEDAY_ASPECT_RATIO": "Seleccione una relación de aspecto objetivo para este diseño (por ejemplo, 16:9 panorámico o 9:16 móvil vertical). Si planea usar este diseño en esta pantalla, seleccione Pantalla actual para un ajuste perfecto. El lienzo se adaptará a esta proporción y se mostrará a pantalla completa en dispositivos compatibles.",
   "UE_HELP_RACEDAY_SCALE_MODE": "Elija cómo se escala el diseño en pantallas con diferente relación de aspecto. 'Ajustar / Letterbox' mantiene las proporciones exactas con barras negras si es necesario, mientras que 'Estirar para llenar' ocupa toda la pantalla.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Utilice los botones de importación y exportación para guardar su diseño en un archivo o cargar un diseño guardado anteriormente. Esto es útil para hacer una copia de seguridad de su trabajo o compartir diseños con otros.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Importar / Exportar Diseño",

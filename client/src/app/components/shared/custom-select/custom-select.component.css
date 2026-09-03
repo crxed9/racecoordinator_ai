@@ -113,6 +113,13 @@
   background-color: transparent;
 }
 
+.custom-select-separator {
+  height: 1px;
+  background-color: #334155;
+  margin: 4px 0;
+  pointer-events: none;
+}
+
 /* Teammate select overlay mode */
 :host(.teammate-select) {
   position: absolute;

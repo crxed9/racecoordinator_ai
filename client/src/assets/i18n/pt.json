@@ -1913,7 +1913,7 @@
   "UE_HELP_RACEDAY_CANVAS": "Esta é a área da tela onde você pode construir seu layout. Você pode arrastar e soltar widgets aqui, redimensioná-los e selecioná-los para configurar suas propriedades.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Área da Tela",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Alterne se deseja destacar brevemente a linha de um piloto quando ele completar uma volta.",
-  "UE_HELP_RACEDAY_ASPECT_RATIO": "Selecione uma proporção de tela para este layout (ex.: 16:9 widescreen ou 9:16 celular vertical). A área de trabalho se adaptará a essa proporção e será exibida em tela cheia num monitor correspondente.",
+  "UE_HELP_RACEDAY_ASPECT_RATIO": "Selecione uma proporção de tela para este layout (ex.: 16:9 widescreen ou 9:16 celular vertical). Se você planeja usar este layout nesta tela, selecione Tela atual para um ajuste perfeito. A área de trabalho se adaptará a essa proporção e será exibida em tela cheia num monitor correspondente.",
   "UE_HELP_RACEDAY_SCALE_MODE": "Escolha como o layout se ajusta em telas com proporções diferentes. 'Ajustar / Letterbox' preserva as proporções com barras pretas quando necessário, enquanto 'Esticar para preencher' ocupa toda a tela.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Use os botões de importação e exportação para salvar seu layout em um arquivo ou carregar um layout salvo anteriormente. Isso é útil para fazer backup do seu trabalho ou compartilhar layouts com outras pessoas.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Importar / Exportar Layout",

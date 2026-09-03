@@ -1914,7 +1914,7 @@
   "UE_HELP_RACEDAY_CANVAS": "This is the canvas area where you can build your layout. You can drag and drop widgets here, resize them, and select them to configure their properties.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Canvas Area",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Toggle whether to briefly highlight a driver's row when they complete a lap.",
-  "UE_HELP_RACEDAY_ASPECT_RATIO": "Select a target aspect ratio for this layout (e.g. 16:9 widescreen or 9:16 mobile portrait). The canvas will adapt to this ratio, and on a matching display it will fill the screen.",
+  "UE_HELP_RACEDAY_ASPECT_RATIO": "Select a target aspect ratio for this layout (e.g. 16:9 widescreen or 9:16 mobile portrait). If you plan on using this layout on this display, select Current Display for a perfect fit. The canvas will adapt to this ratio, and on a matching display it will fill the screen.",
   "UE_HELP_RACEDAY_SCALE_MODE": "Choose how the layout scales on displays with a different aspect ratio. 'Fit / Letterbox' preserves the exact proportions with black bars if needed, while 'Stretch' fills the full screen.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Use the import and export buttons to save your layout to a file, or load a previously saved layout. This is useful for backing up your work or sharing layouts with others.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Import / Export Layout",

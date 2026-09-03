@@ -1914,7 +1914,7 @@
   "UE_HELP_RACEDAY_CANVAS": "C'est la zone de canevas où vous pouvez créer votre disposition. Vous pouvez glisser et déposer des widgets ici, les redimensionner et les sélectionner pour configurer leurs propriétés.",
   "UE_HELP_RACEDAY_CANVAS_TITLE": "Zone de Canevas",
   "UE_HELP_RACEDAY_HIGHLIGHT": "Basculez pour mettre en surbrillance brièvement la ligne d'un pilote lorsqu'il termine un tour.",
-  "UE_HELP_RACEDAY_ASPECT_RATIO": "Sélectionnez un format d'image cible pour cette disposition (par exemple 16:9 panoramique ou 9:16 mobile portrait). Le canevas s'adaptera à ce format et occupera tout l'écran sur un affichage correspondant.",
+  "UE_HELP_RACEDAY_ASPECT_RATIO": "Sélectionnez un format d'image cible pour cette disposition (par exemple 16:9 panoramique ou 9:16 mobile portrait). Si vous prévoyez d'utiliser cette disposition sur cet écran, sélectionnez Écran actuel pour un ajustement parfait. Le canevas s'adaptera à ce format et occupera tout l'écran sur un affichage correspondant.",
   "UE_HELP_RACEDAY_SCALE_MODE": "Choisissez comment la disposition s'adapte aux écrans d'un format différent. 'Ajuster / Letterbox' préserve les proportions avec des bordures si nécessaire, tandis qu''Étirer pour remplir' remplit tout l'écran.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT": "Utilisez les boutons d'importation et d'exportation pour enregistrer votre disposition dans un fichier ou charger une disposition précédemment enregistrée. C'est utile pour sauvegarder votre travail ou partager des dispositions avec d'autres.",
   "UE_HELP_RACEDAY_IMPORT_EXPORT_TITLE": "Importer / Exporter la disposition",
