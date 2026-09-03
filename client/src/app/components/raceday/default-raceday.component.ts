@@ -95,6 +95,7 @@ import { AnchorPoint } from "./column_definition";
 import { AddLapSectionsDialogComponent } from "./components/add-lap-sections-dialog/add-lap-sections-dialog.component";
 import { RacedayAbsoluteWidgetComponent } from "./components/raceday-absolute-widget/raceday-absolute-widget.component";
 import { RacedayModalsComponent } from "./components/raceday-modals/raceday-modals.component";
+import { ToolboxGroup, ToolboxGroupHelper } from "./toolbox-group.helper";
 import {
   FormatContext,
   RacedayFormatUtils,
@@ -698,6 +699,9 @@ export class DefaultRacedayComponent
   layoutEditorPosition = { x: 0, y: 0 };
   layout!: LayoutConfig;
   draggedWidgetType: string | null = null;
+  toolboxSearchTerm = "";
+  toolboxGroupExpandedStates = new Map<string, boolean>();
+  toolboxSubgroupExpandedStates = new Map<string, boolean>();
 
   get isPracticeLayout(): boolean {
     const isDemo = this.race?.entity_id?.startsWith("demo_") || false;
@@ -5411,6 +5415,37 @@ export class DefaultRacedayComponent
     return allTypes
       .filter((t) => !used.has(t))
       .sort((a, b) => a.localeCompare(b));
+  }
+
+  getToolboxGroups(): ToolboxGroup[] {
+    const used = new Set(this.layout?.widgets?.map((w) => w.widgetType) || []);
+    const customWidgets = this.customWidgetService?.getCustomWidgets() || [];
+    return ToolboxGroupHelper.buildToolboxGroups(
+      used,
+      customWidgets,
+      this.toolboxSearchTerm,
+      this.toolboxGroupExpandedStates,
+      this.toolboxSubgroupExpandedStates,
+      (key) => this.translationService?.translate(key) || key,
+    );
+  }
+
+  toggleToolboxGroup(groupId: string) {
+    const current = this.toolboxGroupExpandedStates.has(groupId)
+      ? this.toolboxGroupExpandedStates.get(groupId)!
+      : true;
+    this.toolboxGroupExpandedStates.set(groupId, !current);
+  }
+
+  toggleToolboxSubgroup(subgroupId: string) {
+    const current = this.toolboxSubgroupExpandedStates.has(subgroupId)
+      ? this.toolboxSubgroupExpandedStates.get(subgroupId)!
+      : false;
+    this.toolboxSubgroupExpandedStates.set(subgroupId, !current);
+  }
+
+  clearToolboxSearch() {
+    this.toolboxSearchTerm = "";
   }
 
   onToolboxDragStart(event: DragEvent, type: string) {

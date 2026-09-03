@@ -27,28 +27,41 @@ To enable custom widgets:
 6. The app will immediately scan all subdirectories, compile the widgets, and register them into the widget palette.
 
 > [!TIP]
-> **Starter Widget Examples**: If your folder is empty or you want reference examples, click the **Update Sample Widgets** button in the UI Editor. Race Coordinator AI will automatically generate ready-to-use sample widgets in your selected folder:
-> - `sample-telemetry-gauge/`: Live speedometer and telemetry gauge with configurable colors and thresholds.
-> - `sample-lap-delta/`: Real-time lap time deltas and intervals between race leaders.
-> - `sample-sponsor-banner/`: Animated sponsor ticker and announcement marquee.
-> - `sample-detailed-leaderboard/`: Rich leaderboard with configurable columns and row limits.
+> **Starter Widget Examples**: If your folder is empty or you want reference examples, click the **Update Sample Widgets** button in the UI Editor. Race Coordinator AI will automatically generate ready-to-use sample widgets in a dedicated `sample/` folder within your selected custom directory:
+> - `sample/sample-telemetry-gauge/`: Live speedometer and telemetry gauge with configurable colors and thresholds.
+> - `sample/sample-lap-delta/`: Real-time lap time deltas and intervals between race leaders.
+> - `sample/sample-sponsor-banner/`: Animated sponsor ticker and announcement marquee.
+> - `sample/sample-detailed-leaderboard/`: Rich leaderboard with configurable columns and row limits.
 
 ---
 
-## Widget Structure & Files
+## Widget Structure & Groups
 
-Each custom widget lives in its own dedicated subfolder inside your selected Custom Widgets directory:
+Race Coordinator AI automatically organizes your custom widgets into groups and sub-groups within the Widget Toolbox based on your folder structure:
+
+- **Root Folder**: You select a top-level folder for custom widgets.
+- **Groups**: Each folder directly under the root folder becomes a high-level **Group** in the Widget Toolbox (e.g. `sample/`, `my-club-pack/`).
+- **Sub-Groups**: Any folder inside a group that contains further widget directories becomes a **Sub-Group** (e.g. `sample/telemetry/`).
+- **Group Root Widgets**: Widget folders located directly inside a group folder appear at the root of that group.
+- **Custom Root**: Any widget folders placed directly in the top-level root folder appear under a dedicated **Custom Root** group.
 
 ```text
-MyCustomWidgets/
-├── my-telemetry-gauge/
-│   ├── widget.json       # Required: Manifest & schema definition
-│   ├── widget.html       # Required: Angular template
-│   ├── widget.css        # Optional: Scoped CSS styling
-│   └── widget.ts         # Optional: TypeScript component class
-└── my-sponsor-banner/
-    ├── widget.json
-    └── widget.html
+MyCustomWidgetsRoot/
+├── sample/                                    # Group: "sample"
+│   ├── sample-telemetry-gauge/                # Widget at root of "sample" group
+│   │   ├── widget.json                        # Required: Manifest & schema definition
+│   │   ├── widget.html                        # Required: Angular template
+│   │   ├── widget.css                         # Optional: Scoped CSS styling
+│   │   └── widget.ts                          # Optional: TypeScript component class
+│   ├── sample-lap-delta/                      # Widget at root of "sample" group
+│   └── telemetry/                             # Sub-Group: "telemetry" under "sample"
+│       └── custom-tach/                       # Widget inside "telemetry" sub-group
+│           ├── widget.json
+│           └── widget.html
+└── my-pack/                                   # Group: "my-pack"
+    └── my-sponsor-banner/                     # Widget at root of "my-pack" group
+        ├── widget.json
+        └── widget.html
 ```
 
 ### 1. `widget.json` (Manifest)

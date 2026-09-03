@@ -103,10 +103,14 @@ export class CustomWidgetService {
 
   private async loadSingleWidget(dir: {
     name: string;
+    relativePath?: string;
+    group?: string;
+    subgroup?: string;
     handle: FileSystemDirectoryHandle;
   }): Promise<{ key: string; def: CustomWidgetDefinition } | null> {
+    const widgetPath = dir.relativePath || dir.name;
     const hasManifest = await this.fileSystem.hasWidgetFile(
-      dir.name,
+      widgetPath,
       "widget.json",
     );
     if (!hasManifest) {
@@ -114,7 +118,7 @@ export class CustomWidgetService {
     }
 
     const manifestRaw = await this.fileSystem.getWidgetFile(
-      dir.name,
+      widgetPath,
       "widget.json",
     );
     const manifest: CustomWidgetManifest = JSON.parse(manifestRaw);
@@ -123,11 +127,11 @@ export class CustomWidgetService {
     }
 
     const { html, error: templateError } = await this.readWidgetTemplate(
-      dir.name,
+      widgetPath,
       manifest.id,
     );
-    const css = await this.readWidgetCss(dir.name, manifest.id);
-    const tsCode = await this.readWidgetTs(dir.name, manifest.id);
+    const css = await this.readWidgetCss(widgetPath, manifest.id);
+    const tsCode = await this.readWidgetTs(widgetPath, manifest.id);
 
     let componentType: Type<any> | undefined;
     let error = templateError;
@@ -153,6 +157,9 @@ export class CustomWidgetService {
     const widgetKey = `custom:${manifest.id}`;
     const def: CustomWidgetDefinition = {
       folderName: dir.name,
+      relativePath: widgetPath,
+      group: manifest.group || dir.group || "custom-root",
+      subgroup: manifest.subgroup || dir.subgroup,
       manifest,
       componentType,
       error,
@@ -164,40 +171,42 @@ export class CustomWidgetService {
   }
 
   private async readWidgetTemplate(
-    dirName: string,
+    widgetPath: string,
     manifestId: string,
   ): Promise<{ html?: string; error?: string }> {
-    if (await this.fileSystem.hasWidgetFile(dirName, "widget.html")) {
+    if (await this.fileSystem.hasWidgetFile(widgetPath, "widget.html")) {
       return {
-        html: await this.fileSystem.getWidgetFile(dirName, "widget.html"),
+        html: await this.fileSystem.getWidgetFile(widgetPath, "widget.html"),
       };
     }
-    if (await this.fileSystem.hasWidgetFile(dirName, "widget.component.html")) {
+    if (
+      await this.fileSystem.hasWidgetFile(widgetPath, "widget.component.html")
+    ) {
       return {
         html: await this.fileSystem.getWidgetFile(
-          dirName,
+          widgetPath,
           "widget.component.html",
         ),
       };
     }
-    const error = `Missing widget.html in widget '${dirName}'`;
+    const error = `Missing widget.html in widget '${widgetPath}'`;
     this.logger.error(`Custom widget ${manifestId}: ${error}`);
     return { error };
   }
 
   private async readWidgetCss(
-    dirName: string,
+    widgetPath: string,
     manifestId: string,
   ): Promise<string> {
     try {
-      if (await this.fileSystem.hasWidgetFile(dirName, "widget.css")) {
-        return await this.fileSystem.getWidgetFile(dirName, "widget.css");
+      if (await this.fileSystem.hasWidgetFile(widgetPath, "widget.css")) {
+        return await this.fileSystem.getWidgetFile(widgetPath, "widget.css");
       }
       if (
-        await this.fileSystem.hasWidgetFile(dirName, "widget.component.css")
+        await this.fileSystem.hasWidgetFile(widgetPath, "widget.component.css")
       ) {
         return await this.fileSystem.getWidgetFile(
-          dirName,
+          widgetPath,
           "widget.component.css",
         );
       }
@@ -208,16 +217,18 @@ export class CustomWidgetService {
   }
 
   private async readWidgetTs(
-    dirName: string,
+    widgetPath: string,
     manifestId: string,
   ): Promise<string> {
     try {
-      if (await this.fileSystem.hasWidgetFile(dirName, "widget.ts")) {
-        return await this.fileSystem.getWidgetFile(dirName, "widget.ts");
+      if (await this.fileSystem.hasWidgetFile(widgetPath, "widget.ts")) {
+        return await this.fileSystem.getWidgetFile(widgetPath, "widget.ts");
       }
-      if (await this.fileSystem.hasWidgetFile(dirName, "widget.component.ts")) {
+      if (
+        await this.fileSystem.hasWidgetFile(widgetPath, "widget.component.ts")
+      ) {
         return await this.fileSystem.getWidgetFile(
-          dirName,
+          widgetPath,
           "widget.component.ts",
         );
       }
@@ -280,6 +291,9 @@ export class CustomWidgetService {
 
     let count = 0;
     try {
+      // Delete existing sample folder first to ensure the new ones completely replace the previous ones
+      await this.fileSystem.deleteWidgetDirectory("sample", true);
+
       for (const folder of STARTER_WIDGET_FOLDERS) {
         const files = ["widget.json", "widget.html", "widget.css", "widget.ts"];
 
@@ -291,7 +305,11 @@ export class CustomWidgetService {
               }),
             );
             if (content) {
-              await this.fileSystem.writeWidgetFile(folder, file, content);
+              await this.fileSystem.writeWidgetFile(
+                `sample/${folder}`,
+                file,
+                content,
+              );
             }
           } catch (fileErr) {
             // Optional files like .ts or .css might not exist for some samples
@@ -304,7 +322,7 @@ export class CustomWidgetService {
         count++;
       }
 
-      // Also export README.md into the root of the custom widgets folder
+      // Also export README.md into the sample folder
       try {
         const readmeContent = await firstValueFrom(
           this.http.get("assets/sample-widgets/README.md", {
@@ -312,7 +330,11 @@ export class CustomWidgetService {
           }),
         );
         if (readmeContent) {
-          await this.fileSystem.writeWidgetFile("", "README.md", readmeContent);
+          await this.fileSystem.writeWidgetFile(
+            "sample",
+            "README.md",
+            readmeContent,
+          );
         }
       } catch (readmeErr) {
         this.logger.debug("Sample README.md not found or skipped", readmeErr);

@@ -6708,6 +6708,44 @@ describe("DefaultRacedayComponent", () => {
       expect(component.getWidgetTypeLabelKey("custom:unknown")).toBe("unknown");
     });
 
+    it("should return structured toolbox groups with root and subgroups in getToolboxGroups", () => {
+      component.layout = { widgets: [] } as any;
+      const groups = component.getToolboxGroups();
+      expect(groups.length).toBeGreaterThanOrEqual(1);
+
+      const rcAiGroup = groups.find((g) => g.id === "race-coordinator-ai");
+      expect(rcAiGroup).toBeDefined();
+      expect(rcAiGroup?.rootWidgets.length).toBe(0);
+      expect(rcAiGroup?.subgroups.length).toBe(4);
+      const standings = rcAiGroup?.subgroups.find(
+        (s) => s.id === "standings-heats",
+      );
+      expect(standings?.widgets.map((w) => w.type)).toContain("lane-view");
+      const titles = rcAiGroup?.subgroups.find((s) => s.id === "titles-info");
+      expect(titles?.widgets.map((w) => w.type)).toContain("timer");
+
+      // Toggle group expansion
+      expect(rcAiGroup?.expanded).toBeTrue();
+      component.toggleToolboxGroup("race-coordinator-ai");
+      const toggledGroups = component.getToolboxGroups();
+      expect(
+        toggledGroups.find((g) => g.id === "race-coordinator-ai")?.expanded,
+      ).toBeFalse();
+
+      // Toggle subgroup expansion
+      component.toggleToolboxSubgroup("actions");
+      const updatedGroups = component.getToolboxGroups();
+      const actions = updatedGroups[0].subgroups.find(
+        (s) => s.id === "actions",
+      );
+      expect(actions?.expanded).toBeTrue();
+
+      // Clear search term
+      component.toolboxSearchTerm = "lap";
+      component.clearToolboxSearch();
+      expect(component.toolboxSearchTerm).toBe("");
+    });
+
     it("should execute master power actions on executeWidgetAction", () => {
       mockAuthService.currentRoleSubject.next(Role.DIRECTOR);
       mockDataService.getSystemStateValue.and.returnValue({

@@ -22,6 +22,7 @@ describe("CustomWidgetService", () => {
       "hasWidgetFile",
       "getWidgetFile",
       "writeWidgetFile",
+      "deleteWidgetDirectory",
     ]);
 
     mockDynamicComp = jasmine.createSpyObj("DynamicComponentService", [
@@ -193,7 +194,7 @@ describe("CustomWidgetService", () => {
       expect(result.error).toContain("No custom widget directory");
     });
 
-    it("should download sample files and write to widget directory", async () => {
+    it("should download sample files and write to sample folder in custom widget directory", async () => {
       const mockHandle = { name: "custom-widgets" } as any;
       mockFileSystem.getCustomWidgetDirectoryHandle.and.returnValue(
         Promise.resolve(mockHandle),
@@ -209,7 +210,20 @@ describe("CustomWidgetService", () => {
       expect(result.success).toBeTrue();
       expect(result.count).toBeGreaterThan(0);
       expect(result.directory).toBe("custom-widgets");
-      expect(mockFileSystem.writeWidgetFile).toHaveBeenCalled();
+      expect(mockFileSystem.deleteWidgetDirectory).toHaveBeenCalledWith(
+        "sample",
+        true,
+      );
+      expect(mockFileSystem.writeWidgetFile).toHaveBeenCalledWith(
+        "sample/sample-telemetry-gauge",
+        "widget.json",
+        "sample file content",
+      );
+      expect(mockFileSystem.writeWidgetFile).toHaveBeenCalledWith(
+        "sample",
+        "README.md",
+        "sample file content",
+      );
     });
 
     it("should delegate updateSampleWidgets to exportStarterWidgets", async () => {
@@ -227,6 +241,53 @@ describe("CustomWidgetService", () => {
       expect(result.success).toBeTrue();
       expect(result.count).toBeGreaterThan(0);
       expect(result.directory).toBe("custom-widgets");
+      expect(mockFileSystem.deleteWidgetDirectory).toHaveBeenCalledWith(
+        "sample",
+        true,
+      );
+      expect(mockFileSystem.writeWidgetFile).toHaveBeenCalledWith(
+        "sample/sample-telemetry-gauge",
+        "widget.json",
+        "sample file content",
+      );
+    });
+
+    it("should populate group and subgroup when reloading widgets", async () => {
+      const mockHandle = {} as any;
+      mockFileSystem.getCustomWidgetDirectoryHandle.and.returnValue(
+        Promise.resolve(mockHandle),
+      );
+      mockFileSystem.getCustomWidgetDirectories.and.returnValue(
+        Promise.resolve([
+          {
+            name: "speedo",
+            relativePath: "sample/gauges/speedo",
+            group: "sample",
+            subgroup: "gauges",
+            handle: {} as any,
+          },
+        ]),
+      );
+      mockFileSystem.hasWidgetFile.and.returnValue(Promise.resolve(true));
+      mockFileSystem.getWidgetFile.and.callFake((path, file) => {
+        if (file === "widget.json")
+          return Promise.resolve(
+            JSON.stringify({ id: "speedo", name: "Speedo" }),
+          );
+        if (file === "widget.html") return Promise.resolve("<div>Gauge</div>");
+        return Promise.reject("not found");
+      });
+      mockDynamicComp.createDynamicComponent.and.returnValue(
+        Promise.resolve(class {} as any),
+      );
+
+      await service.reloadCustomWidgets();
+
+      const def = service.getWidgetDefinition("custom:speedo");
+      expect(def).toBeDefined();
+      expect(def?.group).toBe("sample");
+      expect(def?.subgroup).toBe("gauges");
+      expect(def?.relativePath).toBe("sample/gauges/speedo");
     });
   });
 });
