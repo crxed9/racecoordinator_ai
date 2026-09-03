@@ -142,9 +142,8 @@ test.describe("Race Editor Visuals", () => {
       .click();
 
     // Enter an invalid sequence (e.g. duplicate lane 1)
-    const customSeqInput = page
-      .locator('.editor-section input[type="text"]')
-      .last();
+    const customSeqInput = page.locator("#custom-sequence-input");
+    await customSeqInput.waitFor({ state: "visible" });
     await customSeqInput.fill("1, 1, 2, 3");
     await page.keyboard.press("Tab"); // Trigger blur/commit
 

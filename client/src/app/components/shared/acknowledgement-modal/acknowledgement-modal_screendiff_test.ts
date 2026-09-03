@@ -168,10 +168,17 @@ test.describe("Acknowledgement Modal Visuals", () => {
     await harness.waitForVisible(10000);
 
     // 2. Simulate CONNECTED (recovery)
+    await page.evaluate(() => {
+      (window as any).WATCHDOG_TIMEOUT = 30000;
+      (window as any).INITIAL_WATCHDOG_TIMEOUT = 30000;
+    });
     await sendInterfaceEvent(page, InterfaceStatus.CONNECTED);
 
-    // Wait for the Connected (recovery) modal to be visible
-    await harness.waitForVisible(10000);
+    // Wait for the Connected (recovery) modal title to be visible
+    await expect(modalHost.locator(".modal-title")).toHaveText(
+      "Interface Connected",
+      { timeout: 10000 },
+    );
 
     await expect(modalHost.locator(".modal-content")).toHaveScreenshot(
       "ack-modal-recovered.png",
