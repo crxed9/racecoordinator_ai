@@ -51,7 +51,7 @@
   </app-raceday-modals>
 
   @if (showCountdownOverlay) {
-    <div class="countdown-overlay">
+    <div class="countdown-overlay" [class.portrait]="isPortraitLayout()">
       @if (race) {
         <div id="debug-info" style="display: none">
           TotalLamps: {{ countdownTotalLamps }}, RaceStartTime:
@@ -59,7 +59,7 @@
           IsRestarting: {{ isRestarting }}
         </div>
       }
-      <div class="lamps-container">
+      <div class="lamps-container" [class.vertical]="isPortraitLayout()">
         @for (lamp of countdownLamps; track $index) {
           <img
             [src]="lamp.url"

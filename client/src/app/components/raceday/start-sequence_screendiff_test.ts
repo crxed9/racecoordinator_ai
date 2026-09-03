@@ -343,4 +343,253 @@ test.describe("Raceday Start Sequence Visuals", () => {
     // Verify the visual state with exactly 2 lamps (restart_time = 2.0)
     await expect(page).toHaveScreenshot("start-sequence-restart-2-lamps.png");
   });
+
+  test("should show vertical lamps in portrait mode with top lamp illuminated at 5s", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1080, height: 1920 });
+    await TestSetupHelper.setupSettings(page, {
+      racedayLayout: {
+        baseWidth: 1080,
+        baseHeight: 1920,
+        scaleMode: "letterbox",
+        aspectRatio: "9:16",
+        widgets: [],
+      },
+    });
+    await page.route("**/api/custom-ui", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            entity_id: "default_ui_layout_rc_ai",
+            name: "Default Portrait UI",
+            layoutJson: JSON.stringify({
+              baseWidth: 1080,
+              baseHeight: 1920,
+              aspectRatio: "9:16",
+              widgets: [],
+            }),
+          },
+        ]),
+      });
+    });
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r-portrait" },
+          name: "Portrait Test Race",
+          startTime: 5.0,
+          track: {
+            lanes: [
+              {
+                objectId: "l1",
+                backgroundColor: "#333",
+                foregroundColor: "#fff",
+              },
+            ],
+          },
+        },
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [{ laneIndex: 0, driver: { name: "Racer" } }],
+        },
+      },
+    };
+    await TestSetupHelper.mockRaceData(page, raceData);
+
+    await TestSetupHelper.sendRaceState(page, RaceState.STARTING);
+    await TestSetupHelper.sendRaceTime(page, {
+      time: 5.0,
+      autoStartRemaining: 5.0,
+    });
+
+    const overlay = page.locator(".countdown-overlay.portrait");
+    await overlay.waitFor({ state: "visible" });
+    await overlay
+      .locator(".lamps-container.vertical img.start-lamp")
+      .nth(4)
+      .waitFor({ state: "attached" });
+    await overlay
+      .locator(".lamps-container.vertical img.start-lamp.on")
+      .nth(0)
+      .waitFor({ state: "attached" });
+    await TestSetupHelper.waitForImagesLoaded(overlay);
+
+    await expect(page).toHaveScreenshot(
+      "start-sequence-portrait-5s-initial.png",
+    );
+  });
+
+  test("should show 3 red vertical lamps in portrait mode when countdown is at 2.5s", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1080, height: 1920 });
+    await TestSetupHelper.setupSettings(page, {
+      racedayLayout: {
+        baseWidth: 1080,
+        baseHeight: 1920,
+        scaleMode: "letterbox",
+        aspectRatio: "9:16",
+        widgets: [],
+      },
+    });
+    await page.route("**/api/custom-ui", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            entity_id: "default_ui_layout_rc_ai",
+            name: "Default Portrait UI",
+            layoutJson: JSON.stringify({
+              baseWidth: 1080,
+              baseHeight: 1920,
+              aspectRatio: "9:16",
+              widgets: [],
+            }),
+          },
+        ]),
+      });
+    });
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r-portrait" },
+          name: "Portrait Test Race",
+          startTime: 5.0,
+          track: {
+            lanes: [
+              {
+                objectId: "l1",
+                backgroundColor: "#333",
+                foregroundColor: "#fff",
+              },
+            ],
+          },
+        },
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [{ laneIndex: 0, driver: { name: "Racer" } }],
+        },
+      },
+    };
+    await TestSetupHelper.mockRaceData(page, raceData);
+
+    await TestSetupHelper.sendRaceState(page, RaceState.STARTING);
+    await TestSetupHelper.sendRaceTime(page, {
+      time: 2.5,
+      autoStartRemaining: 2.5,
+    });
+
+    const overlay = page.locator(".countdown-overlay.portrait");
+    await overlay.waitFor({ state: "visible" });
+    await overlay
+      .locator(".lamps-container.vertical img.start-lamp.on")
+      .nth(2)
+      .waitFor({ state: "attached" });
+    await TestSetupHelper.waitForImagesLoaded(overlay);
+
+    await expect(page).toHaveScreenshot("start-sequence-portrait-3-red.png");
+  });
+
+  test("should show all green vertical lamps when race starts in portrait mode", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1080, height: 1920 });
+    await TestSetupHelper.setupSettings(page, {
+      racedayLayout: {
+        baseWidth: 1080,
+        baseHeight: 1920,
+        scaleMode: "letterbox",
+        aspectRatio: "9:16",
+        widgets: [],
+      },
+    });
+    await page.route("**/api/custom-ui", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            entity_id: "default_ui_layout_rc_ai",
+            name: "Default Portrait UI",
+            layoutJson: JSON.stringify({
+              baseWidth: 1080,
+              baseHeight: 1920,
+              aspectRatio: "9:16",
+              widgets: [],
+            }),
+          },
+        ]),
+      });
+    });
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    const raceData = {
+      race: {
+        race: {
+          model: { entityId: "r-portrait" },
+          name: "Portrait Test Race",
+          startTime: 5.0,
+          track: {
+            lanes: [
+              {
+                objectId: "l1",
+                backgroundColor: "#333",
+                foregroundColor: "#fff",
+              },
+            ],
+          },
+        },
+        currentHeat: {
+          objectId: "h1",
+          heatNumber: 1,
+          heatDrivers: [{ laneIndex: 0, driver: { name: "Racer" } }],
+        },
+      },
+    };
+    await TestSetupHelper.mockRaceData(page, raceData);
+
+    await TestSetupHelper.sendRaceState(page, RaceState.STARTING);
+    await TestSetupHelper.sendRaceTime(page, {
+      time: 0.1,
+      autoStartRemaining: 0.1,
+    });
+    await TestSetupHelper.sendRaceState(page, RaceState.RACING);
+
+    const overlay = page.locator(".countdown-overlay.portrait");
+    await overlay.waitFor({ state: "visible" });
+    await overlay
+      .locator(".lamps-container.vertical img.start-lamp.go")
+      .nth(4)
+      .waitFor({ state: "attached" });
+    await TestSetupHelper.waitForImagesLoaded(overlay);
+
+    await expect(page).toHaveScreenshot(
+      "start-sequence-portrait-all-green.png",
+    );
+  });
 });

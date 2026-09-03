@@ -2901,6 +2901,14 @@ export class DefaultRacedayComponent
     return this.layout?.scaleMode === "letterbox";
   }
 
+  isPortraitLayout(): boolean {
+    return RacedayLayoutUtils.isPortraitLayout(
+      this.layout,
+      this.dashboardWidth,
+      this.dashboardHeight,
+    );
+  }
+
   @HostListener("window:resize")
   onResize() {
     this.updateScale();

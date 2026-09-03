@@ -3634,6 +3634,90 @@ describe("DefaultRacedayComponent", () => {
       expect(component["showCountdownOverlay"]).toBeFalse();
     }));
 
+    it("should render start countdown lights vertically in portrait mode with highest value at the top moving down", fakeAsync(() => {
+      component.layout = {
+        baseWidth: 1080,
+        baseHeight: 1920,
+        widgets: [],
+      };
+      component["race"] = { ...MOCK_RACES[0], start_time: 5.0 } as any;
+      expect(component.isPortraitLayout()).toBeTrue();
+
+      raceTimeSubject.next({ time: 5.0, autoStartRemaining: 5.0 });
+      raceStateSubject.next(RaceState.STARTING);
+      tick();
+      fixture.detectChanges();
+
+      const overlay = fixture.nativeElement.querySelector(".countdown-overlay");
+      const lampsContainer =
+        fixture.nativeElement.querySelector(".lamps-container");
+      expect(overlay).toBeTruthy();
+      expect(overlay.classList.contains("portrait")).toBeTrue();
+      expect(lampsContainer).toBeTruthy();
+      expect(lampsContainer.classList.contains("vertical")).toBeTrue();
+
+      const lampImages = lampsContainer.querySelectorAll("img.start-lamp");
+      expect(lampImages.length).toBe(5);
+
+      // Highest value (5s) at the top: lamp 0 (top in DOM) is ON, others are dim
+      expect(lampImages[0].classList.contains("on")).toBeTrue();
+      expect(lampImages[1].classList.contains("on")).toBeFalse();
+      expect(lampImages[2].classList.contains("on")).toBeFalse();
+      expect(lampImages[3].classList.contains("on")).toBeFalse();
+      expect(lampImages[4].classList.contains("on")).toBeFalse();
+
+      // At 4.0s: lamps come on moving down (lamps 0 and 1 are ON)
+      raceTimeSubject.next({ time: 4.0, autoStartRemaining: 4.0 });
+      tick();
+      fixture.detectChanges();
+      expect(lampImages[0].classList.contains("on")).toBeTrue();
+      expect(lampImages[1].classList.contains("on")).toBeTrue();
+      expect(lampImages[2].classList.contains("on")).toBeFalse();
+
+      // At 1.0s: all 5 lamps are ON moving all the way down
+      raceTimeSubject.next({ time: 1.0, autoStartRemaining: 1.0 });
+      tick();
+      fixture.detectChanges();
+      for (let i = 0; i < 5; i++) {
+        expect(lampImages[i].classList.contains("on")).toBeTrue();
+      }
+
+      // At RACING: all lamps turn green ('go')
+      raceStateSubject.next(RaceState.RACING);
+      tick();
+      fixture.detectChanges();
+      for (let i = 0; i < 5; i++) {
+        expect(lampImages[i].classList.contains("go")).toBeTrue();
+      }
+
+      tick(5000);
+    }));
+
+    it("should render start countdown lights horizontally when UI layout is in landscape mode (width >= height)", fakeAsync(() => {
+      component.layout = {
+        baseWidth: 1920,
+        baseHeight: 1080,
+        widgets: [],
+      };
+      component["race"] = { ...MOCK_RACES[0], start_time: 5.0 } as any;
+      expect(component.isPortraitLayout()).toBeFalse();
+
+      raceTimeSubject.next({ time: 5.0, autoStartRemaining: 5.0 });
+      raceStateSubject.next(RaceState.STARTING);
+      tick();
+      fixture.detectChanges();
+
+      const overlay = fixture.nativeElement.querySelector(".countdown-overlay");
+      const lampsContainer =
+        fixture.nativeElement.querySelector(".lamps-container");
+      expect(overlay).toBeTruthy();
+      expect(overlay.classList.contains("portrait")).toBeFalse();
+      expect(lampsContainer).toBeTruthy();
+      expect(lampsContainer.classList.contains("vertical")).toBeFalse();
+
+      tick(5000);
+    }));
+
     it("should not show autoStartRemaining on timer during STARTING state", fakeAsync(() => {
       component["race"] = {
         ...MOCK_RACES[0],

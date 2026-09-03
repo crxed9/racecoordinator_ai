@@ -514,4 +514,14 @@ export class RacedayLayoutUtils {
 
     return { x: newX, y: newY, w: newW, h: newH };
   }
+
+  static isPortraitLayout(
+    layout?: LayoutConfig,
+    dashboardWidth: number = 1920,
+    dashboardHeight: number = 1080,
+  ): boolean {
+    const width = layout?.baseWidth ?? dashboardWidth;
+    const height = layout?.baseHeight ?? dashboardHeight;
+    return width < height;
+  }
 }
