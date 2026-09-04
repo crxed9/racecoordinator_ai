@@ -40,6 +40,7 @@ export function cloneSettings(s: Settings): Settings {
   clone.practiceRacedayLayout = s.practiceRacedayLayout
     ? deepCopy(s.practiceRacedayLayout)
     : undefined;
+  clone.customExportTemplateBase64 = s.customExportTemplateBase64;
 
   return clone;
 }
@@ -100,6 +101,8 @@ export function areSettingsEqual(a: Settings, b: Settings): boolean {
     a.lampRedDim === b.lampRedDim &&
     a.lampGreen === b.lampGreen &&
     a.fuelGaugeImageSet === b.fuelGaugeImageSet &&
+    (a.customExportTemplateBase64 || "") ===
+      (b.customExportTemplateBase64 || "") &&
     JSON.stringify(a.demoConfig) === JSON.stringify(b.demoConfig) &&
     JSON.stringify(a.racedayColumns) === JSON.stringify(b.racedayColumns) &&
     JSON.stringify(a.columnAnchors) === JSON.stringify(b.columnAnchors) &&

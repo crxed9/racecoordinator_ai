@@ -1977,6 +1977,75 @@ describe("UIEditorComponent", () => {
       });
       expect((component as any).areSettingsEqual(a, b)).toBeTrue();
     });
+
+    it("should detect a change in customExportTemplateBase64", () => {
+      const a = makeSettings({ customExportTemplateBase64: undefined });
+      const b = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,ABC",
+      });
+      expect((component as any).areSettingsEqual(a, b)).toBeFalse();
+
+      const c = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,XYZ",
+      });
+      expect((component as any).areSettingsEqual(b, c)).toBeFalse();
+    });
+
+    it("should report equal when customExportTemplateBase64 matches or is empty/undefined", () => {
+      const a = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,ABC",
+      });
+      const b = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,ABC",
+      });
+      expect((component as any).areSettingsEqual(a, b)).toBeTrue();
+
+      const c = makeSettings({ customExportTemplateBase64: undefined });
+      const d = makeSettings({ customExportTemplateBase64: "" });
+      expect((component as any).areSettingsEqual(c, d)).toBeTrue();
+    });
+  });
+
+  describe("custom export template actions", () => {
+    it("should clear custom template and capture state", () => {
+      component.editingSettings.customExportTemplateBase64 = "data:test";
+      spyOn(component, "captureState").and.callThrough();
+
+      component.clearCustomTemplate();
+
+      expect(
+        component.editingSettings.customExportTemplateBase64,
+      ).toBeUndefined();
+      expect(component.captureState).toHaveBeenCalled();
+    });
+
+    it("should handle onTemplateFileSelected, set customExportTemplateBase64, and capture state", (done) => {
+      const file = new File(["test-content"], "test.xlsx", {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const input = document.createElement("input");
+      input.type = "file";
+      Object.defineProperty(input, "files", {
+        value: [file],
+        writable: true,
+      });
+
+      const event = { target: input } as unknown as Event;
+      spyOn(component, "captureState").and.callThrough();
+
+      component.onTemplateFileSelected(event);
+
+      setTimeout(() => {
+        expect(
+          component.editingSettings.customExportTemplateBase64,
+        ).toBeDefined();
+        expect(component.editingSettings.customExportTemplateBase64).toContain(
+          "data:",
+        );
+        expect(component.captureState).toHaveBeenCalled();
+        done();
+      }, 50);
+    });
   });
 
   describe("autoSaveState – Promise-based API", () => {

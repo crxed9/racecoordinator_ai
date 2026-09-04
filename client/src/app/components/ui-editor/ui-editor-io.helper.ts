@@ -216,7 +216,8 @@ export function executeTemplateFileSelected(
   onLoaded: () => void,
 ): void {
   const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length > 0) {
+  if (input?.files && input.files.length > 0) {
+    const file = input.files[0];
     const reader = new FileReader();
     reader.onload = () => {
       if (editingSettings) {
@@ -224,6 +225,7 @@ export function executeTemplateFileSelected(
         onLoaded();
       }
     };
-    reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
+    input.value = "";
   }
 }

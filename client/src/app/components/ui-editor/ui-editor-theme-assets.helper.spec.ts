@@ -11,6 +11,7 @@ import {
   getThemeFuelGaugeUrl,
   getThemeLampUrl,
   getThemeUrlForAsset,
+  handleClearCustomTemplate,
 } from "./ui-editor-theme-assets.helper";
 
 describe("ui-editor-theme-assets.helper", () => {
@@ -124,5 +125,19 @@ describe("ui-editor-theme-assets.helper", () => {
         assets,
       ),
     ).toEqual({ entity_id: "asset_green" });
+  });
+
+  it("should clear custom template and capture state", () => {
+    const comp = {
+      editingSettings: {
+        customExportTemplateBase64: "data:abc",
+      } as any,
+      captureState: jasmine.createSpy("captureState"),
+      cdr: { markForCheck: jasmine.createSpy("markForCheck") },
+    };
+    handleClearCustomTemplate(comp);
+    expect(comp.editingSettings.customExportTemplateBase64).toBeUndefined();
+    expect(comp.captureState).toHaveBeenCalled();
+    expect(comp.cdr.markForCheck).toHaveBeenCalled();
   });
 });
