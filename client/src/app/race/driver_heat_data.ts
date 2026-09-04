@@ -3,6 +3,14 @@ import { LapType } from "@app/proto/antigravity";
 
 import { RaceParticipant } from "./race_participant";
 
+export interface LapDetail {
+  time: number;
+  driverId: string;
+  isDrift: boolean;
+  countTowardsRecords?: boolean;
+  segments?: number[];
+}
+
 /**
  * Data for a driver in a specific heat.
  */
@@ -14,12 +22,7 @@ export class DriverHeatData {
 
   private laps!: number[];
   private _currentLapSegments: number[] = [];
-  private _lapsWithDetails: {
-    time: number;
-    driverId: string;
-    isDrift: boolean;
-    segments?: number[];
-  }[] = [];
+  private _lapsWithDetails: LapDetail[] = [];
 
   // These are all updated by the addLapTime method.
   private _bestLapTime!: number;
@@ -58,7 +61,7 @@ export class DriverHeatData {
   }
 
   get driver(): Driver {
-    return this.actualDriver ?? this.participant.driver;
+    return this.actualDriver ?? this.participant?.driver;
   }
 
   reset(): void {
@@ -99,6 +102,7 @@ export class DriverHeatData {
     isDrift?: boolean,
     _type?: LapType,
     segments?: number[],
+    countTowardsRecords: boolean = true,
   ): void {
     this._adjustedLapCount = adjustedLapCount;
     if (
@@ -114,7 +118,12 @@ export class DriverHeatData {
     // Fill missing laps with 0
     while (this.laps.length < lapIndex) {
       this.laps.push(0);
-      this._lapsWithDetails.push({ time: 0, driverId: "", isDrift: false });
+      this._lapsWithDetails.push({
+        time: 0,
+        driverId: "",
+        isDrift: false,
+        countTowardsRecords: true,
+      });
     }
 
     // Store or update the lap time
@@ -124,6 +133,7 @@ export class DriverHeatData {
         time: lapTime,
         driverId: driverId || "",
         isDrift: !!isDrift,
+        countTowardsRecords: countTowardsRecords !== false,
         segments: segments ? [...segments] : undefined,
       });
     } else {
@@ -132,6 +142,7 @@ export class DriverHeatData {
         time: lapTime,
         driverId: driverId || "",
         isDrift: !!isDrift,
+        countTowardsRecords: countTowardsRecords !== false,
         segments: segments ? [...segments] : undefined,
       };
     }
@@ -146,6 +157,12 @@ export class DriverHeatData {
     // Only update lastLapTime if we just updated the latest lap
     if (lapIndex === this.laps.length - 1) {
       this._lastLapTime = lapTime;
+    }
+  }
+
+  updateLapRecordStatus(lapIndex: number, countTowardsRecords: boolean): void {
+    if (this._lapsWithDetails && this._lapsWithDetails[lapIndex]) {
+      this._lapsWithDetails[lapIndex].countTowardsRecords = countTowardsRecords;
     }
   }
 
@@ -205,12 +222,7 @@ export class DriverHeatData {
     return [...this.laps];
   }
 
-  get lapsWithDetails(): {
-    time: number;
-    driverId: string;
-    isDrift: boolean;
-    segments?: number[];
-  }[] {
+  get lapsWithDetails(): LapDetail[] {
     return [...this._lapsWithDetails];
   }
 

@@ -89,6 +89,10 @@ public class ClientCommandTaskHandler implements AnalyticsHelper {
         "/api/races/current-heat/drivers/{fromLane}/change-lane/{toLane}",
         driverLaneHeatHandler::changeLane,
         Role.DIRECTOR);
+    app.post(
+        "/api/races/heats/{heatNumber}/drivers/{lane}/laps/{lapIndex}/record-status",
+        driverLaneHeatHandler::updateLapRecordStatus,
+        Role.DIRECTOR);
 
     // Export & Save/Load Endpoints
     app.get("/api/races/current/export-csv", raceExportSaveHandler::exportRaceCsv, Role.VIEWER);

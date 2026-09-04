@@ -16,9 +16,13 @@ import {
 } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DataService } from "@app/data.service";
+import { Driver } from "@app/models/driver";
 import { AllowFinish, FinishMethod } from "@app/models/heat_scoring";
 import { OverallRanking } from "@app/models/overall_scoring";
 import { Settings } from "@app/models/settings";
+import { DriverHeatData } from "@app/race/driver_heat_data";
+import { Heat } from "@app/race/heat";
+import { RaceParticipant } from "@app/race/race_participant";
 import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
 import { HelpLinkService } from "@app/services/help-link.service";
 import { LoggerService } from "@app/services/logger.service";
@@ -38,7 +42,9 @@ class MockTranslatePipe implements PipeTransform {
   }
 }
 
+import { By } from "@angular/platform-browser";
 import { BehaviorSubject, of, Subject, throwError } from "rxjs";
+import { DisallowLapRecordsDialogComponent } from "@app/components/shared/disallow-lap-records-dialog/disallow-lap-records-dialog.component";
 import { Role } from "@app/models/role";
 import { THEME_SLOT_KEYS } from "@app/models/theme";
 import { AuthService } from "@app/services/auth.service";
@@ -3129,6 +3135,204 @@ describe("DefaultRacedayComponent", () => {
         jasmine.any(Date),
         false,
       );
+    });
+
+    it("should open race history dialog when RACE_HISTORY is selected in file menu", () => {
+      component.onFileMenuSelect("RACE_HISTORY");
+      expect(component.showRaceHistoryDialog).toBeTrue();
+    });
+
+    it("should open disallow lap records dialog when DISALLOW_LAP_RECORDS is selected in menu", () => {
+      component.onMenuSelect("DISALLOW_LAP_RECORDS");
+      expect(component.showDisallowLapRecordsDialog).toBeTrue();
+    });
+
+    it("should return active heats including current heat in disallowLapRecordsHeats", () => {
+      mockRaceService.getHeats.and.returnValue([]);
+      mockRaceService.getCurrentHeat.and.returnValue(undefined);
+      const heat1 = { objectId: "h1", heatNumber: 1, heatDrivers: [] } as any;
+      const currentHeat = {
+        objectId: "h2",
+        heatNumber: 2,
+        heatDrivers: [],
+      } as any;
+      component.heats = [heat1];
+      (component as any).heat = currentHeat;
+
+      const heats = component.disallowLapRecordsHeats;
+      expect(heats.length).toBe(2);
+      expect(heats[0]).toBe(heat1);
+      expect(heats[1]).toBe(currentHeat);
+    });
+
+    it("should render lap rows in disallow lap records dialog when opened on raceday with recorded laps", () => {
+      const driver1 = new Driver("d1", "Alice", "The Rocket");
+      const part1 = new RaceParticipant(
+        "p1",
+        driver1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100,
+      );
+      const dhd1 = new DriverHeatData("hd1", part1, 0);
+      dhd1.addLapTime(
+        1,
+        5.2,
+        5.2,
+        5.2,
+        5.2,
+        1,
+        "d1",
+        false,
+        undefined,
+        undefined,
+        true,
+      );
+      const heat1 = new Heat("h1", 1, [dhd1], [], true);
+
+      mockRaceService.getHeats.and.returnValue([heat1]);
+      mockRaceService.getCurrentHeat.and.returnValue(heat1);
+      mockRaceService.heats$ = of([heat1]);
+      mockRaceService.currentHeat$ = of(heat1);
+      component.heats = [heat1];
+      (component as any).heat = heat1;
+      component.showDisallowLapRecordsDialog = true;
+      fixture.detectChanges();
+
+      const dialogDebug = fixture.debugElement.query(
+        By.directive(DisallowLapRecordsDialogComponent),
+      );
+      const dialogComp =
+        dialogDebug.componentInstance as DisallowLapRecordsDialogComponent;
+      expect(dialogComp.normalizedLaps.length).toBe(1);
+      const dialogEl = fixture.nativeElement.querySelector(
+        "app-disallow-lap-records-dialog",
+      );
+      const rows = dialogEl.querySelectorAll(".table-row");
+      expect(rows.length).toBe(1);
+    });
+
+    it("should update lap record status in heat and heats when onRecordsUpdated is triggered", () => {
+      const driver1 = new Driver("d1", "Alice", "The Rocket");
+      const part1 = new RaceParticipant(
+        "p1",
+        driver1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100,
+      );
+      const dhd1 = new DriverHeatData("hd1", part1, 0);
+      dhd1.addLapTime(
+        1,
+        5.2,
+        5.2,
+        5.2,
+        5.2,
+        1,
+        "d1",
+        false,
+        undefined,
+        undefined,
+        true,
+      );
+      const heat1 = new Heat("h1", 1, [dhd1], [], true);
+
+      const dhd2 = new DriverHeatData("hd2", part1, 0);
+      dhd2.addLapTime(
+        1,
+        5.2,
+        5.2,
+        5.2,
+        5.2,
+        1,
+        "d1",
+        false,
+        undefined,
+        undefined,
+        true,
+      );
+      const heat1Copy = new Heat("h1-copy", 1, [dhd2], [], true);
+
+      (component as any).heat = heat1;
+      component.heats = [heat1Copy];
+
+      component.onRecordsUpdated({
+        heatNumber: 1,
+        lane: 0,
+        lapIndex: 0,
+        countTowardsRecords: false,
+      });
+
+      expect(dhd1.lapsWithDetails[0].countTowardsRecords).toBeFalse();
+      expect(dhd2.lapsWithDetails[0].countTowardsRecords).toBeFalse();
+    });
+
+    it("should prefer heats with recorded laps when merging disallowLapRecordsHeats", () => {
+      const driver1 = new Driver("d1", "Alice", "The Rocket");
+      const part1 = new RaceParticipant(
+        "p1",
+        driver1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100,
+      );
+
+      const dhdEmpty = new DriverHeatData("hd-empty", part1, 0);
+      const heatEmpty = new Heat("h1-empty", 1, [dhdEmpty], [], true);
+
+      const dhdWithLaps = new DriverHeatData("hd-laps", part1, 0);
+      dhdWithLaps.addLapTime(
+        1,
+        4.2,
+        4.2,
+        4.2,
+        4.2,
+        1,
+        "d1",
+        false,
+        undefined,
+        undefined,
+        true,
+      );
+      const heatWithLaps = new Heat("h1-laps", 1, [dhdWithLaps], [], true);
+
+      mockRaceService.getHeats.and.returnValue([heatEmpty]);
+      component.heats = [heatWithLaps];
+      (component as any).heat = undefined;
+
+      const result = component.disallowLapRecordsHeats;
+      expect(result.length).toBe(1);
+      expect(result[0]).toBe(heatWithLaps);
+    });
+
+    it("should resolve currentRaceDate from statistics or fallback to date", () => {
+      expect(component.currentRaceDate).toBeDefined();
+
+      (component as any).race = { statistics: { startMillis: 1725468300000 } };
+      expect(component.currentRaceDate).toBe(1725468300000);
+
+      (component as any).race = {
+        statistics: { startTime: "2026-09-04T16:00:00Z" },
+      };
+      expect(component.currentRaceDate).toBe("2026-09-04T16:00:00Z");
     });
 
     it("should navigate to /ui-editor when CUSTOMIZE_UI is selected in options menu", () => {

@@ -86,12 +86,21 @@ public class Race implements ProtocolListener {
   private boolean mainPower = false;
   private boolean[] lanePower;
   private volatile boolean stopped = false;
+  private String historyRecordId;
 
   private HeatExecutionManager executionManager;
   private RaceStatistics statistics;
 
   public boolean isStopped() {
     return stopped;
+  }
+
+  public String getHistoryRecordId() {
+    return historyRecordId;
+  }
+
+  public void setHistoryRecordId(String historyRecordId) {
+    this.historyRecordId = historyRecordId;
   }
 
   private Race(Builder builder) {

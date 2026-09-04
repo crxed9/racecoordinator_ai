@@ -45,6 +45,19 @@ public class RaceRecords {
   private List<String> overallLaneHighestScoreHolderTeamNames = new ArrayList<>();
   private List<Long> overallLaneHighestScoreDates = new ArrayList<>();
 
+  // Baseline overall records prior to this race session
+  private double baselineOverallFastestLap = Double.MAX_VALUE;
+  private String baselineOverallFastestLapHolder = "";
+  private String baselineOverallFastestLapHolderNickname = "";
+  private String baselineOverallFastestLapHolderTeamName = "";
+  private long baselineOverallFastestLapDate = 0;
+
+  private List<Double> baselineOverallLaneFastestLapTimes = new ArrayList<>();
+  private List<String> baselineOverallLaneFastestLapHolders = new ArrayList<>();
+  private List<String> baselineOverallLaneFastestLapHolderNicknames = new ArrayList<>();
+  private List<String> baselineOverallLaneFastestLapHolderTeamNames = new ArrayList<>();
+  private List<Long> baselineOverallLaneFastestLapDates = new ArrayList<>();
+
   // Record tracking - Current Race
   private double raceFastestLap = Double.MAX_VALUE;
   private String raceFastestLapHolder = "";
@@ -103,6 +116,17 @@ public class RaceRecords {
     this.overallHighestScoreHolderNickname = "";
     this.overallHighestScoreHolderTeamName = "";
     this.overallHighestScoreDate = 0;
+
+    this.baselineOverallFastestLap = Double.MAX_VALUE;
+    this.baselineOverallFastestLapHolder = "";
+    this.baselineOverallFastestLapHolderNickname = "";
+    this.baselineOverallFastestLapHolderTeamName = "";
+    this.baselineOverallFastestLapDate = 0;
+    this.baselineOverallLaneFastestLapTimes.clear();
+    this.baselineOverallLaneFastestLapHolders.clear();
+    this.baselineOverallLaneFastestLapHolderNicknames.clear();
+    this.baselineOverallLaneFastestLapHolderTeamNames.clear();
+    this.baselineOverallLaneFastestLapDates.clear();
 
     resetHeatRecords();
     resetRaceSessionRecords(isTimeBased);
@@ -221,6 +245,20 @@ public class RaceRecords {
       this.overallLaneHighestScoreHolderTeamNames.set(i, entry.getHolderTeamName());
       this.overallLaneHighestScoreDates.set(i, entry.getDate());
     }
+
+    this.baselineOverallFastestLap = this.overallFastestLap;
+    this.baselineOverallFastestLapHolder = this.overallFastestLapHolder;
+    this.baselineOverallFastestLapHolderNickname = this.overallFastestLapHolderNickname;
+    this.baselineOverallFastestLapHolderTeamName = this.overallFastestLapHolderTeamName;
+    this.baselineOverallFastestLapDate = this.overallFastestLapDate;
+
+    this.baselineOverallLaneFastestLapTimes = new ArrayList<>(this.overallLaneFastestLapTimes);
+    this.baselineOverallLaneFastestLapHolders = new ArrayList<>(this.overallLaneFastestLapHolders);
+    this.baselineOverallLaneFastestLapHolderNicknames =
+        new ArrayList<>(this.overallLaneFastestLapHolderNicknames);
+    this.baselineOverallLaneFastestLapHolderTeamNames =
+        new ArrayList<>(this.overallLaneFastestLapHolderTeamNames);
+    this.baselineOverallLaneFastestLapDates = new ArrayList<>(this.overallLaneFastestLapDates);
   }
 
   public void loadCurrentRaceRecords(
@@ -279,6 +317,7 @@ public class RaceRecords {
     recalculateRaceBestScore(isTimeBased);
     recalculateRaceLaneBestScores(isTimeBased);
     resetRaceFastestLapRecords();
+    recalculateHeatBestLap();
     recalculateRaceBestLap();
     recalculateRaceLaneBestLaps();
     recalculateOverallRecords(timestamp);
@@ -380,6 +419,19 @@ public class RaceRecords {
       raceLaneFastestLapHolderNicknames.set(i, "");
       raceLaneFastestLapHolderTeamNames.set(i, "");
       raceLaneFastestLapHeatNumbers.set(i, 0);
+    }
+  }
+
+  public void recalculateHeatBestLap() {
+    resetHeatRecords();
+    if (race.getCurrentHeat() != null && race.getCurrentHeat().getDrivers() != null) {
+      int currentHeatNumber = race.getCurrentHeat().getHeatNumber();
+      for (DriverHeatData dhd : race.getCurrentHeat().getDrivers()) {
+        double lapTime = dhd.getBestLapTime();
+        if (lapTime > 0 && lapTime < heatFastestLap) {
+          updateHeatFastestLap(dhd, lapTime, currentHeatNumber);
+        }
+      }
     }
   }
 
@@ -492,6 +544,12 @@ public class RaceRecords {
   }
 
   private void updateOverallBestLap(long timestamp) {
+    overallFastestLap = baselineOverallFastestLap;
+    overallFastestLapHolder = baselineOverallFastestLapHolder;
+    overallFastestLapHolderNickname = baselineOverallFastestLapHolderNickname;
+    overallFastestLapHolderTeamName = baselineOverallFastestLapHolderTeamName;
+    overallFastestLapDate = baselineOverallFastestLapDate;
+
     boolean isRaceLapBetter = false;
     if (race.getState() instanceof RaceOver
         && raceFastestLap > 0
@@ -510,6 +568,15 @@ public class RaceRecords {
 
   private void updateOverallLaneBestLaps(long timestamp) {
     for (int i = 0; i < overallLaneFastestLapTimes.size(); i++) {
+      if (i < baselineOverallLaneFastestLapTimes.size()) {
+        overallLaneFastestLapTimes.set(i, baselineOverallLaneFastestLapTimes.get(i));
+        overallLaneFastestLapHolders.set(i, baselineOverallLaneFastestLapHolders.get(i));
+        overallLaneFastestLapHolderNicknames.set(
+            i, baselineOverallLaneFastestLapHolderNicknames.get(i));
+        overallLaneFastestLapHolderTeamNames.set(
+            i, baselineOverallLaneFastestLapHolderTeamNames.get(i));
+        overallLaneFastestLapDates.set(i, baselineOverallLaneFastestLapDates.get(i));
+      }
       double overallLaneLap = overallLaneFastestLapTimes.get(i);
       boolean isLaneLapBetter = false;
       double raceLaneLap = raceLaneFastestLapTimes.get(i);

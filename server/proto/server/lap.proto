@@ -28,4 +28,5 @@ message Lap {
   double adjusted_lap_count = 11;
   LapType type = 12;
   RaceFlag flag = 13;
+  bool count_towards_records = 14;
 }

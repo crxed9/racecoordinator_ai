@@ -81,6 +81,7 @@ public class HeatBuilder {
           for (DriverHeatData dhd : h.getDrivers()) {
             RaceParticipant participant = dhd.getDriver();
             DriverHeatData newDhd = new DriverHeatData(participant);
+            newDhd.setLane(dhd.getLane());
             if (participant != null
                 && participant.isTeamParticipant()
                 && participant.getTeam() != null
@@ -181,7 +182,9 @@ public class HeatBuilder {
 
       // First put an empty lane everywhere
       for (long laneIdx = 0; laneIdx < numLanes; laneIdx++) {
-        heatDrivers.add(new DriverHeatData(new RaceParticipant(Driver.EMPTY_DRIVER)));
+        DriverHeatData emptyDhd = new DriverHeatData(new RaceParticipant(Driver.EMPTY_DRIVER));
+        emptyDhd.setLane((int) laneIdx);
+        heatDrivers.add(emptyDhd);
       }
 
       // Now use the rotation sequence to fill in the drivers
@@ -202,6 +205,7 @@ public class HeatBuilder {
               }
               RaceParticipant participant = drivers.get(idx);
               DriverHeatData data = new DriverHeatData(participant);
+              data.setLane(lane);
               if (participant.isTeamParticipant()
                   && participant.getTeam() != null
                   && participant.getTeamDrivers() != null
@@ -256,6 +260,7 @@ public class HeatBuilder {
         if (l < driversInThisHeat && driverIndex < numDrivers) {
           RaceParticipant participant = drivers.get(driverIndex++);
           DriverHeatData data = new DriverHeatData(participant);
+          data.setLane(l);
 
           if (participant.isTeamParticipant()
               && participant.getTeam() != null
@@ -267,7 +272,9 @@ public class HeatBuilder {
           }
           heatDrivers.add(data);
         } else {
-          heatDrivers.add(new DriverHeatData(new RaceParticipant(Driver.EMPTY_DRIVER)));
+          DriverHeatData emptyDhd = new DriverHeatData(new RaceParticipant(Driver.EMPTY_DRIVER));
+          emptyDhd.setLane(l);
+          heatDrivers.add(emptyDhd);
         }
       }
       heatList.add(new Heat(h + 1, heatDrivers, scoring, practice));
@@ -293,6 +300,7 @@ public class HeatBuilder {
       List<DriverHeatData> heatDrivers = new ArrayList<>();
       RaceParticipant participant = drivers.get(h);
       DriverHeatData data = new DriverHeatData(participant);
+      data.setLane(effectiveSoloLaneIndex);
 
       if (participant.isTeamParticipant()
           && participant.getTeam() != null
@@ -308,7 +316,9 @@ public class HeatBuilder {
         if (l == effectiveSoloLaneIndex) {
           heatDrivers.add(data);
         } else {
-          heatDrivers.add(new DriverHeatData(new RaceParticipant(Driver.EMPTY_DRIVER)));
+          DriverHeatData emptyDhd = new DriverHeatData(new RaceParticipant(Driver.EMPTY_DRIVER));
+          emptyDhd.setLane(l);
+          heatDrivers.add(emptyDhd);
         }
       }
 

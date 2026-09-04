@@ -1527,5 +1527,62 @@ describe("DataService", () => {
 
       req.flush(respBuffer.slice().buffer);
     });
+
+    it("should update live lap record status", (done) => {
+      service.updateLiveLapRecordStatus(1, 0, 3, false).subscribe((res) => {
+        expect(res.bestLapTime).toBe(4.25);
+        done();
+      });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.endsWith("/api/races/heats/1/drivers/0/laps/3/record-status") &&
+          r.method === "POST",
+      );
+      expect(req.request.body).toEqual({ countTowardsRecords: false });
+      req.flush({ bestLapTime: 4.25 });
+    });
+
+    it("should update history lap record status with demo flag", (done) => {
+      service
+        .updateHistoryLapRecordStatus("race-hist-1", 1, 0, 3, false, true)
+        .subscribe((res) => {
+          expect(res.bestLapTime).toBe(4.25);
+          done();
+        });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.endsWith(
+            "/api/history/races/race-hist-1/heats/1/drivers/0/laps/3/record-status?demo=true",
+          ) && r.method === "PUT",
+      );
+      expect(req.request.body).toEqual({
+        countTowardsRecords: false,
+        isDemo: true,
+      });
+      req.flush({ bestLapTime: 4.25 });
+    });
+
+    it("should update history lap record status without demo flag", (done) => {
+      service
+        .updateHistoryLapRecordStatus("race-hist-2", 2, 1, 0, true, false)
+        .subscribe((res) => {
+          expect(res.bestLapTime).toBe(3.1);
+          done();
+        });
+
+      const req = httpMock.expectOne(
+        (r) =>
+          r.url.endsWith(
+            "/api/history/races/race-hist-2/heats/2/drivers/1/laps/0/record-status",
+          ) && r.method === "PUT",
+      );
+      expect(req.request.body).toEqual({
+        countTowardsRecords: true,
+        isDemo: false,
+      });
+      req.flush({ bestLapTime: 3.1 });
+    });
   });
 });

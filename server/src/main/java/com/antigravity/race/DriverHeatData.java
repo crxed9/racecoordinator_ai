@@ -295,6 +295,11 @@ public class DriverHeatData extends ServerToClientObject
     this.bestLapTime = bestLapTime;
   }
 
+  public void recalculateBestLapTime() {
+    this.bestLapTime = 0.0;
+    getBestLapTime();
+  }
+
   public double getReactionTime() {
     return reactionTime;
   }

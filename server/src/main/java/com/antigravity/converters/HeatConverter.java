@@ -72,6 +72,7 @@ public class HeatConverter {
                           .setDriverId(l.getDriverId() != null ? l.getDriverId() : "")
                           .setIsDrift(l.isDrift())
                           .addAllSegments(l.getSegments())
+                          .setCountTowardsRecords(l.isCountTowardsRecords())
                           .build())
               .collect(Collectors.toList()));
     }

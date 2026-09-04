@@ -51,6 +51,7 @@ export class RacedayMenuBarComponent implements OnInit, OnDestroy {
   isSkipRaceDisabled = input<boolean>(false);
   isAddLapDisabled = input<boolean>(false);
   isModifyDisabled = input<boolean>(false);
+  isDisallowLapRecordsDisabled = input<boolean>(false);
 
   startResumeShortcut = input<string>("");
   pauseShortcut = input<string>("");

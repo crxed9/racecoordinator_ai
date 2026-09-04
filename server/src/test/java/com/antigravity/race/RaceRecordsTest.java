@@ -591,4 +591,66 @@ public class RaceRecordsTest {
     assertEquals(currentHeat, loaded.getCurrent().getHeatFastestLap().getHeatNumber());
     assertEquals(currentHeat, loaded.getCurrent().getLaneFastestLap(0).getHeatNumber());
   }
+
+  @Test
+  public void testDisallowLapRecalculatesHeatRaceAndOverallRecords() {
+    race.changeState(new Racing());
+
+    // Inject baseline overall records of 5.0s
+    RecordEntry baselineEntry =
+        RecordEntry.newBuilder()
+            .setValue(5.0)
+            .setHolderName("Old Legend")
+            .setHolderNickname("Legend")
+            .setDate(1000L)
+            .build();
+    com.antigravity.proto.OverallRecords baselineOverall =
+        com.antigravity.proto.OverallRecords.newBuilder().setFastestLap(baselineEntry).build();
+    race.getRecordsManager().loadOverallRaceRecords(baselineOverall);
+
+    DriverHeatData dhd0 = race.getCurrentHeat().getDrivers().get(0);
+    // Erroneous lap glitch of 2.0s
+    dhd0.addLap(2.0, false, true);
+    race.getRecordsManager().onLap(dhd0, 2.0, 0);
+
+    DriverHeatData dhd1 = race.getCurrentHeat().getDrivers().get(1);
+    // Legitimate fast lap of 4.5s
+    dhd1.addLap(4.5, false, true);
+    race.getRecordsManager().onLap(dhd1, 4.5, 1);
+
+    RecordData dataWithGlitch = race.getRecordData();
+    assertEquals(2.0, dataWithGlitch.getCurrent().getFastestLap().getValue(), 0.001);
+    assertEquals(2.0, dataWithGlitch.getCurrent().getHeatFastestLap().getValue(), 0.001);
+    assertEquals(2.0, dataWithGlitch.getCurrent().getLaneFastestLap(0).getValue(), 0.001);
+
+    // Disallow the 2.0s glitch lap
+    dhd0.getLaps().get(0).setCountTowardsRecords(false);
+    dhd0.recalculateBestLapTime();
+
+    // Recalculate records
+    race.getRecordsManager().recalculateScoreRecords();
+
+    RecordData dataAfterDisallow = race.getRecordData();
+    // Fastest race & heat lap should now be 4.5s
+    assertEquals(4.5, dataAfterDisallow.getCurrent().getFastestLap().getValue(), 0.001);
+    assertEquals(4.5, dataAfterDisallow.getCurrent().getHeatFastestLap().getValue(), 0.001);
+    // Lane 0 should no longer have 2.0s
+    assertEquals(0.0, dataAfterDisallow.getCurrent().getLaneFastestLap(0).getValue(), 0.001);
+    // Lane 1 should be 4.5s
+    assertEquals(4.5, dataAfterDisallow.getCurrent().getLaneFastestLap(1).getValue(), 0.001);
+
+    // After race over, overall record should be 4.5s (beats baseline 5.0s)
+    race.changeState(new RaceOver());
+    RecordData finalData = race.getRecordData();
+    assertEquals(4.5, finalData.getOverall().getFastestLap().getValue(), 0.001);
+
+    // If we now also disallow the 4.5s lap, overall record should cleanly revert to baseline 5.0s
+    dhd1.getLaps().get(0).setCountTowardsRecords(false);
+    dhd1.recalculateBestLapTime();
+    race.getRecordsManager().recalculateScoreRecords();
+
+    RecordData revertedData = race.getRecordData();
+    assertEquals(5.0, revertedData.getOverall().getFastestLap().getValue(), 0.001);
+    assertEquals("Old Legend", revertedData.getOverall().getFastestLap().getHolderName());
+  }
 }

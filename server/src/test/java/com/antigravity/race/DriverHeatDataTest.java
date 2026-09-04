@@ -144,4 +144,35 @@ public class DriverHeatDataTest {
     emptyDhd.setActualDriver(Driver.EMPTY_DRIVER);
     org.junit.Assert.assertTrue(emptyDhd.isEmptyParticipant());
   }
+
+  @Test
+  public void testDisallowLapRecalculatesBestLapTimeWithoutAffectingAverages() {
+    Driver driverModel = new Driver("Test Driver", "Nickname");
+    RaceParticipant driver = new RaceParticipant(driverModel);
+    DriverHeatData dhd = new DriverHeatData(driver);
+
+    // Add 3 laps: 10.0s, 3.0s (erroneous glitch), 8.0s
+    dhd.addLap(10.0, false, true);
+    dhd.addLap(3.0, false, true);
+    dhd.addLap(8.0, false, true);
+
+    assertEquals(3.0, dhd.getBestLapTime(), 0.001);
+    assertEquals(3, dhd.getLapCount());
+    double initialAvg = dhd.getAverageLapTime();
+    double initialMed = dhd.getMedianLapTime();
+    double initialTotal = dhd.getTotalTime();
+
+    // Disallow the 3.0s lap from records
+    dhd.getLaps().get(1).setCountTowardsRecords(false);
+    dhd.recalculateBestLapTime();
+
+    // Best lap should now be 8.0s (the next best valid lap)
+    assertEquals(8.0, dhd.getBestLapTime(), 0.001);
+
+    // Laps count, average, median, and total time MUST remain identical
+    assertEquals(3, dhd.getLapCount());
+    assertEquals(initialAvg, dhd.getAverageLapTime(), 0.001);
+    assertEquals(initialMed, dhd.getMedianLapTime(), 0.001);
+    assertEquals(initialTotal, dhd.getTotalTime(), 0.001);
+  }
 }

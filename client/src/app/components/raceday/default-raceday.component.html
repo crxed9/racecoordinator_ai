@@ -400,3 +400,23 @@
   (cancel)="onSaveRaceCancel()"
 >
 </app-input-dialog>
+
+@if (showDisallowLapRecordsDialog && track) {
+  <app-disallow-lap-records-dialog
+    [visible]="showDisallowLapRecordsDialog"
+    [heats]="disallowLapRecordsHeats"
+    [drivers]="participants"
+    [allDrivers]="allDrivers"
+    [track]="track"
+    [currentHeatNumber]="heat?.heatNumber ?? 1"
+    [raceName]="race.name || ''"
+    [raceDate]="currentRaceDate"
+    (recordsUpdated)="onRecordsUpdated($event)"
+    (close)="showDisallowLapRecordsDialog = false"
+  ></app-disallow-lap-records-dialog>
+}
+
+<app-race-history-dialog
+  [visible]="showRaceHistoryDialog"
+  (close)="showRaceHistoryDialog = false"
+></app-race-history-dialog>

@@ -30,6 +30,7 @@ import {
 import { DemoConfigModalComponent } from "@app/components/shared/demo-config-modal/demo-config-modal.component";
 import { EditorTitleComponent } from "@app/components/shared/editor-title/editor-title.component";
 import { LanguageSelectorComponent } from "@app/components/shared/language-selector/language-selector.component";
+import { RaceHistoryDialogComponent } from "@app/components/shared/race-history-dialog/race-history-dialog.component";
 import { RacingRosterDialogComponent } from "@app/components/shared/racing-roster-dialog/racing-roster-dialog.component";
 import { SeasonSummaryComponent } from "@app/components/shared/season-summary/season-summary.component";
 import { UpdateSelectorComponent } from "@app/components/shared/update-selector/update-selector.component";
@@ -84,9 +85,11 @@ type Participant = Driver | Team;
     UpdateSelectorComponent,
     CustomSelectComponent,
     CustomOptionComponent,
+    RaceHistoryDialogComponent,
   ],
 })
 export class DefaultRacedaySetupComponent implements OnInit {
+  showRaceHistoryDialog: boolean = false;
   requestServerConfig = output<void>();
   @ViewChild("availScrollContainer") availScrollContainer?: ElementRef;
   @ViewChild("racingScrollContainer") racingScrollContainer?: ElementRef;
@@ -2128,6 +2131,13 @@ export class DefaultRacedaySetupComponent implements OnInit {
       },
     ];
   }
+
+  openRaceHistory(): void {
+    this.isFileDropdownOpen = false;
+    this.showRaceHistoryDialog = true;
+    this.cdr.markForCheck();
+  }
+
   loadSavedRaces() {
     this.isFileDropdownOpen = false;
     forkJoin({

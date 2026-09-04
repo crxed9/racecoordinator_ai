@@ -209,4 +209,33 @@ describe("HeatConverter", () => {
 
     expect(driverData.isFinished).toBeTrue();
   });
+
+  it("should map countTowardsRecords for laps from proto", () => {
+    const proto: IHeat = {
+      objectId: "heat1",
+      heatNumber: 1,
+      heatDrivers: [
+        {
+          objectId: "hd1",
+          driver: {
+            objectId: "p1",
+            driver: { name: "Driver 1" },
+          },
+          laps: [
+            { lapTime: 2.5, countTowardsRecords: true },
+            { lapTime: 1.1, countTowardsRecords: false },
+          ] as any,
+        } as any,
+      ],
+    };
+
+    const heat = HeatConverter.fromProto(proto);
+    const driverData = heat.heatDrivers[0]!;
+
+    expect(driverData.lapsWithDetails.length).toBe(2);
+    expect(driverData.lapsWithDetails[0].time).toBe(2.5);
+    expect(driverData.lapsWithDetails[0].countTowardsRecords).toBeTrue();
+    expect(driverData.lapsWithDetails[1].time).toBe(1.1);
+    expect(driverData.lapsWithDetails[1].countTowardsRecords).toBeFalse();
+  });
 });

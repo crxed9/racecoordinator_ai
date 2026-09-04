@@ -848,6 +848,7 @@ public class HeatExecutionManager {
             .setAdjustedLapCount(driverData.getAdjustedLapCount())
             .setType(Lap.LapType.LAP)
             .setFlag(race.getState().getLaneFlagType(race, lane))
+            .setCountTowardsRecords(countTowardsRecords)
             .build();
     driverData.setFlag(lapMsg.getFlag());
 

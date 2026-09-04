@@ -87,15 +87,20 @@ describe("RacedayMenuBarComponent", () => {
   });
 
   it("should conditionally render items based on role (Director vs Viewer)", async () => {
-    // With DIRECTOR role, "Logout" should be visible (under Race Director menu)
+    // With DIRECTOR role, "Logout" and "Disallow Lap Records" should be visible (under Race Director menu)
     await harness.clickMenuButton("RD_MENU_RACE_DIRECTOR");
     fixture.detectChanges();
 
-    const items = await fixture.nativeElement.querySelectorAll(".menu-item");
-    const logoutBtnText = Array.from(items)
+    let items = await fixture.nativeElement.querySelectorAll(".menu-item");
+    let logoutBtnText = Array.from(items)
       .map((el: any) => el.innerText.trim())
       .find((t) => t.includes("RD_MENU_LOGOUT"));
     expect(logoutBtnText).toBeDefined();
+
+    let disallowBtnText = Array.from(items)
+      .map((el: any) => el.innerText.trim())
+      .find((t) => t.includes("RD_MENU_DISALLOW_LAP_RECORDS"));
+    expect(disallowBtnText).toBeDefined();
 
     // Close menu
     component.toggleMenu();
@@ -105,7 +110,7 @@ describe("RacedayMenuBarComponent", () => {
     roleSubject.next(Role.VIEWER);
     fixture.detectChanges();
 
-    // With VIEWER role, "Login" should be visible
+    // With VIEWER role, "Login" should be visible and "Disallow Lap Records" should be hidden
     await harness.clickMenuButton("RD_MENU_RACE_DIRECTOR");
     fixture.detectChanges();
 
@@ -114,6 +119,32 @@ describe("RacedayMenuBarComponent", () => {
       .map((el: any) => el.innerText.trim())
       .find((t) => t.includes("RD_MENU_LOGIN"));
     expect(loginBtnText).toBeDefined();
+
+    const hiddenDisallow = Array.from(newItems)
+      .map((el: any) => el.innerText.trim())
+      .find((t) => t.includes("RD_MENU_DISALLOW_LAP_RECORDS"));
+    expect(hiddenDisallow).toBeUndefined();
+  });
+
+  it("should emit fileMenuSelect with RACE_HISTORY when Race History menu item is clicked", async () => {
+    spyOn(component.fileMenuSelect, "emit");
+    await harness.clickMenuButton("RD_MENU_FILE");
+    fixture.detectChanges();
+
+    await harness.clickMenuItem("RD_MENU_RACE_HISTORY");
+    expect(component.fileMenuSelect.emit).toHaveBeenCalledWith("RACE_HISTORY");
+  });
+
+  it("should emit menuSelect with DISALLOW_LAP_RECORDS when Disallow Lap Records item is clicked", async () => {
+    roleSubject.next(Role.DIRECTOR);
+    spyOn(component.menuSelect, "emit");
+    await harness.clickMenuButton("RD_MENU_RACE_DIRECTOR");
+    fixture.detectChanges();
+
+    await harness.clickMenuItem("RD_MENU_DISALLOW_LAP_RECORDS");
+    expect(component.menuSelect.emit).toHaveBeenCalledWith(
+      "DISALLOW_LAP_RECORDS",
+    );
   });
 
   it("should emit trackPowerMainSelect when main power options are clicked", () => {
