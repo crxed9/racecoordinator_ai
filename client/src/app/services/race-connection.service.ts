@@ -24,16 +24,17 @@ import {
   RaceFlag,
   RaceState,
 } from "@app/proto/antigravity";
+import { DriverHeatData } from "@app/race/driver_heat_data";
+
+import { ChildWindowManagerService } from "./child-window-manager.service";
+import { LoggerService } from "./logger.service";
+import { RaceService } from "./race.service";
 
 export interface IReactionTime {
   objectId?: string | null;
   reactionTime?: number | null;
   interfaceId?: number | null;
 }
-
-import { ChildWindowManagerService } from "./child-window-manager.service";
-import { LoggerService } from "./logger.service";
-import { RaceService } from "./race.service";
 
 @Injectable({
   providedIn: "root",
@@ -262,11 +263,27 @@ export class RaceConnectionService implements OnDestroy {
 
     this.subscriptions.push(
       this.dataService.getLaps().subscribe((lap) => {
-        const heat = this.raceService.getCurrentHeat();
-        if (heat && heat.heatDrivers && lap && lap.objectId) {
-          const driverData = heat.heatDrivers.find(
-            (d) => d.objectId === lap.objectId,
-          );
+        const currentHeat = this.raceService.getCurrentHeat();
+        const allHeats =
+          typeof this.raceService?.getHeats === "function"
+            ? this.raceService.getHeats()
+            : [];
+        const heat =
+          currentHeat || (allHeats && allHeats.length > 0 ? allHeats[0] : null);
+        if (heat && heat.heatDrivers && lap) {
+          const matchDriver = (d: DriverHeatData) =>
+            Boolean(
+              (lap.objectId && d.objectId === lap.objectId) ||
+              (lap.objectId && d.participant?.objectId === lap.objectId) ||
+              (lap.interfaceId !== undefined &&
+                lap.interfaceId !== null &&
+                d.laneIndex === lap.interfaceId) ||
+              (lap.driverId &&
+                (d.actualDriver?.entity_id === lap.driverId ||
+                  d.participant?.driver?.entity_id === lap.driverId)),
+            );
+
+          const driverData = heat.heatDrivers.find(matchDriver);
           if (driverData) {
             if (lap.type === LapType.REACTION_TIME) {
               driverData.reactionTime = lap.lapTime!;
@@ -282,21 +299,61 @@ export class RaceConnectionService implements OnDestroy {
               this.lapSubject.next(lap);
             } else {
               const segmentsCopy = [...(driverData.currentLapSegments || [])];
-              driverData.addLapTime(
-                lap.lapNumber!,
-                lap.lapTime!,
-                lap.averageLapTime!,
-                lap.medianLapTime!,
-                lap.bestLapTime!,
-                lap.adjustedLapCount!,
-                lap.driverId!,
-                lap.isDrift!,
-                lap.type!,
-                segmentsCopy,
-              );
+              if (typeof driverData.addLapTime === "function") {
+                driverData.addLapTime(
+                  lap.lapNumber!,
+                  lap.lapTime!,
+                  lap.averageLapTime!,
+                  lap.medianLapTime!,
+                  lap.bestLapTime!,
+                  lap.adjustedLapCount!,
+                  lap.driverId ?? undefined,
+                  lap.isDrift ?? undefined,
+                  lap.type ?? undefined,
+                  segmentsCopy,
+                  lap.countTowardsRecords !== false,
+                );
+              }
               if (lap.flag !== undefined && lap.flag !== null) {
                 driverData.flag = lap.flag;
               }
+
+              // Also ensure matching driver in raceService.getHeats() is kept in sync
+              if (allHeats && allHeats.length > 0) {
+                const targetHeat = allHeats.find(
+                  (h) =>
+                    (heat.objectId && h.objectId === heat.objectId) ||
+                    h.heatNumber === heat.heatNumber,
+                );
+                if (targetHeat && targetHeat.heatDrivers) {
+                  const targetHd = targetHeat.heatDrivers.find(matchDriver);
+                  if (
+                    targetHd &&
+                    targetHd !== driverData &&
+                    typeof targetHd.addLapTime === "function"
+                  ) {
+                    targetHd.addLapTime(
+                      lap.lapNumber!,
+                      lap.lapTime!,
+                      lap.averageLapTime!,
+                      lap.medianLapTime!,
+                      lap.bestLapTime!,
+                      lap.adjustedLapCount!,
+                      lap.driverId ?? undefined,
+                      lap.isDrift ?? undefined,
+                      lap.type ?? undefined,
+                      segmentsCopy,
+                      lap.countTowardsRecords !== false,
+                    );
+                    if (lap.flag !== undefined && lap.flag !== null) {
+                      targetHd.flag = lap.flag;
+                    }
+                  }
+                }
+                this.raceService.setHeats([...allHeats]);
+              }
+
+              this.raceService.setCurrentHeat(heat);
               this.lapSubject.next(lap);
             }
           }

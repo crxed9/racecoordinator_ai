@@ -27,6 +27,10 @@
           Export PDF
         </div>
         <div class="menu-separator"></div>
+        <div class="menu-item" (click)="onFileMenuSelect('RACE_HISTORY')">
+          {{ "RD_MENU_RACE_HISTORY" | translate }}
+        </div>
+        <div class="menu-separator"></div>
         <div class="menu-item" (click)="onFileMenuSelect('BACK')">
           {{ "RD_MENU_BACK" | translate }}
         </div>
@@ -116,6 +120,15 @@
         >
           {{ "RD_MENU_MODIFY" | translate }}
         </div>
+        @if ((authService.currentRole$ | async) !== Role.VIEWER) {
+          <div
+            class="menu-item"
+            [class.disabled]="isDisallowLapRecordsDisabled()"
+            (click)="onMenuSelect('DISALLOW_LAP_RECORDS')"
+          >
+            {{ "RD_MENU_DISALLOW_LAP_RECORDS" | translate }}
+          </div>
+        }
         @if ((authService.currentRole$ | async) !== Role.VIEWER) {
           <div class="menu-separator"></div>
           <div

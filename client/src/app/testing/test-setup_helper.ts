@@ -615,6 +615,24 @@ export class TestSetupHelper {
         is_demo: true,
         isDemo: true,
         model: { entity_id: "r_demo1", name: "Grand Prix Practice (Demo)" },
+        track: { name: "Demo Circuit" },
+        ineligible_lap_count: 1,
+        drivers: [{ driver: { name: "Demo Driver", entity_id: "dd1" } }],
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                lane: 0,
+                driver: { name: "Demo Driver", entity_id: "dd1" },
+                laps: [
+                  { lapTime: 2.89, countTowardsRecords: false },
+                  { lapTime: 3.11, countTowardsRecords: true },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         _id: "hist_off1",
@@ -623,6 +641,37 @@ export class TestSetupHelper {
         is_demo: false,
         isDemo: false,
         model: { entity_id: "r_official1", name: "Daytona 500 Championship" },
+        track: { name: "Daytona International Speedway" },
+        ineligible_lap_count: 2,
+        drivers: [
+          { driver: { name: "Alice", entity_id: "d1" } },
+          { driver: { name: "Bob", entity_id: "d2" } },
+        ],
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                lane: 0,
+                driver: { name: "Alice", entity_id: "d1" },
+                laps: [
+                  { lapTime: 3.456, countTowardsRecords: true },
+                  { lapTime: 3.123, countTowardsRecords: false },
+                  { lapTime: 3.512, countTowardsRecords: true },
+                ],
+              },
+              {
+                lane: 1,
+                driver: { name: "Bob", entity_id: "d2" },
+                laps: [
+                  { lapTime: 3.789, countTowardsRecords: true },
+                  { lapTime: 3.245, countTowardsRecords: false },
+                  { lapTime: 3.654, countTowardsRecords: true },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         _id: "hist_demo2",
@@ -634,6 +683,24 @@ export class TestSetupHelper {
           entity_id: "r_demo2",
           name: "Monaco Simulation Sprint (Demo)",
         },
+        track: { name: "Monaco Grand Prix Circuit" },
+        ineligible_lap_count: 0,
+        drivers: [{ driver: { name: "Demo Driver", entity_id: "dd1" } }],
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                lane: 0,
+                driver: { name: "Demo Driver", entity_id: "dd1" },
+                laps: [
+                  { lapTime: 3.89, countTowardsRecords: true },
+                  { lapTime: 3.95, countTowardsRecords: true },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         _id: "hist_off2",
@@ -645,6 +712,27 @@ export class TestSetupHelper {
           entity_id: "r_official2",
           name: "Le Mans 24h Endurance Qualifier",
         },
+        track: { name: "Circuit de la Sarthe" },
+        ineligible_lap_count: 0,
+        drivers: [
+          { driver: { name: "Charlie", entity_id: "d3" } },
+          { driver: { name: "Dave", entity_id: "d4" } },
+        ],
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                lane: 0,
+                driver: { name: "Charlie", entity_id: "d3" },
+                laps: [
+                  { lapTime: 4.102, countTowardsRecords: true },
+                  { lapTime: 4.055, countTowardsRecords: true },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         _id: "hist_demo3",
@@ -656,6 +744,8 @@ export class TestSetupHelper {
           entity_id: "r_demo3",
           name: "Silverstone Test Session (Demo)",
         },
+        track: { name: "Silverstone Arena" },
+        ineligible_lap_count: 0,
       },
       {
         _id: "hist_off3",
@@ -667,6 +757,8 @@ export class TestSetupHelper {
           entity_id: "r_official3",
           name: "Spa-Francorchamps Grand Prix",
         },
+        track: { name: "Circuit de Spa-Francorchamps" },
+        ineligible_lap_count: 0,
       },
       {
         _id: "hist_demo4",
@@ -675,6 +767,8 @@ export class TestSetupHelper {
         is_demo: true,
         isDemo: true,
         model: { entity_id: "r_demo4", name: "Nürburgring Time Trial (Demo)" },
+        track: { name: "Nürburgring Nordschleife" },
+        ineligible_lap_count: 0,
       },
       {
         _id: "hist_off4",
@@ -686,6 +780,8 @@ export class TestSetupHelper {
           entity_id: "r_official4",
           name: "Indy 500 Championship Final",
         },
+        track: { name: "Indianapolis Motor Speedway" },
+        ineligible_lap_count: 0,
       },
       {
         _id: "hist_demo5",
@@ -694,6 +790,8 @@ export class TestSetupHelper {
         is_demo: true,
         isDemo: true,
         model: { entity_id: "r_demo5", name: "Suzuka Warmup Session (Demo)" },
+        track: { name: "Suzuka International Racing Course" },
+        ineligible_lap_count: 0,
       },
       {
         _id: "hist_off5",
@@ -702,6 +800,8 @@ export class TestSetupHelper {
         is_demo: false,
         isDemo: false,
         model: { entity_id: "r_official5", name: "Interlagos Season Finale" },
+        track: { name: "Autódromo José Carlos Pace" },
+        ineligible_lap_count: 0,
       },
     ];
 
@@ -737,8 +837,32 @@ export class TestSetupHelper {
       }
     });
 
+    await page.route(
+      "**/api/history/races/*/heats/*/drivers/*/laps/*/record-status",
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ success: true, bestLapTime: 3.123 }),
+        });
+      },
+    );
+
     await page.route("**/api/history/races*", async (route) => {
-      const isDemo = route.request().url().includes("demo=true");
+      const url = route.request().url();
+      const idMatch = url.match(/\/api\/history\/races\/([^\/?]+)/);
+      if (idMatch && idMatch[1] && idMatch[1] !== "stats") {
+        const item =
+          mockFinishedRaceHistory.find((r) => r._id === idMatch[1]) ||
+          mockFinishedRaceHistory[0];
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(item),
+        });
+        return;
+      }
+      const isDemo = url.includes("demo=true");
       const filtered = mockFinishedRaceHistory.filter((r) =>
         isDemo ? r.is_demo : !r.is_demo,
       );

@@ -110,4 +110,15 @@ describe("DriverHeatData", () => {
     heatData.reset();
     expect(heatData.physicalLapCount).toBe(0);
   });
+
+  it("should update countTowardsRecords using updateLapRecordStatus", () => {
+    heatData.addLapTime(1, 10.0, 10.0, 10.0, 10.0, 1);
+    expect(heatData.lapsWithDetails[0].countTowardsRecords).toBeTrue();
+
+    heatData.updateLapRecordStatus(0, false);
+    expect(heatData.lapsWithDetails[0].countTowardsRecords).toBeFalse();
+
+    heatData.updateLapRecordStatus(0, true);
+    expect(heatData.lapsWithDetails[0].countTowardsRecords).toBeTrue();
+  });
 });

@@ -192,4 +192,133 @@ public class DriverLaneHeatHandlerTest {
     org.junit.Assert.assertEquals(
         3.75, activeRace.getHeats().get(0).getDrivers().get(0).getUserLaps(), 0.001);
   }
+
+  @Test
+  public void testUpdateLapRecordStatus_NoActiveRace_ShouldReturn404() {
+    ClientSubscriptionManager.getInstance().setRace(null);
+    when(ctx.pathParam("heatNumber")).thenReturn("1");
+    when(ctx.pathParam("lane")).thenReturn("0");
+    when(ctx.pathParam("lapIndex")).thenReturn("0");
+    HashMap<String, Object> body = new HashMap<>();
+    body.put("countTowardsRecords", false);
+    when(ctx.bodyAsClass(HashMap.class)).thenReturn(body);
+
+    handler.updateLapRecordStatus(ctx);
+    verify(ctx).status(404);
+  }
+
+  @Test
+  public void testUpdateLapRecordStatus_WithActiveRace_ValidationAndSuccess() {
+    com.antigravity.models.Driver d1 =
+        new com.antigravity.models.Driver("Alice", "Ally", "d1", "1");
+    com.antigravity.race.RaceParticipant p1 = new com.antigravity.race.RaceParticipant(d1);
+    com.antigravity.models.Lane l1 = new com.antigravity.models.Lane("red", "black", 100);
+    com.antigravity.models.Track track =
+        new com.antigravity.models.Track.Builder()
+            .name("Track 1")
+            .lanes(java.util.Collections.singletonList(l1))
+            .build();
+    com.antigravity.models.Race model =
+        new com.antigravity.models.Race.Builder()
+            .withName("Active Race")
+            .withEntityId("r1")
+            .build();
+
+    com.antigravity.race.Race activeRace =
+        new com.antigravity.race.Race.Builder()
+            .model(model)
+            .drivers(java.util.Collections.singletonList(p1))
+            .track(track)
+            .isDemoMode(true)
+            .build();
+
+    ClientSubscriptionManager.getInstance().setRace(activeRace);
+
+    // Heat not found
+    when(ctx.pathParam("heatNumber")).thenReturn("99");
+    when(ctx.pathParam("lane")).thenReturn("0");
+    when(ctx.pathParam("lapIndex")).thenReturn("0");
+    HashMap<String, Object> body = new HashMap<>();
+    body.put("countTowardsRecords", false);
+    when(ctx.bodyAsClass(HashMap.class)).thenReturn(body);
+
+    handler.updateLapRecordStatus(ctx);
+    verify(ctx).status(404);
+
+    // Invalid lane
+    when(ctx.pathParam("heatNumber")).thenReturn("1");
+    when(ctx.pathParam("lane")).thenReturn("5");
+    handler.updateLapRecordStatus(ctx);
+    verify(ctx).status(400);
+
+    // Invalid lap index (no laps recorded yet)
+    when(ctx.pathParam("heatNumber")).thenReturn("1");
+    when(ctx.pathParam("lane")).thenReturn("0");
+    when(ctx.pathParam("lapIndex")).thenReturn("0");
+    handler.updateLapRecordStatus(ctx);
+    verify(ctx, org.mockito.Mockito.atLeastOnce()).status(400);
+
+    // Add laps to driver heat data
+    com.antigravity.race.DriverHeatData dhd = activeRace.getHeats().get(0).getDrivers().get(0);
+    dhd.addLap(2.0, false, true);
+    dhd.addLap(5.0, false, true);
+    org.junit.Assert.assertEquals(2.0, dhd.getBestLapTime(), 0.001);
+
+    // Disallow fastest lap (index 0)
+    when(ctx.pathParam("lapIndex")).thenReturn("0");
+    body.put("countTowardsRecords", false);
+    when(ctx.bodyAsClass(HashMap.class)).thenReturn(body);
+
+    handler.updateLapRecordStatus(ctx);
+    verify(ctx, org.mockito.Mockito.atLeastOnce()).status(200);
+    org.junit.Assert.assertFalse(dhd.getLaps().get(0).isCountTowardsRecords());
+    // Recalculated best lap should now be 5.0
+    org.junit.Assert.assertEquals(5.0, dhd.getBestLapTime(), 0.001);
+  }
+
+  @Test
+  public void testUpdateLapRecordStatus_WithCurrentHeatFallbackAndRaceOver() {
+    com.antigravity.models.Driver d1 =
+        new com.antigravity.models.Driver("Alice", "Ally", "d1", "1");
+    com.antigravity.race.RaceParticipant p1 = new com.antigravity.race.RaceParticipant(d1);
+    com.antigravity.models.Lane l1 = new com.antigravity.models.Lane("red", "black", 100);
+    com.antigravity.models.Track track =
+        new com.antigravity.models.Track.Builder()
+            .name("Track 1")
+            .lanes(java.util.Collections.singletonList(l1))
+            .build();
+    com.antigravity.models.Race model =
+        new com.antigravity.models.Race.Builder()
+            .withName("Active Race")
+            .withEntityId("r1")
+            .build();
+
+    com.antigravity.race.Race activeRace =
+        new com.antigravity.race.Race.Builder()
+            .model(model)
+            .drivers(java.util.Collections.singletonList(p1))
+            .track(track)
+            .isDemoMode(true)
+            .build();
+
+    ClientSubscriptionManager.getInstance().setRace(activeRace);
+    ClientSubscriptionManager.getInstance().setDatabaseContext(databaseContext);
+
+    com.antigravity.race.DriverHeatData dhd = activeRace.getCurrentHeat().getDrivers().get(0);
+    dhd.addLap(2.0, false, true);
+
+    // Enter RaceOver state
+    activeRace.changeState(new com.antigravity.race.states.RaceOver());
+
+    when(ctx.pathParam("heatNumber")).thenReturn("1");
+    when(ctx.pathParam("lane")).thenReturn("0");
+    when(ctx.pathParam("lapIndex")).thenReturn("0");
+    HashMap<String, Object> body = new HashMap<>();
+    body.put("countTowardsRecords", false);
+    when(ctx.bodyAsClass(HashMap.class)).thenReturn(body);
+
+    handler.updateLapRecordStatus(ctx);
+    verify(ctx, org.mockito.Mockito.atLeastOnce()).status(200);
+    org.junit.Assert.assertFalse(dhd.getLaps().get(0).isCountTowardsRecords());
+  }
 }

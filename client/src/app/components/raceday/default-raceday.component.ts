@@ -71,11 +71,13 @@ export interface LapDisplayInfo {
   lapTime: string;
   segments: string[];
 }
+import { DisallowLapRecordsDialogComponent } from "@app/components/shared/disallow-lap-records-dialog/disallow-lap-records-dialog.component";
 import { InputDialogComponent } from "@app/components/shared/input-dialog/input-dialog.component";
 import {
   PdfExportDialogComponent,
   PdfExportOptions,
 } from "@app/components/shared/pdf-export-dialog/pdf-export-dialog.component";
+import { RaceHistoryDialogComponent } from "@app/components/shared/race-history-dialog/race-history-dialog.component";
 import { WIDGET_REGISTRY } from "@app/components/ui-editor/widget-registry";
 import { CustomUI } from "@app/models/custom-ui";
 import { CustomUiService } from "@app/services/custom-ui.service";
@@ -90,8 +92,7 @@ import { TranslationService } from "@app/services/translation.service";
 import { createTTSContext, playSound } from "@app/utils/audio";
 import { ViewerRaceEndedHandler } from "@app/utils/viewer-race-ended-handler";
 
-import { ColumnDefinition } from "./column_definition";
-import { AnchorPoint } from "./column_definition";
+import { AnchorPoint, ColumnDefinition } from "./column_definition";
 import { AddLapSectionsDialogComponent } from "./components/add-lap-sections-dialog/add-lap-sections-dialog.component";
 import { RacedayAbsoluteWidgetComponent } from "./components/raceday-absolute-widget/raceday-absolute-widget.component";
 import { RacedayModalsComponent } from "./components/raceday-modals/raceday-modals.component";
@@ -127,6 +128,8 @@ import {
     PdfExportDialogComponent,
     InputDialogComponent,
     NgTemplateOutlet,
+    DisallowLapRecordsDialogComponent,
+    RaceHistoryDialogComponent,
   ],
 })
 export class DefaultRacedayComponent
@@ -136,6 +139,122 @@ export class DefaultRacedayComponent
   defaultIncludeBackground = true;
   showSaveRaceDialog = false;
   saveRaceName = "";
+  showDisallowLapRecordsDialog = false;
+  showRaceHistoryDialog = false;
+
+  get disallowLapRecordsHeats(): Heat[] {
+    const heatsMap = new Map<number, Heat>();
+
+    const countLaps = (h: Heat) => {
+      if (!h || !h.heatDrivers) return 0;
+      return h.heatDrivers.reduce((acc, d) => {
+        const laps =
+          typeof d?.lapTimes?.length === "number"
+            ? d.lapTimes.length
+            : Array.isArray((d as any)?.laps)
+              ? (d as any).laps.length
+              : Array.isArray((d as any)?.lapsWithDetails)
+                ? (d as any).lapsWithDetails.length
+                : 0;
+        return acc + laps;
+      }, 0);
+    };
+
+    const addOrMerge = (h?: Heat) => {
+      if (!h) return;
+      const num = h.heatNumber || 1;
+      const existing = heatsMap.get(num);
+      if (!existing) {
+        heatsMap.set(num, h);
+      } else {
+        if (countLaps(h) > countLaps(existing)) {
+          heatsMap.set(num, h);
+        }
+      }
+    };
+
+    const serviceHeats =
+      typeof this.raceService?.getHeats === "function"
+        ? this.raceService.getHeats() || []
+        : [];
+    for (const h of serviceHeats) addOrMerge(h);
+
+    if (this.heats && this.heats.length > 0) {
+      for (const h of this.heats) addOrMerge(h);
+    }
+
+    const currentHeat =
+      this.heat ||
+      (typeof this.raceService?.getCurrentHeat === "function"
+        ? this.raceService.getCurrentHeat()
+        : undefined);
+    if (currentHeat) addOrMerge(currentHeat);
+
+    return Array.from(heatsMap.values()).sort(
+      (a, b) => (a.heatNumber || 1) - (b.heatNumber || 1),
+    );
+  }
+
+  onRecordsUpdated(event: {
+    heatNumber: number;
+    lane: number;
+    lapIndex: number;
+    countTowardsRecords: boolean;
+  }): void {
+    if (this.heat && (this.heat.heatNumber || 1) === event.heatNumber) {
+      const hd = this.heat.heatDrivers?.find((d) => d.laneIndex === event.lane);
+      if (hd && typeof hd.updateLapRecordStatus === "function") {
+        hd.updateLapRecordStatus(event.lapIndex, event.countTowardsRecords);
+      }
+    }
+    if (this.heats && this.heats.length > 0) {
+      const targetHeat = this.heats.find(
+        (h) => (h.heatNumber || 1) === event.heatNumber,
+      );
+      const hd = targetHeat?.heatDrivers?.find(
+        (d) => d.laneIndex === event.lane,
+      );
+      if (hd && typeof hd.updateLapRecordStatus === "function") {
+        hd.updateLapRecordStatus(event.lapIndex, event.countTowardsRecords);
+      }
+    }
+    this.cdr.markForCheck();
+  }
+
+  get currentRaceDate(): Date | number | string {
+    const raceObj = this.race;
+    const serviceRace = this.raceService?.getRace();
+    const stats =
+      (raceObj as any)?.statistics || (serviceRace as any)?.statistics;
+    if (stats?.startMillis) return stats.startMillis;
+    if (stats?.startTime) return stats.startTime;
+    if ((raceObj as any)?.start_time_millis)
+      return (raceObj as any).start_time_millis;
+    if ((serviceRace as any)?.start_time_millis)
+      return (serviceRace as any).start_time_millis;
+    if ((raceObj as any)?.timestamp) return (raceObj as any).timestamp;
+    if ((serviceRace as any)?.timestamp) return (serviceRace as any).timestamp;
+    if (this.heats && this.heats.length > 0) {
+      for (const h of this.heats) {
+        if ((h as any)?.statistics?.startMillis)
+          return (h as any).statistics.startMillis;
+        if ((h as any)?.statistics?.startTime)
+          return (h as any).statistics.startTime;
+      }
+    }
+    if (
+      this.disallowLapRecordsHeats &&
+      this.disallowLapRecordsHeats.length > 0
+    ) {
+      for (const h of this.disallowLapRecordsHeats) {
+        if ((h as any)?.statistics?.startMillis)
+          return (h as any).statistics.startMillis;
+        if ((h as any)?.statistics?.startTime)
+          return (h as any).statistics.startTime;
+      }
+    }
+    return new Date();
+  }
 
   private isDestroyed = false;
   private subscriptions: Subscription[] = [];
@@ -1365,6 +1484,17 @@ export class DefaultRacedayComponent
       }),
     );
 
+    this.subscriptions.push(
+      this.raceService.currentHeat$.subscribe((heat) => {
+        if (heat) {
+          this.heat = heat;
+          if (!this.isDestroyed) {
+            this.cdr.markForCheck();
+          }
+        }
+      }),
+    );
+
     this.viewerRaceEndedHandler.startListening();
 
     this.subscriptions.push(
@@ -1495,11 +1625,123 @@ export class DefaultRacedayComponent
   private subscribeToLapEvents() {
     this.subscriptions.push(
       this.raceConnectionService.laps$.subscribe((lap) => {
-        if (this.heat && this.heat.heatDrivers && lap && lap.objectId) {
-          const driverData = this.heat.heatDrivers.find(
-            (d) => d.objectId === lap.objectId,
-          );
+        const currentHeat = this.raceService.getCurrentHeat() || this.heat;
+        if (currentHeat && currentHeat.heatDrivers && lap) {
+          const matchDriver = (d: DriverHeatData) =>
+            Boolean(
+              (lap.objectId && d.objectId === lap.objectId) ||
+              (lap.objectId && d.participant?.objectId === lap.objectId) ||
+              (lap.interfaceId !== undefined &&
+                lap.interfaceId !== null &&
+                d.laneIndex === lap.interfaceId) ||
+              (lap.driverId &&
+                (d.actualDriver?.entity_id === lap.driverId ||
+                  d.participant?.driver?.entity_id === lap.driverId)),
+            );
+
+          const driverData = currentHeat.heatDrivers.find(matchDriver);
           if (driverData) {
+            const currentLapCount =
+              typeof driverData.lapTimes?.length === "number"
+                ? driverData.lapTimes.length
+                : Array.isArray((driverData as any).laps)
+                  ? (driverData as any).laps.length
+                  : (driverData as any).lapCount || 0;
+            if (
+              lap.lapNumber &&
+              currentLapCount < lap.lapNumber &&
+              typeof driverData.addLapTime === "function"
+            ) {
+              const segmentsCopy = [...(driverData.currentLapSegments || [])];
+              driverData.addLapTime(
+                lap.lapNumber,
+                lap.lapTime ?? 0,
+                lap.averageLapTime ?? 0,
+                lap.medianLapTime ?? 0,
+                lap.bestLapTime ?? 0,
+                lap.adjustedLapCount ?? 0,
+                lap.driverId ?? undefined,
+                lap.isDrift ?? undefined,
+                lap.type ?? undefined,
+                segmentsCopy,
+                lap.countTowardsRecords !== false,
+              );
+            }
+            if (
+              this.heat &&
+              this.heat !== currentHeat &&
+              this.heat.heatDrivers
+            ) {
+              const localHd = this.heat.heatDrivers.find(matchDriver);
+              const localLapCount =
+                localHd && typeof localHd.lapTimes?.length === "number"
+                  ? localHd.lapTimes.length
+                  : Array.isArray((localHd as any)?.laps)
+                    ? (localHd as any).laps.length
+                    : (localHd as any)?.lapCount || 0;
+              if (
+                localHd &&
+                lap.lapNumber &&
+                localLapCount < lap.lapNumber &&
+                typeof localHd.addLapTime === "function"
+              ) {
+                const segmentsCopy = [...(localHd.currentLapSegments || [])];
+                localHd.addLapTime(
+                  lap.lapNumber,
+                  lap.lapTime ?? 0,
+                  lap.averageLapTime ?? 0,
+                  lap.medianLapTime ?? 0,
+                  lap.bestLapTime ?? 0,
+                  lap.adjustedLapCount ?? 0,
+                  lap.driverId ?? undefined,
+                  lap.isDrift ?? undefined,
+                  lap.type ?? undefined,
+                  segmentsCopy,
+                  lap.countTowardsRecords !== false,
+                );
+              }
+            }
+            if (this.heats && this.heats.length > 0 && currentHeat) {
+              const targetHeat = this.heats.find(
+                (h) =>
+                  (currentHeat.objectId &&
+                    h.objectId === currentHeat.objectId) ||
+                  h.heatNumber === currentHeat.heatNumber,
+              );
+              if (targetHeat && targetHeat.heatDrivers) {
+                const targetHd = targetHeat.heatDrivers.find(matchDriver);
+                if (targetHd && targetHd !== driverData) {
+                  const targetLapCount =
+                    typeof targetHd.lapTimes?.length === "number"
+                      ? targetHd.lapTimes.length
+                      : Array.isArray((targetHd as any)?.laps)
+                        ? (targetHd as any).laps.length
+                        : (targetHd as any)?.lapCount || 0;
+                  if (
+                    lap.lapNumber &&
+                    targetLapCount < lap.lapNumber &&
+                    typeof targetHd.addLapTime === "function"
+                  ) {
+                    const segmentsCopy = [
+                      ...(targetHd.currentLapSegments || []),
+                    ];
+                    targetHd.addLapTime(
+                      lap.lapNumber,
+                      lap.lapTime ?? 0,
+                      lap.averageLapTime ?? 0,
+                      lap.medianLapTime ?? 0,
+                      lap.bestLapTime ?? 0,
+                      lap.adjustedLapCount ?? 0,
+                      lap.driverId ?? undefined,
+                      lap.isDrift ?? undefined,
+                      lap.type ?? undefined,
+                      segmentsCopy,
+                      lap.countTowardsRecords !== false,
+                    );
+                  }
+                }
+              }
+            }
             this.handleLapEvent(lap, driverData);
           }
         }
@@ -3321,6 +3563,9 @@ export class DefaultRacedayComponent
       this.isMenuModeForAddLap = true;
       this.showAddLapSectionsDialog = true;
       this.cdr.markForCheck();
+    } else if (action === "DISALLOW_LAP_RECORDS") {
+      this.showDisallowLapRecordsDialog = true;
+      this.cdr.markForCheck();
     }
   }
 
@@ -3635,6 +3880,9 @@ export class DefaultRacedayComponent
       });
     } else if (action === "SAVE") {
       this.saveRace();
+    } else if (action === "RACE_HISTORY") {
+      this.showRaceHistoryDialog = true;
+      this.cdr.markForCheck();
     } else if (action === "BACK") {
       window.history.back();
     }

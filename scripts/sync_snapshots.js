@@ -46,8 +46,7 @@ for (const spec of failedSpecs) {
 
     const snapshotDir = path.join(PROJECT_ROOT, 'src', 'app', `${relativeTestFile}-snapshots`);
     if (!fs.existsSync(snapshotDir)) {
-         console.log(`Warning: Snapshot directory not found: ${snapshotDir}`);
-         continue;
+         fs.mkdirSync(snapshotDir, { recursive: true });
     }
 
     for (const test of spec.tests) {

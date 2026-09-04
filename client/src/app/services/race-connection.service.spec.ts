@@ -79,8 +79,10 @@ describe("RaceConnectionService", () => {
       "getRace",
       "getCurrentHeat",
       "setCurrentHeat",
+      "getHeats",
       "clear",
     ]);
+    mockRaceService.getHeats.and.returnValue([]);
     mockRaceService.getCurrentHeat.and.returnValue({
       heatDrivers: [
         { objectId: "d1", addLapTime: jasmine.createSpy("addLapTime") },

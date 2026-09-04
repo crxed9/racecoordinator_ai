@@ -30,7 +30,7 @@
   box-sizing: border-box;
 }
 
-.table-header-row {
+.bottom-section .table-header-row {
   display: grid;
   min-height: 36px;
   gap: 2px;
@@ -39,7 +39,7 @@
   flex-shrink: 0;
 }
 
-.header-cell {
+.bottom-section .header-cell {
   background: rgba(68, 68, 68, 0.7);
   /* #b2444444 */
   border: 1px solid #fff;
@@ -61,7 +61,7 @@
   min-width: 0;
 }
 
-.table-body {
+.bottom-section .table-body {
   display: block;
   /* Use block for better reordering stability */
   flex: 1;
@@ -73,7 +73,7 @@
   width: 100%;
 }
 
-.table-row {
+.bottom-section .table-row {
   display: grid;
   gap: 2px;
   position: absolute;
@@ -87,15 +87,15 @@
   box-sizing: border-box;
 }
 
-.table-row.cdk-drag-dragging {
+.bottom-section .table-row.cdk-drag-dragging {
   transition: none !important;
 }
 
-.table-row.highlight {
+.bottom-section .table-row.highlight {
   filter: brightness(1.2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 }
 
-.body-cell {
+.bottom-section .body-cell {
   background: #000;
   border: 1px solid #000;
   display: flex;
@@ -744,16 +744,16 @@
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-.table-header-row.cdk-drop-list-dragging .header-cell:not(.cdk-drag-placeholder) {
+.bottom-section .table-header-row.cdk-drop-list-dragging .header-cell:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 @media print {
   :host-context(body.print-no-background) .panel-card,
   :host-context(body.print-no-background) .lane-view-container,
-  :host-context(body.print-no-background) .table-body,
-  :host-context(body.print-no-background) .table-row,
-  :host-context(body.print-no-background) .table-header-row,
+  :host-context(body.print-no-background) .bottom-section .table-body,
+  :host-context(body.print-no-background) .bottom-section .table-row,
+  :host-context(body.print-no-background) .bottom-section .table-header-row,
   :host-context(body.print-no-background) .header-cell,
   :host-context(body.print-no-background) .data-cell,
   :host-context(body.print-no-background) .driver-cell,

@@ -77,6 +77,10 @@ export class HeatConverter {
             : false;
         const segments =
           lap && typeof lap === "object" ? lap.segments || [] : [];
+        const countTowardsRecords =
+          lap && typeof lap === "object"
+            ? (lap.countTowardsRecords ?? lap.count_towards_records ?? true)
+            : true;
 
         hd.addLapTime(
           i + 1,
@@ -89,6 +93,7 @@ export class HeatConverter {
           isDrift,
           undefined,
           segments,
+          countTowardsRecords,
         );
       });
     }
@@ -107,11 +112,45 @@ export class HeatConverter {
     const isReference = !proto.heatDrivers || proto.heatDrivers.length === 0;
 
     return this.heatCache.process(objectId, isReference, () => {
+      const existingHeat = objectId ? this.heatCache.get(objectId) : undefined;
       let heatDrivers: Array<DriverHeatData | null> = [];
       if (proto.heatDrivers) {
-        heatDrivers = proto.heatDrivers.map((dProto, index) =>
-          this.parseHeatDriver(dProto, index),
-        );
+        heatDrivers = proto.heatDrivers.map((dProto, index) => {
+          const hd = this.parseHeatDriver(dProto, index);
+          if (
+            hd &&
+            (!dProto.laps || dProto.laps.length === 0) &&
+            existingHeat?.heatDrivers
+          ) {
+            const existingHd = existingHeat.heatDrivers.find(
+              (prev) =>
+                (hd.objectId && prev.objectId === hd.objectId) ||
+                prev.laneIndex === hd.laneIndex,
+            );
+            if (
+              existingHd &&
+              existingHd.lapsWithDetails &&
+              existingHd.lapsWithDetails.length > 0
+            ) {
+              existingHd.lapsWithDetails.forEach((lap, i) => {
+                hd.addLapTime(
+                  i + 1,
+                  lap.time,
+                  dProto.averageLapTime || existingHd.averageLapTime || 0,
+                  dProto.medianLapTime || existingHd.medianLapTime || 0,
+                  dProto.bestLapTime || existingHd.bestLapTime || 0,
+                  dProto.adjustedLapCount || existingHd.adjustedLapCount || 0,
+                  lap.driverId,
+                  lap.isDrift,
+                  undefined,
+                  lap.segments ? [...lap.segments] : undefined,
+                  lap.countTowardsRecords !== false,
+                );
+              });
+            }
+          }
+          return hd;
+        });
       }
       const validHeatDrivers = heatDrivers.filter(
         (d): d is DriverHeatData => d !== null,

@@ -319,6 +319,13 @@ export class DataService {
     );
   }
 
+  getRaceHistoryById(id: string, isDemo?: boolean): Observable<any> {
+    const url = isDemo
+      ? `${this.baseUrl}/api/history/races/${id}?demo=true`
+      : `${this.baseUrl}/api/history/races/${id}`;
+    return this.http.get<any>(url);
+  }
+
   getAllFinishedRaceHistory(): Observable<any[]> {
     return forkJoin([
       this.getRaceHistory(false).pipe(catchError(() => of([]))),
@@ -1925,6 +1932,32 @@ export class DataService {
       `${this.baseUrl}/api/races/heats/user-laps/batch`,
       updates,
     );
+  }
+
+  updateLiveLapRecordStatus(
+    heatNumber: number,
+    lane: number,
+    lapIndex: number,
+    countTowardsRecords: boolean,
+  ): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/api/races/heats/${heatNumber}/drivers/${lane}/laps/${lapIndex}/record-status`,
+      { countTowardsRecords },
+    );
+  }
+
+  updateHistoryLapRecordStatus(
+    raceHistoryId: string,
+    heatNumber: number,
+    lane: number,
+    lapIndex: number,
+    countTowardsRecords: boolean,
+    isDemo?: boolean,
+  ): Observable<any> {
+    const url = isDemo
+      ? `${this.baseUrl}/api/history/races/${raceHistoryId}/heats/${heatNumber}/drivers/${lane}/laps/${lapIndex}/record-status?demo=true`
+      : `${this.baseUrl}/api/history/races/${raceHistoryId}/heats/${heatNumber}/drivers/${lane}/laps/${lapIndex}/record-status`;
+    return this.http.put<any>(url, { countTowardsRecords, isDemo: !!isDemo });
   }
 
   getDriverStatistics(

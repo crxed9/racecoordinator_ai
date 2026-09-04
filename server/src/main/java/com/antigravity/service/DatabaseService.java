@@ -152,6 +152,11 @@ public class DatabaseService {
       record.setHeats(runtimeRace.getHeats());
       record.setAccumulatedRaceTime(runtimeRace.getRaceTime());
       record.setStatistics(runtimeRace.getStatistics());
+      long now = System.currentTimeMillis();
+      if (runtimeRace.getStatistics() != null && runtimeRace.getStatistics().getStartMillis() > 0) {
+        now = runtimeRace.getStatistics().getStartMillis();
+      }
+      record.setTimestamp(now);
 
       EventExecutionManager eventMgr = EventExecutionManager.getInstance();
       if (eventMgr.isEventActive()) {
@@ -171,7 +176,9 @@ public class DatabaseService {
       }
 
       repo.save(record);
-      logger.info("Race successfully saved to {}", tableName);
+      runtimeRace.setHistoryRecordId(record.getId());
+      logger.info(
+          "Race successfully saved to {} with historyRecordId={}", tableName, record.getId());
     } catch (Exception e) {
       logger.error("Failed to save race to history", e);
     }
@@ -336,6 +343,11 @@ public class DatabaseService {
   public GlobalStatistics getGlobalStatistics(
       DatabaseContext context, String raceEntityId, boolean isDemo) {
     return databaseStatisticsService.getGlobalStatistics(context, raceEntityId, isDemo);
+  }
+
+  public void recalculateStatisticsAfterHistoryEdit(
+      DatabaseContext context, String raceEntityId, boolean isDemo) {
+    databaseStatisticsService.recalculateStatisticsAfterHistoryEdit(context, raceEntityId, isDemo);
   }
 
   public List<RaceHistoryRecord> getRaceHistory(DatabaseContext context, RaceScope scope) {

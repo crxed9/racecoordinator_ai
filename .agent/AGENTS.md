@@ -110,3 +110,8 @@ Whenever a new configuration setting, property, or field is added, modified, or 
      - `*.converter.spec.ts`: Test `fromProto()` maps the new field into the client model.
      - `*-editor.component.spec.ts`: Test UI selection updates dirty tracking, `update<Entity>` sends the field in the payload, and `getHelpSteps()` asserts the new step selector/order.
 
+## Entity Identity & No String/Regex Heuristics
+- **No string/regex heuristics for domain identity**: Never use string parsing, regex matching, or name heuristic patterns (e.g. checking for "Empty", "Lane X", "rd_empty_lane", or case-insensitive name matching) to determine domain entity identity, active status, or emptiness.
+- **Use clean identifiers**: All domain entity relationships, driver matching, team resolution, and lane status must be determined cleanly through explicit IDs (`entity_id`, `objectId`, `id`, `driverId`, `teamId`) or standard model flags.
+- **Do not rabbit hole into ad-hoc name parsing**: If the domain model or protobufs lack the necessary IDs or structure to resolve an entity cleanly, do not paper over it with heuristic string parsing or complex fallback chains. Address that structure directly at the model/data layer in an explicit follow-up change.
+

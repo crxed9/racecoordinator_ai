@@ -74,6 +74,9 @@
               <div class="setup-menu-dropdown-item" (click)="loadSavedRaces()">
                 {{ "RDS_MENU_LOAD_RACE" | translate }}
               </div>
+              <div class="setup-menu-dropdown-item" (click)="openRaceHistory()">
+                {{ "RDS_MENU_RACE_HISTORY" | translate }}
+              </div>
               <hr class="setup-menu-dropdown-divider" />
               <div class="setup-menu-dropdown-item" (click)="exportSettings()">
                 {{ "RDS_MENU_EXPORT_SETTINGS" | translate }}
@@ -1196,3 +1199,9 @@
   (close)="closeRacingRosterDialog()"
 >
 </app-racing-roster-dialog>
+
+<!-- Race History Dialog -->
+<app-race-history-dialog
+  [visible]="showRaceHistoryDialog"
+  (close)="showRaceHistoryDialog = false"
+></app-race-history-dialog>
