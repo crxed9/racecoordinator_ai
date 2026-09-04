@@ -584,6 +584,27 @@
                           </div>
                         </div>
                       }
+                    } @else if (entry.property === "bestRaceLapTime") {
+                      @if (isLaneEmpty(hd)) {
+                        <span>--</span>
+                      } @else {
+                        <div class="record-lap-content best-race-lap-content">
+                          <div class="record-lap-time best-race-lap-time">
+                            {{ parent().getBestRaceLapTime(hd, entry.anchor) }}
+                          </div>
+                          <div class="record-lap-sub best-race-lap-sub">
+                            <span
+                              class="record-lap-holder best-race-lap-holder"
+                              [title]="parent().getBestRaceLapHolder(hd)"
+                            >
+                              {{ parent().getBestRaceLapHolder(hd) }}
+                            </span>
+                            <span class="record-lap-date best-race-lap-heat">
+                              {{ parent().getBestRaceLapHeat(hd) }}
+                            </span>
+                          </div>
+                        </div>
+                      }
                     } @else if (
                       !parent().isNameProperty(entry.property) ||
                       !parent().isTeam(hd)

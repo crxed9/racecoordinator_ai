@@ -416,7 +416,8 @@
   white-space: nowrap;
 }
 
-.record-lap-content {
+.record-lap-content,
+.best-race-lap-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -429,13 +430,15 @@
   padding: 2px 4px;
 }
 
-.record-lap-time {
+.record-lap-time,
+.best-race-lap-time {
   font-size: 1em;
   font-weight: bold;
   letter-spacing: -0.5px;
 }
 
-.record-lap-sub {
+.record-lap-sub,
+.best-race-lap-sub {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -447,13 +450,15 @@
   white-space: nowrap;
 }
 
-.record-lap-holder {
+.record-lap-holder,
+.best-race-lap-holder {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
 }
 
-.record-lap-date {
+.record-lap-date,
+.best-race-lap-heat {
   opacity: 0.75;
   overflow: hidden;
   text-overflow: ellipsis;

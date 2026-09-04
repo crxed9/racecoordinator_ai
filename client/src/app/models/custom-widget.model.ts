@@ -31,6 +31,8 @@ export interface CustomWidgetManifest {
   author?: string;
   version?: string;
   category?: string;
+  group?: string;
+  subgroup?: string;
   icon?: string;
   defaultWidth?: number;
   defaultHeight?: number;
@@ -41,6 +43,9 @@ export interface CustomWidgetManifest {
 
 export interface CustomWidgetDefinition {
   folderName: string;
+  relativePath?: string;
+  group?: string;
+  subgroup?: string;
   manifest: CustomWidgetManifest;
   componentType?: Type<any>;
   error?: string;

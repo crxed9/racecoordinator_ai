@@ -187,6 +187,7 @@ export class RacedayLayoutUtils {
     return (
       baseKey === "lastLapTime" ||
       baseKey === "bestLapTime" ||
+      baseKey === "bestRaceLapTime" ||
       baseKey === "averageLapTime" ||
       baseKey === "medianLapTime" ||
       baseKey === "recordLapTime" ||
@@ -257,6 +258,7 @@ export class RacedayLayoutUtils {
       medianLapTime: "RD_COL_MEDIAN_LAP",
       averageLapTime: "RD_COL_AVG_LAP",
       bestLapTime: "RD_COL_BEST_LAP",
+      bestRaceLapTime: "RD_COL_BEST_RACE_LAP_TIME",
       recordLapTime: "RD_COL_RECORD_LAP_TIME",
       totalTime: "RD_COL_TOTAL_TIME",
       gapLeader: "RD_COL_GAP_LEADER",
@@ -352,6 +354,7 @@ export class RacedayLayoutUtils {
       medianLapTime: 330,
       averageLapTime: 330,
       bestLapTime: 330,
+      bestRaceLapTime: 330,
       recordLapTime: 330,
       totalTime: 330,
       gapLeader: 330,

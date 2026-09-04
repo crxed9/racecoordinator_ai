@@ -303,5 +303,174 @@ describe("FileSystemService", () => {
         service.writeWidgetFile("my-widget", "widget.json", "{}"),
       ).toBeRejectedWithError("No custom widget directory configured");
     });
+
+    it("should discover hierarchical widgets with groups and subgroups", async () => {
+      const mockSubWidgetHandle = {
+        name: "speedo",
+        kind: "directory",
+        getFileHandle: jasmine
+          .createSpy("getFileHandle")
+          .and.callFake((file: string) => {
+            if (file === "widget.json") return Promise.resolve(mockFileHandle);
+            return Promise.reject("not found");
+          }),
+        values: async function* () {},
+      };
+
+      const mockSubgroupHandle = {
+        name: "gauges",
+        kind: "directory",
+        getFileHandle: jasmine
+          .createSpy("getFileHandle")
+          .and.rejectWith("not found"),
+        values: async function* () {
+          yield mockSubWidgetHandle;
+        },
+      };
+
+      const mockGroupWidgetHandle = {
+        name: "lap-delta",
+        kind: "directory",
+        getFileHandle: jasmine
+          .createSpy("getFileHandle")
+          .and.callFake((file: string) => {
+            if (file === "widget.json") return Promise.resolve(mockFileHandle);
+            return Promise.reject("not found");
+          }),
+        values: async function* () {},
+      };
+
+      const mockGroupHandle = {
+        name: "sample",
+        kind: "directory",
+        getFileHandle: jasmine
+          .createSpy("getFileHandle")
+          .and.rejectWith("not found"),
+        values: async function* () {
+          yield mockGroupWidgetHandle;
+          yield mockSubgroupHandle;
+        },
+      };
+
+      const mockRootWidgetHandle = {
+        name: "root-gauge",
+        kind: "directory",
+        getFileHandle: jasmine
+          .createSpy("getFileHandle")
+          .and.callFake((file: string) => {
+            if (file === "widget.json") return Promise.resolve(mockFileHandle);
+            return Promise.reject("not found");
+          }),
+        values: async function* () {},
+      };
+
+      const mockHierarchicalHandle = {
+        name: "CustomWidgetsRoot",
+        kind: "directory",
+        queryPermission: jasmine
+          .createSpy("queryPermission")
+          .and.returnValue(Promise.resolve("granted")),
+        values: async function* () {
+          yield mockRootWidgetHandle;
+          yield mockGroupHandle;
+        },
+      };
+
+      (service.getCustomWidgetDirectoryHandle as jasmine.Spy).and.returnValue(
+        Promise.resolve(mockHierarchicalHandle),
+      );
+
+      const dirs = await service.getCustomWidgetDirectories();
+      expect(dirs.length).toBe(3);
+
+      const rootWidget = dirs.find((d) => d.name === "root-gauge");
+      expect(rootWidget?.group).toBe("custom-root");
+      expect(rootWidget?.subgroup).toBeUndefined();
+
+      const groupWidget = dirs.find((d) => d.name === "lap-delta");
+      expect(groupWidget?.group).toBe("sample");
+      expect(groupWidget?.subgroup).toBeUndefined();
+      expect(groupWidget?.relativePath).toBe("sample/lap-delta");
+
+      const subgroupWidget = dirs.find((d) => d.name === "speedo");
+      expect(subgroupWidget?.group).toBe("sample");
+      expect(subgroupWidget?.subgroup).toBe("gauges");
+      expect(subgroupWidget?.relativePath).toBe("sample/gauges/speedo");
+    });
+
+    it("should write and read widget file with nested path", async () => {
+      const mockNestedDir = {
+        getFileHandle: jasmine
+          .createSpy("getFileHandle")
+          .and.returnValue(Promise.resolve(mockFileHandle)),
+      };
+      mockWidgetDirHandle.getDirectoryHandle.and.callFake((name: string) => {
+        if (name === "sample") {
+          return Promise.resolve({
+            getDirectoryHandle: jasmine
+              .createSpy("getDirectoryHandle")
+              .and.returnValue(Promise.resolve(mockNestedDir)),
+          });
+        }
+        return Promise.resolve(mockSubfolderHandle);
+      });
+
+      await service.writeWidgetFile("sample/my-widget", "widget.json", "{}");
+      expect(mockWidgetDirHandle.getDirectoryHandle).toHaveBeenCalledWith(
+        "sample",
+        { create: true },
+      );
+
+      const content = await service.getWidgetFile(
+        "sample/my-widget",
+        "widget.json",
+      );
+      expect(content).toBe("test content");
+    });
+
+    it("should delete widget directory recursively", async () => {
+      mockWidgetDirHandle.removeEntry = jasmine
+        .createSpy("removeEntry")
+        .and.returnValue(Promise.resolve());
+      await service.deleteWidgetDirectory("sample", true);
+      expect(mockWidgetDirHandle.removeEntry).toHaveBeenCalledWith("sample", {
+        recursive: true,
+      });
+    });
+
+    it("should delete nested widget directory recursively", async () => {
+      const mockNestedDir = {
+        removeEntry: jasmine
+          .createSpy("removeEntry")
+          .and.returnValue(Promise.resolve()),
+      };
+      mockWidgetDirHandle.getDirectoryHandle = jasmine
+        .createSpy("getDirectoryHandle")
+        .and.returnValue(Promise.resolve(mockNestedDir));
+
+      await service.deleteWidgetDirectory("sample/nested-folder", true);
+      expect(mockWidgetDirHandle.getDirectoryHandle).toHaveBeenCalledWith(
+        "sample",
+      );
+      expect(mockNestedDir.removeEntry).toHaveBeenCalledWith("nested-folder", {
+        recursive: true,
+      });
+    });
+
+    it("should handle NotFoundError gracefully when deleting widget directory", async () => {
+      mockWidgetDirHandle.removeEntry = jasmine
+        .createSpy("removeEntry")
+        .and.returnValue(Promise.reject({ name: "NotFoundError" }));
+      await expectAsync(
+        service.deleteWidgetDirectory("nonexistent"),
+      ).toBeResolved();
+    });
+
+    it("should do nothing if handle is not configured when deleting widget directory", async () => {
+      (service.getCustomWidgetDirectoryHandle as jasmine.Spy).and.returnValue(
+        Promise.resolve(undefined),
+      );
+      await expectAsync(service.deleteWidgetDirectory("sample")).toBeResolved();
+    });
   });
 });

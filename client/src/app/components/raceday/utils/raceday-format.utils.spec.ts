@@ -476,6 +476,135 @@ describe("RacedayFormatUtils", () => {
     });
   });
 
+  describe("formatValue - bestRaceLapTime", () => {
+    beforeEach(() => {
+      ctx.translate = (key: string) => (key === "RD_HEAT" ? "Heat" : key);
+    });
+
+    it("should format bestRaceLapTime with time, nickname, and heat", () => {
+      ctx.getBestRaceLapEntry = (laneIndex: number) => {
+        if (laneIndex === 0) {
+          return {
+            value: 4.8765,
+            holderNickname: "Speedy",
+            heatNumber: 3,
+          };
+        }
+        return undefined;
+      };
+
+      const mockHd = {
+        laneIndex: 0,
+        actualDriver: { name: "Speedy" },
+      } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "bestRaceLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("4.877 (Speedy, Heat 3)");
+    });
+
+    it("should fallback to holderName if nickname is not provided", () => {
+      ctx.getBestRaceLapEntry = () => ({
+        value: 4.56,
+        holderName: "Alice Smith",
+        heatNumber: 1,
+      });
+
+      const mockHd = {
+        laneIndex: 1,
+        actualDriver: { name: "Alice" },
+      } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "bestRaceLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("4.560 (Alice Smith, Heat 1)");
+    });
+
+    it("should return --- for heat if heatNumber is not provided or <= 0", () => {
+      ctx.getBestRaceLapEntry = () => ({
+        value: 4.56,
+        holderNickname: "Racer",
+        heatNumber: 0,
+      });
+
+      const mockHd = {
+        laneIndex: 0,
+        actualDriver: { name: "Racer" },
+      } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "bestRaceLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("4.560 (Racer, ---)");
+    });
+
+    it("should return placeholder format when no record exists", () => {
+      ctx.getBestRaceLapEntry = () => undefined;
+
+      const mockHd = {
+        laneIndex: 0,
+        actualDriver: { name: "Driver 1" },
+      } as any;
+      const result = RacedayFormatUtils.formatValue(
+        "bestRaceLapTime",
+        undefined,
+        mockHd,
+        undefined,
+        ctx,
+      );
+      expect(result).toBe("--.--- (---, ---)");
+    });
+
+    it("should return -- for empty driver or empty lane", () => {
+      const mockHd1 = { laneIndex: 0, isEmpty: true } as any;
+      expect(
+        RacedayFormatUtils.formatValue(
+          "bestRaceLapTime",
+          undefined,
+          mockHd1,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
+
+      const mockHd2 = {
+        laneIndex: 0,
+        actualDriver: { entity_id: "EMPTY_LANE", name: "Empty" },
+      } as any;
+      expect(
+        RacedayFormatUtils.formatValue(
+          "bestRaceLapTime",
+          undefined,
+          mockHd2,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
+
+      const mockHd3 = { laneIndex: 0 } as any;
+      expect(
+        RacedayFormatUtils.formatValue(
+          "bestRaceLapTime",
+          undefined,
+          mockHd3,
+          undefined,
+          ctx,
+        ),
+      ).toBe("--");
+    });
+  });
+
   describe("formatValue - flag", () => {
     beforeEach(() => {
       ctx.getFlagUrl = (flag: any) => `url-for-${flag}`;

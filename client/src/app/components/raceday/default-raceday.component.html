@@ -188,28 +188,139 @@
               {{ "UE_HINT_DRAG_COMPONENTS_DOCK" | translate }}
             </div>
 
-            <div class="toolbox-widget-list">
-              @for (widget of getUnusedWidgets(); track widget) {
-                <div
-                  class="toolbox-widget-item"
-                  draggable="true"
-                  (dragstart)="onToolboxDragStart($event, widget)"
-                  [title]="getWidgetTypeLabelKey(widget) | translate"
+            <div class="toolbox-search-wrapper">
+              <input
+                type="text"
+                class="inspector-input toolbox-search-input"
+                [class.has-value]="!!toolboxSearchTerm"
+                [placeholder]="'UE_TOOLBOX_SEARCH_PLACEHOLDER' | translate"
+                [(ngModel)]="toolboxSearchTerm"
+              />
+              @if (toolboxSearchTerm) {
+                <button
+                  type="button"
+                  class="toolbox-search-clear"
+                  (click)="clearToolboxSearch()"
+                  title="Clear"
                 >
-                  <span class="material-icons drag-indicator-icon"
-                    >drag_indicator</span
+                  ✕
+                </button>
+              }
+            </div>
+
+            <div class="toolbox-widget-list">
+              @for (group of getToolboxGroups(); track group.id) {
+                <div class="toolbox-group-section">
+                  <div
+                    class="toolbox-group-header"
+                    (click)="toggleToolboxGroup(group.id)"
+                    [class.expanded]="group.expanded"
                   >
-                  <span class="material-icons toolbox-widget-icon"
-                    >extension</span
-                  >
-                  <span class="toolbox-widget-label">{{
-                    getWidgetTypeLabelKey(widget) | translate
-                  }}</span>
+                    <span class="material-icons toolbox-folder-icon">
+                      {{ group.expanded ? "folder_open" : "folder" }}
+                    </span>
+                    <span class="toolbox-group-title">
+                      {{
+                        group.isBuiltIn || group.id === "custom-root"
+                          ? (group.nameKey | translate)
+                          : group.nameKey
+                      }}
+                    </span>
+                    <span class="toolbox-group-badge">{{
+                      group.totalCount
+                    }}</span>
+                  </div>
+
+                  @if (group.expanded) {
+                    <div class="toolbox-group-content">
+                      <!-- Root Widgets in this Group -->
+                      @for (w of group.rootWidgets; track w.type) {
+                        <div
+                          class="toolbox-widget-item"
+                          draggable="true"
+                          (dragstart)="onToolboxDragStart($event, w.type)"
+                          [title]="
+                            w.type.startsWith('custom:')
+                              ? w.labelKey
+                              : (w.labelKey | translate)
+                          "
+                        >
+                          <span class="toolbox-widget-label">
+                            {{
+                              w.type.startsWith("custom:")
+                                ? w.labelKey
+                                : (w.labelKey | translate)
+                            }}
+                          </span>
+                        </div>
+                      }
+
+                      <!-- Subfolders within this Group -->
+                      @for (sg of group.subgroups; track sg.id) {
+                        <div class="toolbox-subgroup-section">
+                          <div
+                            class="toolbox-subgroup-header"
+                            (click)="toggleToolboxSubgroup(sg.id)"
+                            [class.expanded]="sg.expanded"
+                          >
+                            <span
+                              class="material-icons toolbox-folder-icon subfolder-icon"
+                            >
+                              {{ sg.expanded ? "folder_open" : "folder" }}
+                            </span>
+                            <span class="toolbox-subgroup-title">
+                              {{
+                                group.isBuiltIn
+                                  ? (sg.nameKey | translate)
+                                  : sg.nameKey
+                              }}
+                            </span>
+                            <span class="toolbox-subgroup-badge">{{
+                              sg.widgets.length
+                            }}</span>
+                          </div>
+
+                          @if (sg.expanded) {
+                            <div class="toolbox-subgroup-content">
+                              @for (w of sg.widgets; track w.type) {
+                                <div
+                                  class="toolbox-widget-item nested-widget-item"
+                                  draggable="true"
+                                  (dragstart)="
+                                    onToolboxDragStart($event, w.type)
+                                  "
+                                  [title]="
+                                    w.type.startsWith('custom:')
+                                      ? w.labelKey
+                                      : (w.labelKey | translate)
+                                  "
+                                >
+                                  <span class="toolbox-widget-label">
+                                    {{
+                                      w.type.startsWith("custom:")
+                                        ? w.labelKey
+                                        : (w.labelKey | translate)
+                                    }}
+                                  </span>
+                                </div>
+                              }
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
               }
-              @if (getUnusedWidgets().length === 0) {
+
+              @if (getToolboxGroups().length === 0) {
                 <div class="toolbox-empty-msg">
-                  {{ "UE_HINT_ALL_COMPONENTS_DOCKED" | translate }}
+                  {{
+                    (toolboxSearchTerm
+                      ? "UE_TOOLBOX_NO_MATCHES"
+                      : "UE_HINT_ALL_COMPONENTS_DOCKED"
+                    ) | translate
+                  }}
                 </div>
               }
             </div>

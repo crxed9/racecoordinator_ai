@@ -215,7 +215,10 @@
                                     option of getLayoutAspectRatioOptions(ui);
                                     track option.ratio
                                   ) {
-                                    <app-custom-option [value]="option.ratio">
+                                    <app-custom-option
+                                      [value]="option.ratio"
+                                      [separator]="!!option.separator"
+                                    >
                                       {{ option.label | translate }}
                                     </app-custom-option>
                                   }

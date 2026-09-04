@@ -26,6 +26,9 @@
         >
           {{ option.label }}
         </div>
+        @if (option.hasSeparator) {
+          <div class="custom-select-separator" role="separator"></div>
+        }
       }
     </div>
   }

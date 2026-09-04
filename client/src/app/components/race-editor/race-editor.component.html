@@ -133,6 +133,7 @@
           <div class="editor-section" [class.invalid]="isRotationInvalid">
             <label>{{ "RE_CUSTOM_SEQUENCE_LABEL" | translate }}</label>
             <input
+              id="custom-sequence-input"
               type="text"
               [(ngModel)]="customSequenceText"
               (ngModelChange)="onCustomSequenceChange()"

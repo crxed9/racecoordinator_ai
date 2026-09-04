@@ -24,6 +24,7 @@ export const BASE_AVAILABLE_COLUMNS: readonly {
   { key: "medianLapTime", label: "RD_COL_MEDIAN_LAP" },
   { key: "averageLapTime", label: "RD_COL_AVG_LAP" },
   { key: "bestLapTime", label: "RD_COL_BEST_LAP" },
+  { key: "bestRaceLapTime", label: "RD_COL_BEST_RACE_LAP_TIME" },
   { key: "recordLapTime", label: "RD_COL_RECORD_LAP_TIME" },
   { key: "totalTime", label: "RD_COL_TOTAL_TIME" },
   { key: "gapLeader", label: "UI_EDITOR_COL_GAP_LEADER" },

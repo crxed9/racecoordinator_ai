@@ -50,6 +50,7 @@ public class RaceRecords {
   private String raceFastestLapHolder = "";
   private String raceFastestLapHolderNickname = "";
   private String raceFastestLapHolderTeamName = "";
+  private int raceFastestLapHeatNumber = 0;
 
   private double raceHighestScore = 0;
   private String raceHighestScoreHolder = "";
@@ -60,6 +61,7 @@ public class RaceRecords {
   private List<String> raceLaneFastestLapHolders = new ArrayList<>();
   private List<String> raceLaneFastestLapHolderNicknames = new ArrayList<>();
   private List<String> raceLaneFastestLapHolderTeamNames = new ArrayList<>();
+  private List<Integer> raceLaneFastestLapHeatNumbers = new ArrayList<>();
 
   private List<Double> raceLaneHighestScores = new ArrayList<>();
   private List<String> raceLaneHighestScoreHolders = new ArrayList<>();
@@ -71,6 +73,7 @@ public class RaceRecords {
   private String heatFastestLapHolder = "";
   private String heatFastestLapHolderNickname = "";
   private String heatFastestLapHolderTeamName = "";
+  private int heatFastestLapHeatNumber = 0;
 
   private GlobalStatistics baseStatistics;
 
@@ -84,6 +87,7 @@ public class RaceRecords {
     this.heatFastestLapHolder = "";
     this.heatFastestLapHolderNickname = "";
     this.heatFastestLapHolderTeamName = "";
+    this.heatFastestLapHeatNumber = 0;
   }
 
   public void resetAllRecords() {
@@ -139,6 +143,7 @@ public class RaceRecords {
     raceLaneFastestLapHolders = new ArrayList<>(laneCount);
     raceLaneFastestLapHolderNicknames = new ArrayList<>(laneCount);
     raceLaneFastestLapHolderTeamNames = new ArrayList<>(laneCount);
+    raceLaneFastestLapHeatNumbers = new ArrayList<>(laneCount);
     raceLaneHighestScores = new ArrayList<>(laneCount);
     raceLaneHighestScoreHolders = new ArrayList<>(laneCount);
     raceLaneHighestScoreHolderNicknames = new ArrayList<>(laneCount);
@@ -160,6 +165,7 @@ public class RaceRecords {
       raceLaneFastestLapHolders.add("");
       raceLaneFastestLapHolderNicknames.add("");
       raceLaneFastestLapHolderTeamNames.add("");
+      raceLaneFastestLapHeatNumbers.add(0);
       raceLaneHighestScores.add(isTimeBased ? Double.MAX_VALUE : 0.0);
       raceLaneHighestScoreHolders.add("");
       raceLaneHighestScoreHolderNicknames.add("");
@@ -227,6 +233,7 @@ public class RaceRecords {
       this.raceFastestLapHolder = current.getFastestLap().getHolderName();
       this.raceFastestLapHolderNickname = current.getFastestLap().getHolderNickname();
       this.raceFastestLapHolderTeamName = current.getFastestLap().getHolderTeamName();
+      this.raceFastestLapHeatNumber = current.getFastestLap().getHeatNumber();
     }
 
     if (current.hasHighestScore()) {
@@ -242,6 +249,7 @@ public class RaceRecords {
       this.heatFastestLapHolder = current.getHeatFastestLap().getHolderName();
       this.heatFastestLapHolderNickname = current.getHeatFastestLap().getHolderNickname();
       this.heatFastestLapHolderTeamName = current.getHeatFastestLap().getHolderTeamName();
+      this.heatFastestLapHeatNumber = current.getHeatFastestLap().getHeatNumber();
     }
 
     int laneCount = this.raceLaneFastestLapTimes.size();
@@ -252,6 +260,7 @@ public class RaceRecords {
       this.raceLaneFastestLapHolders.set(i, entry.getHolderName());
       this.raceLaneFastestLapHolderNicknames.set(i, entry.getHolderNickname());
       this.raceLaneFastestLapHolderTeamNames.set(i, entry.getHolderTeamName());
+      this.raceLaneFastestLapHeatNumbers.set(i, entry.getHeatNumber());
     }
 
     for (int i = 0; i < current.getLaneHighestScoreCount() && i < laneCount; i++) {
@@ -364,11 +373,13 @@ public class RaceRecords {
     raceFastestLapHolder = "";
     raceFastestLapHolderNickname = "";
     raceFastestLapHolderTeamName = "";
+    raceFastestLapHeatNumber = 0;
     for (int i = 0; i < raceLaneFastestLapTimes.size(); i++) {
       raceLaneFastestLapTimes.set(i, Double.MAX_VALUE);
       raceLaneFastestLapHolders.set(i, "");
       raceLaneFastestLapHolderNicknames.set(i, "");
       raceLaneFastestLapHolderTeamNames.set(i, "");
+      raceLaneFastestLapHeatNumbers.set(i, 0);
     }
   }
 
@@ -376,13 +387,15 @@ public class RaceRecords {
     for (Heat heat : race.getHeats()) {
       for (DriverHeatData dhd : heat.getDrivers()) {
         double lapTime = dhd.getBestLapTime();
-        if (lapTime > 0 && lapTime < raceFastestLap) updateRaceBestLap(dhd, lapTime);
+        if (lapTime > 0 && lapTime < raceFastestLap)
+          updateRaceBestLap(dhd, lapTime, heat.getHeatNumber());
       }
     }
   }
 
-  private void updateRaceBestLap(DriverHeatData dhd, double lapTime) {
+  private void updateRaceBestLap(DriverHeatData dhd, double lapTime, int heatNumber) {
     raceFastestLap = lapTime;
+    raceFastestLapHeatNumber = heatNumber;
     Driver actualDriver = dhd.getActualDriver();
     if (actualDriver != null && actualDriver != Driver.EMPTY_DRIVER) {
       raceFastestLapHolder = actualDriver.getName();
@@ -403,13 +416,14 @@ public class RaceRecords {
         DriverHeatData dhd = heat.getDrivers().get(i);
         double lapTime = dhd.getBestLapTime();
         if (lapTime > 0 && lapTime < raceLaneFastestLapTimes.get(i))
-          updateRaceLaneBestLap(i, dhd, lapTime);
+          updateRaceLaneBestLap(i, dhd, lapTime, heat.getHeatNumber());
       }
     }
   }
 
-  private void updateRaceLaneBestLap(int lane, DriverHeatData dhd, double lapTime) {
+  private void updateRaceLaneBestLap(int lane, DriverHeatData dhd, double lapTime, int heatNumber) {
     raceLaneFastestLapTimes.set(lane, lapTime);
+    raceLaneFastestLapHeatNumbers.set(lane, heatNumber);
     Driver actualDriver = dhd.getActualDriver();
     if (actualDriver != null && actualDriver != Driver.EMPTY_DRIVER) {
       raceLaneFastestLapHolders.set(lane, actualDriver.getName());
@@ -567,6 +581,7 @@ public class RaceRecords {
                     .setHolderName(nonNull(raceFastestLapHolder))
                     .setHolderNickname(nonNull(raceFastestLapHolderNickname))
                     .setHolderTeamName(nonNull(raceFastestLapHolderTeamName))
+                    .setHeatNumber(raceFastestLapHeatNumber)
                     .build())
             .setHighestScore(
                 RecordEntry.newBuilder()
@@ -581,6 +596,7 @@ public class RaceRecords {
                     .setHolderName(nonNull(heatFastestLapHolder))
                     .setHolderNickname(nonNull(heatFastestLapHolderNickname))
                     .setHolderTeamName(nonNull(heatFastestLapHolderTeamName))
+                    .setHeatNumber(heatFastestLapHeatNumber)
                     .build());
     for (int i = 0; i < raceLaneFastestLapTimes.size(); i++) {
       currentBuilder.addLaneFastestLap(
@@ -592,6 +608,7 @@ public class RaceRecords {
               .setHolderName(nonNull(raceLaneFastestLapHolders.get(i)))
               .setHolderNickname(nonNull(raceLaneFastestLapHolderNicknames.get(i)))
               .setHolderTeamName(nonNull(raceLaneFastestLapHolderTeamNames.get(i)))
+              .setHeatNumber(raceLaneFastestLapHeatNumbers.get(i))
               .build());
       currentBuilder.addLaneHighestScore(
           RecordEntry.newBuilder()
@@ -617,15 +634,19 @@ public class RaceRecords {
   }
 
   public void onLap(DriverHeatData driverData, double lapTime, int lane) {
-    boolean changed = updateHeatFastestLap(driverData, lapTime);
-    if (updateSessionFastestLap(driverData, lapTime)) changed = true;
-    if (updateLaneFastestLap(driverData, lapTime, lane)) changed = true;
+    int currentHeatNumber =
+        race.getCurrentHeat() != null ? race.getCurrentHeat().getHeatNumber() : 0;
+    boolean changed = updateHeatFastestLap(driverData, lapTime, currentHeatNumber);
+    if (updateSessionFastestLap(driverData, lapTime, currentHeatNumber)) changed = true;
+    if (updateLaneFastestLap(driverData, lapTime, lane, currentHeatNumber)) changed = true;
     if (changed) broadcastRecords();
   }
 
-  private boolean updateHeatFastestLap(DriverHeatData driverData, double lapTime) {
+  private boolean updateHeatFastestLap(
+      DriverHeatData driverData, double lapTime, int currentHeatNumber) {
     if (lapTime >= heatFastestLap) return false;
     heatFastestLap = lapTime;
+    heatFastestLapHeatNumber = currentHeatNumber;
     Driver actualDriver = driverData.getActualDriver();
     heatFastestLapHolder =
         (actualDriver != null && actualDriver != Driver.EMPTY_DRIVER)
@@ -642,9 +663,11 @@ public class RaceRecords {
     return true;
   }
 
-  private boolean updateSessionFastestLap(DriverHeatData driverData, double lapTime) {
+  private boolean updateSessionFastestLap(
+      DriverHeatData driverData, double lapTime, int currentHeatNumber) {
     if (lapTime >= raceFastestLap) return false;
     raceFastestLap = lapTime;
+    raceFastestLapHeatNumber = currentHeatNumber;
     Driver actualDriver = driverData.getActualDriver();
     raceFastestLapHolder =
         (actualDriver != null && actualDriver != Driver.EMPTY_DRIVER)
@@ -661,11 +684,13 @@ public class RaceRecords {
     return true;
   }
 
-  private boolean updateLaneFastestLap(DriverHeatData driverData, double lapTime, int lane) {
+  private boolean updateLaneFastestLap(
+      DriverHeatData driverData, double lapTime, int lane, int currentHeatNumber) {
     if (lane < 0
         || lane >= raceLaneFastestLapTimes.size()
         || lapTime >= raceLaneFastestLapTimes.get(lane)) return false;
     raceLaneFastestLapTimes.set(lane, lapTime);
+    raceLaneFastestLapHeatNumbers.set(lane, currentHeatNumber);
     Driver actualDriver = driverData.getActualDriver();
     raceLaneFastestLapHolders.set(
         lane,

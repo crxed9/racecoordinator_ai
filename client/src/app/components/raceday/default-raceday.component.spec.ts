@@ -3500,6 +3500,52 @@ describe("DefaultRacedayComponent", () => {
       expect(component.getLaneRecordDate(hd0)).toBe("2026-08-21");
       expect(component.getLaneRecordDate(hd2)).toBe("---");
     });
+
+    it("should get best race lap entry, time, holder, and heat correctly", () => {
+      const mockRecords: IRecordData = {
+        current: {
+          laneFastestLap: [
+            {
+              value: 3.9876,
+              holderNickname: "Lightning",
+              heatNumber: 2,
+            },
+            {
+              value: 4.5432,
+              holderName: "Bob Builder",
+              heatNumber: 1,
+            },
+          ],
+        },
+      };
+      recordDataSubject.next(mockRecords);
+
+      const hd0 = { laneIndex: 0 } as any;
+      const hd1 = { laneIndex: 1 } as any;
+      const hd2 = { laneIndex: 2 } as any;
+
+      expect(component.getBestRaceLapEntry(hd0)?.value).toBe(3.9876);
+      expect(component.getBestRaceLapEntry(hd1)?.value).toBe(4.5432);
+      expect(component.getBestRaceLapEntry(hd2)).toBeUndefined();
+      expect(component.getBestRaceLapEntry(0)?.value).toBe(3.9876);
+
+      expect(component.getBestRaceLapTime(hd0)).toBe("3.988");
+      expect(component.getBestRaceLapTime(hd1)).toBe("4.543");
+      expect(component.getBestRaceLapTime(hd2)).toBe("--.---");
+
+      expect(component.getBestRaceLapHolder(hd0)).toBe("Lightning");
+      expect(component.getBestRaceLapHolder(hd1)).toBe("Bob Builder");
+      expect(component.getBestRaceLapHolder(hd2)).toBe("---");
+
+      expect(component.getBestRaceLapHeat(hd0)).toContain("2");
+      expect(component.getBestRaceLapHeat(hd1)).toContain("1");
+      expect(component.getBestRaceLapHeat(hd2)).toBe("---");
+
+      // UI editor mode fallback
+      spyOn(component, "isUIEditorMode").and.returnValue(true);
+      expect(component.getBestRaceLapEntry(hd2)).toBeDefined();
+      expect(component.getBestRaceLapEntry(hd2)?.value).toBeGreaterThan(0);
+    });
   });
 
   describe("Countdown Overlay", () => {
@@ -6706,6 +6752,44 @@ describe("DefaultRacedayComponent", () => {
         "Live Telemetry",
       );
       expect(component.getWidgetTypeLabelKey("custom:unknown")).toBe("unknown");
+    });
+
+    it("should return structured toolbox groups with root and subgroups in getToolboxGroups", () => {
+      component.layout = { widgets: [] } as any;
+      const groups = component.getToolboxGroups();
+      expect(groups.length).toBeGreaterThanOrEqual(1);
+
+      const rcAiGroup = groups.find((g) => g.id === "race-coordinator-ai");
+      expect(rcAiGroup).toBeDefined();
+      expect(rcAiGroup?.rootWidgets.length).toBe(0);
+      expect(rcAiGroup?.subgroups.length).toBe(4);
+      const standings = rcAiGroup?.subgroups.find(
+        (s) => s.id === "standings-heats",
+      );
+      expect(standings?.widgets.map((w) => w.type)).toContain("lane-view");
+      const titles = rcAiGroup?.subgroups.find((s) => s.id === "titles-info");
+      expect(titles?.widgets.map((w) => w.type)).toContain("timer");
+
+      // Toggle group expansion
+      expect(rcAiGroup?.expanded).toBeTrue();
+      component.toggleToolboxGroup("race-coordinator-ai");
+      const toggledGroups = component.getToolboxGroups();
+      expect(
+        toggledGroups.find((g) => g.id === "race-coordinator-ai")?.expanded,
+      ).toBeFalse();
+
+      // Toggle subgroup expansion
+      component.toggleToolboxSubgroup("actions");
+      const updatedGroups = component.getToolboxGroups();
+      const actions = updatedGroups[0].subgroups.find(
+        (s) => s.id === "actions",
+      );
+      expect(actions?.expanded).toBeTrue();
+
+      // Clear search term
+      component.toolboxSearchTerm = "lap";
+      component.clearToolboxSearch();
+      expect(component.toolboxSearchTerm).toBe("");
     });
 
     it("should execute master power actions on executeWidgetAction", () => {
