@@ -813,6 +813,8 @@
   "RDS_MENU_LOG_LEVELS": "Logniveaus",
   "RDS_MENU_OPTIONS": "Opties",
   "RDS_MENU_QUIT": "Afsluiten",
+  "RDS_QUIT_BLOCKED_MESSAGE": "Race Coordinator AI is afgesloten. De beveiligingsinstellingen van uw browser hebben verhinderd dat dit tabblad automatisch werd gesloten. Sluit dit tabblad (Ctrl+W) of venster (Alt+F4).",
+  "RDS_QUIT_TITLE": "Race Coordinator AI afsluiten",
   "RDS_MENU_RACE": "Races",
   "RDS_MENU_RACE_HISTORY": "Racehistorie...",
   "RDS_MENU_SEASON": "Seizoenen",

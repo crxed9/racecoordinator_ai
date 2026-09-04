@@ -813,6 +813,8 @@
   "RDS_MENU_LOG_LEVELS": "Livelli di log",
   "RDS_MENU_OPTIONS": "Opzioni",
   "RDS_MENU_QUIT": "Esci",
+  "RDS_QUIT_BLOCKED_MESSAGE": "Race Coordinator AI è stato chiuso. Le impostazioni di sicurezza del browser hanno impedito la chiusura automatica di questa scheda. Chiudi questa scheda (Ctrl+W) o finestra (Alt+F4).",
+  "RDS_QUIT_TITLE": "Esci da Race Coordinator AI",
   "RDS_MENU_RACE": "Gare",
   "RDS_MENU_RACE_HISTORY": "Cronologia gare...",
   "RDS_MENU_SEASON": "Stagioni",

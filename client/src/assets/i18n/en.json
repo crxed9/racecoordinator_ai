@@ -813,6 +813,8 @@
   "RDS_MENU_LOG_LEVELS": "Log Levels",
   "RDS_MENU_OPTIONS": "Options",
   "RDS_MENU_QUIT": "Quit",
+  "RDS_QUIT_BLOCKED_MESSAGE": "Race Coordinator AI has shut down. Your browser's security settings prevented this tab from closing automatically. Please close this tab (Ctrl+W) or window (Alt+F4).",
+  "RDS_QUIT_TITLE": "Quit Race Coordinator AI",
   "RDS_MENU_RACE": "Races",
   "RDS_MENU_RACE_HISTORY": "Race History...",
   "RDS_MENU_SEASON": "Seasons",

@@ -1159,6 +1159,14 @@
   (acknowledge)="showErrorModal = false"
 >
 </app-acknowledgement-modal>
+<app-acknowledgement-modal
+  [visible]="showQuitBlockedModal"
+  title="RDS_QUIT_TITLE"
+  message="RDS_QUIT_BLOCKED_MESSAGE"
+  buttonText="GEN_OK"
+  (acknowledge)="onAcknowledgeQuitModal()"
+>
+</app-acknowledgement-modal>
 
 <app-demo-config-modal
   [visible]="showDemoConfigModal"

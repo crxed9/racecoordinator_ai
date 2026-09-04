@@ -813,6 +813,8 @@
   "RDS_MENU_LOG_LEVELS": "Protokollebenen",
   "RDS_MENU_OPTIONS": "Optionen",
   "RDS_MENU_QUIT": "Beenden",
+  "RDS_QUIT_BLOCKED_MESSAGE": "Race Coordinator AI wurde beendet. Die Sicherheitseinstellungen Ihres Browsers haben das automatische Schließen dieses Tabs verhindert. Bitte schließen Sie diesen Tab (Strg+W) oder dieses Fenster (Alt+F4).",
+  "RDS_QUIT_TITLE": "Race Coordinator AI beenden",
   "RDS_MENU_RACE": "Rennen",
   "RDS_MENU_RACE_HISTORY": "Rennhistorie...",
   "RDS_MENU_SEASON": "Saisons",

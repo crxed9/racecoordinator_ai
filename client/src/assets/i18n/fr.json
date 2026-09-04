@@ -813,6 +813,8 @@
   "RDS_MENU_LOG_LEVELS": "Niveaux de log",
   "RDS_MENU_OPTIONS": "Options",
   "RDS_MENU_QUIT": "Quitter",
+  "RDS_QUIT_BLOCKED_MESSAGE": "Race Coordinator AI s'est arrêté. Les paramètres de sécurité de votre navigateur ont empêché la fermeture automatique de cet onglet. Veuillez fermer cet onglet (Ctrl+W) ou cette fenêtre (Alt+F4).",
+  "RDS_QUIT_TITLE": "Quitter Race Coordinator AI",
   "RDS_MENU_RACE": "Courses",
   "RDS_MENU_RACE_HISTORY": "Historique des courses...",
   "RDS_MENU_SEASON": "Saisons",

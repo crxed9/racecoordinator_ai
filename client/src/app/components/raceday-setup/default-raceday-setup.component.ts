@@ -172,6 +172,9 @@ export class DefaultRacedaySetupComponent implements OnInit {
   showRacingRosterDialog: boolean = false;
   demoConfig?: IDemoConfig;
 
+  // Quit Fallback Modal
+  showQuitBlockedModal: boolean = false;
+
   // Season State
   seasons: Season[] = [];
   selectedSeason?: Season;
@@ -490,10 +493,11 @@ export class DefaultRacedaySetupComponent implements OnInit {
         this.quit();
       }
     } else {
-      if (
-        (event.altKey && event.key === "F4") ||
-        (event.ctrlKey && (event.key === "q" || event.key === "Q"))
-      ) {
+      if (event.altKey && event.key === "F4") {
+        this.closeFileDropdown();
+        return;
+      }
+      if (event.ctrlKey && (event.key === "q" || event.key === "Q")) {
         event.preventDefault();
         this.quit();
       }
@@ -1624,12 +1628,45 @@ export class DefaultRacedaySetupComponent implements OnInit {
   }
 
   closeWindow() {
+    if (document.fullscreenElement) {
+      try {
+        document.exitFullscreen();
+      } catch (e) {
+        // ignore
+      }
+    }
+
     try {
-      window.open("", "_self", "");
       window.close();
     } catch (e) {
-      window.close();
+      // ignore
     }
+
+    setTimeout(() => {
+      this.handleQuitBlockedFallback();
+    }, 150);
+  }
+
+  handleQuitBlockedFallback() {
+    this.showQuitBlockedModal = true;
+    this.cdr.detectChanges();
+  }
+
+  onAcknowledgeQuitModal() {
+    this.showQuitBlockedModal = false;
+    this.redirectToBlank();
+  }
+
+  redirectToBlank() {
+    try {
+      this.getWindowLocation().replace("about:blank");
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  getWindowLocation(): Location {
+    return window.location;
   }
 
   exportSettings() {

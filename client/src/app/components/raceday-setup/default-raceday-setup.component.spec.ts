@@ -704,12 +704,82 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(component.closeWindow).toHaveBeenCalled();
     });
 
-    it("should call window.close in closeWindow", () => {
-      spyOn(window, "open");
+    it("should call window.close in closeWindow and trigger fallback modal after timeout", fakeAsync(() => {
       spyOn(window, "close");
+      spyOn(component, "handleQuitBlockedFallback").and.callThrough();
       component.closeWindow();
-      expect(window.open).toHaveBeenCalledWith("", "_self", "");
       expect(window.close).toHaveBeenCalled();
+      expect(component.showQuitBlockedModal).toBeFalse();
+
+      tick(150);
+      expect(component.handleQuitBlockedFallback).toHaveBeenCalled();
+      expect(component.showQuitBlockedModal).toBeTrue();
+    }));
+
+    it("should exit fullscreen if active when closeWindow is called", fakeAsync(() => {
+      spyOn(window, "close");
+      spyOnProperty(document, "fullscreenElement", "get").and.returnValue(
+        document.body,
+      );
+      spyOn(document, "exitFullscreen").and.returnValue(Promise.resolve());
+
+      component.closeWindow();
+      expect(document.exitFullscreen).toHaveBeenCalled();
+      expect(window.close).toHaveBeenCalled();
+      tick(150);
+    }));
+
+    it("should gracefully handle errors when document.exitFullscreen throws", fakeAsync(() => {
+      spyOn(window, "close");
+      spyOnProperty(document, "fullscreenElement", "get").and.returnValue(
+        document.body,
+      );
+      spyOn(document, "exitFullscreen").and.throwError("Fullscreen error");
+
+      expect(() => component.closeWindow()).not.toThrow();
+      expect(window.close).toHaveBeenCalled();
+      tick(150);
+    }));
+
+    it("should gracefully handle errors when window.close throws", fakeAsync(() => {
+      spyOn(window, "close").and.throwError("Close blocked");
+
+      expect(() => component.closeWindow()).not.toThrow();
+      tick(150);
+      expect(component.showQuitBlockedModal).toBeTrue();
+    }));
+
+    it("should hide quit fallback modal and redirect to blank when acknowledged", () => {
+      component.showQuitBlockedModal = true;
+      spyOn(component, "redirectToBlank");
+      component.onAcknowledgeQuitModal();
+      expect(component.showQuitBlockedModal).toBeFalse();
+      expect(component.redirectToBlank).toHaveBeenCalled();
+    });
+
+    it("should replace window.location with about:blank in redirectToBlank", () => {
+      const mockLocation = { replace: jasmine.createSpy("replace") };
+      spyOn(component, "getWindowLocation").and.returnValue(
+        mockLocation as any,
+      );
+      component.redirectToBlank();
+      expect(mockLocation.replace).toHaveBeenCalledWith("about:blank");
+    });
+
+    it("should return window.location in getWindowLocation", () => {
+      expect(component.getWindowLocation()).toBe(window.location);
+    });
+
+    it("should gracefully handle errors in redirectToBlank", () => {
+      const mockLocation = {
+        replace: jasmine
+          .createSpy("replace")
+          .and.throwError("Navigation blocked"),
+      };
+      spyOn(component, "getWindowLocation").and.returnValue(
+        mockLocation as any,
+      );
+      expect(() => component.redirectToBlank()).not.toThrow();
     });
 
     it("should detect Mac and set quitShortcut to Cmd+Q", () => {
@@ -743,8 +813,9 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(component.quit).toHaveBeenCalled();
     });
 
-    it("should trigger quit on Alt+F4 on Windows", () => {
+    it("should allow native Alt+F4 on Windows without preventing default and close file dropdown", () => {
       component.isMac = false;
+      component.isFileDropdownOpen = true;
       spyOn(component, "quit");
       const event = new KeyboardEvent("keydown", {
         key: "F4",
@@ -753,8 +824,9 @@ describe("DefaultRacedaySetupComponent", () => {
       });
       spyOn(event, "preventDefault");
       component.onKeyDown(event);
-      expect(event.preventDefault).toHaveBeenCalled();
-      expect(component.quit).toHaveBeenCalled();
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(component.quit).not.toHaveBeenCalled();
+      expect(component.isFileDropdownOpen).toBeFalse();
     });
 
     it("should trigger quit on Ctrl+Q on Windows", () => {
