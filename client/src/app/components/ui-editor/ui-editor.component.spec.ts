@@ -2725,6 +2725,7 @@ describe("UIEditorComponent", () => {
       expect(selectors).toContain("#help-raceday-sort");
       expect(selectors).toContain("#help-raceday-highlight");
       expect(selectors).toContain("#help-raceday-reset");
+      expect(selectors).toContain("#help-raceday-clear");
       expect(selectors).toContain("#help-raceday-import-export");
       expect(selectors).toContain("#help-raceday-canvas");
       expect(selectors).toContain("#help-widget-inspector");
@@ -3046,6 +3047,34 @@ describe("UIEditorComponent", () => {
       expect(component.onImportPracticeRacedayLayout).toHaveBeenCalledWith(
         fakeEvent,
       );
+    });
+
+    it("should delegate clearLayout and clearCurrentLayout properly", () => {
+      spyOn(component.undoManager, "captureState");
+      const customUi: CustomUI = {
+        entity_id: "default_ui_layout_rc_ai",
+        name: "Default UI",
+        is_default: true,
+        layoutJson: JSON.stringify({
+          baseWidth: 1920,
+          baseHeight: 1080,
+          widgets: [{ id: "w1", widgetType: "lane-view" }],
+        }),
+      };
+      component.displayCustomUIs = [customUi];
+      component.activeCustomUiId = "default_ui_layout_rc_ai";
+      component.selectedWidgetId = "w1";
+
+      component.clearLayout(customUi);
+      expect(JSON.parse(customUi.layoutJson!).widgets).toEqual([]);
+      expect(component.selectedWidgetId).toBeNull();
+      expect(component.undoManager.captureState).toHaveBeenCalled();
+
+      spyOn(component, "clearLayout");
+      const targetUi = component.getTargetCustomUi("raceday");
+      expect(targetUi).toBeDefined();
+      component.clearCurrentLayout();
+      expect(component.clearLayout).toHaveBeenCalledWith(targetUi!);
     });
   });
 

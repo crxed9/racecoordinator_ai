@@ -15,10 +15,11 @@ export function findDefaultWidgetId(
 export function ensureWidgetSelectedHelper(comp: any, ui?: CustomUI): void {
   const layout = comp.getLayout(ui || comp.activeCustomUi);
   const widgets = layout?.widgets || [];
-  if (
-    widgets.length > 0 &&
-    (!comp.selectedWidgetId ||
-      !widgets.some((w: any) => w.id === comp.selectedWidgetId))
+  if (widgets.length === 0) {
+    comp.selectedWidgetId = null;
+  } else if (
+    !comp.selectedWidgetId ||
+    !widgets.some((w: any) => w.id === comp.selectedWidgetId)
   ) {
     comp.selectedWidgetId = findDefaultWidgetId(layout);
   }
