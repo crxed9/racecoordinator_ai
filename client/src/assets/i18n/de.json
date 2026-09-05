@@ -911,6 +911,8 @@
   "RDS_UPDATE_STATUS_CONNECTING": "Verbinden...",
   "RDS_UPDATE_STATUS_DOWNLOADING": "Herunterladen...",
   "RDS_UPDATE_STATUS_LAUNCHING": "Installationsprogramm starten...",
+  "RDS_UPDATE_UP_TO_DATE_MESSAGE": "Sie verwenden die neueste Version basierend auf Ihrer Update-Konfiguration.",
+  "RDS_UPDATE_UP_TO_DATE_TITLE": "Nach Updates suchen",
   "RD_ADD_HEAT": "Lauf hinzufügen",
   "RD_ADD_LAP_SECTIONS_APPLY": "Anwenden",
   "RD_ADD_LAP_SECTIONS_AUTO_SEGMENTS": "Auto-Abschnitte",

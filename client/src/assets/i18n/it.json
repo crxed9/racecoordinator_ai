@@ -911,6 +911,8 @@
   "RDS_UPDATE_STATUS_CONNECTING": "Connessione...",
   "RDS_UPDATE_STATUS_DOWNLOADING": "Scaricamento in corso...",
   "RDS_UPDATE_STATUS_LAUNCHING": "Avvio programma di installazione...",
+  "RDS_UPDATE_UP_TO_DATE_MESSAGE": "Stai utilizzando la versione più recente in base alla tua configurazione di aggiornamento.",
+  "RDS_UPDATE_UP_TO_DATE_TITLE": "Controlla aggiornamenti",
   "RD_ADD_HEAT": "Aggiungi manche",
   "RD_ADD_LAP_SECTIONS_APPLY": "Applica",
   "RD_ADD_LAP_SECTIONS_AUTO_SEGMENTS": "Segmenti automatici",

@@ -911,6 +911,8 @@
   "RDS_UPDATE_STATUS_CONNECTING": "Connecting...",
   "RDS_UPDATE_STATUS_DOWNLOADING": "Downloading...",
   "RDS_UPDATE_STATUS_LAUNCHING": "Launching installer...",
+  "RDS_UPDATE_UP_TO_DATE_MESSAGE": "You are using the latest version based on your update configuration.",
+  "RDS_UPDATE_UP_TO_DATE_TITLE": "Check for Updates",
   "RD_ADD_HEAT": "Add Heat",
   "RD_ADD_LAP_SECTIONS_APPLY": "Apply",
   "RD_ADD_LAP_SECTIONS_AUTO_SEGMENTS": "Auto segments",

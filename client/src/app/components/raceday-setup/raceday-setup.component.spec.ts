@@ -8,7 +8,7 @@ import {
   tick,
 } from "@angular/core/testing";
 import { Router } from "@angular/router";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, throwError } from "rxjs";
 import { AnalyticsService } from "@app/analytics.service";
 import { DataService } from "@app/data.service";
 import { Role } from "@app/models/role";
@@ -789,6 +789,73 @@ describe("RacedaySetupComponent", () => {
       expect(mockUpdateService.cancelUpdate).toHaveBeenCalled();
       expect(component.isUpdating).toBeFalse();
       expect(component.updateProgress).toBeNull();
+    });
+
+    it("should show up-to-date acknowledgement modal when manual update check finds no updates", () => {
+      const mockResult = {
+        updateAvailable: false,
+        latestVersion: "",
+        releaseNotes: "",
+        downloadUrl: "",
+        releaseUrl: "",
+        isWindows: true,
+      };
+      mockUpdateService.checkForUpdates.and.returnValue(of(mockResult));
+
+      component.checkForUpdates(true);
+
+      expect(mockUpdateService.checkForUpdates).toHaveBeenCalledWith(true);
+      expect(component.showUpToDateModal).toBeTrue();
+      expect(component.isUpdateBannerVisible).toBeFalse();
+
+      component.acknowledgeUpToDate();
+      expect(component.showUpToDateModal).toBeFalse();
+    });
+
+    it("should not show up-to-date acknowledgement modal during automatic update check", () => {
+      const mockResult = {
+        updateAvailable: false,
+        latestVersion: "",
+        releaseNotes: "",
+        downloadUrl: "",
+        releaseUrl: "",
+        isWindows: true,
+      };
+      mockUpdateService.checkForUpdates.and.returnValue(of(mockResult));
+
+      component.checkForUpdates(false);
+
+      expect(mockUpdateService.checkForUpdates).toHaveBeenCalledWith(false);
+      expect(component.showUpToDateModal).toBeFalse();
+    });
+
+    it("should not show up-to-date acknowledgement modal when manual check finds an update available", () => {
+      const mockResult = {
+        updateAvailable: true,
+        latestVersion: "v2.0.0",
+        releaseNotes: "",
+        downloadUrl: "http://example.com/dl",
+        releaseUrl: "http://example.com/release",
+        isWindows: true,
+      };
+      mockUpdateService.checkForUpdates.and.returnValue(of(mockResult));
+
+      component.checkForUpdates(true);
+
+      expect(mockUpdateService.checkForUpdates).toHaveBeenCalledWith(true);
+      expect(component.showUpToDateModal).toBeFalse();
+      expect(component.isUpdateBannerVisible).toBeTrue();
+    });
+
+    it("should not show up-to-date acknowledgement modal when update check fails with an error", () => {
+      mockUpdateService.checkForUpdates.and.returnValue(
+        throwError(() => ({ status: 500, message: "Network error" })),
+      );
+
+      component.checkForUpdates(true);
+
+      expect(mockUpdateService.checkForUpdates).toHaveBeenCalledWith(true);
+      expect(component.showUpToDateModal).toBeFalse();
     });
   });
 
