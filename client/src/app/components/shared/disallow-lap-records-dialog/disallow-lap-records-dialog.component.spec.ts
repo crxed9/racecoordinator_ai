@@ -126,6 +126,7 @@ describe("DisallowLapRecordsDialogComponent", () => {
   it("should create the component with default selection of All Drivers, All Heats, All Lanes, and sort by time asc", () => {
     expect(component).toBeTruthy();
     expect(component.canEdit).toBeFalse();
+    expect(component.selectedRaceId).toBe("");
     expect(component.selectedDriverName).toBe("");
     expect(component.selectedHeatNumber).toBe(-1);
     expect(component.selectedLaneIndex).toBe(-1);
@@ -134,6 +135,7 @@ describe("DisallowLapRecordsDialogComponent", () => {
   });
 
   it("should reset selection and sort when visible changes to true", () => {
+    component.selectedRaceId = "race_1";
     component.selectedDriverName = "Alice";
     component.selectedHeatNumber = 2;
     component.selectedLaneIndex = 1;
@@ -151,6 +153,7 @@ describe("DisallowLapRecordsDialogComponent", () => {
       },
     });
 
+    expect(component.selectedRaceId).toBe("");
     expect(component.selectedDriverName).toBe("");
     expect(component.selectedHeatNumber).toBe(-1);
     expect(component.selectedLaneIndex).toBe(-1);
@@ -373,6 +376,11 @@ describe("DisallowLapRecordsDialogComponent", () => {
     expect(component.sortDirection).toBe("asc");
     expect(component.getAriaSort("action")).toBe("ascending");
     expect(component.getAriaSort("time")).toBe("none");
+
+    // 9. Sort by Date
+    component.onSort("date");
+    expect(component.sortColumn).toBe("date");
+    expect(component.sortDirection).toBe("asc");
   });
 
   it("should not toggle lap when canEdit is false", () => {
@@ -401,6 +409,7 @@ describe("DisallowLapRecordsDialogComponent", () => {
       false,
     );
     expect(component.recordsUpdated.emit).toHaveBeenCalledWith({
+      raceId: undefined,
       heatNumber: 1,
       lane: 0,
       lapIndex: 1,
@@ -428,6 +437,7 @@ describe("DisallowLapRecordsDialogComponent", () => {
       false,
     );
     expect(component.recordsUpdated.emit).toHaveBeenCalledWith({
+      raceId: "hist_999",
       heatNumber: 1,
       lane: 0,
       lapIndex: 2,
@@ -529,6 +539,8 @@ describe("DisallowLapRecordsDialogComponent", () => {
 
   it("should generate a stable tracking key with trackByLap", () => {
     const lap = {
+      raceName: "Sprint",
+      raceId: "r1",
       heatNumber: 1,
       laneIndex: 2,
       driverName: "Speedy",
@@ -538,7 +550,7 @@ describe("DisallowLapRecordsDialogComponent", () => {
       countTowardsRecords: true,
       isFastest: false,
     };
-    expect(component.trackByLap(lap, 0)).toBe("1-2-3-0");
+    expect(component.trackByLap(lap, 0)).toBe("r1-1-2-3-0");
   });
 
   it("should handle real Heat and DriverHeatData instances with empty lanes without throwing", () => {
@@ -702,29 +714,30 @@ describe("DisallowLapRecordsDialogComponent", () => {
     expect(emptyState).toBeTruthy();
   });
 
-  it("should render 7 column headers in exact order: Driver, Heat, Lane, Lap #, Time, Record Status, Action", () => {
+  it("should render 8 column headers in exact order: Date, Driver, Heat, Lane, Lap #, Time, Record Status, Action", () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const headerRow = compiled.querySelector(".table-header-row");
     expect(headerRow).toBeTruthy();
 
     const headers = headerRow!.querySelectorAll(".sortable-header");
-    expect(headers.length).toBe(7);
+    expect(headers.length).toBe(8);
 
     // Assert exact order of classes
-    expect(headers[0].classList.contains("col-driver")).toBeTrue();
-    expect(headers[1].classList.contains("col-heat")).toBeTrue();
-    expect(headers[2].classList.contains("col-lane")).toBeTrue();
-    expect(headers[3].classList.contains("col-lap")).toBeTrue();
-    expect(headers[4].classList.contains("col-time")).toBeTrue();
-    expect(headers[5].classList.contains("col-status")).toBeTrue();
-    expect(headers[6].classList.contains("col-action")).toBeTrue();
+    expect(headers[0].classList.contains("col-date")).toBeTrue();
+    expect(headers[1].classList.contains("col-driver")).toBeTrue();
+    expect(headers[2].classList.contains("col-heat")).toBeTrue();
+    expect(headers[3].classList.contains("col-lane")).toBeTrue();
+    expect(headers[4].classList.contains("col-lap")).toBeTrue();
+    expect(headers[5].classList.contains("col-time")).toBeTrue();
+    expect(headers[6].classList.contains("col-status")).toBeTrue();
+    expect(headers[7].classList.contains("col-action")).toBeTrue();
 
     // Clicking header triggers sort
-    (headers[0] as HTMLElement).click();
+    (headers[1] as HTMLElement).click();
     fixture.detectChanges();
     expect(component.sortColumn).toBe("driver");
     expect(component.sortDirection).toBe("asc");
-    expect(headers[0].classList.contains("is-sorted")).toBeTrue();
+    expect(headers[1].classList.contains("is-sorted")).toBeTrue();
   });
 
   it("should display team subtitle under driver nickname when driver is part of a team", () => {
@@ -1041,5 +1054,162 @@ describe("DisallowLapRecordsDialogComponent", () => {
       false,
       false,
     );
+  });
+
+  it("should support multi-race input, filter by specific race or all races, and display race name and date", () => {
+    const multiRaces = [
+      {
+        _id: "race_run_1",
+        name: "Sprint 2026",
+        timestamp: new Date("2026-05-01T10:00:00Z").getTime(),
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                laneIndex: 0,
+                driver: { name: "Racer One" },
+                lapsWithDetails: [{ time: 2.1, countTowardsRecords: true }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        _id: "race_run_2",
+        name: "Sprint 2026",
+        timestamp: new Date("2026-06-01T10:00:00Z").getTime(),
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                laneIndex: 1,
+                driver: { name: "Racer Two" },
+                lapsWithDetails: [{ time: 1.9, countTowardsRecords: true }],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    fixture.componentRef.setInput("races", multiRaces);
+    fixture.detectChanges();
+
+    // 1. Available race options
+    expect(component.availableRaceOptions.length).toBe(2);
+    expect(component.availableRaceOptions[0].id).toBe("race_run_1");
+    expect(component.availableRaceOptions[1].id).toBe("race_run_2");
+
+    // Verify date select dropdown is rendered and options only display dates (no race names)
+    const compiled = fixture.nativeElement as HTMLElement;
+    const dateSelect = compiled.querySelector("#dlr-date-select");
+    expect(dateSelect).toBeTruthy();
+    const dateOptions = compiled.querySelectorAll(".date-option-item");
+    expect(dateOptions.length).toBe(2);
+    for (let i = 0; i < dateOptions.length; i++) {
+      expect(dateOptions[i].textContent).not.toContain("Sprint Race");
+      expect(dateOptions[i].textContent).not.toContain("Endurance Race");
+    }
+
+    // 2. Default: All Races (selectedRaceId === "")
+    expect(component.selectedRaceId).toBe("");
+    expect(component.normalizedLaps.length).toBe(2);
+    expect(component.bannerDateDisplay).toContain("–");
+
+    // 3. Filter down to race_run_1
+    component.onRaceChange("race_run_1");
+    expect(component.selectedRaceId).toBe("race_run_1");
+    expect(component.normalizedLaps.length).toBe(1);
+    expect(component.normalizedLaps[0].driverName).toBe("Racer One");
+    expect(component.normalizedLaps[0].raceId).toBe("race_run_1");
+
+    // 4. Filter down to race_run_2
+    component.onRaceChange("race_run_2");
+    expect(component.normalizedLaps.length).toBe(1);
+    expect(component.normalizedLaps[0].driverName).toBe("Racer Two");
+    expect(component.normalizedLaps[0].raceId).toBe("race_run_2");
+
+    // 5. Back to all races
+    component.onRaceChange("");
+    expect(component.normalizedLaps.length).toBe(2);
+
+    // 6. Toggling lap record uses lap.raceId
+    roleSubject.next(Role.DIRECTOR);
+    const lapToToggle = component.normalizedLaps[0];
+    component.toggleLapRecord(lapToToggle);
+    expect(mockDataService.updateHistoryLapRecordStatus).toHaveBeenCalledWith(
+      lapToToggle.raceId!,
+      lapToToggle.heatNumber,
+      lapToToggle.laneIndex,
+      lapToToggle.lapIndex,
+      false,
+      false,
+    );
+  });
+
+  it("should show only demo mode lap times when opened with demo races, and only real lap times when opened with real races", () => {
+    const demoRaces = [
+      {
+        _id: "demo_race_run",
+        name: "Test Race",
+        is_demo: true,
+        timestamp: 1000,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                laneIndex: 0,
+                driver: { name: "Demo Driver" },
+                lapsWithDetails: [{ time: 4.5, countTowardsRecords: true }],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const prodRaces = [
+      {
+        _id: "real_race_run",
+        name: "Test Race",
+        is_demo: false,
+        timestamp: 2000,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                laneIndex: 0,
+                driver: { name: "Real Driver" },
+                lapsWithDetails: [{ time: 3.8, countTowardsRecords: true }],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    // 1. When opened with demo race
+    fixture.componentRef.setInput("races", demoRaces);
+    fixture.componentRef.setInput("isDemo", true);
+    fixture.detectChanges();
+
+    expect(component.isDemo()).toBeTrue();
+    expect(component.normalizedLaps.length).toBe(1);
+    expect(component.normalizedLaps[0].driverName).toBe("Demo Driver");
+    expect(component.normalizedLaps[0].raceId).toBe("demo_race_run");
+
+    // 2. When opened with real race
+    fixture.componentRef.setInput("races", prodRaces);
+    fixture.componentRef.setInput("isDemo", false);
+    fixture.detectChanges();
+
+    expect(component.isDemo()).toBeFalse();
+    expect(component.normalizedLaps.length).toBe(1);
+    expect(component.normalizedLaps[0].driverName).toBe("Real Driver");
+    expect(component.normalizedLaps[0].raceId).toBe("real_race_run");
   });
 });

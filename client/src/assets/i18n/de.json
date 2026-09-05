@@ -1427,9 +1427,11 @@
   "RHD_CLOSE_ARIA": "Schließen",
   "RHD_DEFAULT_RACE_NAME": "Abgeschlossenes Rennen",
   "RHD_DRIVERS_COUNT": "{{count}} Fahrer",
+  "RHD_EARLIEST_DATE": "Früheste",
   "RHD_HEATS_COUNT": "{{count}} Heats",
   "RHD_INELIGIBLE_LAP_SINGLE": "{{count}} aberkannte Runde",
   "RHD_INELIGIBLE_LAPS_COUNT": "{{count}} aberkannte Runden",
+  "RHD_LATEST_DATE": "Neueste",
   "RHD_LOADING": "Rennhistorie wird geladen...",
   "RHD_NO_RACES": "Keine abgeschlossenen Rennen gefunden.",
   "RHD_SEARCH_PLACEHOLDER": "Rennen nach Name oder Bahn suchen...",
@@ -2275,5 +2277,11 @@
   "DLR_COL_DRIVER": "Fahrer",
   "DLR_COL_LANE": "Spur",
   "DLR_UNASSIGNED": "Nicht zugewiesen",
-  "DLR_LANE_NUM": "Spur {{lane}}"
+  "DLR_LANE_NUM": "Spur {{lane}}",
+  "DLR_SELECT_RACE": "Rennen",
+  "DLR_ALL_RACES": "Alle Rennen",
+  "DLR_COL_RACE": "Rennen",
+  "DLR_COL_DATE": "Datum",
+  "DLR_SELECT_DATE": "Datum",
+  "DLR_ALL_DATES": "Alle Daten"
 }

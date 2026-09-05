@@ -57,69 +57,54 @@
             </div>
           } @else {
             <div class="races-grid">
-              @for (
-                race of filteredHistories;
-                track race._id || race.id || race.entity_id || $index
-              ) {
+              @for (group of filteredHistories; track group.id || $index) {
                 <div class="race-card">
                   <div class="race-card-main">
                     <div class="race-card-title-row">
-                      <span class="race-name">{{
-                        race.model?.name ||
-                          race.name ||
-                          ("RHD_DEFAULT_RACE_NAME" | translate)
-                      }}</span>
-                      @if (race.is_demo) {
+                      <span class="race-name">{{ group.raceName }}</span>
+                      @if (group.isDemo) {
                         <span class="badge-demo">{{
                           "RHD_BADGE_DEMO" | translate
                         }}</span>
                       }
                     </div>
                     <div class="race-card-meta">
-                      @if (getRaceTimestamp(race); as raceDate) {
+                      @if (group.earliestDate; as earliest) {
                         <span class="meta-item">
-                          <span class="material-icons meta-icon">schedule</span>
-                          {{ raceDate | date: "short" }}
+                          <span class="material-icons meta-icon">event</span>
+                          <span class="meta-label"
+                            >{{ "RHD_EARLIEST_DATE" | translate }}:</span
+                          >
+                          {{ earliest | date: "short" }}
                         </span>
                       }
-                      @if (race.track?.name) {
+                      @if (group.latestDate; as latest) {
+                        <span class="meta-item">
+                          <span class="material-icons meta-icon">update</span>
+                          <span class="meta-label"
+                            >{{ "RHD_LATEST_DATE" | translate }}:</span
+                          >
+                          {{ latest | date: "short" }}
+                        </span>
+                      }
+                      @if (group.trackName) {
                         <span class="meta-item">
                           <span class="material-icons meta-icon"
                             >alt_route</span
                           >
-                          {{ race.track.name }}
-                        </span>
-                      }
-                      @if (race.heats && race.heats.length > 0) {
-                        <span class="meta-item">
-                          <span class="material-icons meta-icon"
-                            >format_list_numbered</span
-                          >
-                          {{
-                            "RHD_HEATS_COUNT"
-                              | translate: { count: race.heats.length }
-                          }}
-                        </span>
-                      }
-                      @if (race.drivers && race.drivers.length > 0) {
-                        <span class="meta-item">
-                          <span class="material-icons meta-icon">groups</span>
-                          {{
-                            "RHD_DRIVERS_COUNT"
-                              | translate: { count: race.drivers.length }
-                          }}
+                          {{ group.trackName }}
                         </span>
                       }
                       <span
                         class="meta-item meta-ineligible-laps"
-                        [class.has-ineligible]="getIneligibleLapCount(race) > 0"
+                        [class.has-ineligible]="group.ineligibleLapCount > 0"
                       >
                         <span class="material-icons meta-icon">block</span>
                         {{
-                          (getIneligibleLapCount(race) === 1
+                          (group.ineligibleLapCount === 1
                             ? "RHD_INELIGIBLE_LAP_SINGLE"
                             : "RHD_INELIGIBLE_LAPS_COUNT"
-                          ) | translate: { count: getIneligibleLapCount(race) }
+                          ) | translate: { count: group.ineligibleLapCount }
                         }}
                       </span>
                     </div>
@@ -129,7 +114,7 @@
                       type="button"
                       class="btn-edit-laps"
                       [disabled]="isLoadingDetails"
-                      (click)="editRaceLaps(race)"
+                      (click)="editRaceLaps(group)"
                     >
                       <span class="material-icons btn-icon">edit_note</span>
                       <span>{{ "RHD_BTN_EDIT_LAPS" | translate }}</span>
@@ -151,29 +136,22 @@
   </div>
 }
 
-@if (showDisallowDialog && selectedHistoryDetails) {
+@if (showDisallowDialog && selectedRaceGroup) {
   <app-disallow-lap-records-dialog
     [visible]="showDisallowDialog"
-    [heats]="selectedHistoryDetails.heats || []"
-    [drivers]="selectedHistoryDetails.drivers || []"
-    [track]="selectedHistoryDetails.track"
+    [races]="selectedRaceGroup.races"
+    [heats]="selectedRaceGroup.races[0]?.heats || []"
+    [drivers]="selectedRaceGroup.races[0]?.drivers || []"
+    [track]="selectedRaceGroup.races[0]?.track"
     [currentHeatNumber]="1"
     [raceHistoryId]="
-      selectedHistoryDetails._id ||
-      selectedHistoryDetails.id ||
-      selectedHistoryDetails.entity_id
+      selectedRaceGroup.races[0]?._id ||
+      selectedRaceGroup.races[0]?.id ||
+      selectedRaceGroup.races[0]?.entity_id
     "
-    [raceName]="
-      selectedHistoryDetails.model?.name || selectedHistoryDetails.name || ''
-    "
-    [raceDate]="getRaceTimestamp(selectedHistoryDetails)"
-    [isDemo]="
-      !!(
-        selectedHistoryDetails.is_demo ||
-        selectedHistoryDetails.isDemo ||
-        selectedHistoryDetails.demo
-      )
-    "
+    [raceName]="selectedRaceGroup.raceName"
+    [raceDate]="selectedRaceGroup.latestDate"
+    [isDemo]="selectedRaceGroup.isDemo"
     (recordsUpdated)="onRecordsUpdated($event)"
     (close)="closeDisallowDialog()"
   ></app-disallow-lap-records-dialog>

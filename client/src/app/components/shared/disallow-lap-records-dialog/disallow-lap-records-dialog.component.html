@@ -39,16 +39,14 @@
               </div>
             </div>
 
-            @if (effectiveRaceDate) {
+            @if (bannerDateDisplay) {
               <div class="race-date-block">
                 <span class="material-icons date-calendar-icon">event</span>
                 <div class="date-info-content">
                   <span class="race-field-label">{{
                     "DLR_DATE_LABEL" | translate
                   }}</span>
-                  <span class="race-date-text">{{
-                    effectiveRaceDate | date: "medium"
-                  }}</span>
+                  <span class="race-date-text">{{ bannerDateDisplay }}</span>
                 </div>
               </div>
             }
@@ -95,8 +93,31 @@
           </div>
         }
 
-        <!-- Independent Selection Controls (Driver, Heat, Lane) -->
+        <!-- Independent Selection Controls (Race, Driver, Heat, Lane) -->
         <div class="selection-grid">
+          <!-- Date Filter -->
+          <div class="control-group">
+            <label class="control-label">{{
+              "DLR_SELECT_DATE" | translate
+            }}</label>
+            <app-custom-select
+              id="dlr-date-select"
+              [ngModel]="selectedRaceId"
+              (ngModelChange)="onRaceChange($event)"
+            >
+              <app-custom-option value="">
+                {{ "DLR_ALL_DATES" | translate }}
+              </app-custom-option>
+              @for (r of availableRaceOptions; track r.id) {
+                <app-custom-option [value]="r.id">
+                  <span class="date-option-item">
+                    {{ r.date ? (r.date | date: "medium") : "—" }}
+                  </span>
+                </app-custom-option>
+              }
+            </app-custom-select>
+          </div>
+
           <!-- Driver Filter -->
           <div class="control-group">
             <label class="control-label">{{
@@ -191,8 +212,38 @@
 
         <!-- Laps Table -->
         <div class="table-card dlr-table-card">
-          <!-- Table Header: driver, heat, lane, lap #, time, record status, action -->
+          <!-- Table Header: date, driver, heat, lane, lap #, time, record status, action -->
           <div class="table-header-row dlr-table-header-row" role="row">
+            <!-- Date Header -->
+            <div
+              class="col-date sortable-header"
+              role="columnheader"
+              tabindex="0"
+              (click)="onSort('date')"
+              (keydown.enter)="onSort('date')"
+              (keydown.space)="onSort('date'); $event.preventDefault()"
+              [class.is-sorted]="sortColumn === 'date'"
+              [attr.aria-sort]="getAriaSort('date')"
+              [title]="
+                'DLR_SORT_ARIA'
+                  | translate: { column: ('DLR_COL_DATE' | translate) }
+              "
+            >
+              <span class="header-label">{{ "DLR_COL_DATE" | translate }}</span>
+              <span
+                class="sort-icon material-icons"
+                [class.active]="sortColumn === 'date'"
+              >
+                {{
+                  sortColumn === "date"
+                    ? sortDirection === "asc"
+                      ? "arrow_upward"
+                      : "arrow_downward"
+                    : "unfold_more"
+                }}
+              </span>
+            </div>
+
             <!-- Driver Header -->
             <div
               class="col-driver sortable-header"
@@ -410,7 +461,7 @@
             </div>
           </div>
 
-          <!-- Table Body: 7 columns in exact matching order -->
+          <!-- Table Body: 8 columns in exact matching order -->
           <div class="table-body dlr-table-body">
             @if (normalizedLaps.length === 0) {
               <div class="empty-state dlr-empty-state">
@@ -418,16 +469,7 @@
                 <p>{{ "DLR_NO_LAPS" | translate }}</p>
               </div>
             } @else {
-              @for (
-                lap of normalizedLaps;
-                track lap.heatNumber +
-                  "-" +
-                  lap.laneIndex +
-                  "-" +
-                  lap.lapIndex +
-                  "-" +
-                  $index
-              ) {
+              @for (lap of normalizedLaps; track trackByLap(lap, $index)) {
                 <div
                   class="table-row dlr-table-row"
                   [class.row-disallowed]="!lap.countTowardsRecords"
@@ -435,7 +477,19 @@
                   [class.row-fastest]="lap.isFastest"
                   [class.dlr-row-fastest]="lap.isFastest"
                 >
-                  <!-- 1. Driver -->
+                  <!-- 1. Date -->
+                  <div class="col-date">
+                    <span
+                      class="race-cell-date"
+                      [title]="
+                        lap.raceDate ? (lap.raceDate | date: 'medium') : ''
+                      "
+                    >
+                      {{ lap.raceDate ? (lap.raceDate | date: "short") : "—" }}
+                    </span>
+                  </div>
+
+                  <!-- 3. Driver -->
                   <div class="col-driver">
                     <div class="driver-cell">
                       <span class="driver-name-text" [title]="lap.driverName">

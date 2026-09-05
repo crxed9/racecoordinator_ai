@@ -17,19 +17,39 @@ describe("RaceHistoryDialogComponent", () => {
   const mockHistories = [
     {
       _id: "hist_1",
+      entity_id: "race_1",
       model: { name: "Grand Prix A" },
       track: { name: "Thunder Track" },
       is_demo: false,
-      heats: [{ heatNumber: 1, drivers: [] }],
+      heats: [
+        {
+          heatNumber: 1,
+          drivers: [
+            {
+              laps: [{ lapTime: 5.2, countTowardsRecords: true }],
+            },
+          ],
+        },
+      ],
       drivers: [{ driver: { name: "Alice" } }],
       timestamp: 1000,
     },
     {
       _id: "hist_2",
+      entity_id: "race_2",
       model: { name: "Sprint Cup" },
       track: { name: "Speedway" },
       is_demo: true,
-      heats: [{ heatNumber: 1, drivers: [] }],
+      heats: [
+        {
+          heatNumber: 1,
+          drivers: [
+            {
+              laps: [{ lapTime: 4.8, countTowardsRecords: true }],
+            },
+          ],
+        },
+      ],
       drivers: [{ driver: { name: "Bob" } }],
       timestamp: 2000,
     },
@@ -105,11 +125,11 @@ describe("RaceHistoryDialogComponent", () => {
 
     component.searchTerm = "Grand";
     expect(component.filteredHistories.length).toBe(1);
-    expect(component.filteredHistories[0].model.name).toBe("Grand Prix A");
+    expect(component.filteredHistories[0].raceName).toBe("Grand Prix A");
 
     component.searchTerm = "Speedway";
     expect(component.filteredHistories.length).toBe(1);
-    expect(component.filteredHistories[0].model.name).toBe("Sprint Cup");
+    expect(component.filteredHistories[0].raceName).toBe("Sprint Cup");
 
     component.searchTerm = "NonExistent";
     expect(component.filteredHistories.length).toBe(0);
@@ -246,14 +266,32 @@ describe("RaceHistoryDialogComponent", () => {
         model: { name: "Clean Race" },
         track: { name: "Track A" },
         ineligible_lap_count: 0,
-        heats: [],
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                laps: [{ lapTime: 4.0, countTowardsRecords: true }],
+              },
+            ],
+          },
+        ],
       },
       {
         _id: "hist_some",
         model: { name: "Flagged Race" },
         track: { name: "Track B" },
         ineligible_lap_count: 2,
-        heats: [],
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                laps: [{ lapTime: 4.0, countTowardsRecords: true }],
+              },
+            ],
+          },
+        ],
       },
     ];
     fixture.detectChanges();
@@ -278,7 +316,16 @@ describe("RaceHistoryDialogComponent", () => {
         model: { name: "Single Ineligible Race" },
         track: { name: "Track C" },
         ineligible_lap_count: 1,
-        heats: [],
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [
+              {
+                laps: [{ lapTime: 4.0, countTowardsRecords: true }],
+              },
+            ],
+          },
+        ],
       },
     ];
     fixture.detectChanges();
@@ -312,5 +359,220 @@ describe("RaceHistoryDialogComponent", () => {
         heats: [{ statistics: { startTime: "2026-08-30T19:00:00Z" } }],
       }),
     ).toBe("2026-08-30T19:00:00Z");
+  });
+
+  it("should group multiple runs of the same race entity and compute earliest and latest dates", () => {
+    component.raceHistories = [
+      {
+        _id: "run_1",
+        entity_id: "club_race_1",
+        model: { name: "Club Championship" },
+        timestamp: 10000,
+        ineligible_lap_count: 1,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 3.5, countTowardsRecords: true }] }],
+          },
+        ],
+      },
+      {
+        _id: "run_2",
+        entity_id: "club_race_1",
+        model: { name: "Club Championship" },
+        timestamp: 20000,
+        ineligible_lap_count: 2,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 3.2, countTowardsRecords: true }] }],
+          },
+        ],
+      },
+      {
+        _id: "run_3",
+        entity_id: "club_race_1",
+        model: { name: "Club Championship" },
+        timestamp: 30000,
+        ineligible_lap_count: 0,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 3.1, countTowardsRecords: true }] }],
+          },
+        ],
+      },
+    ];
+
+    const groups = component.groupedHistories;
+    expect(groups.length).toBe(1);
+    expect(groups[0].raceName).toBe("Club Championship");
+    expect(groups[0].earliestDate).toBe(10000);
+    expect(groups[0].latestDate).toBe(30000);
+    expect(groups[0].ineligibleLapCount).toBe(3);
+    expect(groups[0].races.length).toBe(3);
+  });
+
+  it("should distinguish between demo races and real races with the same name", () => {
+    component.raceHistories = [
+      {
+        _id: "real_run",
+        entity_id: "test_race_id",
+        model: { name: "Test Race" },
+        is_demo: false,
+        timestamp: 5000,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 4.0 }] }],
+          },
+        ],
+      },
+      {
+        _id: "demo_run",
+        entity_id: "test_race_id",
+        model: { name: "Test Race" },
+        is_demo: true,
+        timestamp: 6000,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 4.1 }] }],
+          },
+        ],
+      },
+    ];
+
+    const groups = component.groupedHistories;
+    expect(groups.length).toBe(2);
+
+    const demoGroup = groups.find((g) => g.isDemo);
+    const prodGroup = groups.find((g) => !g.isDemo);
+
+    expect(demoGroup).toBeDefined();
+    expect(demoGroup?.raceName).toBe("Test Race");
+    expect(demoGroup?.isDemo).toBeTrue();
+
+    expect(prodGroup).toBeDefined();
+    expect(prodGroup?.raceName).toBe("Test Race");
+    expect(prodGroup?.isDemo).toBeFalse();
+  });
+
+  it("should exclude races that have no record data (empty heats or 0 laps)", () => {
+    component.raceHistories = [
+      {
+        _id: "race_with_records",
+        model: { name: "Active Race" },
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 3.9 }] }],
+          },
+        ],
+      },
+      {
+        _id: "race_empty_heats",
+        model: { name: "Empty Race 1" },
+        heats: [],
+      },
+      {
+        _id: "race_no_laps",
+        model: { name: "Empty Race 2" },
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [] }],
+          },
+        ],
+      },
+      {
+        _id: "race_zero_times",
+        model: { name: "Zero Time Race" },
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 0 }] }],
+          },
+        ],
+      },
+    ];
+
+    const groups = component.groupedHistories;
+    expect(groups.length).toBe(1);
+    expect(groups[0].raceName).toBe("Active Race");
+  });
+
+  it("should open disallow lap records dialog with all races in the selected group", () => {
+    const group = {
+      id: "prod:::group_1",
+      raceName: "Multi Run Race",
+      isDemo: false,
+      earliestDate: 1000,
+      latestDate: 2000,
+      ineligibleLapCount: 1,
+      races: [
+        { _id: "run_a", model: { name: "Multi Run Race" } },
+        { _id: "run_b", model: { name: "Multi Run Race" } },
+      ],
+    };
+
+    component.editRaceLaps(group);
+
+    expect(component.showDisallowDialog).toBeTrue();
+    expect(component.selectedRaceGroup).toBe(group);
+    expect(component.selectedHistoryDetails).toBe(group.races[0]);
+  });
+
+  it("should only pass demo races to disallow dialog when demo group is edited, and only real races when real group is edited", () => {
+    component.raceHistories = [
+      {
+        _id: "real_race_1",
+        entity_id: "race_entity_123",
+        model: { name: "Thunder 500" },
+        is_demo: false,
+        timestamp: 1000,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 3.5, countTowardsRecords: true }] }],
+          },
+        ],
+      },
+      {
+        _id: "demo_race_1",
+        entity_id: "race_entity_123",
+        model: { name: "Thunder 500" },
+        is_demo: true,
+        timestamp: 2000,
+        heats: [
+          {
+            heatNumber: 1,
+            drivers: [{ laps: [{ lapTime: 3.6, countTowardsRecords: true }] }],
+          },
+        ],
+      },
+    ];
+
+    const groups = component.groupedHistories;
+    const demoGroup = groups.find((g) => g.isDemo)!;
+    const prodGroup = groups.find((g) => !g.isDemo)!;
+
+    // 1. Edit Demo Group
+    component.editRaceLaps(demoGroup);
+    expect(component.selectedRaceGroup?.isDemo).toBeTrue();
+    expect(component.selectedRaceGroup?.races.length).toBe(1);
+    expect(component.selectedRaceGroup?.races[0]._id).toBe("demo_race_1");
+    expect(
+      component.selectedRaceGroup?.races.every((r) => r.is_demo),
+    ).toBeTrue();
+
+    // 2. Edit Prod Group
+    component.editRaceLaps(prodGroup);
+    expect(component.selectedRaceGroup?.isDemo).toBeFalse();
+    expect(component.selectedRaceGroup?.races.length).toBe(1);
+    expect(component.selectedRaceGroup?.races[0]._id).toBe("real_race_1");
+    expect(
+      component.selectedRaceGroup?.races.every((r) => !r.is_demo),
+    ).toBeTrue();
   });
 });

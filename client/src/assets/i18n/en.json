@@ -1428,9 +1428,11 @@
   "RHD_CLOSE_ARIA": "Close",
   "RHD_DEFAULT_RACE_NAME": "Completed Race",
   "RHD_DRIVERS_COUNT": "{{count}} Drivers",
+  "RHD_EARLIEST_DATE": "Earliest",
   "RHD_HEATS_COUNT": "{{count}} Heats",
   "RHD_INELIGIBLE_LAP_SINGLE": "{{count}} Ineligible Lap",
   "RHD_INELIGIBLE_LAPS_COUNT": "{{count}} Ineligible Laps",
+  "RHD_LATEST_DATE": "Latest",
   "RHD_LOADING": "Loading race history...",
   "RHD_NO_RACES": "No completed races found.",
   "RHD_SEARCH_PLACEHOLDER": "Search races by name or track...",
@@ -2276,5 +2278,11 @@
   "DLR_COL_DRIVER": "Driver",
   "DLR_COL_LANE": "Lane",
   "DLR_UNASSIGNED": "Unassigned",
-  "DLR_LANE_NUM": "Lane {{lane}}"
+  "DLR_LANE_NUM": "Lane {{lane}}",
+  "DLR_SELECT_RACE": "Race",
+  "DLR_ALL_RACES": "All Races",
+  "DLR_COL_RACE": "Race",
+  "DLR_COL_DATE": "Date",
+  "DLR_SELECT_DATE": "Date",
+  "DLR_ALL_DATES": "All Dates"
 }

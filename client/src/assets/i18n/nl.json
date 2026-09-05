@@ -1427,9 +1427,11 @@
   "RHD_CLOSE_ARIA": "Sluiten",
   "RHD_DEFAULT_RACE_NAME": "Voltooide race",
   "RHD_DRIVERS_COUNT": "{{count}} Coureurs",
+  "RHD_EARLIEST_DATE": "Vroegste",
   "RHD_HEATS_COUNT": "{{count}} Manches",
   "RHD_INELIGIBLE_LAP_SINGLE": "{{count}} afgekeurde ronde",
   "RHD_INELIGIBLE_LAPS_COUNT": "{{count}} afgekeurde ronden",
+  "RHD_LATEST_DATE": "Laatste",
   "RHD_LOADING": "Racehistorie laden...",
   "RHD_NO_RACES": "Geen voltooide races gevonden.",
   "RHD_SEARCH_PLACEHOLDER": "Zoek races op naam of baan...",
@@ -2275,5 +2277,11 @@
   "DLR_COL_DRIVER": "Coureur",
   "DLR_COL_LANE": "Baan",
   "DLR_UNASSIGNED": "Niet toegewezen",
-  "DLR_LANE_NUM": "Baan {{lane}}"
+  "DLR_LANE_NUM": "Baan {{lane}}",
+  "DLR_SELECT_RACE": "Race",
+  "DLR_ALL_RACES": "Alle Races",
+  "DLR_COL_RACE": "Race",
+  "DLR_COL_DATE": "Datum",
+  "DLR_SELECT_DATE": "Datum",
+  "DLR_ALL_DATES": "Alle datums"
 }

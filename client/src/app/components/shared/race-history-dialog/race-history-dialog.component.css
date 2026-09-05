@@ -232,6 +232,11 @@
   color: #94a3b8;
 }
 
+.meta-label {
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
 .meta-icon {
   font-size: 16px;
   color: #64748b;

@@ -1428,9 +1428,11 @@
   "RHD_CLOSE_ARIA": "Fermer",
   "RHD_DEFAULT_RACE_NAME": "Course terminée",
   "RHD_DRIVERS_COUNT": "{{count}} Pilotes",
+  "RHD_EARLIEST_DATE": "Au plus tôt",
   "RHD_HEATS_COUNT": "{{count}} Séries",
   "RHD_INELIGIBLE_LAP_SINGLE": "{{count}} tour non éligible",
   "RHD_INELIGIBLE_LAPS_COUNT": "{{count}} tours non éligibles",
+  "RHD_LATEST_DATE": "Au plus tard",
   "RHD_LOADING": "Chargement de l'historique des courses...",
   "RHD_NO_RACES": "Aucune course terminée trouvée.",
   "RHD_SEARCH_PLACEHOLDER": "Rechercher des courses par nom ou piste...",
@@ -2276,5 +2278,11 @@
   "DLR_COL_DRIVER": "Pilote",
   "DLR_COL_LANE": "Voie",
   "DLR_UNASSIGNED": "Non assigné",
-  "DLR_LANE_NUM": "Voie {{lane}}"
+  "DLR_LANE_NUM": "Voie {{lane}}",
+  "DLR_SELECT_RACE": "Course",
+  "DLR_ALL_RACES": "Toutes les Courses",
+  "DLR_COL_RACE": "Course",
+  "DLR_COL_DATE": "Date",
+  "DLR_SELECT_DATE": "Date",
+  "DLR_ALL_DATES": "Toutes les dates"
 }

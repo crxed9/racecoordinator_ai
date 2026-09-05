@@ -1427,9 +1427,11 @@
   "RHD_CLOSE_ARIA": "Fechar",
   "RHD_DEFAULT_RACE_NAME": "Corrida concluída",
   "RHD_DRIVERS_COUNT": "{{count}} Pilotos",
+  "RHD_EARLIEST_DATE": "Mais antiga",
   "RHD_HEATS_COUNT": "{{count}} Baterias",
   "RHD_INELIGIBLE_LAP_SINGLE": "{{count}} volta inelegível",
   "RHD_INELIGIBLE_LAPS_COUNT": "{{count}} voltas inelegíveis",
+  "RHD_LATEST_DATE": "Mais recente",
   "RHD_LOADING": "Carregando histórico de corridas...",
   "RHD_NO_RACES": "Nenhuma corrida concluída encontrada.",
   "RHD_SEARCH_PLACEHOLDER": "Buscar corridas por nome ou pista...",
@@ -2275,5 +2277,11 @@
   "DLR_COL_DRIVER": "Piloto",
   "DLR_COL_LANE": "Pista",
   "DLR_UNASSIGNED": "Não atribuído",
-  "DLR_LANE_NUM": "Pista {{lane}}"
+  "DLR_LANE_NUM": "Pista {{lane}}",
+  "DLR_SELECT_RACE": "Corrida",
+  "DLR_ALL_RACES": "Todas as Corridas",
+  "DLR_COL_RACE": "Corrida",
+  "DLR_COL_DATE": "Data",
+  "DLR_SELECT_DATE": "Data",
+  "DLR_ALL_DATES": "Todas as datas"
 }
