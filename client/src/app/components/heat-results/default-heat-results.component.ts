@@ -11,6 +11,11 @@ import { Subscription } from "rxjs";
 import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { BrowserNavigationComponent } from "@app/components/shared/browser-navigation/browser-navigation.component";
 import {
+  GhostTrajectoryDialogComponent,
+  TrajectoryReferenceOption,
+} from "@app/components/shared/ghost-trajectory-dialog/ghost-trajectory-dialog.component";
+import { TrajectoryReferenceHelper } from "@app/components/shared/ghost-trajectory-dialog/trajectory-reference.helper";
+import {
   HeatDriverExpanderComponent,
   HeatExpanderData,
   HeatStandingsRow,
@@ -50,6 +55,7 @@ import { ViewerRaceEndedHandler } from "@app/utils/viewer-race-ended-handler";
     TwinGraphsComponent,
     PdfExportDialogComponent,
     BrowserNavigationComponent,
+    GhostTrajectoryDialogComponent,
   ],
 })
 export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
@@ -128,6 +134,13 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
   protected race?: Race;
   protected driverLines: DriverLine[] = [];
   private driverResultsWindows: Window[] = [];
+
+  protected showTrajectoryModal = false;
+  protected trajectoryDriverAName = "";
+  protected trajectoryDriverALapTimes: number[] = [];
+  protected trajectoryReferenceOptions: TrajectoryReferenceOption[] = [];
+  protected trajectoryInitialReferenceId = "";
+  protected trajectoryBenchmarkLapTime = 0;
 
   // SVG Dimensions
   protected width = 1400;
@@ -291,6 +304,36 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
 
   onPdfExportCancel() {
     this.showPdfExportDialog = false;
+  }
+
+  openHeatTrajectory(data: HeatExpanderData) {
+    const heat = data.heat;
+    const heatDriver = data.heatDriver;
+    this.trajectoryDriverAName = data.driverName || "Driver";
+    this.trajectoryDriverALapTimes =
+      heatDriver?.lapTimes || (heatDriver as any)?.laps || [];
+
+    const liveIds = new Set<string>();
+    TrajectoryReferenceHelper.addHeatDriverEntityIds(heatDriver, liveIds);
+
+    this.trajectoryReferenceOptions =
+      TrajectoryReferenceHelper.buildHeatReferenceOptions(
+        heat,
+        heatDriver,
+        liveIds,
+      );
+    this.trajectoryInitialReferenceId =
+      this.trajectoryReferenceOptions.length > 0
+        ? this.trajectoryReferenceOptions[0].id
+        : "";
+    this.trajectoryBenchmarkLapTime = 0;
+    this.showTrajectoryModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeTrajectoryDialog() {
+    this.showTrajectoryModal = false;
+    this.cdr.detectChanges();
   }
 
   // TODO(aufderheide): This shouldn't be done on the client, the server should be sending us the standings already sorted.

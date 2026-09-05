@@ -1,8 +1,10 @@
+import { TestbedHarnessEnvironment } from "@angular/cdk/testing/testbed";
 import { Pipe, PipeTransform } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of } from "rxjs";
+import { HeatDriverExpanderComponent } from "@app/components/shared/heat-driver-expander/heat-driver-expander.component";
 import { TwinGraphsComponent } from "@app/components/shared/twin-graphs/twin-graphs.component";
 import { DataService } from "@app/data.service";
 import { Driver } from "@app/models/driver";
@@ -16,8 +18,10 @@ import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
 import { RaceTimeService } from "@app/services/race-time.service";
+import { TranslationService } from "@app/services/translation.service";
 
 import { DefaultHeatResultsComponent } from "./default-heat-results.component";
+import { HeatResultsHarness } from "./testing/heat-results.harness";
 
 @Pipe({ name: "translate" })
 class MockTranslatePipe implements PipeTransform {
@@ -37,6 +41,7 @@ describe("DefaultHeatResultsComponent", () => {
   let formattedTimeSubject: BehaviorSubject<string>;
   let mockRaceFlagService: any;
   let mockRaceTimeService: any;
+  let mockTranslationService: any;
 
   beforeEach(async () => {
     mockRouter = {
@@ -122,6 +127,13 @@ describe("DefaultHeatResultsComponent", () => {
       formattedTime$: formattedTimeSubject.asObservable(),
     };
 
+    mockTranslationService = {
+      getCurrentLanguage: jasmine
+        .createSpy("getCurrentLanguage")
+        .and.returnValue(of("en")),
+      translate: jasmine.createSpy("translate").and.callFake((k: string) => k),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DefaultHeatResultsComponent, MockTranslatePipe],
       providers: [
@@ -130,6 +142,7 @@ describe("DefaultHeatResultsComponent", () => {
         { provide: PrintService, useValue: mockPrintService },
         { provide: RaceFlagService, useValue: mockRaceFlagService },
         { provide: RaceTimeService, useValue: mockRaceTimeService },
+        { provide: TranslationService, useValue: mockTranslationService },
         {
           provide: DataService,
           useValue: {
@@ -418,6 +431,107 @@ describe("DefaultHeatResultsComponent", () => {
     it("should update formattedTime when raceTimeService emits", () => {
       formattedTimeSubject.next("05:43.2");
       expect(component.formattedTime).toBe("05:43.2");
+    });
+  });
+
+  describe("Pacing and Trajectory Dialog", () => {
+    it("should open trajectory comparison dialog when openHeatTrajectory is called", () => {
+      const heatData = component["heatData"][0]; // Alice
+      component.openHeatTrajectory(heatData);
+
+      expect(component["showTrajectoryModal"]).toBeTrue();
+      expect(component["trajectoryDriverAName"]).toBe("Ally");
+      expect(component["trajectoryDriverALapTimes"]).toEqual([10.5, 10.2]);
+      expect(component["trajectoryReferenceOptions"].length).toBe(1);
+      expect(component["trajectoryReferenceOptions"][0].id).toBe("d2");
+      expect(component["trajectoryReferenceOptions"][0].name).toBe("Bobby");
+      expect(component["trajectoryReferenceOptions"][0].lapTimes).toEqual([
+        11.1, 10.9,
+      ]);
+      expect(component["trajectoryInitialReferenceId"]).toBe("d2");
+
+      component.closeTrajectoryDialog();
+      expect(component["showTrajectoryModal"]).toBeFalse();
+    });
+
+    it("should trigger openHeatTrajectory when openTrajectory is emitted from heat-driver-expander", () => {
+      spyOn(component, "openHeatTrajectory");
+      const expanderDebugEl = fixture.debugElement.query(
+        By.directive(HeatDriverExpanderComponent),
+      );
+      expect(expanderDebugEl).toBeTruthy();
+
+      const testData = component["heatData"][0];
+      expanderDebugEl.componentInstance.openTrajectory.emit(testData);
+
+      expect(component.openHeatTrajectory).toHaveBeenCalledWith(testData);
+    });
+
+    it("should filter out empty drivers from reference options", () => {
+      const emptyDriver = new Driver("empty_1", "Empty Lane", "Empty");
+      const hdEmpty = new DriverHeatData(
+        "hdEmpty",
+        { driver: emptyDriver } as any,
+        2,
+        emptyDriver,
+      );
+      const currentHeat = mockRaceService.getCurrentHeat();
+      currentHeat.heatDrivers.push(hdEmpty);
+
+      const heatData = component["heatData"][0];
+      component.openHeatTrajectory(heatData);
+
+      expect(
+        component["trajectoryReferenceOptions"].some(
+          (opt) => opt.id === "empty_1" || opt.name === "Empty",
+        ),
+      ).toBeFalse();
+    });
+
+    it("should display app-ghost-trajectory-dialog in template when modal is open", () => {
+      component["showTrajectoryModal"] = true;
+      fixture.detectChanges();
+
+      const dialogEl = fixture.nativeElement.querySelector(
+        "app-ghost-trajectory-dialog",
+      );
+      expect(dialogEl).toBeTruthy();
+    });
+
+    it("should open trajectory dialog when clicking the trajectory button in the template", () => {
+      expect(component["showTrajectoryModal"]).toBeFalse();
+
+      const trajectoryBtn = fixture.nativeElement.querySelector(
+        "app-heat-driver-expander .trajectory-btn",
+      ) as HTMLButtonElement;
+      expect(trajectoryBtn).toBeTruthy();
+
+      trajectoryBtn.click();
+      fixture.detectChanges();
+
+      expect(component["showTrajectoryModal"]).toBeTrue();
+      expect(component["trajectoryDriverAName"]).toBe("Ally");
+      expect(component["trajectoryReferenceOptions"].length).toBe(1);
+
+      const dialogEl = fixture.nativeElement.querySelector(
+        "app-ghost-trajectory-dialog .trajectory-modal-container",
+      );
+      expect(dialogEl).toBeTruthy();
+    });
+
+    it("should open trajectory modal via component harness when trajectory button is clicked", async () => {
+      const harness = await TestbedHarnessEnvironment.harnessForFixture(
+        fixture,
+        HeatResultsHarness,
+      );
+
+      expect(await harness.hasTrajectoryModal()).toBeFalse();
+      expect(await harness.hasTrajectoryButton()).toBeTrue();
+
+      await harness.clickTrajectoryButton();
+      fixture.detectChanges();
+
+      expect(await harness.hasTrajectoryModal()).toBeTrue();
     });
   });
 });
