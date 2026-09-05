@@ -63,18 +63,22 @@ describe("ui-editor-state.utils", () => {
     expect(areUIEditorStatesEqual(state1, state2)).toBeFalse();
   });
 
-  it("should clone customExportTemplateBase64 properly", () => {
+  it("should clone customExportTemplateBase64, name, and path properly", () => {
     const s = new Settings();
     s.customExportTemplateBase64 =
       "data:application/vnd.ms-excel;base64,ABC123";
+    s.customExportTemplateName = "template.xlsx";
+    s.customExportTemplatePath = "/path/to/template.xlsx";
 
     const cloned = cloneSettings(s);
     expect(cloned.customExportTemplateBase64).toBe(
       "data:application/vnd.ms-excel;base64,ABC123",
     );
+    expect(cloned.customExportTemplateName).toBe("template.xlsx");
+    expect(cloned.customExportTemplatePath).toBe("/path/to/template.xlsx");
   });
 
-  it("should detect changes in customExportTemplateBase64", () => {
+  it("should detect changes in customExportTemplateBase64, name, and path", () => {
     const s1 = new Settings();
     const s2 = new Settings();
     expect(areSettingsEqual(s1, s2)).toBeTrue();
@@ -87,16 +91,28 @@ describe("ui-editor-state.utils", () => {
       "data:application/vnd.ms-excel;base64,XYZ789";
     expect(areSettingsEqual(s1, s2)).toBeTrue();
 
-    s2.customExportTemplateBase64 =
-      "data:application/vnd.ms-excel;base64,DIFFERENT";
+    s2.customExportTemplateName = "other.xlsx";
     expect(areSettingsEqual(s1, s2)).toBeFalse();
+
+    s1.customExportTemplateName = "other.xlsx";
+    expect(areSettingsEqual(s1, s2)).toBeTrue();
+
+    s2.customExportTemplatePath = "/other/path.xlsx";
+    expect(areSettingsEqual(s1, s2)).toBeFalse();
+
+    s1.customExportTemplatePath = "/other/path.xlsx";
+    expect(areSettingsEqual(s1, s2)).toBeTrue();
   });
 
   it("should consider undefined and empty string customExportTemplateBase64 as equal", () => {
     const s1 = new Settings();
     s1.customExportTemplateBase64 = undefined;
+    s1.customExportTemplateName = undefined;
+    s1.customExportTemplatePath = undefined;
     const s2 = new Settings();
     s2.customExportTemplateBase64 = "";
+    s2.customExportTemplateName = "";
+    s2.customExportTemplatePath = "";
     expect(areSettingsEqual(s1, s2)).toBeTrue();
   });
 });

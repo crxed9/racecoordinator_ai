@@ -144,6 +144,8 @@ export class Settings {
   flagPenalty?: string;
 
   customExportTemplateBase64?: string;
+  customExportTemplateName?: string;
+  customExportTemplatePath?: string;
 
   // Theme system
   activeThemeId?: string; // entity_id of the active theme (server-side)

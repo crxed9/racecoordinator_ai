@@ -131,12 +131,16 @@ describe("ui-editor-theme-assets.helper", () => {
     const comp = {
       editingSettings: {
         customExportTemplateBase64: "data:abc",
+        customExportTemplateName: "custom.xlsx",
+        customExportTemplatePath: "/path/custom.xlsx",
       } as any,
       captureState: jasmine.createSpy("captureState"),
       cdr: { markForCheck: jasmine.createSpy("markForCheck") },
     };
     handleClearCustomTemplate(comp);
     expect(comp.editingSettings.customExportTemplateBase64).toBeUndefined();
+    expect(comp.editingSettings.customExportTemplateName).toBeUndefined();
+    expect(comp.editingSettings.customExportTemplatePath).toBeUndefined();
     expect(comp.captureState).toHaveBeenCalled();
     expect(comp.cdr.markForCheck).toHaveBeenCalled();
   });

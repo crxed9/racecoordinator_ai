@@ -2004,11 +2004,33 @@ describe("UIEditorComponent", () => {
       const d = makeSettings({ customExportTemplateBase64: "" });
       expect((component as any).areSettingsEqual(c, d)).toBeTrue();
     });
+    it("should detect changes in customExportTemplateName and customExportTemplatePath", () => {
+      const a = makeSettings({
+        customExportTemplateBase64: "data:abc",
+        customExportTemplateName: "t1.xlsx",
+        customExportTemplatePath: "/path1/t1.xlsx",
+      });
+      const b = makeSettings({
+        customExportTemplateBase64: "data:abc",
+        customExportTemplateName: "t2.xlsx",
+        customExportTemplatePath: "/path1/t1.xlsx",
+      });
+      expect((component as any).areSettingsEqual(a, b)).toBeFalse();
+
+      const c = makeSettings({
+        customExportTemplateBase64: "data:abc",
+        customExportTemplateName: "t1.xlsx",
+        customExportTemplatePath: "/path2/t1.xlsx",
+      });
+      expect((component as any).areSettingsEqual(a, c)).toBeFalse();
+    });
   });
 
-  describe("custom export template actions", () => {
+  describe("custom export template actions and DOM rendering", () => {
     it("should clear custom template and capture state", () => {
       component.editingSettings.customExportTemplateBase64 = "data:test";
+      component.editingSettings.customExportTemplateName = "test.xlsx";
+      component.editingSettings.customExportTemplatePath = "/path/test.xlsx";
       spyOn(component, "captureState").and.callThrough();
 
       component.clearCustomTemplate();
@@ -2016,13 +2038,20 @@ describe("UIEditorComponent", () => {
       expect(
         component.editingSettings.customExportTemplateBase64,
       ).toBeUndefined();
+      expect(
+        component.editingSettings.customExportTemplateName,
+      ).toBeUndefined();
+      expect(
+        component.editingSettings.customExportTemplatePath,
+      ).toBeUndefined();
       expect(component.captureState).toHaveBeenCalled();
     });
 
-    it("should handle onTemplateFileSelected, set customExportTemplateBase64, and capture state", (done) => {
+    it("should handle onTemplateFileSelected, set customExportTemplate properties, and capture state", (done) => {
       const file = new File(["test-content"], "test.xlsx", {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
+      (file as any).path = "/docs/test.xlsx";
       const input = document.createElement("input");
       input.type = "file";
       Object.defineProperty(input, "files", {
@@ -2042,9 +2071,66 @@ describe("UIEditorComponent", () => {
         expect(component.editingSettings.customExportTemplateBase64).toContain(
           "data:",
         );
+        expect(component.editingSettings.customExportTemplateName).toBe(
+          "test.xlsx",
+        );
+        expect(component.editingSettings.customExportTemplatePath).toBe(
+          "/docs/test.xlsx",
+        );
         expect(component.captureState).toHaveBeenCalled();
         done();
       }, 50);
+    });
+
+    it("should render template file name and display full path on hover (title attribute)", () => {
+      component.sectionsExpanded["config"] = true;
+      component.editingSettings.customExportTemplateBase64 =
+        "data:application/test";
+      component.editingSettings.customExportTemplateName =
+        "custom_results.xlsx";
+      component.editingSettings.customExportTemplatePath =
+        "/home/user/templates/custom_results.xlsx";
+      fixture.detectChanges();
+
+      const templateContainer = fixture.nativeElement.querySelector(
+        "#help-export-template",
+      );
+      expect(templateContainer).toBeTruthy();
+
+      const directoryPathSpan =
+        templateContainer.querySelector(".directory-path");
+      expect(directoryPathSpan).toBeTruthy();
+      expect(directoryPathSpan.textContent.trim()).toBe("custom_results.xlsx");
+      expect(directoryPathSpan.getAttribute("title")).toBe(
+        "/home/user/templates/custom_results.xlsx",
+      );
+
+      const directoryInfoDiv =
+        templateContainer.querySelector(".directory-info");
+      expect(directoryInfoDiv.getAttribute("title")).toBe(
+        "/home/user/templates/custom_results.xlsx",
+      );
+    });
+
+    it("should fallback to custom_export_template.xlsx if custom template exists without filename", () => {
+      component.sectionsExpanded["config"] = true;
+      component.editingSettings.customExportTemplateBase64 =
+        "data:application/test";
+      delete component.editingSettings.customExportTemplateName;
+      delete component.editingSettings.customExportTemplatePath;
+      fixture.detectChanges();
+
+      const templateContainer = fixture.nativeElement.querySelector(
+        "#help-export-template",
+      );
+      const directoryPathSpan =
+        templateContainer.querySelector(".directory-path");
+      expect(directoryPathSpan.textContent.trim()).toBe(
+        "custom_export_template.xlsx",
+      );
+      expect(directoryPathSpan.getAttribute("title")).toBe(
+        "custom_export_template.xlsx",
+      );
     });
   });
 
