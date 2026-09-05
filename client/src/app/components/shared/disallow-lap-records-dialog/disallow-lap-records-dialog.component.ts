@@ -24,42 +24,30 @@ import { isAtLeast, Role } from "@app/models/role";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { AuthService } from "@app/services/auth.service";
 import { RaceService } from "@app/services/race.service";
-import { naturalSortCompare } from "@app/utils/sorting.utils";
 
-export type SortColumn =
-  | "driver"
-  | "heat"
-  | "lane"
-  | "lap"
-  | "time"
-  | "status"
-  | "action";
-export type SortDirection = "asc" | "desc";
+import {
+  compareNormalizedLaps,
+  DriverFilterOption,
+  extractDriverLaps,
+  getDriverLaps,
+  hasDuplicateLanes,
+  isEmptyLane,
+  LaneOption,
+  NormalizedLap,
+  RaceFilterOption,
+  resolveDriverAndTeam,
+  SortColumn,
+  SortDirection,
+} from "./disallow-lap-records.helper";
 
-export interface NormalizedLap {
-  heatNumber: number;
-  laneIndex: number;
-  driverName: string;
-  teamName?: string;
-  laneColor?: string;
-  laneTextColor?: string;
-  lapIndex: number;
-  lapNumber: number;
-  lapTime: number;
-  countTowardsRecords: boolean;
-  isFastest: boolean;
-}
-
-export interface DriverFilterOption {
-  driverName: string;
-  teamName?: string;
-}
-
-export interface LaneOption {
-  laneIndex: number;
-  laneColor?: string;
-  laneTextColor?: string;
-}
+export type {
+  SortColumn,
+  SortDirection,
+  NormalizedLap,
+  RaceFilterOption,
+  DriverFilterOption,
+  LaneOption,
+};
 
 @Component({
   standalone: true,
@@ -83,6 +71,7 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   private raceService = inject(RaceService, { optional: true });
 
   visible = input<boolean>(false);
+  races = input<any[]>([]);
   heats = input<any[]>([]);
   drivers = input<any[]>([]);
   allDrivers = input<any[]>([]);
@@ -118,8 +107,118 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
     return val;
   }
 
+  get effectiveRaces(): any[] {
+    const inputRaces = this.races() || [];
+    if (inputRaces.length > 0) {
+      return inputRaces;
+    }
+    const singleRaceId = this.raceHistoryId();
+    return [
+      {
+        id: singleRaceId,
+        _id: singleRaceId,
+        name: this.raceName(),
+        model: { name: this.raceName() },
+        timestamp: this.effectiveRaceDate,
+        heats: this.effectiveHeats,
+        drivers: this.allParticipants,
+        track: this.track(),
+        is_demo: this.isDemo(),
+      },
+    ];
+  }
+
+  get availableRaceOptions(): RaceFilterOption[] {
+    const racesList = this.effectiveRaces;
+    if (!racesList || racesList.length === 0) return [];
+    return racesList.map((r, idx) => {
+      const id = String(r._id || r.id || r.entity_id || idx);
+      const name = (
+        r.model?.name ||
+        r.name ||
+        this.raceName() ||
+        "Race"
+      ).trim();
+      const date = this.getRaceTimestamp(r);
+      return { id, name, date };
+    });
+  }
+
+  get bannerDateDisplay(): string | null {
+    if (this.selectedRaceId) {
+      const found = this.availableRaceOptions.find(
+        (r) => r.id === this.selectedRaceId,
+      );
+      if (found && found.date) {
+        return typeof found.date === "number"
+          ? new Date(found.date).toLocaleString()
+          : String(found.date);
+      }
+    }
+    const races = this.availableRaceOptions;
+    if (races.length > 1) {
+      const dates = races
+        .map((r) =>
+          r.date
+            ? typeof r.date === "number"
+              ? r.date
+              : new Date(r.date).getTime()
+            : null,
+        )
+        .filter((d): d is number => d !== null && !isNaN(d))
+        .sort((a, b) => a - b);
+      if (dates.length > 0) {
+        const earliest = new Date(dates[0]).toLocaleDateString();
+        const latest = new Date(dates[dates.length - 1]).toLocaleDateString();
+        return earliest === latest ? earliest : `${earliest} – ${latest}`;
+      }
+    }
+    const eff = this.effectiveRaceDate;
+    if (eff) {
+      return typeof eff === "number"
+        ? new Date(eff).toLocaleString()
+        : String(eff);
+    }
+    return null;
+  }
+
+  getRaceTimestamp(race: any): Date | number | string | null {
+    if (!race) return null;
+    if (race.timestamp) return race.timestamp;
+    if (race.statistics?.startMillis) return race.statistics.startMillis;
+    if (race.statistics?.startTime) return race.statistics.startTime;
+    if (race.created_at) return race.created_at;
+    if (race.model?.created_at) return race.model.created_at;
+    if (race.heats && race.heats.length > 0) {
+      for (const h of race.heats) {
+        if (h.statistics?.startMillis) return h.statistics.startMillis;
+        if (h.statistics?.startTime) return h.statistics.startTime;
+      }
+    }
+    return null;
+  }
+
+  getRaceHeats(race: any): any[] {
+    if (this.races() && this.races().length > 0) {
+      return race.heats || [];
+    }
+    return this.effectiveHeats;
+  }
+
+  private get filteredRaces(): any[] {
+    const list = this.effectiveRaces;
+    if (!this.selectedRaceId) {
+      return list;
+    }
+    return list.filter((r, idx) => {
+      const id = String(r._id || r.id || r.entity_id || idx);
+      return id === this.selectedRaceId;
+    });
+  }
+
   close = output<void>();
   recordsUpdated = output<{
+    raceId?: string;
     heatNumber: number;
     lane: number;
     lapIndex: number;
@@ -127,6 +226,7 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   }>();
 
   canEdit: boolean = false;
+  selectedRaceId: string = "";
   selectedDriverName: string = "";
   selectedHeatNumber: number = -1;
   selectedLaneIndex: number = -1;
@@ -241,6 +341,7 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   }
 
   private initSelection(): void {
+    this.selectedRaceId = "";
     this.selectedDriverName = "";
     this.selectedHeatNumber = -1;
     this.selectedLaneIndex = -1;
@@ -303,9 +404,16 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   }
 
   get availableHeats(): number[] {
-    const heatsList = this.effectiveHeats;
-    if (!heatsList || heatsList.length === 0) return [];
-    return heatsList.map((h) => this.getHeatNumber(h));
+    const racesList = this.filteredRaces;
+    if (!racesList || racesList.length === 0) return [];
+    const heatNums = new Set<number>();
+    for (const r of racesList) {
+      const heatsList = this.getRaceHeats(r);
+      for (const h of heatsList) {
+        heatNums.add(this.getHeatNumber(h));
+      }
+    }
+    return Array.from(heatNums).sort((a, b) => a - b);
   }
 
   private get allParticipants(): any[] {
@@ -324,224 +432,41 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   }
 
   isEmptyLane(driverData: any): boolean {
-    if (!driverData) return true;
-    // If the lane has recorded laps, it is NOT empty: laps exist and can be viewed or disallowed.
-    if (this.getDriverLaps(driverData).length > 0) {
-      return false;
-    }
-    if (
-      driverData.isEmptyLane === true ||
-      driverData.isEmpty === true ||
-      (typeof driverData.isEmptyLane === "function" &&
-        driverData.isEmptyLane()) ||
-      (typeof driverData.isEmpty === "function" && driverData.isEmpty())
-    ) {
-      return true;
-    }
-    const d =
-      driverData.actualDriver ||
-      driverData.participant?.driver ||
-      (driverData.driver?.driver
-        ? driverData.driver.driver
-        : driverData.driver);
-    const id = (d?.entity_id || d?.entityId || d?.id || "")
-      .toString()
-      .toUpperCase();
-    if (id === "EMPTY_LANE" || id.startsWith("EMPTY_") || id === "EMPTY")
-      return true;
-
-    if (!d && !driverData.participant?.team && !driverData.team) return true;
-    return false;
-  }
-
-  private resolveTeamName(driverData: any): string | undefined {
-    const participant =
-      driverData.participant ||
-      (driverData.driver && (driverData.driver.driver || driverData.driver.team)
-        ? driverData.driver
-        : null);
-    const teamObj = participant?.team || driverData.team;
-    if (teamObj && typeof teamObj === "object" && teamObj.name) {
-      return teamObj.name.trim();
-    }
-    if (typeof teamObj === "string") {
-      return teamObj.trim();
-    }
-    return undefined;
-  }
-
-  private resolveTeammateDriverName(
-    lapDriverId: string,
-    allDrivers: any[],
-  ): string | undefined {
-    const found = allDrivers.find(
-      (d) =>
-        (d.entity_id || d.entityId || d.id || "").toString() === lapDriverId,
-    );
-    if (found) {
-      const nickname = (found.nickname || found.nickName || "").trim();
-      const name = (found.name || found.driverName || "").trim();
-      return nickname || name || lapDriverId;
-    }
-    try {
-      const cached = DriverConverter.get(lapDriverId);
-      if (cached) {
-        const nickname = (cached.nickname || "").trim();
-        const name = (cached.name || "").trim();
-        return nickname || (name !== "Unknown" ? name : "") || lapDriverId;
-      }
-    } catch {
-      // Ignored
-    }
-    return undefined;
-  }
-
-  private resolveLaneDriverName(
-    driverData: any,
-    teamObj: any,
-    teamName: string | undefined,
-    allDrivers: any[],
-  ): string {
-    const participant =
-      driverData.participant ||
-      (driverData.driver && (driverData.driver.driver || driverData.driver.team)
-        ? driverData.driver
-        : null);
-    const d =
-      driverData.actualDriver ||
-      participant?.driver ||
-      (driverData.driver?.driver
-        ? driverData.driver.driver
-        : driverData.driver);
-
-    let nickname = "";
-    let name = "";
-
-    if (d && typeof d === "object") {
-      nickname = (d.nickname || d.nickName || "").trim();
-      name = (d.name || d.driverName || "").trim();
-      if (!nickname && (d.entity_id || d.entityId || d.id)) {
-        const dId = (d.entity_id || d.entityId || d.id).toString();
-        const found = allDrivers.find(
-          (x) => (x.entity_id || x.entityId || x.id || "").toString() === dId,
-        );
-        if (found) {
-          nickname = (found.nickname || found.nickName || "").trim();
-          if (!name) name = (found.name || found.driverName || "").trim();
-        }
-      }
-    }
-
-    if (
-      teamObj &&
-      Array.isArray(teamObj.driverIds) &&
-      teamObj.driverIds.length > 0 &&
-      (!nickname || (teamName && name.toLowerCase() === teamName.toLowerCase()))
-    ) {
-      const firstMemberId = teamObj.driverIds[0];
-      const member = allDrivers.find(
-        (x) =>
-          (x.entity_id || x.entityId || x.id || "").toString() ===
-          firstMemberId,
-      );
-      if (member) {
-        nickname = (member.nickname || member.nickName || "").trim();
-        if (!name) name = (member.name || member.driverName || "").trim();
-      }
-    }
-
-    const isPlaceholder = (val: string) => {
-      const lower = (val || "").trim().toLowerCase();
-      return (
-        lower === "empty" ||
-        lower === "empty lane" ||
-        lower === "rd_empty_lane" ||
-        lower === "(empty)" ||
-        lower === "unknown"
-      );
-    };
-    if (isPlaceholder(nickname)) nickname = "";
-    if (isPlaceholder(name)) name = "";
-
-    return (
-      nickname ||
-      (name && name !== "Unknown" ? name : "") ||
-      driverData.driverName ||
-      `Driver ${(driverData.laneIndex ?? driverData.lane ?? 0) + 1}`
-    );
+    return isEmptyLane(driverData);
   }
 
   resolveDriverAndTeam(
     driverData: any,
     lap?: any,
   ): { driverName: string; teamName?: string } {
-    if (!driverData || this.isEmptyLane(driverData)) {
-      return { driverName: "" };
-    }
-
-    const allDrivers = this.combinedAllDrivers;
-    const teamName = this.resolveTeamName(driverData);
-    const lapDriverId =
-      lap && typeof lap === "object"
-        ? (lap.driverId || lap.driver_id || "").toString().trim()
-        : "";
-
-    if (lapDriverId) {
-      const display = this.resolveTeammateDriverName(lapDriverId, allDrivers);
-      if (display) {
-        return {
-          driverName: display,
-          teamName:
-            teamName && teamName.toLowerCase() !== display.toLowerCase()
-              ? teamName
-              : undefined,
-        };
-      }
-    }
-
-    const participant =
-      driverData.participant ||
-      (driverData.driver && (driverData.driver.driver || driverData.driver.team)
-        ? driverData.driver
-        : null);
-    const teamObj = participant?.team || driverData.team;
-    const finalDriverName = this.resolveLaneDriverName(
-      driverData,
-      teamObj,
-      teamName,
-      allDrivers,
-    );
-
-    return {
-      driverName: finalDriverName,
-      teamName:
-        teamName && teamName.toLowerCase() !== finalDriverName.toLowerCase()
-          ? teamName
-          : undefined,
-    };
+    return resolveDriverAndTeam(driverData, lap, this.combinedAllDrivers);
   }
 
   get availableDrivers(): DriverFilterOption[] {
-    const heatsList = this.effectiveHeats;
-    if (!heatsList || heatsList.length === 0) return [];
+    const racesList = this.filteredRaces;
+    if (!racesList || racesList.length === 0) return [];
     const map = new Map<string, string | undefined>();
+    const allDrivers = this.combinedAllDrivers;
 
-    for (const heat of heatsList) {
-      const drivers = this.getHeatDrivers(heat);
-      for (const d of drivers) {
-        if (this.isEmptyLane(d)) continue;
-        const laps = this.getDriverLaps(d);
-        if (laps.length > 0) {
-          for (const lap of laps) {
-            const resolved = this.resolveDriverAndTeam(d, lap);
+    for (const r of racesList) {
+      const heatsList = this.getRaceHeats(r);
+      for (const heat of heatsList) {
+        const drivers = this.getHeatDrivers(heat);
+        for (const d of drivers) {
+          if (isEmptyLane(d)) continue;
+          const laps = getDriverLaps(d);
+          if (laps.length > 0) {
+            for (const lap of laps) {
+              const resolved = resolveDriverAndTeam(d, lap, allDrivers);
+              if (resolved.driverName && !map.has(resolved.driverName)) {
+                map.set(resolved.driverName, resolved.teamName);
+              }
+            }
+          } else {
+            const resolved = resolveDriverAndTeam(d, undefined, allDrivers);
             if (resolved.driverName && !map.has(resolved.driverName)) {
               map.set(resolved.driverName, resolved.teamName);
             }
-          }
-        } else {
-          const resolved = this.resolveDriverAndTeam(d);
-          if (resolved.driverName && !map.has(resolved.driverName)) {
-            map.set(resolved.driverName, resolved.teamName);
           }
         }
       }
@@ -549,28 +474,31 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
 
     return Array.from(map.entries())
       .map(([driverName, teamName]) => ({ driverName, teamName }))
-      .sort((a, b) => naturalSortCompare(a.driverName, b.driverName));
+      .sort((a, b) => a.driverName.localeCompare(b.driverName));
   }
 
   get availableLanes(): LaneOption[] {
     const trackData = this.track();
-    const heatsList = this.effectiveHeats;
+    const racesList = this.filteredRaces;
     let numLanes = trackData?.lanes?.length || 0;
-    for (const h of heatsList) {
-      const dList = this.getHeatDrivers(h);
-      if (dList.length > numLanes) {
-        numLanes = dList.length;
-      }
-      for (let i = 0; i < dList.length; i++) {
-        const d = dList[i];
-        const l =
-          typeof d?.laneIndex === "number" && d.laneIndex >= 0
-            ? d.laneIndex
-            : typeof d?.lane_index === "number" && d.lane_index >= 0
-              ? d.lane_index
-              : i;
-        if (l + 1 > numLanes) {
-          numLanes = l + 1;
+    for (const r of racesList) {
+      const heatsList = this.getRaceHeats(r);
+      for (const h of heatsList) {
+        const dList = this.getHeatDrivers(h);
+        if (dList.length > numLanes) {
+          numLanes = dList.length;
+        }
+        for (let i = 0; i < dList.length; i++) {
+          const d = dList[i];
+          const l =
+            typeof d?.laneIndex === "number" && d.laneIndex >= 0
+              ? d.laneIndex
+              : typeof d?.lane_index === "number" && d.lane_index >= 0
+                ? d.lane_index
+                : i;
+          if (l + 1 > numLanes) {
+            numLanes = l + 1;
+          }
         }
       }
     }
@@ -619,285 +547,66 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   }
 
   getDriverLaps(driverData: any): any[] {
-    if (!driverData) return [];
-    try {
-      if (
-        Array.isArray(driverData.lapsWithDetails) &&
-        driverData.lapsWithDetails.length > 0
-      ) {
-        return driverData.lapsWithDetails;
-      }
-      if (
-        Array.isArray(driverData._lapsWithDetails) &&
-        driverData._lapsWithDetails.length > 0
-      ) {
-        return driverData._lapsWithDetails;
-      }
-      if (Array.isArray(driverData.laps) && driverData.laps.length > 0) {
-        return driverData.laps;
-      }
-      if (Array.isArray(driverData._laps) && driverData._laps.length > 0) {
-        return driverData._laps;
-      }
-      if (
-        Array.isArray(driverData.lapTimes) &&
-        driverData.lapTimes.length > 0
-      ) {
-        return driverData.lapTimes;
-      }
-      if (
-        Array.isArray(driverData._lapTimes) &&
-        driverData._lapTimes.length > 0
-      ) {
-        return driverData._lapTimes;
-      }
-      if (
-        driverData.lapsWithDetails &&
-        Array.isArray(driverData.lapsWithDetails)
-      ) {
-        return driverData.lapsWithDetails;
-      }
-      if (
-        driverData._lapsWithDetails &&
-        Array.isArray(driverData._lapsWithDetails)
-      ) {
-        return driverData._lapsWithDetails;
-      }
-      if (driverData.laps && Array.isArray(driverData.laps)) {
-        return driverData.laps;
-      }
-      if (driverData._laps && Array.isArray(driverData._laps)) {
-        return driverData._laps;
-      }
-      if (driverData.lapTimes && Array.isArray(driverData.lapTimes)) {
-        return driverData.lapTimes;
-      }
-      if (driverData._lapTimes && Array.isArray(driverData._lapTimes)) {
-        return driverData._lapTimes;
-      }
-    } catch {
-      return [];
-    }
-    return [];
+    return getDriverLaps(driverData);
   }
 
   get normalizedLaps(): NormalizedLap[] {
-    const heatsList = this.effectiveHeats;
-    const trackData = this.track();
+    const racesList = this.filteredRaces;
     const lapsList: NormalizedLap[] = [];
+    const allDrivers = this.combinedAllDrivers;
 
-    for (const heat of heatsList) {
-      if (!heat) continue;
-      const heatNum = this.getHeatNumber(heat);
-      if (
-        this.selectedHeatNumber !== -1 &&
-        heatNum !== this.selectedHeatNumber
-      ) {
-        continue;
-      }
+    for (const race of racesList) {
+      if (!race) continue;
+      const raceId = race._id || race.id || race.entity_id || "";
+      const raceName = (
+        race.model?.name ||
+        race.name ||
+        this.raceName() ||
+        "Race"
+      ).trim();
+      const raceDate = this.getRaceTimestamp(race);
+      const trackData = race.track || this.track();
+      const heatsList = this.getRaceHeats(race);
 
-      const drivers = this.getHeatDrivers(heat);
-      if (!drivers || drivers.length === 0) continue;
-
-      const dupLanes = this.hasDuplicateLanes(drivers);
-
-      drivers.forEach((driverData: any, dIndex: number) => {
-        const driverLaps = this.extractDriverLaps(
-          driverData,
-          heatNum,
-          dIndex,
-          trackData,
-          dupLanes,
-        );
-        if (driverLaps.length > 0) {
-          lapsList.push(...driverLaps);
+      for (const heat of heatsList) {
+        if (!heat) continue;
+        const heatNum = this.getHeatNumber(heat);
+        if (
+          this.selectedHeatNumber !== -1 &&
+          heatNum !== this.selectedHeatNumber
+        ) {
+          continue;
         }
-      });
-    }
 
-    return lapsList.sort((a, b) => this.compareNormalizedLaps(a, b));
-  }
+        const drivers = this.getHeatDrivers(heat);
+        if (!drivers || drivers.length === 0) continue;
 
-  private matchesDriverFilter(driverName: string): boolean {
-    if (!this.selectedDriverName) return true;
-    return driverName === this.selectedDriverName;
-  }
+        const dupLanes = hasDuplicateLanes(drivers);
 
-  private computeMinAllowedTime(rawLaps: any[]): number {
-    let minAllowedTime = Infinity;
-    rawLaps.forEach((lap: any) => {
-      if (!lap) return;
-      const num =
-        typeof lap === "number"
-          ? lap
-          : parseFloat(lap?.time ?? lap?.lapTime ?? lap?.lap_time ?? 0);
-      const time = isNaN(num) ? 0 : num;
-      const countTowardsRecords =
-        typeof lap === "object" && lap !== null
-          ? (lap.countTowardsRecords ?? lap.count_towards_records ?? true)
-          : true;
-      if (countTowardsRecords && time > 0 && time < minAllowedTime) {
-        minAllowedTime = time;
-      }
-    });
-    return minAllowedTime;
-  }
-
-  private hasDuplicateLanes(drivers: any[]): boolean {
-    if (!drivers || drivers.length <= 1) return false;
-    const laneCounts = new Map<number, number>();
-    for (const d of drivers) {
-      if (!d) continue;
-      const l = typeof d.laneIndex === "number" ? d.laneIndex : d.lane;
-      if (typeof l === "number" && l >= 0) {
-        laneCounts.set(l, (laneCounts.get(l) || 0) + 1);
-        if (laneCounts.get(l)! > 1) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private extractDriverLaps(
-    driverData: any,
-    heatNum: number,
-    dIndex: number,
-    trackData: any,
-    hasDuplicateLanes: boolean = false,
-  ): NormalizedLap[] {
-    const rawLaps = this.getDriverLaps(driverData);
-    if (!driverData || rawLaps.length === 0 || this.isEmptyLane(driverData)) {
-      return [];
-    }
-    const laneIndex =
-      typeof driverData.laneIndex === "number" && driverData.laneIndex >= 0
-        ? driverData.laneIndex
-        : typeof driverData.lane_index === "number" &&
-            driverData.lane_index >= 0
-          ? driverData.lane_index
-          : !hasDuplicateLanes &&
-              typeof driverData.lane === "number" &&
-              driverData.lane >= 0
-            ? driverData.lane
-            : dIndex >= 0
-              ? dIndex
-              : typeof driverData.lane === "number" && driverData.lane >= 0
-                ? driverData.lane
-                : 0;
-
-    if (this.selectedLaneIndex !== -1 && laneIndex !== this.selectedLaneIndex) {
-      return [];
-    }
-
-    const laneConfig =
-      trackData?.lanes && trackData.lanes[laneIndex]
-        ? trackData.lanes[laneIndex]
-        : null;
-    const laneColor =
-      laneConfig?.background_color || laneConfig?.backgroundColor;
-    const laneTextColor =
-      laneConfig?.foreground_color || laneConfig?.foregroundColor;
-
-    const minAllowedTime = this.computeMinAllowedTime(rawLaps);
-    const result: NormalizedLap[] = [];
-
-    rawLaps.forEach((lap: any, index: number) => {
-      if (!lap) return;
-      const num =
-        typeof lap === "number"
-          ? lap
-          : parseFloat(lap?.time ?? lap?.lapTime ?? lap?.lap_time ?? 0);
-      const time = isNaN(num) ? 0 : num;
-      if (time <= 0) return;
-
-      const resolved = this.resolveDriverAndTeam(driverData, lap);
-
-      if (!this.matchesDriverFilter(resolved.driverName)) return;
-
-      const countTowardsRecords =
-        typeof lap === "object" && lap !== null
-          ? (lap.countTowardsRecords ?? lap.count_towards_records ?? true)
-          : true;
-
-      const isFastest =
-        countTowardsRecords &&
-        minAllowedTime < Infinity &&
-        Math.abs(time - minAllowedTime) < 0.0001;
-
-      result.push({
-        heatNumber: heatNum,
-        laneIndex,
-        driverName: resolved.driverName,
-        teamName: resolved.teamName,
-        laneColor,
-        laneTextColor,
-        lapIndex: index,
-        lapNumber: index + 1,
-        lapTime: time,
-        countTowardsRecords,
-        isFastest,
-      });
-    });
-
-    return result;
-  }
-
-  private getStatusPriority(lap: NormalizedLap): number {
-    if (!lap.countTowardsRecords) return 0;
-    if (lap.isFastest) return 2;
-    return 1;
-  }
-
-  private compareNormalizedLaps(a: NormalizedLap, b: NormalizedLap): number {
-    let diff = 0;
-    switch (this.sortColumn) {
-      case "driver":
-        diff = naturalSortCompare(a.driverName || "", b.driverName || "");
-        break;
-      case "heat":
-        diff = a.heatNumber - b.heatNumber;
-        break;
-      case "lane":
-        diff = a.laneIndex - b.laneIndex;
-        break;
-      case "lap":
-        diff = a.lapNumber - b.lapNumber;
-        break;
-      case "time":
-        diff = a.lapTime - b.lapTime;
-        break;
-      case "status":
-      case "action":
-        diff = this.getStatusPriority(a) - this.getStatusPriority(b);
-        break;
-    }
-
-    if (this.sortDirection === "desc") {
-      diff = -diff;
-    }
-
-    if (diff !== 0) {
-      return diff;
-    }
-
-    // Secondary sorting: Always by time in ascending order (fastest time first)
-    if (this.sortColumn !== "time") {
-      const timeDiff = a.lapTime - b.lapTime;
-      if (timeDiff !== 0) {
-        return timeDiff;
+        drivers.forEach((driverData: any, dIndex: number) => {
+          const driverLaps = extractDriverLaps(
+            driverData,
+            heatNum,
+            dIndex,
+            trackData,
+            dupLanes,
+            raceId,
+            raceName,
+            raceDate,
+            this.selectedLaneIndex,
+            this.selectedDriverName,
+            allDrivers,
+          );
+          if (driverLaps.length > 0) {
+            lapsList.push(...driverLaps);
+          }
+        });
       }
     }
 
-    // Tertiary / fallback tie-breaker (and secondary when sorted by time):
-    // heat -> lane -> lap
-    if (a.heatNumber !== b.heatNumber) {
-      return a.heatNumber - b.heatNumber;
-    }
-    if (a.laneIndex !== b.laneIndex) {
-      return a.laneIndex - b.laneIndex;
-    }
-    return a.lapNumber - b.lapNumber;
+    return lapsList.sort((a, b) =>
+      compareNormalizedLaps(a, b, this.sortColumn, this.sortDirection),
+    );
   }
 
   formatLapTime(time: any): string {
@@ -906,7 +615,16 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   }
 
   trackByLap(lap: NormalizedLap, index: number): string {
-    return `${lap.heatNumber}-${lap.laneIndex}-${lap.lapIndex}-${index}`;
+    return `${lap.raceId || "live"}-${lap.heatNumber}-${lap.laneIndex}-${lap.lapIndex}-${index}`;
+  }
+
+  onRaceChange(newRaceId: any): void {
+    this.selectedRaceId = String(newRaceId ?? "");
+    this.selectedHeatNumber = -1;
+    this.selectedDriverName = "";
+    this.errorMessage = "";
+    this.successMessage = "";
+    this.cdr.markForCheck();
   }
 
   onDriverChange(driverName: any): void {
@@ -958,7 +676,16 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
     const lane = lap.laneIndex;
     const lapIndex = lap.lapIndex;
 
-    const historyId = this.raceHistoryId();
+    const historyId = lap.raceId || this.raceHistoryId();
+    const matchingRace = this.effectiveRaces.find((r) => {
+      const id = r._id || r.id || r.entity_id;
+      return id === historyId;
+    });
+    const isDemo =
+      matchingRace?.is_demo !== undefined
+        ? Boolean(matchingRace.is_demo)
+        : this.isDemo();
+
     const request$ = historyId
       ? this.dataService.updateHistoryLapRecordStatus(
           historyId,
@@ -966,7 +693,7 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
           lane,
           lapIndex,
           newStatus,
-          this.isDemo(),
+          isDemo,
         )
       : this.dataService.updateLiveLapRecordStatus(
           heatNum,
@@ -980,6 +707,7 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
         this.isSaving = false;
         lap.countTowardsRecords = newStatus;
         this.applyLapRecordStatusUpdate(
+          historyId,
           heatNum,
           lane,
           lapIndex,
@@ -987,6 +715,7 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
           response?.bestLapTime,
         );
         this.recordsUpdated.emit({
+          raceId: historyId || undefined,
           heatNumber: heatNum,
           lane,
           lapIndex,
@@ -1006,12 +735,51 @@ export class DisallowLapRecordsDialogComponent implements OnInit, OnChanges {
   }
 
   private applyLapRecordStatusUpdate(
+    raceId: string | null,
     heatNum: number,
     lane: number,
     lapIndex: number,
     newStatus: boolean,
     bestLapTime?: number,
   ): void {
+    // 1. Update in effectiveRaces
+    const racesToUpdate = this.effectiveRaces.filter((r) => {
+      if (!raceId) return true;
+      const id = r._id || r.id || r.entity_id;
+      return id === raceId;
+    });
+
+    for (const r of racesToUpdate) {
+      const heatsList = r.heats || [];
+      const heat = heatsList.find(
+        (h: any) => this.getHeatNumber(h) === heatNum,
+      );
+      if (!heat) continue;
+      const drivers = this.getHeatDrivers(heat);
+      if (drivers.length === 0) continue;
+
+      const driverData =
+        drivers.find((d: any, idx: number) => {
+          const l =
+            typeof d.laneIndex === "number"
+              ? d.laneIndex
+              : typeof d.lane_index === "number"
+                ? d.lane_index
+                : idx;
+          return l === lane;
+        }) || drivers[lane];
+
+      if (driverData) {
+        this.updateDriverLapRecord(
+          driverData,
+          lapIndex,
+          newStatus,
+          bestLapTime,
+        );
+      }
+    }
+
+    // 2. Also update live heats if live race mode
     const heatListsToUpdate = [
       this.effectiveHeats,
       this.heats() || [],

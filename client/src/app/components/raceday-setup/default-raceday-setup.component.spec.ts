@@ -2206,5 +2206,79 @@ describe("DefaultRacedaySetupComponent", () => {
 
       expect(component.showRacingRosterDialog).toBeTrue();
     });
+
+    it("should render all config menu items with setup-menu-dropdown-item and not suppress even items", () => {
+      component.isConfigDropdownOpen = true;
+      fixture.detectChanges();
+
+      const items = fixture.nativeElement.querySelectorAll(
+        ".setup-menu-dropdown-item",
+      );
+      expect(items.length).toBeGreaterThanOrEqual(8);
+      const itemTexts = Array.from(items).map((el: any) =>
+        el.textContent.trim(),
+      );
+      expect(
+        itemTexts.some((text: string) =>
+          text.includes("RDS_MENU_TEAM_MANAGER"),
+        ),
+      ).toBeTrue();
+      expect(
+        itemTexts.some((text: string) => text.includes("RDS_MENU_EVENT")),
+      ).toBeTrue();
+      expect(
+        itemTexts.some((text: string) => text.includes("RDS_MENU_DATABASES")),
+      ).toBeTrue();
+      expect(
+        itemTexts.some((text: string) => text.includes("RDS_MENU_TRACK")),
+      ).toBeTrue();
+
+      // Ensure no stylesheet contains an nth-of-type(even) rule that suppresses background
+      const styleSheets = Array.from(document.styleSheets);
+      let foundEvenRule = false;
+      for (const sheet of styleSheets) {
+        try {
+          const rules = Array.from(sheet.cssRules || []);
+          for (const rule of rules) {
+            if (
+              rule.cssText &&
+              rule.cssText.includes(
+                ".setup-menu-dropdown-item:nth-of-type(even)",
+              )
+            ) {
+              foundEvenRule = true;
+            }
+          }
+        } catch {
+          // Ignore external/CORS restricted stylesheets
+        }
+      }
+      expect(foundEvenRule).toBeFalse();
+    });
+
+    it("should render file, options, and help dropdown items with setup-menu-dropdown-item class", () => {
+      component.isFileDropdownOpen = true;
+      fixture.detectChanges();
+      let items = fixture.nativeElement.querySelectorAll(
+        ".setup-menu-dropdown-item",
+      );
+      expect(items.length).toBeGreaterThanOrEqual(5);
+
+      component.isFileDropdownOpen = false;
+      component.isOptionsDropdownOpen = true;
+      fixture.detectChanges();
+      items = fixture.nativeElement.querySelectorAll(
+        ".setup-menu-dropdown-item",
+      );
+      expect(items.length).toBeGreaterThanOrEqual(2);
+
+      component.isOptionsDropdownOpen = false;
+      component.isHelpDropdownOpen = true;
+      fixture.detectChanges();
+      items = fixture.nativeElement.querySelectorAll(
+        ".setup-menu-dropdown-item",
+      );
+      expect(items.length).toBeGreaterThanOrEqual(3);
+    });
   });
 });

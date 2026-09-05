@@ -319,15 +319,17 @@ describe("SeasonManagerComponent", () => {
       );
       expect(rows.length).toBe(2);
 
-      // First driver: 33.333333333333336 -> 33.33, 50.126 -> 50.13
+      // First driver: net: 33.33, dropped: 16.79, gross: 50.13
       const firstRowCols = rows[0].querySelectorAll("td");
       expect(firstRowCols[2].textContent.trim()).toBe("33.33");
-      expect(firstRowCols[3].textContent.trim()).toBe("50.13");
+      expect(firstRowCols[3].textContent.trim()).toBe("16.79");
+      expect(firstRowCols[4].textContent.trim()).toBe("50.13");
 
-      // Second driver: 25 -> 25, 25.5 -> 25.5
+      // Second driver: net: 25, dropped: 0.5, gross: 25.5
       const secondRowCols = rows[1].querySelectorAll("td");
       expect(secondRowCols[2].textContent.trim()).toBe("25");
-      expect(secondRowCols[3].textContent.trim()).toBe("25.5");
+      expect(secondRowCols[3].textContent.trim()).toBe("0.5");
+      expect(secondRowCols[4].textContent.trim()).toBe("25.5");
     });
 
     it("should render season metadata elements in .season-meta under the header", () => {

@@ -92,4 +92,36 @@ test.describe("Heat Results Visuals", () => {
       fullPage: true,
     });
   });
+
+  test("should render pacing and trajectory comparison dialog when trajectory button is clicked", async ({
+    page,
+  }) => {
+    const mockData = HeatResultsHelper.createMockHeatData();
+    await HeatResultsHelper.injectMockRaceData(page, mockData);
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/heat-results"),
+    );
+
+    const harness = new HeatResultsHarnessE2e(page.locator("app-heat-results"));
+
+    // Verify Loader not covering canvas
+    await expect(page.locator(".loader-overlay")).not.toBeVisible();
+
+    // Click trajectory button on first heat driver expander
+    const trajectoryBtn = harness.getTrajectoryButtonLocator(0);
+    await trajectoryBtn.waitFor({ state: "visible" });
+    await harness.clickTrajectoryButton(0);
+
+    // Wait for trajectory modal to appear
+    const modal = harness.getTrajectoryModal();
+    await modal.waitFor({ state: "visible" });
+
+    // Take screenshot of the trajectory dialog
+    await expect(modal).toHaveScreenshot("heat-results-trajectory-dialog.png", {
+      maxDiffPixelRatio: 0.05,
+    });
+  });
 });

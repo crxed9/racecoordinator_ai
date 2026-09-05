@@ -54,6 +54,7 @@
             [isGroupRace]="race?.group_options?.enabled ?? false"
             [groupNames]="race?.group_options?.names ?? []"
             (toggle)="toggleHeat(dh.heatDriver.objectId)"
+            (openTrajectory)="openHeatTrajectory($event)"
           ></app-heat-driver-expander>
         }
       } @else {
@@ -109,3 +110,13 @@
   (cancel)="onPdfExportCancel()"
 >
 </app-pdf-export-dialog>
+
+<app-ghost-trajectory-dialog
+  [visible]="showTrajectoryModal"
+  [driverAName]="trajectoryDriverAName"
+  [driverALapTimes]="trajectoryDriverALapTimes"
+  [referenceOptions]="trajectoryReferenceOptions"
+  [initialReferenceId]="trajectoryInitialReferenceId"
+  [benchmarkLapTime]="trajectoryBenchmarkLapTime"
+  (close)="closeTrajectoryDialog()"
+/>

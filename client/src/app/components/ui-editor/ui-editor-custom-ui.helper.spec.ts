@@ -7,7 +7,7 @@ import {
 } from "./ui-editor-custom-ui.helper";
 
 describe("ui-editor-custom-ui.helper", () => {
-  it("should sort custom UIs placing default UI first", () => {
+  it("should naturally alphabetize custom UIs by name without pinning defaults", () => {
     const u1: CustomUI = {
       entity_id: "custom_layout",
       name: "Custom",
@@ -19,9 +19,59 @@ describe("ui-editor-custom-ui.helper", () => {
       is_default: true,
     };
 
-    const sorted = sortCustomUisForDisplay([u1, u2]);
-    expect(sorted[0].entity_id).toBe("default_ui_layout_rc_ai");
-    expect(sorted[1].entity_id).toBe("custom_layout");
+    const sorted = sortCustomUisForDisplay([u2, u1]);
+    expect(sorted[0].entity_id).toBe("custom_layout");
+    expect(sorted[1].entity_id).toBe("default_ui_layout_rc_ai");
+  });
+
+  it("should naturally alphabetize all custom UIs together", () => {
+    const zebra: CustomUI = {
+      entity_id: "ui_z",
+      name: "Zebra Layout",
+      is_default: false,
+    };
+    const alpha: CustomUI = {
+      entity_id: "ui_a",
+      name: "Alpha Layout",
+      is_default: false,
+    };
+    const mid10: CustomUI = {
+      entity_id: "ui_m10",
+      name: "Layout 10",
+      is_default: false,
+    };
+    const mid2: CustomUI = {
+      entity_id: "ui_m2",
+      name: "Layout 2",
+      is_default: false,
+    };
+    const practice: CustomUI = {
+      entity_id: "practice_ui_layout_rc_ai",
+      name: "Practice UI Layout",
+      is_default: true,
+    };
+    const def: CustomUI = {
+      entity_id: "default_ui_layout_rc_ai",
+      name: "Default UI Layout",
+      is_default: true,
+    };
+
+    const sorted = sortCustomUisForDisplay([
+      zebra,
+      mid10,
+      practice,
+      alpha,
+      def,
+      mid2,
+    ]);
+    expect(sorted.map((u) => u.name)).toEqual([
+      "Alpha Layout",
+      "Default UI Layout",
+      "Layout 2",
+      "Layout 10",
+      "Practice UI Layout",
+      "Zebra Layout",
+    ]);
   });
 
   it("should handle custom UI state deletion updating active ID and themes", () => {
