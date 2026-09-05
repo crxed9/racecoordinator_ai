@@ -201,10 +201,15 @@ export function createRacedayMocks(overrides: any = {}) {
         "getFlagColor",
         "getFlagNameKey",
         "getFlagUrl",
+        "getCurrentFlagUrl",
       ]);
       spy.getFlagType.and.returnValue("red");
       spy.getFlagColor.and.returnValue("red");
       spy.getFlagNameKey.and.returnValue("RACE_FLAG_RED");
+      spy.getCurrentFlagUrl.and.callFake(() =>
+        spy.getFlagUrl(spy.getFlagType()),
+      );
+      spy.currentFlagUrl$ = of("/assets/images/flags/red.png");
       spy.getFlagUrl.and.callFake((flag: any) => {
         const flagType = typeof flag === "string" ? flag : "red";
         const enumMap: Record<number, string> = {

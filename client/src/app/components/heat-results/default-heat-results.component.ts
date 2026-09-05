@@ -27,13 +27,13 @@ import { DataService } from "@app/data.service";
 import { Race } from "@app/models/race";
 import { RaceParticipant } from "@app/models/race_participant";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
-import { RaceState } from "@app/proto/antigravity";
 import { Heat } from "@app/race/heat";
 import { AuthService } from "@app/services/auth.service";
 import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
+import { RaceTimeService } from "@app/services/race-time.service";
 import { SettingsService } from "@app/services/settings.service";
 import { TranslationService } from "@app/services/translation.service";
 import { ViewerRaceEndedHandler } from "@app/utils/viewer-race-ended-handler";
@@ -140,43 +140,13 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
   protected maxY = 5; // Min scale
 
   protected legendItemWidth = 180;
-  protected raceTimeSeconds = 0;
-  protected autoStartRemaining = 0;
-  protected autoAdvanceRemaining = 0;
-  protected raceState = RaceState.UNKNOWN_STATE;
 
   get formattedTime(): string {
-    const s = this.raceState;
-    if (
-      (s === RaceState.NOT_STARTED || s === RaceState.UNKNOWN_STATE) &&
-      this.autoStartRemaining <= 0 &&
-      this.autoAdvanceRemaining <= 0
-    ) {
-      return "--";
-    }
-
-    const time = this.raceTimeSeconds;
-    if (s === RaceState.HEAT_OVER && time <= 0) {
-      return "0";
-    }
-
-    const hours = Math.floor(time / 3600);
-    const minutes = Math.floor((time % 3600) / 60);
-    const seconds = Math.floor(time % 60);
-
-    let base = "";
-    if (hours > 0) {
-      base = `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-    } else if (minutes > 0) {
-      base = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-    } else {
-      base = `${seconds}`;
-    }
-    return base;
+    return this.raceTimeService.formattedTime;
   }
 
   get currentFlagUrl(): string {
-    return this.raceFlagService.getFlagUrl();
+    return this.raceFlagService.getCurrentFlagUrl();
   }
 
   get totalHeats(): number {
@@ -195,6 +165,7 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private printService: PrintService,
     private raceFlagService: RaceFlagService,
+    private raceTimeService: RaceTimeService,
   ) {}
 
   ngOnInit() {
@@ -246,27 +217,13 @@ export class DefaultHeatResultsComponent implements OnInit, OnDestroy {
     );
 
     this.subscriptions.push(
-      this.raceConnectionService.raceState$.subscribe((state) => {
-        this.raceState = state;
+      this.raceFlagService.currentFlagUrl$.subscribe(() => {
         this.cdr.detectChanges();
       }),
     );
 
     this.subscriptions.push(
-      this.raceConnectionService.raceTime$.subscribe((raceTime) => {
-        this.autoStartRemaining = raceTime.autoStartRemaining || 0;
-        this.autoAdvanceRemaining = raceTime.autoAdvanceRemaining || 0;
-
-        let time = raceTime.time || 0;
-        if (
-          this.raceState !== RaceState.STARTING &&
-          this.autoStartRemaining > 0
-        ) {
-          time = this.autoStartRemaining;
-        } else if (this.autoAdvanceRemaining > 0) {
-          time = this.autoAdvanceRemaining;
-        }
-        this.raceTimeSeconds = time;
+      this.raceTimeService.formattedTime$.subscribe(() => {
         this.cdr.detectChanges();
       }),
     );

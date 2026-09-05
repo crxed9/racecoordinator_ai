@@ -30,6 +30,7 @@ import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
+import { RaceTimeService } from "@app/services/race-time.service";
 import { TranslationService } from "@app/services/translation.service";
 import { ViewerRaceEndedHandler } from "@app/utils/viewer-race-ended-handler";
 
@@ -274,30 +275,12 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
     return (this.width - totalWidth) / 2;
   }
 
-  // Reactive state from connections
-  protected raceState: number = 0; // State flag from connection
-  protected raceTime: any = { time: 0, showTime: false, durationMode: false }; // Time object
-
   get currentFlagUrl(): string {
-    return this.raceFlagService.getFlagUrl(this.raceState);
+    return this.raceFlagService.getCurrentFlagUrl();
   }
 
   get formattedTime(): string {
-    const timeMs = this.raceTime?.time ?? 0;
-    const absMs = Math.abs(timeMs);
-    const m = Math.floor(absMs / 60000);
-    const s = Math.floor((absMs % 60000) / 1000);
-    const prefix = timeMs < 0 ? "-" : "";
-
-    const pad = (n: number) => (n < 10 ? "0" + n : n.toString());
-    let txt = `${prefix}${pad(m)}:${pad(s)}`;
-
-    if (!this.raceTime?.durationMode) {
-      const ms = Math.floor((absMs % 1000) / 100);
-      txt += `.${ms}`;
-    }
-
-    return txt;
+    return this.raceTimeService.formattedTime;
   }
 
   get totalHeats(): number {
@@ -315,6 +298,7 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private printService: PrintService,
     private raceFlagService: RaceFlagService,
+    private raceTimeService: RaceTimeService,
   ) {}
 
   ngOnInit() {
@@ -337,18 +321,14 @@ export class DefaultRaceResultsComponent implements OnInit, OnDestroy {
     );
 
     this.subscriptions.push(
-      this.raceConnectionService.raceState$.subscribe((state) => {
-        this.raceState = state;
+      this.raceFlagService.currentFlagUrl$.subscribe(() => {
         this.cdr.detectChanges();
       }),
     );
 
     this.subscriptions.push(
-      this.raceConnectionService.raceTime$.subscribe((timeData) => {
-        if (timeData) {
-          this.raceTime = timeData;
-          this.cdr.detectChanges();
-        }
+      this.raceTimeService.formattedTime$.subscribe(() => {
+        this.cdr.detectChanges();
       }),
     );
 

@@ -86,6 +86,7 @@ import { HelpService } from "@app/services/help.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
+import { RaceTimeService } from "@app/services/race-time.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
@@ -278,6 +279,7 @@ export class DefaultRacedayComponent
   protected driverVisualPositions = new Map<number, number>();
   protected allDrivers: any[] = [];
   public participants: RaceParticipant[] = [];
+  private raceTimeService = inject(RaceTimeService, { optional: true });
 
   // Countdown Overlay state
   showCountdownOverlay: boolean = false;
@@ -1587,6 +1589,7 @@ export class DefaultRacedayComponent
               timerWidget?.customSettings?.["timeSubsecondThreshold"] ?? 10;
             const decimals =
               timerWidget?.customSettings?.["timeSubsecondDecimals"] ?? 2;
+            this.raceTimeService?.setSubsecondSettings(threshold, decimals);
 
             if (time < threshold && decimals > 0) {
               this.timeFormat = `1.${decimals}-${decimals}`;
@@ -4519,7 +4522,7 @@ export class DefaultRacedayComponent
   }
 
   getCurrentFlagUrl(): string {
-    return this.raceFlagService.getFlagUrl(this.raceFlagService.getFlagType());
+    return this.raceFlagService.getCurrentFlagUrl();
   }
 
   getFullUrl(url: string | undefined): string {

@@ -15,6 +15,7 @@ import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
+import { RaceTimeService } from "@app/services/race-time.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { DefaultRaceResultsComponent } from "./default-race-results.component";
@@ -28,6 +29,7 @@ export class CustomRaceResultsBaseComponent extends DefaultRaceResultsComponent 
     @Inject(ChangeDetectorRef) cdr: ChangeDetectorRef,
     @Inject(PrintService) printService: PrintService,
     @Inject(RaceFlagService) raceFlagService: RaceFlagService,
+    @Inject(RaceTimeService) raceTimeService: RaceTimeService,
   ) {
     super(
       raceConnectionService,
@@ -36,6 +38,7 @@ export class CustomRaceResultsBaseComponent extends DefaultRaceResultsComponent 
       cdr,
       printService,
       raceFlagService,
+      raceTimeService,
     );
   }
 }
