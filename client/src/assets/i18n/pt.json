@@ -307,6 +307,7 @@
   "DBM_ERR_DELETE": "Erro ao excluir banco de dados",
   "DBM_ERR_DELETE_ACTIVE": "Não é possível excluir o banco de dados atualmente ativo. Por favor, mude para outro banco de dados primeiro.",
   "DBM_ERR_EXISTS": "Um banco de dados com este nome já existe",
+  "DBM_ERR_EXPORT": "Erro ao exportar o banco de dados",
   "DBM_ERR_IMPORT": "Erro ao importar o banco de dados",
   "DBM_ERR_LOAD_INFO": "Erro ao carregar informações do banco de dados",
   "DBM_ERR_LOAD_INIT": "Erro ao carregar dados iniciais",

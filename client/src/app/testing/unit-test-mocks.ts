@@ -67,6 +67,19 @@ export const mockDataService = {
     .createSpy("deleteDatabase")
     .and.returnValue(of({ success: true })),
   exportDatabase: jasmine.createSpy("exportDatabase"),
+  exportDatabaseBlob: jasmine
+    .createSpy("exportDatabaseBlob")
+    .and.returnValue(of(new Blob(["mock zip"], { type: "application/zip" }))),
+  exportRaceToCsv: jasmine
+    .createSpy("exportRaceToCsv")
+    .and.returnValue(of("mock,csv,data")),
+  exportRaceToXls: jasmine.createSpy("exportRaceToXls").and.returnValue(
+    of(
+      new Blob(["mock xls"], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+    ),
+  ),
   importDatabase: jasmine
     .createSpy("importDatabase")
     .and.returnValue(of({ success: true })),

@@ -1,21 +1,19 @@
 import { CustomUI } from "@app/models/custom-ui";
 import { LayoutConfig, Settings } from "@app/models/settings";
+import { saveFileAs } from "@app/utils/file-download.utils";
 
 import { computeScaledLayout } from "./ui-editor-resolution.helper";
 
 export function downloadJsonFile(data: any, filename: string): void {
-  if (typeof window === "undefined" || typeof document === "undefined") return;
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
+  const jsonContent =
+    typeof data === "string" ? data : JSON.stringify(data, null, 2);
+  saveFileAs({
+    suggestedName: filename,
+    data: jsonContent,
+    mimeType: "application/json",
+    description: "JSON Files",
+    extension: ".json",
   });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-  document.body.removeChild(a);
 }
 
 export function buildLayoutExport(

@@ -307,6 +307,7 @@
   "DBM_ERR_DELETE": "Error al eliminar la base de datos",
   "DBM_ERR_DELETE_ACTIVE": "No se puede eliminar la base de datos actualmente activa. Por favor, cambie a otra base de datos primero.",
   "DBM_ERR_EXISTS": "Ya existe una base de datos con este nombre",
+  "DBM_ERR_EXPORT": "Error al exportar la base de datos",
   "DBM_ERR_IMPORT": "Error al importar la base de datos",
   "DBM_ERR_LOAD_INFO": "Error al cargar la información de la base de datos",
   "DBM_ERR_LOAD_INIT": "Error al cargar los datos iniciales",

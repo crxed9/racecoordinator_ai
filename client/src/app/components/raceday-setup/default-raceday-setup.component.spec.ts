@@ -301,19 +301,54 @@ describe("DefaultRacedaySetupComponent", () => {
   }));
 
   describe("Settings Export/Import", () => {
-    it("should export settings", () => {
-      const anchorSpy = jasmine.createSpyObj("a", ["setAttribute", "click"]);
-      spyOn(document, "createElement").and.returnValue(anchorSpy as any);
+    let originalShowSaveFilePicker: any;
+
+    beforeEach(() => {
+      originalShowSaveFilePicker = (window as any).showSaveFilePicker;
+    });
+
+    afterEach(() => {
+      (window as any).showSaveFilePicker = originalShowSaveFilePicker;
+    });
+
+    it("should export settings via showSaveFilePicker when available", async () => {
+      const mockWritable = {
+        write: jasmine.createSpy("write").and.returnValue(Promise.resolve()),
+        close: jasmine.createSpy("close").and.returnValue(Promise.resolve()),
+      };
+      const mockHandle = {
+        createWritable: jasmine
+          .createSpy("createWritable")
+          .and.returnValue(Promise.resolve(mockWritable)),
+      };
+      (window as any).showSaveFilePicker = jasmine
+        .createSpy("showSaveFilePicker")
+        .and.returnValue(Promise.resolve(mockHandle));
+
+      await component.exportSettings();
+
+      expect(mockSettingsService.getSettings).toHaveBeenCalled();
+      expect((window as any).showSaveFilePicker).toHaveBeenCalledWith({
+        suggestedName: "racecoordinator_settings.json",
+        types: [
+          {
+            description: "JSON Files",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+      });
+      expect(mockWritable.write).toHaveBeenCalled();
+      expect(mockWritable.close).toHaveBeenCalled();
+    });
+
+    it("should fallback to anchor download when showSaveFilePicker is not available", () => {
+      delete (window as any).showSaveFilePicker;
+      const clickSpy = spyOn(HTMLAnchorElement.prototype, "click");
 
       component.exportSettings();
 
       expect(mockSettingsService.getSettings).toHaveBeenCalled();
-      expect(document.createElement).toHaveBeenCalledWith("a");
-      expect(anchorSpy.setAttribute).toHaveBeenCalledWith(
-        "download",
-        "racecoordinator_settings.json",
-      );
-      expect(anchorSpy.click).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
     });
 
     it("should import settings", () => {

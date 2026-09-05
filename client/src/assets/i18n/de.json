@@ -307,6 +307,7 @@
   "DBM_ERR_DELETE": "Fehler beim Löschen der Datenbank",
   "DBM_ERR_DELETE_ACTIVE": "Die aktuell aktive Datenbank kann nicht gelöscht werden. Bitte wechseln Sie zuerst zu einer anderen Datenbank.",
   "DBM_ERR_EXISTS": "Eine Datenbank mit diesem Namen existiert bereits",
+  "DBM_ERR_EXPORT": "Fehler beim Exportieren der Datenbank",
   "DBM_ERR_IMPORT": "Fehler beim Importieren der Datenbank",
   "DBM_ERR_LOAD_INFO": "Fehler beim Laden der Datenbankinformationen",
   "DBM_ERR_LOAD_INIT": "Fehler beim Laden der Initialisierungsdaten",

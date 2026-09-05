@@ -88,7 +88,17 @@ export function createRacedayMocks(overrides: any = {}) {
     "setMainPower",
     "setLanePower",
     "saveRace",
+    "exportRaceToCsv",
+    "exportRaceToXls",
   ]);
+  mockDataService.exportRaceToCsv.and.returnValue(of("csv,mock,data"));
+  mockDataService.exportRaceToXls.and.returnValue(
+    of(
+      new Blob(["mock xls"], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+    ),
+  );
   mockDataService.getSystemStateValue.and.returnValue(null);
   mockDataService.listAssets.and.returnValue(of([]));
   mockDataService.saveRace.and.returnValue(of("saved_race.json"));

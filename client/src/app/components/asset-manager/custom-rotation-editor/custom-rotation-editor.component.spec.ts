@@ -840,37 +840,31 @@ describe("CustomRotationEditorComponent", () => {
   });
 
   describe("Export Rotations", () => {
-    let mockAnchor: any;
-    let createObjectURLSpy: jasmine.Spy;
-    let revokeObjectURLSpy: jasmine.Spy;
+    let originalShowSaveFilePicker: any;
+    let mockWritable: any;
+    let mockHandle: any;
 
     beforeEach(() => {
-      mockAnchor = {
-        click: jasmine.createSpy("click"),
-        remove: jasmine.createSpy("remove"),
-        setAttribute: jasmine.createSpy("setAttribute"),
-        href: "",
-        download: "",
-        style: {},
+      originalShowSaveFilePicker = (window as any).showSaveFilePicker;
+      mockWritable = {
+        write: jasmine.createSpy("write").and.returnValue(Promise.resolve()),
+        close: jasmine.createSpy("close").and.returnValue(Promise.resolve()),
       };
-
-      const originalCreateElement = document.createElement.bind(document);
-      spyOn(document, "createElement").and.callFake((tagName: string) => {
-        if (tagName === "a") {
-          return mockAnchor as any;
-        }
-        return originalCreateElement(tagName);
-      });
-
-      spyOn(document.body, "appendChild").and.stub();
-      spyOn(document.body, "removeChild").and.stub();
-      createObjectURLSpy = spyOn(URL, "createObjectURL").and.returnValue(
-        "mock-url",
-      );
-      revokeObjectURLSpy = spyOn(URL, "revokeObjectURL").and.stub();
+      mockHandle = {
+        createWritable: jasmine
+          .createSpy("createWritable")
+          .and.returnValue(Promise.resolve(mockWritable)),
+      };
+      (window as any).showSaveFilePicker = jasmine
+        .createSpy("showSaveFilePicker")
+        .and.returnValue(Promise.resolve(mockHandle));
     });
 
-    it("should trigger download for combined asset JSON file when exportRotations is called", fakeAsync(() => {
+    afterEach(() => {
+      (window as any).showSaveFilePicker = originalShowSaveFilePicker;
+    });
+
+    it("should trigger download for combined asset JSON file when exportRotations is called", async () => {
       fixture.detectChanges();
       component.internalAssetName = "TestRotation";
       component.internalNumLanes = 4;
@@ -879,35 +873,43 @@ describe("CustomRotationEditorComponent", () => {
         { numDrivers: 5, heats: [{ driverIndices: [1, 2, 3, 4] }] },
       ];
 
-      component.exportRotations();
+      await component.exportRotations();
 
-      expect(document.createElement).toHaveBeenCalledWith("a");
-      expect(mockAnchor.download).toBe("TestRotation_L4_Asset.json");
-      expect(mockAnchor.href).toBe("mock-url");
-      expect(mockAnchor.click).toHaveBeenCalled();
+      expect((window as any).showSaveFilePicker).toHaveBeenCalledWith({
+        suggestedName: "TestRotation_L4_Asset.json",
+        types: [
+          {
+            description: "JSON Files",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+      });
+      expect(mockWritable.write).toHaveBeenCalled();
+      expect(mockWritable.close).toHaveBeenCalled();
+    });
 
-      tick(5000); // For setTimeout cleanup
-      expect(revokeObjectURLSpy).toHaveBeenCalled();
-    }));
-
-    it("should trigger download for individual rotation JSON file when exportSingleRotation is called", fakeAsync(() => {
+    it("should trigger download for individual rotation JSON file when exportSingleRotation is called", async () => {
       fixture.detectChanges();
       component.internalAssetName = "TestRotation";
       component.internalNumLanes = 4;
       const rot = { numDrivers: 4, heats: [{ driverIndices: [1, 2, 3, 4] }] };
 
-      component.exportSingleRotation(rot);
+      await component.exportSingleRotation(rot);
 
-      expect(document.createElement).toHaveBeenCalledWith("a");
-      expect(mockAnchor.download).toBe("TestRotation_L4_D4.json");
-      expect(mockAnchor.href).toBe("mock-url");
-      expect(mockAnchor.click).toHaveBeenCalled();
+      expect((window as any).showSaveFilePicker).toHaveBeenCalledWith({
+        suggestedName: "TestRotation_L4_D4.json",
+        types: [
+          {
+            description: "JSON Files",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+      });
+      expect(mockWritable.write).toHaveBeenCalled();
+      expect(mockWritable.close).toHaveBeenCalled();
+    });
 
-      tick(5000); // For setTimeout cleanup
-      expect(revokeObjectURLSpy).toHaveBeenCalled();
-    }));
-
-    it("should format combined exported JSON with correct property names, Version, and 1-based group indices", fakeAsync(() => {
+    it("should format combined exported JSON with correct property names, Version, and 1-based group indices", async () => {
       fixture.detectChanges();
       component.internalAssetName = "FormatTest";
       component.internalNumLanes = 2;
@@ -917,10 +919,19 @@ describe("CustomRotationEditorComponent", () => {
 
       const stringifySpy = spyOn(JSON, "stringify").and.callThrough();
 
-      component.exportRotations();
+      await component.exportRotations();
 
-      const blobCall = createObjectURLSpy.calls.mostRecent().args[0] as Blob;
-      expect(blobCall.type).toBe("application/json");
+      expect(mockWritable.write).toHaveBeenCalled();
+      const writtenJson = JSON.parse(
+        mockWritable.write.calls.mostRecent().args[0],
+      );
+      expect(writtenJson.Version).toBe("1.0");
+      expect(writtenJson.IsAsset).toBeTrue();
+      expect(writtenJson.AssetName).toBe("FormatTest");
+      expect(writtenJson.NumLanes).toBe(2);
+      expect(writtenJson.Rotations[0].NumDrivers).toBe(2);
+      expect(writtenJson.Rotations[0].Heats[0].Drivers).toEqual([1, 2]);
+      expect(writtenJson.Rotations[0].Heats[0].Group).toBe(2);
 
       expect(stringifySpy).toHaveBeenCalledWith(
         jasmine.objectContaining({
@@ -935,11 +946,9 @@ describe("CustomRotationEditorComponent", () => {
         null,
         2,
       );
+    });
 
-      tick(5000);
-    }));
-
-    it("should format single exported JSON with Version", fakeAsync(() => {
+    it("should format single exported JSON with Version", async () => {
       fixture.detectChanges();
       component.internalAssetName = "FormatTest";
       component.internalNumLanes = 2;
@@ -950,7 +959,17 @@ describe("CustomRotationEditorComponent", () => {
 
       const stringifySpy = spyOn(JSON, "stringify").and.callThrough();
 
-      component.exportSingleRotation(rot);
+      await component.exportSingleRotation(rot);
+
+      expect(mockWritable.write).toHaveBeenCalled();
+      const writtenJson = JSON.parse(
+        mockWritable.write.calls.mostRecent().args[0],
+      );
+      expect(writtenJson.Version).toBe("1.0");
+      expect(writtenJson.NumDrivers).toBe(2);
+      expect(writtenJson.NumLanes).toBe(2);
+      expect(writtenJson.Heats[0].Drivers).toEqual([1, 2]);
+      expect(writtenJson.Heats[0].Group).toBe(2);
 
       expect(stringifySpy).toHaveBeenCalledWith(
         jasmine.objectContaining({
@@ -962,9 +981,19 @@ describe("CustomRotationEditorComponent", () => {
         null,
         2,
       );
+    });
 
-      tick(5000);
-    }));
+    it("should fallback to anchor download when showSaveFilePicker is not available", async () => {
+      delete (window as any).showSaveFilePicker;
+      const clickSpy = spyOn(HTMLAnchorElement.prototype, "click");
+      component.internalAssetName = "FallbackTest";
+      component.internalNumLanes = 2;
+      const rot = { numDrivers: 2, heats: [{ driverIndices: [1, 2] }] };
+
+      await component.exportSingleRotation(rot);
+
+      expect(clickSpy).toHaveBeenCalled();
+    });
   });
 
   describe("Heat Groups", () => {

@@ -307,6 +307,7 @@
   "DBM_ERR_DELETE": "Fout bij verwijderen van database",
   "DBM_ERR_DELETE_ACTIVE": "De momenteel actieve database kan niet worden verwijderd. Schakel eerst over naar een andere.",
   "DBM_ERR_EXISTS": "Er bestaat al een database met deze naam",
+  "DBM_ERR_EXPORT": "Fout bij exporteren van database",
   "DBM_ERR_IMPORT": "Fout bij importeren van database",
   "DBM_ERR_LOAD_INFO": "Fout bij laden van database-informatie",
   "DBM_ERR_LOAD_INIT": "Fout bij laden van initiële gegevens",

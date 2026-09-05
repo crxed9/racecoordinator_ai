@@ -52,6 +52,7 @@ import { RaceService } from "@app/services/race.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
+import { saveFileAs } from "@app/utils/file-download.utils";
 import { calculateSeasonStandings } from "@app/utils/season.utils";
 import { naturalSortCompare } from "@app/utils/sorting.utils";
 
@@ -1669,16 +1670,17 @@ export class DefaultRacedaySetupComponent implements OnInit {
     return window.location;
   }
 
-  exportSettings() {
+  exportSettings(): Promise<boolean> {
     this.closeFileDropdown();
     const settings = this.settingsService.getSettings();
-    const dataStr =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(settings, null, 2));
-    const dlAnchorElem = document.createElement("a");
-    dlAnchorElem.setAttribute("href", dataStr);
-    dlAnchorElem.setAttribute("download", "racecoordinator_settings.json");
-    dlAnchorElem.click();
+    const dataStr = JSON.stringify(settings, null, 2);
+    return saveFileAs({
+      suggestedName: "racecoordinator_settings.json",
+      data: dataStr,
+      mimeType: "application/json",
+      description: "JSON Files",
+      extension: ".json",
+    });
   }
 
   triggerImportSettings() {
