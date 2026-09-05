@@ -285,6 +285,10 @@ test.describe("Raceday Menu Bar Visuals", () => {
   });
 
   test("should display menu bar with File dropdown open", async ({ page }) => {
+    await page.addInitScript(() => {
+      window.history.replaceState({ appHistoryIndex: 1 }, "");
+    });
+
     await TestSetupHelper.waitForLocalization(
       page,
       "en",
@@ -303,5 +307,30 @@ test.describe("Raceday Menu Bar Visuals", () => {
     await expect(dropdown).toBeVisible();
 
     await expect(page).toHaveScreenshot("raceday-menu-bar-file-open.png");
+  });
+
+  test("should display menu bar with File dropdown open and back disabled", async ({
+    page,
+  }) => {
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/default-raceday"),
+    );
+
+    await page.locator(".dashboard-wrapper").waitFor();
+
+    const menuBar = page.locator("app-raceday-menu-bar");
+    await expect(menuBar).toBeVisible();
+
+    const fileBtn = menuBar.locator(".menu-button-top").first();
+    await fileBtn.click();
+
+    const dropdown = menuBar.locator(".menu-dropdown");
+    await expect(dropdown).toBeVisible();
+
+    await expect(page).toHaveScreenshot(
+      "raceday-menu-bar-file-open-back-disabled.png",
+    );
   });
 });

@@ -185,6 +185,15 @@ describe("NavigationService", () => {
       routerEvents.next(new NavigationError(2, "/error", new Error("fail")));
       expect(service.canGoBack()).toBeFalse();
     });
+
+    it("should preserve appHistoryIndex when navigating initial route with existing history state", () => {
+      window.history.replaceState({ appHistoryIndex: 2 }, "");
+      routerEvents.next(
+        new NavigationEnd(1, "/restored-page", "/restored-page"),
+      );
+      expect(service.canGoBack()).toBeTrue();
+      expect(window.history.state.appHistoryIndex).toBe(2);
+    });
   });
 
   describe("lastEditedId management", () => {

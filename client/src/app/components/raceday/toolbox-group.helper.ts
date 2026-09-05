@@ -1,5 +1,6 @@
 import { CustomWidgetDefinition } from "@app/models/custom-widget.model";
 import { WidgetType } from "@app/models/settings";
+import { naturalSortCompare } from "@app/utils/sorting.utils";
 
 export interface ToolboxWidgetItem {
   type: string;
@@ -49,24 +50,14 @@ export class ToolboxGroupHelper {
       icon: "folder",
       widgets: [
         {
-          type: "action-start-resume",
+          type: "action-add-lap",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_START_RESUME",
+          labelKey: "UE_WIDGET_TYPE_ACTION_ADD_LAP",
         },
         {
-          type: "action-pause",
+          type: "action-back",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_PAUSE",
-        },
-        {
-          type: "action-next-heat",
-          icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_NEXT_HEAT",
-        },
-        {
-          type: "action-restart-heat",
-          icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_RESTART_HEAT",
+          labelKey: "UE_WIDGET_TYPE_ACTION_BACK",
         },
         {
           type: "action-defer-heat",
@@ -74,24 +65,9 @@ export class ToolboxGroupHelper {
           labelKey: "UE_WIDGET_TYPE_ACTION_DEFER_HEAT",
         },
         {
-          type: "action-skip-heat",
+          type: "action-export-csv",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_SKIP_HEAT",
-        },
-        {
-          type: "action-skip-race",
-          icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_SKIP_RACE",
-        },
-        {
-          type: "action-add-lap",
-          icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_ADD_LAP",
-        },
-        {
-          type: "action-modify-heats",
-          icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_MODIFY_HEATS",
+          labelKey: "UE_WIDGET_TYPE_ACTION_EXPORT_CSV",
         },
         {
           type: "action-export-pdf",
@@ -99,19 +75,39 @@ export class ToolboxGroupHelper {
           labelKey: "UE_WIDGET_TYPE_ACTION_EXPORT_PDF",
         },
         {
-          type: "action-export-csv",
-          icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_EXPORT_CSV",
-        },
-        {
           type: "action-export-xls",
           icon: "",
           labelKey: "UE_WIDGET_TYPE_ACTION_EXPORT_XLS",
         },
         {
+          type: "action-master-power-off",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_ACTION_MASTER_POWER_OFF",
+        },
+        {
+          type: "action-master-power-on",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_ACTION_MASTER_POWER_ON",
+        },
+        {
+          type: "action-modify-heats",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_ACTION_MODIFY_HEATS",
+        },
+        {
+          type: "action-next-heat",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_ACTION_NEXT_HEAT",
+        },
+        {
           type: "action-open-heat-results",
           icon: "",
           labelKey: "UE_WIDGET_TYPE_ACTION_OPEN_HEAT_RESULTS",
+        },
+        {
+          type: "action-open-prediction-results",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_ACTION_OPEN_PREDICTION_RESULTS",
         },
         {
           type: "action-open-race-results",
@@ -124,24 +120,29 @@ export class ToolboxGroupHelper {
           labelKey: "UE_WIDGET_TYPE_ACTION_OPEN_SEASON_RESULTS",
         },
         {
-          type: "action-open-prediction-results",
+          type: "action-pause",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_OPEN_PREDICTION_RESULTS",
+          labelKey: "UE_WIDGET_TYPE_ACTION_PAUSE",
         },
         {
-          type: "action-master-power-on",
+          type: "action-restart-heat",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_MASTER_POWER_ON",
+          labelKey: "UE_WIDGET_TYPE_ACTION_RESTART_HEAT",
         },
         {
-          type: "action-master-power-off",
+          type: "action-skip-heat",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_MASTER_POWER_OFF",
+          labelKey: "UE_WIDGET_TYPE_ACTION_SKIP_HEAT",
         },
         {
-          type: "action-back",
+          type: "action-skip-race",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_ACTION_BACK",
+          labelKey: "UE_WIDGET_TYPE_ACTION_SKIP_RACE",
+        },
+        {
+          type: "action-start-resume",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_ACTION_START_RESUME",
         },
       ],
     },
@@ -150,6 +151,16 @@ export class ToolboxGroupHelper {
       nameKey: "UE_TOOLBOX_SUBGROUP_STANDINGS_HEATS",
       icon: "folder",
       widgets: [
+        {
+          type: "group-leaderboard",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_GROUP_LEADERBOARD",
+        },
+        {
+          type: "heat-list",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_HEAT_LIST",
+        },
         {
           type: "lane-view",
           icon: "",
@@ -161,9 +172,19 @@ export class ToolboxGroupHelper {
           labelKey: "UE_WIDGET_TYPE_LEADERBOARD",
         },
         {
-          type: "group-leaderboard",
+          type: "next-heat",
           icon: "",
-          labelKey: "UE_WIDGET_TYPE_GROUP_LEADERBOARD",
+          labelKey: "UE_WIDGET_TYPE_NEXT_HEAT",
+        },
+        {
+          type: "on-deck",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_ON_DECK",
+        },
+        {
+          type: "records",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_RECORDS",
         },
         {
           type: "season-leaderboard",
@@ -175,10 +196,6 @@ export class ToolboxGroupHelper {
           icon: "",
           labelKey: "UE_WIDGET_TYPE_SEASON_RACE_LEADERBOARD",
         },
-        { type: "records", icon: "", labelKey: "UE_WIDGET_TYPE_RECORDS" },
-        { type: "on-deck", icon: "", labelKey: "UE_WIDGET_TYPE_ON_DECK" },
-        { type: "next-heat", icon: "", labelKey: "UE_WIDGET_TYPE_NEXT_HEAT" },
-        { type: "heat-list", icon: "", labelKey: "UE_WIDGET_TYPE_HEAT_LIST" },
       ],
     },
     {
@@ -186,17 +203,41 @@ export class ToolboxGroupHelper {
       nameKey: "UE_TOOLBOX_SUBGROUP_TITLES_INFO",
       icon: "folder",
       widgets: [
-        { type: "timer", icon: "", labelKey: "UE_WIDGET_TYPE_TIMER" },
-        { type: "flag", icon: "", labelKey: "UE_WIDGET_TYPE_FLAG" },
-        { type: "heat-info", icon: "", labelKey: "UE_WIDGET_TYPE_HEAT_INFO" },
-        { type: "event-name", icon: "", labelKey: "UE_WIDGET_TYPE_EVENT_NAME" },
-        { type: "race-name", icon: "", labelKey: "UE_WIDGET_TYPE_RACE_NAME" },
+        {
+          type: "event-name",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_EVENT_NAME",
+        },
+        {
+          type: "flag",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_FLAG",
+        },
+        {
+          type: "heat-info",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_HEAT_INFO",
+        },
+        {
+          type: "race-name",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_RACE_NAME",
+        },
         {
           type: "season-name",
           icon: "",
           labelKey: "UE_WIDGET_TYPE_SEASON_NAME",
         },
-        { type: "track-name", icon: "", labelKey: "UE_WIDGET_TYPE_TRACK_NAME" },
+        {
+          type: "timer",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_TIMER",
+        },
+        {
+          type: "track-name",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_TRACK_NAME",
+        },
       ],
     },
     {
@@ -204,10 +245,26 @@ export class ToolboxGroupHelper {
       nameKey: "UE_TOOLBOX_SUBGROUP_MEDIA_CHROME",
       icon: "folder",
       widgets: [
-        { type: "branding", icon: "", labelKey: "UE_WIDGET_TYPE_BRANDING" },
-        { type: "image", icon: "", labelKey: "UE_WIDGET_TYPE_IMAGE" },
-        { type: "qr", icon: "", labelKey: "UE_WIDGET_TYPE_QR" },
-        { type: "menu-bar", icon: "", labelKey: "UE_WIDGET_TYPE_MENU_BAR" },
+        {
+          type: "branding",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_BRANDING",
+        },
+        {
+          type: "image",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_IMAGE",
+        },
+        {
+          type: "menu-bar",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_MENU_BAR",
+        },
+        {
+          type: "qr",
+          icon: "",
+          labelKey: "UE_WIDGET_TYPE_QR",
+        },
       ],
     },
   ];
@@ -263,7 +320,8 @@ export class ToolboxGroupHelper {
           type: w.type,
           labelKey: w.labelKey,
           icon: w.icon,
-        }));
+        }))
+        .sort((a, b) => ToolboxGroupHelper.compareWidgets(a, b, translateFn));
 
     const rcSubgroups: ToolboxSubgroup[] = [];
     for (const sg of ToolboxGroupHelper.RC_AI_SUBGROUPS) {
@@ -274,7 +332,8 @@ export class ToolboxGroupHelper {
           type: w.type,
           labelKey: w.labelKey,
           icon: w.icon,
-        }));
+        }))
+        .sort((a, b) => ToolboxGroupHelper.compareWidgets(a, b, translateFn));
 
       if (unusedWidgets.length > 0) {
         const isSgExpanded = term
@@ -396,9 +455,20 @@ export class ToolboxGroupHelper {
       }
     }
 
+    rootWidgets.sort((a, b) =>
+      ToolboxGroupHelper.compareWidgets(a, b, translateFn),
+    );
+
     const subgroups: ToolboxSubgroup[] = [];
-    for (const [subName, sWidgets] of subgroupsMap.entries()) {
+    const sortedSubNames = Array.from(subgroupsMap.keys()).sort((a, b) =>
+      naturalSortCompare(a, b),
+    );
+    for (const subName of sortedSubNames) {
+      const sWidgets = subgroupsMap.get(subName)!;
       if (sWidgets.length > 0) {
+        sWidgets.sort((a, b) =>
+          ToolboxGroupHelper.compareWidgets(a, b, translateFn),
+        );
         const sgId = `${groupName}:${subName}`;
         const isSgExpanded = term
           ? true
@@ -442,6 +512,32 @@ export class ToolboxGroupHelper {
       expanded: isGroupExpanded,
       totalCount: groupTotal,
     };
+  }
+
+  private static compareWidgets(
+    a: ToolboxWidgetItem,
+    b: ToolboxWidgetItem,
+    translateFn?: (key: string) => string,
+  ): number {
+    const labelA = ToolboxGroupHelper.getWidgetDisplayLabel(a, translateFn);
+    const labelB = ToolboxGroupHelper.getWidgetDisplayLabel(b, translateFn);
+    const cmp = naturalSortCompare(labelA, labelB);
+    if (cmp !== 0) return cmp;
+    return naturalSortCompare(a.type, b.type);
+  }
+
+  private static getWidgetDisplayLabel(
+    item: ToolboxWidgetItem,
+    translateFn?: (key: string) => string,
+  ): string {
+    if (item.type.startsWith("custom:")) {
+      return item.labelKey || item.type;
+    }
+    if (translateFn) {
+      const translated = translateFn(item.labelKey);
+      if (translated) return translated;
+    }
+    return item.labelKey || item.type;
   }
 
   private static matchesSearch(

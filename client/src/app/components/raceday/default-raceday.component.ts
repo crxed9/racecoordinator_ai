@@ -60,6 +60,7 @@ import { AuthService } from "@app/services/auth.service";
 import { ChildWindowManagerService } from "@app/services/child-window-manager.service";
 import { HelpLinkService } from "@app/services/help-link.service";
 import { LoggerService } from "@app/services/logger.service";
+import { NavigationService } from "@app/services/navigation.service";
 import { PrintService } from "@app/services/print.service";
 import {
   DriverProjection,
@@ -760,12 +761,17 @@ export class DefaultRacedayComponent
     private predictionService?: RacePredictionService,
     childWindowManagerService?: ChildWindowManagerService,
     private customWidgetService?: CustomWidgetService,
+    private navigationService?: NavigationService,
   ) {
     this.childWindowManagerService =
       childWindowManagerService ?? inject(ChildWindowManagerService);
     this.customWidgetService =
       customWidgetService ??
       inject(CustomWidgetService, { optional: true }) ??
+      undefined;
+    this.navigationService =
+      navigationService ??
+      inject(NavigationService, { optional: true }) ??
       undefined;
     // Initial default columns, will be overwritten in ngOnInit
     this.columns = [];
@@ -3888,8 +3894,13 @@ export class DefaultRacedayComponent
       this.showRaceHistoryDialog = true;
       this.cdr.markForCheck();
     } else if (action === "BACK") {
+      if (this.isBackDisabled) return;
       window.history.back();
     }
+  }
+
+  get isBackDisabled(): boolean {
+    return !this.navigationService?.canGoBack?.();
   }
 
   saveRace() {
