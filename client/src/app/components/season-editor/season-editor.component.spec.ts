@@ -255,11 +255,74 @@ describe("SeasonEditorComponent", () => {
     expect(component.standings.length).toBe(2);
     expect(component.standings[0].driver_name).toBe("Speedy");
     expect(component.standings[0].net_points).toBe(15);
+    expect(component.standings[0].dropped_points).toBe(0);
+    expect(component.standings[0].gross_points).toBe(15);
+    expect(component.standings[1].driver_name).toBe("Racer");
+    expect(component.standings[1].net_points).toBe(11);
+    expect(component.standings[1].dropped_points).toBe(0);
+    expect(component.standings[1].gross_points).toBe(11);
 
     // Remove race and recalculate
     component.removeRaceFromSeason(0);
     expect(component.editingSeason.races.length).toBe(0);
     expect(component.standings.length).toBe(0);
+  });
+
+  it("should calculate dropped points correctly when season drops is greater than 0", () => {
+    component.editingSeason = {
+      name: "Season With Drops",
+      drops: 1,
+      races: [
+        {
+          race_id: "r1",
+          race_name: "Race 1",
+          timestamp: 1000,
+          driver_results: [
+            {
+              driver_id: "d1",
+              driver_name: "Speedy",
+              overall_rank: 1,
+              overall_points: 25,
+              heat_points: 0,
+              total_points: 25,
+            },
+          ],
+        },
+        {
+          race_id: "r2",
+          race_name: "Race 2",
+          timestamp: 2000,
+          driver_results: [
+            {
+              driver_id: "d1",
+              driver_name: "Speedy",
+              overall_rank: 2,
+              overall_points: 10,
+              heat_points: 0,
+              total_points: 10,
+            },
+          ],
+        },
+      ],
+    };
+
+    component.calculateStandings();
+
+    expect(component.standings.length).toBe(1);
+    expect(component.standings[0].driver_name).toBe("Speedy");
+    expect(component.standings[0].gross_points).toBe(35);
+    expect(component.standings[0].dropped_points).toBe(10);
+    expect(component.standings[0].net_points).toBe(25);
+    expect(component.getDroppedPoints(component.standings[0])).toBe(10);
+    expect(
+      component.getDroppedPoints({
+        driver_id: "d9",
+        driver_name: "Fallback",
+        net_points: 20,
+        gross_points: 30,
+        races_run: 2,
+      }),
+    ).toBe(10);
   });
 
   it("should open add race modal, sort available finished races most recent to oldest, and add selected race", () => {
@@ -908,6 +971,17 @@ describe("SeasonEditorComponent", () => {
     ];
     fixture.detectChanges();
 
+    const headers = fixture.nativeElement.querySelectorAll(
+      ".standings-table thead tr th",
+    );
+    expect(headers.length).toBe(6);
+    expect(headers[0].textContent.trim()).toBe("SM_RANK");
+    expect(headers[1].textContent.trim()).toBe("SM_DRIVER");
+    expect(headers[2].textContent.trim()).toBe("SM_NET_POINTS");
+    expect(headers[3].textContent.trim()).toBe("SM_DROPPED_POINTS");
+    expect(headers[4].textContent.trim()).toBe("SM_GROSS_POINTS");
+    expect(headers[5].textContent.trim()).toBe("SM_RACES");
+
     const rows = fixture.nativeElement.querySelectorAll(
       ".standings-table tbody tr",
     );
@@ -915,11 +989,13 @@ describe("SeasonEditorComponent", () => {
 
     const firstRowCols = rows[0].querySelectorAll("td");
     expect(firstRowCols[2].textContent.trim()).toBe("33.33");
-    expect(firstRowCols[3].textContent.trim()).toBe("50.13");
+    expect(firstRowCols[3].textContent.trim()).toBe("16.79");
+    expect(firstRowCols[4].textContent.trim()).toBe("50.13");
 
     const secondRowCols = rows[1].querySelectorAll("td");
     expect(secondRowCols[2].textContent.trim()).toBe("25");
-    expect(secondRowCols[3].textContent.trim()).toBe("25.5");
+    expect(secondRowCols[3].textContent.trim()).toBe("0.5");
+    expect(secondRowCols[4].textContent.trim()).toBe("25.5");
   });
 
   it("should format decimal points in race breakdown table to at most 2 decimal places", () => {

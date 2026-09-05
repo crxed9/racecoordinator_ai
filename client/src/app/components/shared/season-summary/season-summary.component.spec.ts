@@ -126,14 +126,20 @@ describe("SeasonSummaryComponent", () => {
     expect(headers[0].textContent.trim()).toBe("SM_RANK");
     expect(headers[1].textContent.trim()).toBe("SM_DRIVER");
     expect(headers[2].textContent.trim()).toBe("SM_NET_POINTS");
-    expect(headers[3].textContent.trim()).toBe("SM_GROSS_POINTS");
-    expect(headers[4].textContent.trim()).toBe("SM_DROPPED_POINTS");
+    expect(headers[3].textContent.trim()).toBe("SM_DROPPED_POINTS");
+    expect(headers[4].textContent.trim()).toBe("SM_GROSS_POINTS");
     expect(headers[5].textContent.trim()).toBe("SM_RACES");
 
     const rows = fixture.nativeElement.querySelectorAll(
       ".standings-body-container tbody tr",
     );
     expect(rows.length).toBe(4);
+
+    const firstRowCells = rows[0].querySelectorAll("td");
+    expect(firstRowCells[2].textContent.trim()).toBe("50");
+    expect(firstRowCells[3].textContent.trim()).toBe("20");
+    expect(firstRowCells[4].textContent.trim()).toBe("70");
+    expect(firstRowCells[5].textContent.trim()).toBe("3");
 
     expect(rows[0].classList).toContain("podium-1");
     expect(rows[0].textContent).toContain("🥇 1");
@@ -351,10 +357,10 @@ describe("SeasonSummaryComponent", () => {
     expect(ptsCells.length).toBe(3);
     // Net Points (1,234,567)
     expect(ptsCells[0].textContent.replace(/,/g, "")).toContain("1234567");
-    // Gross Points (9,876,543.5)
-    expect(ptsCells[1].textContent.replace(/,/g, "")).toContain("9876543.5");
     // Dropped Points (8,641,976.5)
-    expect(ptsCells[2].textContent.replace(/,/g, "")).toContain("8641976.5");
+    expect(ptsCells[1].textContent.replace(/,/g, "")).toContain("8641976.5");
+    // Gross Points (9,876,543.5)
+    expect(ptsCells[2].textContent.replace(/,/g, "")).toContain("9876543.5");
 
     const racesCell = row.querySelector("td.col-races");
     expect(racesCell.textContent.trim()).toBe("1234567");

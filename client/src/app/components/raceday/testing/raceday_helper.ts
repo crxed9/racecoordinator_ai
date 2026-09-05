@@ -174,6 +174,7 @@ export function createRacedayMocks(overrides: any = {}) {
     "getRace",
     "getHeats",
     "getCurrentHeat",
+    "getParticipants",
   ]);
   const mockHeatsWithAudio = deepCopy(MOCK_HEATS).map((h: any) => ({
     ...h,
@@ -200,6 +201,7 @@ export function createRacedayMocks(overrides: any = {}) {
   mockRaceService.getRace.and.returnValue(mockRaceWithTrack);
   mockRaceService.getHeats.and.returnValue(mockHeatsWithAudio);
   mockRaceService.getCurrentHeat.and.returnValue(mockHeatsWithAudio[0]);
+  mockRaceService.getParticipants.and.returnValue([]);
 
   return {
     mockDataService,

@@ -110,6 +110,9 @@
                     <th class="col-rank">{{ "SM_RANK" | translate }}</th>
                     <th class="col-driver">{{ "SM_DRIVER" | translate }}</th>
                     <th class="col-pts">{{ "SM_NET_POINTS" | translate }}</th>
+                    <th class="col-pts">
+                      {{ "SM_DROPPED_POINTS" | translate }}
+                    </th>
                     <th class="col-pts">{{ "SM_GROSS_POINTS" | translate }}</th>
                     <th class="col-races">{{ "SM_RACES" | translate }}</th>
                   </tr>
@@ -141,6 +144,9 @@
                       </td>
                       <td class="col-pts net-highlight">
                         <strong>{{ item.net_points | number: "1.0-2" }}</strong>
+                      </td>
+                      <td class="col-pts">
+                        {{ getDroppedPoints(item) | number: "1.0-2" }}
                       </td>
                       <td class="col-pts">
                         {{ item.gross_points | number: "1.0-2" }}

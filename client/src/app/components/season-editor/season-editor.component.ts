@@ -352,11 +352,17 @@ export class SeasonEditorComponent
         }
       }
 
+      const netPoints = Math.round(net * 100) / 100;
+      const grossPoints = Math.round(gross * 100) / 100;
+      const droppedPoints =
+        Math.round(Math.max(0, grossPoints - netPoints) * 100) / 100;
+
       result.push({
         driver_id: driverId,
         driver_name: entry.driver_name,
         net_points: net,
         gross_points: gross,
+        dropped_points: droppedPoints,
         races_run: racesRun,
         race_scores: scores,
       });
@@ -370,6 +376,15 @@ export class SeasonEditorComponent
     });
 
     this.standings = result;
+  }
+
+  getDroppedPoints(item: SeasonStandingItem): number {
+    if (item.dropped_points !== undefined) {
+      return item.dropped_points;
+    }
+    const gross = item.gross_points || 0;
+    const net = item.net_points || 0;
+    return Math.round(Math.max(0, gross - net) * 100) / 100;
   }
 
   getRaceExpanderKey(race: SeasonRaceRecord, idx: number): string {
