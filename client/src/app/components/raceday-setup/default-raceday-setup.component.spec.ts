@@ -301,19 +301,54 @@ describe("DefaultRacedaySetupComponent", () => {
   }));
 
   describe("Settings Export/Import", () => {
-    it("should export settings", () => {
-      const anchorSpy = jasmine.createSpyObj("a", ["setAttribute", "click"]);
-      spyOn(document, "createElement").and.returnValue(anchorSpy as any);
+    let originalShowSaveFilePicker: any;
+
+    beforeEach(() => {
+      originalShowSaveFilePicker = (window as any).showSaveFilePicker;
+    });
+
+    afterEach(() => {
+      (window as any).showSaveFilePicker = originalShowSaveFilePicker;
+    });
+
+    it("should export settings via showSaveFilePicker when available", async () => {
+      const mockWritable = {
+        write: jasmine.createSpy("write").and.returnValue(Promise.resolve()),
+        close: jasmine.createSpy("close").and.returnValue(Promise.resolve()),
+      };
+      const mockHandle = {
+        createWritable: jasmine
+          .createSpy("createWritable")
+          .and.returnValue(Promise.resolve(mockWritable)),
+      };
+      (window as any).showSaveFilePicker = jasmine
+        .createSpy("showSaveFilePicker")
+        .and.returnValue(Promise.resolve(mockHandle));
+
+      await component.exportSettings();
+
+      expect(mockSettingsService.getSettings).toHaveBeenCalled();
+      expect((window as any).showSaveFilePicker).toHaveBeenCalledWith({
+        suggestedName: "racecoordinator_settings.json",
+        types: [
+          {
+            description: "JSON Files",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+      });
+      expect(mockWritable.write).toHaveBeenCalled();
+      expect(mockWritable.close).toHaveBeenCalled();
+    });
+
+    it("should fallback to anchor download when showSaveFilePicker is not available", () => {
+      delete (window as any).showSaveFilePicker;
+      const clickSpy = spyOn(HTMLAnchorElement.prototype, "click");
 
       component.exportSettings();
 
       expect(mockSettingsService.getSettings).toHaveBeenCalled();
-      expect(document.createElement).toHaveBeenCalledWith("a");
-      expect(anchorSpy.setAttribute).toHaveBeenCalledWith(
-        "download",
-        "racecoordinator_settings.json",
-      );
-      expect(anchorSpy.click).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
     });
 
     it("should import settings", () => {
@@ -704,12 +739,82 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(component.closeWindow).toHaveBeenCalled();
     });
 
-    it("should call window.close in closeWindow", () => {
-      spyOn(window, "open");
+    it("should call window.close in closeWindow and trigger fallback modal after timeout", fakeAsync(() => {
       spyOn(window, "close");
+      spyOn(component, "handleQuitBlockedFallback").and.callThrough();
       component.closeWindow();
-      expect(window.open).toHaveBeenCalledWith("", "_self", "");
       expect(window.close).toHaveBeenCalled();
+      expect(component.showQuitBlockedModal).toBeFalse();
+
+      tick(150);
+      expect(component.handleQuitBlockedFallback).toHaveBeenCalled();
+      expect(component.showQuitBlockedModal).toBeTrue();
+    }));
+
+    it("should exit fullscreen if active when closeWindow is called", fakeAsync(() => {
+      spyOn(window, "close");
+      spyOnProperty(document, "fullscreenElement", "get").and.returnValue(
+        document.body,
+      );
+      spyOn(document, "exitFullscreen").and.returnValue(Promise.resolve());
+
+      component.closeWindow();
+      expect(document.exitFullscreen).toHaveBeenCalled();
+      expect(window.close).toHaveBeenCalled();
+      tick(150);
+    }));
+
+    it("should gracefully handle errors when document.exitFullscreen throws", fakeAsync(() => {
+      spyOn(window, "close");
+      spyOnProperty(document, "fullscreenElement", "get").and.returnValue(
+        document.body,
+      );
+      spyOn(document, "exitFullscreen").and.throwError("Fullscreen error");
+
+      expect(() => component.closeWindow()).not.toThrow();
+      expect(window.close).toHaveBeenCalled();
+      tick(150);
+    }));
+
+    it("should gracefully handle errors when window.close throws", fakeAsync(() => {
+      spyOn(window, "close").and.throwError("Close blocked");
+
+      expect(() => component.closeWindow()).not.toThrow();
+      tick(150);
+      expect(component.showQuitBlockedModal).toBeTrue();
+    }));
+
+    it("should hide quit fallback modal and redirect to blank when acknowledged", () => {
+      component.showQuitBlockedModal = true;
+      spyOn(component, "redirectToBlank");
+      component.onAcknowledgeQuitModal();
+      expect(component.showQuitBlockedModal).toBeFalse();
+      expect(component.redirectToBlank).toHaveBeenCalled();
+    });
+
+    it("should replace window.location with about:blank in redirectToBlank", () => {
+      const mockLocation = { replace: jasmine.createSpy("replace") };
+      spyOn(component, "getWindowLocation").and.returnValue(
+        mockLocation as any,
+      );
+      component.redirectToBlank();
+      expect(mockLocation.replace).toHaveBeenCalledWith("about:blank");
+    });
+
+    it("should return window.location in getWindowLocation", () => {
+      expect(component.getWindowLocation()).toBe(window.location);
+    });
+
+    it("should gracefully handle errors in redirectToBlank", () => {
+      const mockLocation = {
+        replace: jasmine
+          .createSpy("replace")
+          .and.throwError("Navigation blocked"),
+      };
+      spyOn(component, "getWindowLocation").and.returnValue(
+        mockLocation as any,
+      );
+      expect(() => component.redirectToBlank()).not.toThrow();
     });
 
     it("should detect Mac and set quitShortcut to Cmd+Q", () => {
@@ -743,8 +848,9 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(component.quit).toHaveBeenCalled();
     });
 
-    it("should trigger quit on Alt+F4 on Windows", () => {
+    it("should allow native Alt+F4 on Windows without preventing default and close file dropdown", () => {
       component.isMac = false;
+      component.isFileDropdownOpen = true;
       spyOn(component, "quit");
       const event = new KeyboardEvent("keydown", {
         key: "F4",
@@ -753,8 +859,9 @@ describe("DefaultRacedaySetupComponent", () => {
       });
       spyOn(event, "preventDefault");
       component.onKeyDown(event);
-      expect(event.preventDefault).toHaveBeenCalled();
-      expect(component.quit).toHaveBeenCalled();
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      expect(component.quit).not.toHaveBeenCalled();
+      expect(component.isFileDropdownOpen).toBeFalse();
     });
 
     it("should trigger quit on Ctrl+Q on Windows", () => {

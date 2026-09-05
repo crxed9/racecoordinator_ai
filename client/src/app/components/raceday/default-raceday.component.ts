@@ -86,10 +86,12 @@ import { HelpService } from "@app/services/help.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
+import { RaceTimeService } from "@app/services/race-time.service";
 import { SettingsService } from "@app/services/settings.service";
 import { ThemeService } from "@app/services/theme.service";
 import { TranslationService } from "@app/services/translation.service";
 import { createTTSContext, playSound } from "@app/utils/audio";
+import { saveFileAs } from "@app/utils/file-download.utils";
 import { ViewerRaceEndedHandler } from "@app/utils/viewer-race-ended-handler";
 
 import { AnchorPoint, ColumnDefinition } from "./column_definition";
@@ -278,6 +280,7 @@ export class DefaultRacedayComponent
   protected driverVisualPositions = new Map<number, number>();
   protected allDrivers: any[] = [];
   public participants: RaceParticipant[] = [];
+  private raceTimeService = inject(RaceTimeService, { optional: true });
 
   // Countdown Overlay state
   showCountdownOverlay: boolean = false;
@@ -1587,6 +1590,7 @@ export class DefaultRacedayComponent
               timerWidget?.customSettings?.["timeSubsecondThreshold"] ?? 10;
             const decimals =
               timerWidget?.customSettings?.["timeSubsecondDecimals"] ?? 2;
+            this.raceTimeService?.setSubsecondSettings(threshold, decimals);
 
             if (time < threshold && decimals > 0) {
               this.timeFormat = `1.${decimals}-${decimals}`;
@@ -4003,45 +4007,14 @@ export class DefaultRacedayComponent
       const raceName = this.race?.name || "Race";
       const suggestedName = `${raceName}-RaceDay${timeStr}.csv`;
 
-      if (typeof (window as any).showSaveFilePicker === "function") {
-        try {
-          const handle = await (window as any).showSaveFilePicker({
-            suggestedName: suggestedName,
-            types: [
-              {
-                description: "CSV Files",
-                accept: { "text/csv": [".csv"] },
-              },
-            ],
-          });
-          const writable = await handle.createWritable();
-          await writable.write(csvData);
-          await writable.close();
-          this.logger.debug("CSV Exported successfully");
-          return;
-        } catch (pickerErr: any) {
-          if (pickerErr.name === "AbortError") {
-            this.logger.debug("User cancelled save");
-            return;
-          }
-          this.logger.warn(
-            "File picker failed, falling back to blob download",
-            pickerErr,
-          );
-        }
-      }
-
-      // Fallback blob download
-      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = suggestedName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      this.logger.debug("CSV Exported via fallback download");
+      await saveFileAs({
+        suggestedName,
+        data: csvData,
+        mimeType: "text/csv;charset=utf-8",
+        description: "CSV Files",
+        extension: ".csv",
+      });
+      this.logger.debug("CSV Exported successfully");
     } catch (err: any) {
       this.logger.error("Failed to export CSV", err);
     }
@@ -4065,47 +4038,15 @@ export class DefaultRacedayComponent
       const raceName = this.race?.name || "Race";
       const suggestedName = `${raceName}-RaceDay${timeStr}.xlsx`;
 
-      if (typeof (window as any).showSaveFilePicker === "function") {
-        try {
-          const handle = await (window as any).showSaveFilePicker({
-            suggestedName: suggestedName,
-            types: [
-              {
-                description: "Excel Files",
-                accept: {
-                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                    [".xlsx"],
-                },
-              },
-            ],
-          });
-          const writable = await handle.createWritable();
-          await writable.write(xlsData);
-          await writable.close();
-          this.logger.debug("XLS Exported successfully");
-          return;
-        } catch (pickerErr: any) {
-          if (pickerErr.name === "AbortError") {
-            this.logger.debug("User cancelled save");
-            return;
-          }
-          this.logger.warn(
-            "File picker failed, falling back to blob download",
-            pickerErr,
-          );
-        }
-      }
-
-      // Fallback blob download
-      const url = window.URL.createObjectURL(xlsData);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = suggestedName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      this.logger.debug("XLS Exported via fallback download");
+      await saveFileAs({
+        suggestedName,
+        data: xlsData,
+        mimeType:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        description: "Excel Files",
+        extension: ".xlsx",
+      });
+      this.logger.debug("XLS Exported successfully");
     } catch (err: any) {
       if (err?.error instanceof Blob) {
         try {
@@ -4519,7 +4460,7 @@ export class DefaultRacedayComponent
   }
 
   getCurrentFlagUrl(): string {
-    return this.raceFlagService.getFlagUrl(this.raceFlagService.getFlagType());
+    return this.raceFlagService.getCurrentFlagUrl();
   }
 
   getFullUrl(url: string | undefined): string {

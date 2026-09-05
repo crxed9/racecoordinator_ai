@@ -16,6 +16,7 @@ import { Router } from "@angular/router";
 import { interval, of, Subscription } from "rxjs";
 import { filter, take } from "rxjs/operators";
 import { AboutDialogComponent } from "@app/components/shared/about-dialog/about-dialog.component";
+import { AcknowledgementModalComponent } from "@app/components/shared/acknowledgement-modal/acknowledgement-modal.component";
 import { DataService } from "@app/data.service";
 import { Role } from "@app/models/role";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
@@ -79,7 +80,12 @@ class CustomUiBaseComponent extends DefaultRacedaySetupComponent {
   selector: "app-raceday-setup",
   templateUrl: "./raceday-setup.component.html",
   styleUrl: "./raceday-setup.component.css",
-  imports: [FormsModule, AboutDialogComponent, TranslatePipe],
+  imports: [
+    FormsModule,
+    AboutDialogComponent,
+    AcknowledgementModalComponent,
+    TranslatePipe,
+  ],
 })
 export class RacedaySetupComponent implements OnInit, OnDestroy {
   @ViewChild("container", { read: ViewContainerRef, static: true })
@@ -126,6 +132,7 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
   public isUpdating = false;
   public updateBannerDismissed = false;
   public updateProgress: UpdateProgress | null = null;
+  public showUpToDateModal = false;
   private progressSubscription: Subscription | null = null;
 
   public get updateVersionHtml(): string {
@@ -416,10 +423,14 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
   public checkForUpdates(force: boolean = false) {
     if (force) {
       this.updateBannerDismissed = false;
+      this.showUpToDateModal = false;
     }
     this.updateService.checkForUpdates(force).subscribe({
       next: (result) => {
         this.updateResult = result;
+        if (force && !result.updateAvailable) {
+          this.showUpToDateModal = true;
+        }
         this.syncChildComponentState();
         this.cdr.detectChanges();
       },
@@ -429,6 +440,11 @@ export class RacedaySetupComponent implements OnInit, OnDestroy {
         }
       },
     });
+  }
+
+  public acknowledgeUpToDate() {
+    this.showUpToDateModal = false;
+    this.cdr.detectChanges();
   }
 
   public dismissUpdateBanner() {

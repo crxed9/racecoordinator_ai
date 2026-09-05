@@ -62,4 +62,41 @@ describe("ui-editor-state.utils", () => {
     state2.themes[0].name = "Updated Theme";
     expect(areUIEditorStatesEqual(state1, state2)).toBeFalse();
   });
+
+  it("should clone customExportTemplateBase64 properly", () => {
+    const s = new Settings();
+    s.customExportTemplateBase64 =
+      "data:application/vnd.ms-excel;base64,ABC123";
+
+    const cloned = cloneSettings(s);
+    expect(cloned.customExportTemplateBase64).toBe(
+      "data:application/vnd.ms-excel;base64,ABC123",
+    );
+  });
+
+  it("should detect changes in customExportTemplateBase64", () => {
+    const s1 = new Settings();
+    const s2 = new Settings();
+    expect(areSettingsEqual(s1, s2)).toBeTrue();
+
+    s2.customExportTemplateBase64 =
+      "data:application/vnd.ms-excel;base64,XYZ789";
+    expect(areSettingsEqual(s1, s2)).toBeFalse();
+
+    s1.customExportTemplateBase64 =
+      "data:application/vnd.ms-excel;base64,XYZ789";
+    expect(areSettingsEqual(s1, s2)).toBeTrue();
+
+    s2.customExportTemplateBase64 =
+      "data:application/vnd.ms-excel;base64,DIFFERENT";
+    expect(areSettingsEqual(s1, s2)).toBeFalse();
+  });
+
+  it("should consider undefined and empty string customExportTemplateBase64 as equal", () => {
+    const s1 = new Settings();
+    s1.customExportTemplateBase64 = undefined;
+    const s2 = new Settings();
+    s2.customExportTemplateBase64 = "";
+    expect(areSettingsEqual(s1, s2)).toBeTrue();
+  });
 });

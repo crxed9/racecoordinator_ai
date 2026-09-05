@@ -968,7 +968,7 @@ export class CustomRotationEditorComponent
       this.internalNumLanes,
       rotation,
     );
-    downloadJsonFile(fileName, jsonContent);
+    await downloadJsonFile(fileName, jsonContent);
     this.logger.info(
       `Exported rotation for ${rotation.numDrivers || 0} drivers completed`,
     );
@@ -980,7 +980,7 @@ export class CustomRotationEditorComponent
       this.internalNumLanes,
       this.internalRotations,
     );
-    downloadJsonFile(fileName, jsonContent);
+    await downloadJsonFile(fileName, jsonContent);
     this.logger.info("Export asset process completed");
   }
 }

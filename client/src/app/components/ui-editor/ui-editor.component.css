@@ -870,6 +870,42 @@
   border-color: #38bdf8 !important;
 }
 
+.canvas-action-icon-btn {
+  background: none;
+  border: none;
+  color: #38bdf8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.canvas-action-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.1);
+}
+
+.canvas-action-icon-btn.reset-icon-btn {
+  color: #f59e0b;
+}
+
+.canvas-action-icon-btn.reset-icon-btn:hover {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.canvas-action-icon-btn.clear-icon-btn {
+  color: #ef4444;
+}
+
+.canvas-action-icon-btn.clear-icon-btn:hover {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+}
+
 .raceday-preview-container {
   background: #000;
   border: 1px solid rgba(148, 163, 184, 0.3);

@@ -1977,6 +1977,75 @@ describe("UIEditorComponent", () => {
       });
       expect((component as any).areSettingsEqual(a, b)).toBeTrue();
     });
+
+    it("should detect a change in customExportTemplateBase64", () => {
+      const a = makeSettings({ customExportTemplateBase64: undefined });
+      const b = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,ABC",
+      });
+      expect((component as any).areSettingsEqual(a, b)).toBeFalse();
+
+      const c = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,XYZ",
+      });
+      expect((component as any).areSettingsEqual(b, c)).toBeFalse();
+    });
+
+    it("should report equal when customExportTemplateBase64 matches or is empty/undefined", () => {
+      const a = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,ABC",
+      });
+      const b = makeSettings({
+        customExportTemplateBase64: "data:application/vnd.ms-excel;base64,ABC",
+      });
+      expect((component as any).areSettingsEqual(a, b)).toBeTrue();
+
+      const c = makeSettings({ customExportTemplateBase64: undefined });
+      const d = makeSettings({ customExportTemplateBase64: "" });
+      expect((component as any).areSettingsEqual(c, d)).toBeTrue();
+    });
+  });
+
+  describe("custom export template actions", () => {
+    it("should clear custom template and capture state", () => {
+      component.editingSettings.customExportTemplateBase64 = "data:test";
+      spyOn(component, "captureState").and.callThrough();
+
+      component.clearCustomTemplate();
+
+      expect(
+        component.editingSettings.customExportTemplateBase64,
+      ).toBeUndefined();
+      expect(component.captureState).toHaveBeenCalled();
+    });
+
+    it("should handle onTemplateFileSelected, set customExportTemplateBase64, and capture state", (done) => {
+      const file = new File(["test-content"], "test.xlsx", {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const input = document.createElement("input");
+      input.type = "file";
+      Object.defineProperty(input, "files", {
+        value: [file],
+        writable: true,
+      });
+
+      const event = { target: input } as unknown as Event;
+      spyOn(component, "captureState").and.callThrough();
+
+      component.onTemplateFileSelected(event);
+
+      setTimeout(() => {
+        expect(
+          component.editingSettings.customExportTemplateBase64,
+        ).toBeDefined();
+        expect(component.editingSettings.customExportTemplateBase64).toContain(
+          "data:",
+        );
+        expect(component.captureState).toHaveBeenCalled();
+        done();
+      }, 50);
+    });
   });
 
   describe("autoSaveState – Promise-based API", () => {
@@ -2656,6 +2725,7 @@ describe("UIEditorComponent", () => {
       expect(selectors).toContain("#help-raceday-sort");
       expect(selectors).toContain("#help-raceday-highlight");
       expect(selectors).toContain("#help-raceday-reset");
+      expect(selectors).toContain("#help-raceday-clear");
       expect(selectors).toContain("#help-raceday-import-export");
       expect(selectors).toContain("#help-raceday-canvas");
       expect(selectors).toContain("#help-widget-inspector");
@@ -2977,6 +3047,34 @@ describe("UIEditorComponent", () => {
       expect(component.onImportPracticeRacedayLayout).toHaveBeenCalledWith(
         fakeEvent,
       );
+    });
+
+    it("should delegate clearLayout and clearCurrentLayout properly", () => {
+      spyOn(component.undoManager, "captureState");
+      const customUi: CustomUI = {
+        entity_id: "default_ui_layout_rc_ai",
+        name: "Default UI",
+        is_default: true,
+        layoutJson: JSON.stringify({
+          baseWidth: 1920,
+          baseHeight: 1080,
+          widgets: [{ id: "w1", widgetType: "lane-view" }],
+        }),
+      };
+      component.displayCustomUIs = [customUi];
+      component.activeCustomUiId = "default_ui_layout_rc_ai";
+      component.selectedWidgetId = "w1";
+
+      component.clearLayout(customUi);
+      expect(JSON.parse(customUi.layoutJson!).widgets).toEqual([]);
+      expect(component.selectedWidgetId).toBeNull();
+      expect(component.undoManager.captureState).toHaveBeenCalled();
+
+      spyOn(component, "clearLayout");
+      const targetUi = component.getTargetCustomUi("raceday");
+      expect(targetUi).toBeDefined();
+      component.clearCurrentLayout();
+      expect(component.clearLayout).toHaveBeenCalledWith(targetUi!);
     });
   });
 

@@ -76,6 +76,44 @@ export function applyImportLayout(
   return true;
 }
 
+export function applyClearLayout(
+  ui: CustomUI,
+  editingSettings: Settings,
+): void {
+  let layout: any = undefined;
+  if (ui.layoutJson) {
+    try {
+      layout = JSON.parse(ui.layoutJson);
+    } catch {
+      // ignore
+    }
+  }
+  if (!layout) {
+    const isPractice = ui.entity_id === "practice_ui_layout_rc_ai";
+    layout = isPractice
+      ? editingSettings?.practiceRacedayLayout ||
+        Settings.DEFAULT_PRACTICE_LAYOUT
+      : editingSettings?.racedayLayout || Settings.DEFAULT_LAYOUT;
+    layout = deepCopy(layout);
+  }
+  layout.widgets = [];
+
+  ui.layoutJson = JSON.stringify(layout);
+
+  if (ui.entity_id === "default_ui_layout_rc_ai" && editingSettings) {
+    editingSettings.racedayLayout = layout;
+  } else if (ui.entity_id === "practice_ui_layout_rc_ai" && editingSettings) {
+    editingSettings.practiceRacedayLayout = layout;
+  }
+}
+
+export function executeClearLayout(
+  ui: CustomUI,
+  editingSettings: Settings,
+): void {
+  applyClearLayout(ui, editingSettings);
+}
+
 export function executeResetLayout(
   ui: CustomUI,
   editingSettings: Settings,
@@ -153,6 +191,17 @@ export function handleResetLayout(comp: any, ui: CustomUI): void {
   comp.cdr.detectChanges();
 }
 
+export function handleClearLayout(comp: any, ui: CustomUI): void {
+  executeClearLayout(ui, comp.editingSettings);
+  if (comp.editingState?.settings) {
+    comp.editingState.settings = deepCopy(comp.editingSettings);
+  }
+  comp.selectedWidgetId = null;
+  comp.undoManager.captureState();
+  comp.refreshDisplayProperties();
+  comp.cdr.detectChanges();
+}
+
 export function handleExportLayout(comp: any, ui: CustomUI): void {
   const { layoutExport, fileName } = buildLayoutExport(
     ui,
@@ -187,6 +236,18 @@ export function handleResetCurrentLayout(comp: any): void {
     comp.resetRacedayLayout();
   } else if (comp.activeCustomUi) {
     comp.resetLayout(comp.activeCustomUi);
+  }
+}
+
+export function handleClearCurrentLayout(comp: any): void {
+  if (comp.isCurrentLayoutPractice) {
+    const u = comp.getTargetCustomUi("practice");
+    if (u) comp.clearLayout(u);
+  } else if (comp.activeCustomUiId === "default_ui_layout_rc_ai") {
+    const u = comp.getTargetCustomUi("raceday");
+    if (u) comp.clearLayout(u);
+  } else if (comp.activeCustomUi) {
+    comp.clearLayout(comp.activeCustomUi);
   }
 }
 

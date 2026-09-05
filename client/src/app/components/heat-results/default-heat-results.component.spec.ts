@@ -15,6 +15,7 @@ import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
+import { RaceTimeService } from "@app/services/race-time.service";
 
 import { DefaultHeatResultsComponent } from "./default-heat-results.component";
 
@@ -32,6 +33,10 @@ describe("DefaultHeatResultsComponent", () => {
   let mockRaceService: any;
   let mockPrintService: any;
   let mockRouter: any;
+  let currentFlagUrlSubject: BehaviorSubject<string>;
+  let formattedTimeSubject: BehaviorSubject<string>;
+  let mockRaceFlagService: any;
+  let mockRaceTimeService: any;
 
   beforeEach(async () => {
     mockRouter = {
@@ -97,16 +102,34 @@ describe("DefaultHeatResultsComponent", () => {
 
     mockPrintService = jasmine.createSpyObj("PrintService", ["print"]);
 
+    currentFlagUrlSubject = new BehaviorSubject<string>("test-flag-url");
+    formattedTimeSubject = new BehaviorSubject<string>("01:23");
+
+    mockRaceFlagService = {
+      getCurrentFlagUrl: jasmine
+        .createSpy("getCurrentFlagUrl")
+        .and.callFake(() => currentFlagUrlSubject.value),
+      getFlagUrl: jasmine
+        .createSpy("getFlagUrl")
+        .and.returnValue("test-flag-url"),
+      currentFlagUrl$: currentFlagUrlSubject.asObservable(),
+    };
+
+    mockRaceTimeService = {
+      get formattedTime() {
+        return formattedTimeSubject.value;
+      },
+      formattedTime$: formattedTimeSubject.asObservable(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [DefaultHeatResultsComponent, MockTranslatePipe],
       providers: [
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },
         { provide: RaceService, useValue: mockRaceService },
         { provide: PrintService, useValue: mockPrintService },
-        {
-          provide: RaceFlagService,
-          useValue: { getFlagUrl: () => "test-flag-url" },
-        },
+        { provide: RaceFlagService, useValue: mockRaceFlagService },
+        { provide: RaceTimeService, useValue: mockRaceTimeService },
         {
           provide: DataService,
           useValue: {
@@ -380,6 +403,21 @@ describe("DefaultHeatResultsComponent", () => {
 
       expect(row1?.rank).toBe(0);
       expect(row2?.rank).toBe(0);
+    });
+
+    it("should initialize currentFlagUrl and formattedTime from services", () => {
+      expect(component.currentFlagUrl).toBe("test-flag-url");
+      expect(component.formattedTime).toBe("01:23");
+    });
+
+    it("should update currentFlagUrl when raceFlagService emits", () => {
+      currentFlagUrlSubject.next("updated-flag-url");
+      expect(component.currentFlagUrl).toBe("updated-flag-url");
+    });
+
+    it("should update formattedTime when raceTimeService emits", () => {
+      formattedTimeSubject.next("05:43.2");
+      expect(component.formattedTime).toBe("05:43.2");
     });
   });
 });

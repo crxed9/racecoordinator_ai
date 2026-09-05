@@ -89,6 +89,16 @@ describe("ui-editor-help.helper", () => {
     scaleModeStep?.onEnter?.();
     expect(sectionsExpanded["customUIs"]).toBeTrue();
 
+    const resetStep = steps.find((s) => s.selector === "#help-raceday-reset");
+    expect(resetStep).toBeDefined();
+    resetStep?.onEnter?.();
+    expect(sectionsExpanded["customUIs"]).toBeTrue();
+
+    const clearStep = steps.find((s) => s.selector === "#help-raceday-clear");
+    expect(clearStep).toBeDefined();
+    clearStep?.onEnter?.();
+    expect(sectionsExpanded["customUIs"]).toBeTrue();
+
     const inspectorStep = steps.find(
       (s) => s.selector === "#help-widget-inspector",
     );

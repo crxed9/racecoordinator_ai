@@ -1204,7 +1204,14 @@ export class DataService {
   }
 
   exportDatabase(name: string) {
-    window.location.href = `${this.baseUrl}/api/databases/${name}/export`;
+    window.location.href = `${this.baseUrl}/api/databases/${encodeURIComponent(name)}/export`;
+  }
+
+  exportDatabaseBlob(name: string): Observable<Blob> {
+    return this.http.get(
+      `${this.baseUrl}/api/databases/${encodeURIComponent(name)}/export`,
+      { responseType: "blob" },
+    );
   }
 
   importDatabase(name: string, file: File): Observable<any> {

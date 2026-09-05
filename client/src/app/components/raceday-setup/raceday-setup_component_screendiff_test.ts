@@ -186,6 +186,50 @@ test.describe("Raceday Setup Functional - en", () => {
     });
   });
 
+  test("Check for updates up-to-date acknowledgement modal", async ({
+    page,
+  }) => {
+    await page.route("**/api/update/check*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          updateAvailable: false,
+          latestVersion: "",
+          releaseNotes: "",
+          downloadUrl: "",
+          releaseUrl: "",
+          isWindows: true,
+        }),
+      });
+    });
+
+    const container = page.locator(".setup-container");
+    const harness = new DefaultRacedaySetupHarnessE2e(container);
+
+    await harness.openOptionsMenu();
+    await expect(page.locator(".setup-menu-dropdown")).toBeVisible();
+
+    await harness.openAutomaticUpdatesSubMenu();
+    const checkItem = page.locator('[data-testid="item-check-updates"]');
+    await expect(checkItem).toBeVisible();
+    await checkItem.click();
+
+    const modalContent = page.locator(
+      "app-acknowledgement-modal .modal-content",
+    );
+    await modalContent.waitFor({ state: "visible" });
+
+    await expect(modalContent).toHaveScreenshot(
+      "raceday-setup-up-to-date-modal-en.png",
+      {
+        maxDiffPixelRatio: 0.05,
+        animations: "disabled",
+        timeout: 10000,
+      },
+    );
+  });
+
   test("Event selected", async ({ page }) => {
     const container = page.locator(".setup-container");
     const harness = new DefaultRacedaySetupHarnessE2e(container);

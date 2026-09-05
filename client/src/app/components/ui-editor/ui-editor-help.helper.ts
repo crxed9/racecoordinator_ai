@@ -144,6 +144,13 @@ export function getRacedayLayoutHelpSteps(
       onEnter: () => expandCustomUiSection(ctx),
     },
     {
+      selector: "#help-raceday-clear",
+      title: translationService.translate("UI_EDITOR_CLEAR_LAYOUT"),
+      content: translationService.translate("UE_HELP_RACEDAY_CLEAR"),
+      position: "bottom",
+      onEnter: () => expandCustomUiSection(ctx),
+    },
+    {
       selector: "#help-raceday-import-export",
       title: translationService.translate("UI_EDITOR_IMPORT_EXPORT_TITLE"),
       content: translationService.translate("UE_HELP_RACEDAY_IMPORT_EXPORT"),

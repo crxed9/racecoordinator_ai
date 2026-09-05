@@ -22,13 +22,14 @@ public class HeatBuilder {
     int numLanes = race.getTrack().getLanes().size();
     GroupOptions groupOptions = race.getRaceModel().getGroupOptions();
     List<Heat> heatList = new ArrayList<>();
+    List<RaceParticipant> activeDrivers = filterActiveParticipants(drivers);
 
     boolean isCustom = race.getRaceModel().getHeatRotationType() == HeatRotationType.Custom;
 
     if (groupOptions != null && groupOptions.isEnabled() && !isCustom) {
       List<Integer> driverGroups =
           getGroups(
-              drivers,
+              activeDrivers,
               numLanes,
               groupOptions.getMaxGroups(),
               groupOptions.isBalance(),
@@ -44,9 +45,9 @@ public class HeatBuilder {
 
       for (int g = 0; g < numGroups; g++) {
         List<RaceParticipant> groupDrivers = new ArrayList<>();
-        for (int i = 0; i < drivers.size(); i++) {
+        for (int i = 0; i < activeDrivers.size(); i++) {
           if (driverGroups.get(i) == g) {
-            groupDrivers.add(drivers.get(i));
+            groupDrivers.add(activeDrivers.get(i));
           }
         }
 
@@ -62,7 +63,7 @@ public class HeatBuilder {
         heatList = resortGroupHeats(heatList);
       }
     } else {
-      heatList = buildHeatsForGroup(race, drivers, 0, customRotations);
+      heatList = buildHeatsForGroup(race, activeDrivers, 0, customRotations);
     }
 
     // Heat Times Through
@@ -148,6 +149,21 @@ public class HeatBuilder {
     return rotationSequence;
   }
 
+  private static List<RaceParticipant> filterActiveParticipants(List<RaceParticipant> drivers) {
+    List<RaceParticipant> activeDrivers = new ArrayList<>();
+    if (drivers != null) {
+      for (RaceParticipant p : drivers) {
+        if (p != null && !p.isEmptyParticipant()) {
+          activeDrivers.add(p);
+        }
+      }
+    }
+    if (activeDrivers.isEmpty() && drivers != null && !drivers.isEmpty()) {
+      activeDrivers.addAll(drivers);
+    }
+    return activeDrivers;
+  }
+
   private static List<Heat> getRoundRobinHeats(
       List<RaceParticipant> drivers,
       int numLanes,
@@ -168,11 +184,12 @@ public class HeatBuilder {
       }
     }
 
+    List<RaceParticipant> activeDrivers = filterActiveParticipants(drivers);
     List<Heat> heatList = new ArrayList<>();
 
     int numHeats;
-    if (drivers.size() > rotationSequence.size()) {
-      numHeats = drivers.size();
+    if (activeDrivers.size() > rotationSequence.size()) {
+      numHeats = activeDrivers.size();
     } else {
       numHeats = rotationSequence.size();
     }
@@ -188,7 +205,7 @@ public class HeatBuilder {
       }
 
       // Now use the rotation sequence to fill in the drivers
-      for (int d = 0; d < drivers.size(); d++) {
+      for (int d = 0; d < activeDrivers.size(); d++) {
         int v = (h + d) % numHeats;
         if (v < rotationSequence.size()) {
           int lane = rotationSequence.get(v);
@@ -200,10 +217,10 @@ public class HeatBuilder {
                 // Swap the order of the initial group of sitouts so that the
                 // first sit out rotated in is the lowest seed.
                 if (d >= numLanes) {
-                  idx = drivers.size() - (d - numLanes) - 1;
+                  idx = activeDrivers.size() - (d - numLanes) - 1;
                 }
               }
-              RaceParticipant participant = drivers.get(idx);
+              RaceParticipant participant = activeDrivers.get(idx);
               DriverHeatData data = new DriverHeatData(participant);
               data.setLane(lane);
               if (participant.isTeamParticipant()

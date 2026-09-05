@@ -7055,4 +7055,86 @@ describe("DefaultRacedayComponent", () => {
       expect(event.preventDefault).toHaveBeenCalled();
     });
   });
+
+  describe("exportToCsv and exportToXls", () => {
+    let originalShowSaveFilePicker: any;
+    let mockWritable: any;
+    let mockHandle: any;
+
+    beforeEach(() => {
+      originalShowSaveFilePicker = (window as any).showSaveFilePicker;
+      mockWritable = {
+        write: jasmine.createSpy("write").and.returnValue(Promise.resolve()),
+        close: jasmine.createSpy("close").and.returnValue(Promise.resolve()),
+      };
+      mockHandle = {
+        createWritable: jasmine
+          .createSpy("createWritable")
+          .and.returnValue(Promise.resolve(mockWritable)),
+      };
+      (window as any).showSaveFilePicker = jasmine
+        .createSpy("showSaveFilePicker")
+        .and.returnValue(Promise.resolve(mockHandle));
+      mockDataService.exportRaceToCsv.and.returnValue(of("csv,test,content"));
+      mockDataService.exportRaceToXls.and.returnValue(
+        of(
+          new Blob(["mock xls"], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          }),
+        ),
+      );
+    });
+
+    afterEach(() => {
+      (window as any).showSaveFilePicker = originalShowSaveFilePicker;
+    });
+
+    it("should export CSV via showSaveFilePicker", async () => {
+      await component.exportToCsv();
+
+      expect(mockDataService.exportRaceToCsv).toHaveBeenCalled();
+      expect((window as any).showSaveFilePicker).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          types: [
+            {
+              description: "CSV Files",
+              accept: { "text/csv": [".csv"] },
+            },
+          ],
+        }),
+      );
+      expect(mockWritable.write).toHaveBeenCalledWith("csv,test,content");
+      expect(mockWritable.close).toHaveBeenCalled();
+    });
+
+    it("should export XLS via showSaveFilePicker", async () => {
+      await component.exportToXls();
+
+      expect(mockDataService.exportRaceToXls).toHaveBeenCalled();
+      expect((window as any).showSaveFilePicker).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          types: [
+            {
+              description: "Excel Files",
+              accept: {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                  [".xlsx"],
+              },
+            },
+          ],
+        }),
+      );
+      expect(mockWritable.write).toHaveBeenCalled();
+      expect(mockWritable.close).toHaveBeenCalled();
+    });
+
+    it("should fallback to anchor download when showSaveFilePicker is not available", async () => {
+      delete (window as any).showSaveFilePicker;
+      const clickSpy = spyOn(HTMLAnchorElement.prototype, "click");
+
+      await component.exportToCsv();
+
+      expect(clickSpy).toHaveBeenCalled();
+    });
+  });
 });

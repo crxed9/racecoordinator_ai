@@ -266,68 +266,75 @@
                             </div>
                           </div>
 
-                          <button
-                            id="help-raceday-reset"
-                            class="btn btn-danger"
-                            (click)="resetLayout(ui)"
+                          <div
+                            class="canvas-header-actions"
                             style="
                               display: flex;
                               align-items: center;
-                              justify-content: center;
-                              gap: 8px;
+                              gap: 6px;
+                              margin-left: auto;
                             "
-                          >
-                            <span class="material-icons">refresh</span>
-                            {{ "UI_EDITOR_RESET_LAYOUT_DEFAULTS" | translate }}
-                          </button>
-
-                          <div
-                            id="help-raceday-import-export"
-                            class="expander-actions"
-                            style="display: flex; gap: 8px; margin-left: 10px"
                             (click)="$event.stopPropagation()"
                           >
                             <button
-                              class="icon-btn"
-                              (click)="layoutFileInput.click()"
-                              [title]="'UE_BTN_IMPORT_LAYOUT' | translate"
-                              style="
-                                background: none;
-                                border: none;
-                                color: #38bdf8;
-                                cursor: pointer;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                padding: 4px;
+                              id="help-raceday-reset"
+                              class="icon-btn canvas-action-icon-btn reset-icon-btn"
+                              (click)="resetLayout(ui)"
+                              [title]="
+                                'UI_EDITOR_RESET_LAYOUT_DEFAULTS' | translate
+                              "
+                              [attr.aria-label]="
+                                'UI_EDITOR_RESET_LAYOUT_DEFAULTS' | translate
                               "
                             >
-                              <span class="material-icons">download</span>
+                              <span class="material-icons">refresh</span>
                             </button>
+
                             <button
-                              class="icon-btn"
-                              (click)="exportLayout(ui)"
-                              [title]="'UE_BTN_EXPORT_LAYOUT' | translate"
-                              style="
-                                background: none;
-                                border: none;
-                                color: #38bdf8;
-                                cursor: pointer;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                padding: 4px;
+                              id="help-raceday-clear"
+                              class="icon-btn canvas-action-icon-btn clear-icon-btn"
+                              (click)="clearLayout(ui)"
+                              [title]="'UI_EDITOR_CLEAR_LAYOUT' | translate"
+                              [attr.aria-label]="
+                                'UI_EDITOR_CLEAR_LAYOUT' | translate
                               "
                             >
-                              <span class="material-icons">upload</span>
+                              <span class="material-icons">delete_sweep</span>
                             </button>
-                            <input
-                              #layoutFileInput
-                              type="file"
-                              accept=".json,.txt"
-                              style="display: none"
-                              (change)="onImportLayout($event, ui)"
-                            />
+
+                            <div
+                              id="help-raceday-import-export"
+                              class="expander-actions"
+                              style="display: flex; gap: 6px"
+                            >
+                              <button
+                                class="icon-btn canvas-action-icon-btn"
+                                (click)="layoutFileInput.click()"
+                                [title]="'UE_BTN_IMPORT_LAYOUT' | translate"
+                                [attr.aria-label]="
+                                  'UE_BTN_IMPORT_LAYOUT' | translate
+                                "
+                              >
+                                <span class="material-icons">download</span>
+                              </button>
+                              <button
+                                class="icon-btn canvas-action-icon-btn"
+                                (click)="exportLayout(ui)"
+                                [title]="'UE_BTN_EXPORT_LAYOUT' | translate"
+                                [attr.aria-label]="
+                                  'UE_BTN_EXPORT_LAYOUT' | translate
+                                "
+                              >
+                                <span class="material-icons">upload</span>
+                              </button>
+                              <input
+                                #layoutFileInput
+                                type="file"
+                                accept=".json,.txt"
+                                style="display: none"
+                                (change)="onImportLayout($event, ui)"
+                              />
+                            </div>
                           </div>
                         </div>
 

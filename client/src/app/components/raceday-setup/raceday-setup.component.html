@@ -204,4 +204,13 @@
     [serverPort]="tempServerPort"
     (close)="showAboutDialog = false"
   ></app-about-dialog>
+
+  <!-- Up To Date Dialog -->
+  <app-acknowledgement-modal
+    [visible]="showUpToDateModal"
+    title="RDS_UPDATE_UP_TO_DATE_TITLE"
+    message="RDS_UPDATE_UP_TO_DATE_MESSAGE"
+    buttonText="GEN_OK"
+    (acknowledge)="acknowledgeUpToDate()"
+  ></app-acknowledgement-modal>
 </div>

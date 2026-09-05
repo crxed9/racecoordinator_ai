@@ -830,6 +830,24 @@ describe("DataService", () => {
       expect(req.request.method).toBe("POST");
       req.flush({ success: true });
     });
+
+    it("should handle database export blob", (done) => {
+      const mockBlob = new Blob(["mock zip content"], {
+        type: "application/zip",
+      });
+
+      service.exportDatabaseBlob("test_db").subscribe((blob) => {
+        expect(blob).toBeTruthy();
+        expect(blob.size).toBe(mockBlob.size);
+        done();
+      });
+
+      const req = httpMock.expectOne((r) =>
+        r.url.endsWith("/api/databases/test_db/export"),
+      );
+      expect(req.request.method).toBe("GET");
+      req.flush(mockBlob);
+    });
   });
 
   describe("Asset Management API", () => {

@@ -90,7 +90,9 @@ import {
   getThemeAudioUrl,
   getThemeDisplayNameKey,
   getUiEditorHelpSteps,
+  handleClearCurrentLayout,
   handleClearCustomTemplate,
+  handleClearLayout,
   handleConfirmDeleteCustomUi,
   handleConfirmDeleteTheme,
   handleCreateCustomUi,
@@ -540,6 +542,14 @@ export class UIEditorComponent implements OnInit, OnDestroy, DirtyComponent {
 
   resetLayout(ui: CustomUI) {
     handleResetLayout(this, ui);
+  }
+
+  clearLayout(ui: CustomUI) {
+    handleClearLayout(this, ui);
+  }
+
+  clearCurrentLayout() {
+    handleClearCurrentLayout(this);
   }
 
   resetRacedayLayout() {

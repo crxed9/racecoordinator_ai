@@ -15,6 +15,7 @@ import { PrintService } from "@app/services/print.service";
 import { RaceService } from "@app/services/race.service";
 import { RaceConnectionService } from "@app/services/race-connection.service";
 import { RaceFlagService } from "@app/services/race-flag.service";
+import { RaceTimeService } from "@app/services/race-time.service";
 import { TranslationService } from "@app/services/translation.service";
 
 import { DefaultRaceResultsComponent } from "./default-race-results.component";
@@ -28,6 +29,10 @@ describe("DefaultRaceResultsComponent", () => {
   let mockRaceService: any;
   let mockPrintService: any;
   let mockTranslationService: any;
+  let mockRaceFlagService: any;
+  let mockRaceTimeService: any;
+  let currentFlagUrlSubject: BehaviorSubject<string>;
+  let formattedTimeSubject: BehaviorSubject<string>;
   let participantsSubject: BehaviorSubject<RaceParticipant[]>;
   let heatsSubject: BehaviorSubject<Heat[]>;
   let selectedRaceSubject: BehaviorSubject<Race | undefined>;
@@ -143,14 +148,35 @@ describe("DefaultRaceResultsComponent", () => {
         .and.returnValue(new BehaviorSubject<string>("en")),
     };
 
+    currentFlagUrlSubject = new BehaviorSubject<string>("test-flag-url");
+    formattedTimeSubject = new BehaviorSubject<string>("01:23");
+
+    mockRaceFlagService = {
+      getFlagUrl: jasmine
+        .createSpy("getFlagUrl")
+        .and.returnValue("test-flag-url"),
+      getCurrentFlagUrl: jasmine
+        .createSpy("getCurrentFlagUrl")
+        .and.callFake(() => currentFlagUrlSubject.value),
+      currentFlagUrl$: currentFlagUrlSubject.asObservable(),
+    };
+
+    mockRaceTimeService = {
+      get formattedTime() {
+        return formattedTimeSubject.value;
+      },
+      formattedTime$: formattedTimeSubject.asObservable(),
+      autoStatusLabel: "",
+      isWarmup: false,
+      time: 83,
+    };
+
     await TestBed.configureTestingModule({
       imports: [DefaultRaceResultsComponent],
       providers: [
         { provide: RaceConnectionService, useValue: mockRaceConnectionService },
-        {
-          provide: RaceFlagService,
-          useValue: { getFlagUrl: () => "test-flag-url" },
-        },
+        { provide: RaceFlagService, useValue: mockRaceFlagService },
+        { provide: RaceTimeService, useValue: mockRaceTimeService },
         { provide: RaceService, useValue: mockRaceService },
         { provide: PrintService, useValue: mockPrintService },
         { provide: TranslationService, useValue: mockTranslationService },
@@ -1098,6 +1124,23 @@ describe("DefaultRaceResultsComponent", () => {
         // uniform scale = min(0.5, 1.0) = 0.5
         expect(component.scale).toBeCloseTo(0.5, 3);
         expect(component.currentScale).toBeCloseTo(0.5, 3);
+      });
+    });
+
+    describe("Race Flag and Race Time Integration", () => {
+      it("should initialize currentFlagUrl and formattedTime from services", () => {
+        expect(component.currentFlagUrl).toBe("test-flag-url");
+        expect(component.formattedTime).toBe("01:23");
+      });
+
+      it("should update currentFlagUrl when raceFlagService emits", () => {
+        currentFlagUrlSubject.next("updated-flag-url");
+        expect(component.currentFlagUrl).toBe("updated-flag-url");
+      });
+
+      it("should update formattedTime when raceTimeService emits", () => {
+        formattedTimeSubject.next("05:43.2");
+        expect(component.formattedTime).toBe("05:43.2");
       });
     });
   });
