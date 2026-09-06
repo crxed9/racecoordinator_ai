@@ -1536,7 +1536,7 @@ describe("DefaultRacedaySetupComponent", () => {
       const summaryGrid = raceSummaryCard.querySelector(".summary-grid");
       expect(summaryGrid).toBeTruthy();
       const items = summaryGrid.querySelectorAll(".summary-item");
-      expect(items.length).toBe(7);
+      expect(items.length).toBe(9);
 
       const labels = Array.from(items).map((item: any) =>
         item.querySelector(".summary-label")?.textContent?.trim(),
@@ -1547,7 +1547,108 @@ describe("DefaultRacedaySetupComponent", () => {
       expect(labels[3]).toBe("RM_LABEL_FINISH_VALUE:");
       expect(labels[4]).toBe("RM_LABEL_HEAT_ROTATION:");
       expect(labels[5]).toBe("RM_LABEL_FUEL_RACE:");
-      expect(labels[6]).toBe("RM_LABEL_THEME:");
+      expect(labels[6]).toBe("RM_LABEL_HANDS_FREE:");
+      expect(labels[7]).toBe("RM_LABEL_WARMUP_TIME:");
+      expect(labels[8]).toBe("RM_LABEL_THEME:");
+    });
+
+    it("should correctly evaluate isHandsFree", () => {
+      expect(component.isHandsFree(undefined)).toBeFalse();
+      expect(component.isHandsFree(null)).toBeFalse();
+      expect(component.isHandsFree({} as any)).toBeFalse();
+      expect(
+        component.isHandsFree({
+          auto_advance_time: 5,
+          auto_start_time: 0,
+        } as any),
+      ).toBeFalse();
+      expect(
+        component.isHandsFree({
+          auto_advance_time: 0,
+          auto_start_time: 5,
+        } as any),
+      ).toBeFalse();
+      expect(
+        component.isHandsFree({
+          auto_advance_time: 5,
+          auto_start_time: 5,
+        } as any),
+      ).toBeTrue();
+    });
+
+    it("should correctly evaluate hasWarmup", () => {
+      expect(component.hasWarmup(undefined)).toBeFalse();
+      expect(component.hasWarmup(null)).toBeFalse();
+      expect(component.hasWarmup({} as any)).toBeFalse();
+      expect(
+        component.hasWarmup({
+          auto_advance_warmup_time: 0,
+          auto_start_warmup_time: 0,
+        } as any),
+      ).toBeFalse();
+      expect(
+        component.hasWarmup({
+          auto_advance_warmup_time: 3,
+          auto_start_warmup_time: 0,
+        } as any),
+      ).toBeTrue();
+      expect(
+        component.hasWarmup({
+          auto_advance_warmup_time: 0,
+          auto_start_warmup_time: 4,
+        } as any),
+      ).toBeTrue();
+      expect(
+        component.hasWarmup({
+          auto_advance_warmup_time: 2,
+          auto_start_warmup_time: 3,
+        } as any),
+      ).toBeTrue();
+    });
+
+    it("should render YES and NO for hands free and warmup time values on race summary card", () => {
+      component.selectedEvent = undefined;
+      component.selectedRace = {
+        name: "Test Race",
+        auto_advance_time: 5,
+        auto_start_time: 5,
+        auto_advance_warmup_time: 2,
+        auto_start_warmup_time: 0,
+      } as any;
+      fixture.detectChanges();
+
+      let items = fixture.nativeElement.querySelectorAll(
+        ".race-summary-card .summary-item",
+      );
+      expect(items.length).toBe(9);
+      let handsFreeVal = items[6]
+        .querySelector(".summary-value")
+        ?.textContent?.trim();
+      let warmupVal = items[7]
+        .querySelector(".summary-value")
+        ?.textContent?.trim();
+      expect(handsFreeVal).toBe("GEN_YES");
+      expect(warmupVal).toBe("GEN_YES");
+
+      // Now set both to inactive
+      component.selectedRace = {
+        name: "Test Race 2",
+        auto_advance_time: 0,
+        auto_start_time: 5,
+        auto_advance_warmup_time: 0,
+        auto_start_warmup_time: 0,
+      } as any;
+      fixture.detectChanges();
+
+      items = fixture.nativeElement.querySelectorAll(
+        ".race-summary-card .summary-item",
+      );
+      handsFreeVal = items[6]
+        .querySelector(".summary-value")
+        ?.textContent?.trim();
+      warmupVal = items[7].querySelector(".summary-value")?.textContent?.trim();
+      expect(handsFreeVal).toBe("GEN_NO");
+      expect(warmupVal).toBe("GEN_NO");
     });
 
     it("should correctly return theme display name in getThemeDisplay", () => {

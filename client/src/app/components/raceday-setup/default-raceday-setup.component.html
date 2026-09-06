@@ -959,6 +959,26 @@
                   </div>
                   <div class="summary-item">
                     <span class="summary-label"
+                      >{{ "RM_LABEL_HANDS_FREE" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      isHandsFree(selectedRace)
+                        ? ("GEN_YES" | translate)
+                        : ("GEN_NO" | translate)
+                    }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label"
+                      >{{ "RM_LABEL_WARMUP_TIME" | translate }}:</span
+                    >
+                    <span class="summary-value">{{
+                      hasWarmup(selectedRace)
+                        ? ("GEN_YES" | translate)
+                        : ("GEN_NO" | translate)
+                    }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="summary-label"
                       >{{ "RM_LABEL_THEME" | translate }}:</span
                     >
                     <span class="summary-value">{{

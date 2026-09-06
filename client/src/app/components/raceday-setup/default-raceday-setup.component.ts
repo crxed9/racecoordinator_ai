@@ -2017,6 +2017,23 @@ export class DefaultRacedaySetupComponent implements OnInit {
     return themeId;
   }
 
+  isHandsFree(race?: any): boolean {
+    if (!race) {
+      return false;
+    }
+    return (race.auto_advance_time ?? 0) > 0 && (race.auto_start_time ?? 0) > 0;
+  }
+
+  hasWarmup(race?: any): boolean {
+    if (!race) {
+      return false;
+    }
+    return (
+      (race.auto_advance_warmup_time ?? 0) > 0 ||
+      (race.auto_start_warmup_time ?? 0) > 0
+    );
+  }
+
   openHelpCenter() {
     this.closeHelpDropdown();
     this.helpLinkService.openHelp("");

@@ -1532,6 +1532,7 @@
   border: 1px solid rgba(148, 163, 184, 0.1);
   flex: 1;
   align-content: start;
+  overflow-y: auto;
 }
 
 .summary-item {
@@ -1556,6 +1557,20 @@
   color: #ffffff;
   font-weight: 600;
   line-height: 1.2;
+}
+
+.race-summary-card .summary-grid {
+  gap: 14px 12px;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.race-summary-card .summary-item {
+  gap: 3px;
+}
+
+.race-summary-card .summary-value {
+  line-height: 1.25;
 }
 
 .empty-standings {
