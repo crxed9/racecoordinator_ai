@@ -17,6 +17,11 @@ import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { FontService } from "@app/services/font.service";
 import { TranslationService } from "@app/services/translation.service";
 
+import {
+  LaneViewColumnGroup,
+  LaneViewColumnGroupHelper,
+} from "./lane-view-column-group.helper";
+
 @Component({
   standalone: true,
   selector: "app-lane-view-inspector",
@@ -42,6 +47,29 @@ export class LaneViewInspectorComponent {
   change = output<void>();
   fontService = inject(FontService);
   private translationService = inject(TranslationService);
+
+  columnSearchTerm = "";
+  columnGroupExpandedStates = new Map<string, boolean>();
+
+  getColumnGroups(): LaneViewColumnGroup[] {
+    return LaneViewColumnGroupHelper.buildColumnGroups(
+      this.unusedColumns,
+      this.columnSearchTerm,
+      this.columnGroupExpandedStates,
+      (key) => this.translationService.translate(key) || key,
+    );
+  }
+
+  toggleColumnGroup(groupId: string): void {
+    const current = this.columnGroupExpandedStates.has(groupId)
+      ? this.columnGroupExpandedStates.get(groupId)!
+      : true;
+    this.columnGroupExpandedStates.set(groupId, !current);
+  }
+
+  clearColumnSearch(): void {
+    this.columnSearchTerm = "";
+  }
 
   get sortByStandings(): boolean {
     return this.settings()?.sortByStandings ?? true;

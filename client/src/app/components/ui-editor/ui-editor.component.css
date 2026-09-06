@@ -1634,6 +1634,73 @@
   padding-bottom: 3px;
 }
 
+.inspector-column-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inspector-column-item {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  position: relative;
+}
+
+.inspector-column-item .col-drag-handle {
+  position: static !important;
+  left: auto !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: #64748b;
+  user-select: none;
+  font-size: 20px;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  margin-bottom: 5px;
+  flex-shrink: 0;
+  opacity: 1;
+  transition: color 0.15s;
+}
+
+.inspector-column-item .col-drag-handle:hover {
+  color: #000;
+}
+
+.inspector-column-item .col-drag-handle:active {
+  cursor: grabbing;
+}
+
+.inspector-column-item .col-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.inspector-column-item .col-label {
+  font-size: 11px;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.inspector-column-item .col-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inspector-column-item .col-header-input {
+  flex: 1;
+  min-width: 0;
+}
+
 .col-width-wrapper {
   display: flex;
   align-items: center;
@@ -1650,7 +1717,7 @@
 .col-width-input {
   -moz-appearance: textfield;
   appearance: textfield;
-  width: 30px;
+  width: 44px;
   padding: 3px 2px;
   font-size: 12px;
   text-align: center;
@@ -1661,4 +1728,27 @@
   font-size: 10px;
   color: #888;
   flex-shrink: 0;
+}
+
+.inspector-column-item .delete-btn {
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.inspector-column-item .delete-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.inspector-column-item .delete-btn .material-icons {
+  font-size: 18px;
 }
