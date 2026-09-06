@@ -111,24 +111,56 @@ export class DefaultRacedaySetupComponent implements OnInit {
   raceSearchQuery: string = "";
   availableSearchQuery: string = "";
   racingSearchQuery: string = "";
+  availableActiveIndex: number = 0;
+  racingActiveIndex: number = 0;
 
   get filteredAvailableParticipants(): Participant[] {
     if (!this.availableSearchQuery) return this.unselectedParticipants;
-    const lowerQuery = this.availableSearchQuery.toLowerCase();
-    return this.unselectedParticipants.filter((p) => {
+    const lowerQuery = this.availableSearchQuery.trim().toLowerCase();
+    if (!lowerQuery) return this.unselectedParticipants;
+    const matches = this.unselectedParticipants.filter((p) => {
       const name = this.getLocalizedName(p).toLowerCase();
       const nickname = this.getLocalizedNickname(p).toLowerCase();
       return name.includes(lowerQuery) || nickname.includes(lowerQuery);
     });
+    return this.sortFilteredParticipants(matches, lowerQuery);
   }
 
   get filteredRacingParticipants(): Participant[] {
     if (!this.racingSearchQuery) return this.selectedParticipants;
-    const lowerQuery = this.racingSearchQuery.toLowerCase();
-    return this.selectedParticipants.filter((p) => {
+    const lowerQuery = this.racingSearchQuery.trim().toLowerCase();
+    if (!lowerQuery) return this.selectedParticipants;
+    const matches = this.selectedParticipants.filter((p) => {
       const name = this.getLocalizedName(p).toLowerCase();
       const nickname = this.getLocalizedNickname(p).toLowerCase();
       return name.includes(lowerQuery) || nickname.includes(lowerQuery);
+    });
+    return this.sortFilteredParticipants(matches, lowerQuery);
+  }
+
+  private sortFilteredParticipants(
+    participants: Participant[],
+    lowerQuery: string,
+  ): Participant[] {
+    return [...participants].sort((a, b) => {
+      const aName = this.getLocalizedName(a).toLowerCase();
+      const aNick = this.getLocalizedNickname(a).toLowerCase();
+      const bName = this.getLocalizedName(b).toLowerCase();
+      const bNick = this.getLocalizedNickname(b).toLowerCase();
+
+      const aExact = aName === lowerQuery || aNick === lowerQuery;
+      const bExact = bName === lowerQuery || bNick === lowerQuery;
+      if (aExact && !bExact) return -1;
+      if (!aExact && bExact) return 1;
+
+      const aStarts =
+        aName.startsWith(lowerQuery) || aNick.startsWith(lowerQuery);
+      const bStarts =
+        bName.startsWith(lowerQuery) || bNick.startsWith(lowerQuery);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+
+      return 0;
     });
   }
 
@@ -593,7 +625,11 @@ export class DefaultRacedaySetupComponent implements OnInit {
 
   // --- Participant Logic ---
 
-  toggleParticipantSelection(participant: Participant, isSelected: boolean) {
+  toggleParticipantSelection(
+    participant: Participant,
+    isSelected: boolean,
+    forcedFocusElem?: HTMLInputElement,
+  ) {
     this.updateListWithRefresh(() => {
       if (isSelected) {
         // Was selected, now unselecting
@@ -634,7 +670,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
         this.selectedParticipants = [...this.selectedParticipants, participant];
       }
       this.updateUnselectedParticipants();
-    });
+    }, forcedFocusElem);
   }
 
   addAllParticipants() {
@@ -735,6 +771,134 @@ export class DefaultRacedaySetupComponent implements OnInit {
       this.selectedParticipants = remainingParticipants;
       this.updateUnselectedParticipants();
     }, inputElem);
+  }
+
+  onAvailableSearchQueryChange() {
+    this.availableActiveIndex = 0;
+  }
+
+  onRacingSearchQueryChange() {
+    this.racingActiveIndex = 0;
+  }
+
+  onAvailableSearchKeydown(event: KeyboardEvent, inputElem?: HTMLInputElement) {
+    const list = this.filteredAvailableParticipants;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (list.length > 0) {
+        this.availableActiveIndex = Math.min(
+          this.availableActiveIndex + 1,
+          list.length - 1,
+        );
+        this.scrollActiveAvailableItemIntoView();
+      }
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (list.length > 0) {
+        this.availableActiveIndex = Math.max(this.availableActiveIndex - 1, 0);
+        this.scrollActiveAvailableItemIntoView();
+      }
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (event.shiftKey || event.ctrlKey) {
+        this.addAllFilteredAvailableParticipants(inputElem);
+      } else {
+        this.addActiveAvailableParticipant(inputElem);
+      }
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      this.availableSearchQuery = "";
+      this.availableActiveIndex = 0;
+    }
+  }
+
+  onRacingSearchKeydown(event: KeyboardEvent, inputElem?: HTMLInputElement) {
+    const list = this.filteredRacingParticipants;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (list.length > 0) {
+        this.racingActiveIndex = Math.min(
+          this.racingActiveIndex + 1,
+          list.length - 1,
+        );
+        this.scrollActiveRacingItemIntoView();
+      }
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (list.length > 0) {
+        this.racingActiveIndex = Math.max(this.racingActiveIndex - 1, 0);
+        this.scrollActiveRacingItemIntoView();
+      }
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (event.shiftKey || event.ctrlKey) {
+        this.removeAllFilteredRacingParticipants(inputElem);
+      } else {
+        this.removeActiveRacingParticipant(inputElem);
+      }
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      this.racingSearchQuery = "";
+      this.racingActiveIndex = 0;
+    }
+  }
+
+  addActiveAvailableParticipant(inputElem?: HTMLInputElement) {
+    const participants = this.filteredAvailableParticipants;
+    if (participants.length === 0) return;
+
+    const index = Math.min(
+      Math.max(0, this.availableActiveIndex),
+      participants.length - 1,
+    );
+    const participant = participants[index];
+    if (!participant) return;
+
+    this.toggleParticipantSelection(participant, false, inputElem);
+
+    const remaining = this.filteredAvailableParticipants.length;
+    if (this.availableActiveIndex >= remaining) {
+      this.availableActiveIndex = Math.max(0, remaining - 1);
+    }
+    this.scrollActiveAvailableItemIntoView();
+  }
+
+  removeActiveRacingParticipant(inputElem?: HTMLInputElement) {
+    const participants = this.filteredRacingParticipants;
+    if (participants.length === 0) return;
+
+    const index = Math.min(
+      Math.max(0, this.racingActiveIndex),
+      participants.length - 1,
+    );
+    const participant = participants[index];
+    if (!participant) return;
+
+    this.toggleParticipantSelection(participant, true, inputElem);
+
+    const remaining = this.filteredRacingParticipants.length;
+    if (this.racingActiveIndex >= remaining) {
+      this.racingActiveIndex = Math.max(0, remaining - 1);
+    }
+    this.scrollActiveRacingItemIntoView();
+  }
+
+  private scrollActiveAvailableItemIntoView() {
+    setTimeout(() => {
+      const el = document.getElementById(
+        `avail-item-${this.availableActiveIndex}`,
+      );
+      el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, 0);
+  }
+
+  private scrollActiveRacingItemIntoView() {
+    setTimeout(() => {
+      const el = document.getElementById(
+        `racing-item-${this.racingActiveIndex}`,
+      );
+      el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }, 0);
   }
 
   removeAllParticipants() {
@@ -2102,6 +2266,16 @@ export class DefaultRacedaySetupComponent implements OnInit {
         position: "bottom",
       },
       {
+        selector: "#available-drivers-section .list-search",
+        title: this.translationService.translate(
+          "RDS_HELP_SEARCH_AVAILABLE_DRIVERS_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RDS_HELP_SEARCH_AVAILABLE_DRIVERS_CONTENT",
+        ),
+        position: "bottom",
+      },
+      {
         targetId: "racing-drivers-section",
         title: this.translationService.translate(
           "RDS_HELP_DRIVER_RACING_TITLE",
@@ -2118,6 +2292,16 @@ export class DefaultRacedaySetupComponent implements OnInit {
         ),
         content: this.translationService.translate(
           "RDS_HELP_DRIVER_ACTIONS_CONTENT",
+        ),
+        position: "bottom",
+      },
+      {
+        selector: "#racing-drivers-section .list-search",
+        title: this.translationService.translate(
+          "RDS_HELP_SEARCH_DRIVERS_TITLE",
+        ),
+        content: this.translationService.translate(
+          "RDS_HELP_SEARCH_DRIVERS_CONTENT",
         ),
         position: "bottom",
       },
@@ -2142,7 +2326,7 @@ export class DefaultRacedaySetupComponent implements OnInit {
         position: "top",
       },
       {
-        selector: ".search-wrapper",
+        selector: ".preview-panel .search-wrapper",
         title: this.translationService.translate("RDS_HELP_SEARCH_TITLE"),
         content: this.translationService.translate("RDS_HELP_SEARCH_CONTENT"),
         position: "top",

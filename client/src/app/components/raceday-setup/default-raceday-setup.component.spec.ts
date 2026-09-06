@@ -2094,7 +2094,7 @@ describe("DefaultRacedaySetupComponent", () => {
   describe("getHelpSteps", () => {
     it("should return the complete list of guide steps in correct order", () => {
       const steps = component.getHelpSteps();
-      expect(steps.length).toBe(13);
+      expect(steps.length).toBe(15);
 
       expect(steps[0]).toEqual({
         title: "RDS_HELP_WELCOME_TITLE",
@@ -2116,69 +2116,83 @@ describe("DefaultRacedaySetupComponent", () => {
       });
 
       expect(steps[3]).toEqual({
+        selector: "#available-drivers-section .list-search",
+        title: "RDS_HELP_SEARCH_AVAILABLE_DRIVERS_TITLE",
+        content: "RDS_HELP_SEARCH_AVAILABLE_DRIVERS_CONTENT",
+        position: "bottom",
+      });
+
+      expect(steps[4]).toEqual({
         targetId: "racing-drivers-section",
         title: "RDS_HELP_DRIVER_RACING_TITLE",
         content: "RDS_HELP_DRIVER_RACING_CONTENT",
         position: "right",
       });
 
-      expect(steps[4]).toEqual({
+      expect(steps[5]).toEqual({
         selector: "#racing-drivers-section .section-header",
         title: "RDS_HELP_DRIVER_ACTIONS_TITLE",
         content: "RDS_HELP_DRIVER_ACTIONS_CONTENT",
         position: "bottom",
       });
 
-      expect(steps[5]).toEqual({
+      expect(steps[6]).toEqual({
+        selector: "#racing-drivers-section .list-search",
+        title: "RDS_HELP_SEARCH_DRIVERS_TITLE",
+        content: "RDS_HELP_SEARCH_DRIVERS_CONTENT",
+        position: "bottom",
+      });
+
+      expect(steps[7]).toEqual({
         selector: ".custom-dropdown-container",
         title: "RDS_HELP_RACE_SELECTION_TITLE",
         content: "RDS_HELP_RACE_SELECTION_CONTENT",
         position: "top",
       });
 
-      expect(steps[6]).toEqual({
+      expect(steps[8]).toEqual({
         selector: ".event-details-card",
         title: "RDS_HELP_SELECTION_SUMMARY_TITLE",
         content: "RDS_HELP_SELECTION_SUMMARY_CONTENT",
         position: "top",
       });
 
-      expect(steps[7]).toEqual({
-        selector: ".search-wrapper",
+      expect(steps[9]).toEqual({
+        selector: ".preview-panel .search-wrapper",
         title: "RDS_HELP_SEARCH_TITLE",
         content: "RDS_HELP_SEARCH_CONTENT",
         position: "top",
       });
 
-      expect(steps[8]).toEqual({
+      expect(steps[10]).toEqual({
         selector: ".season-selection-wrapper",
         title: "RDS_HELP_SEASON_TITLE",
         content: "RDS_HELP_SEASON_CONTENT",
         position: "top",
       });
 
-      expect(steps[9]).toEqual({
+      expect(steps[11]).toEqual({
         targetId: "race-card-0",
         title: "RDS_HELP_RECENT_RACE_TITLE",
         content: "RDS_HELP_RECENT_RACE_MOST_RECENT_CONTENT",
         position: "bottom",
       });
 
-      expect(steps[10]).toEqual({
+      expect(steps[12]).toEqual({
         targetId: "race-card-1",
         title: "RDS_HELP_RECENT_RACE_TITLE",
         content: "RDS_HELP_RECENT_RACE_CONTENT",
         position: "bottom",
       });
 
-      expect(steps[11]).toEqual({
+      expect(steps[13]).toEqual({
         selector: ".btn-start",
         title: "RDS_HELP_START_RACE_TITLE",
         content: "RDS_HELP_START_RACE_CONTENT",
         position: "top",
       });
 
-      expect(steps[12]).toEqual({
+      expect(steps[14]).toEqual({
         selector: ".btn-demo",
         title: "RDS_HELP_START_DEMO_TITLE",
         content: "RDS_HELP_START_DEMO_CONTENT",
@@ -2380,6 +2394,205 @@ describe("DefaultRacedaySetupComponent", () => {
         ".setup-menu-dropdown-item",
       );
       expect(items.length).toBeGreaterThanOrEqual(3);
+    });
+  });
+
+  describe("Keyboard-only driver selection and search navigation", () => {
+    let d1: Driver;
+    let d2: Driver;
+    let d10: Driver;
+    let d100: Driver;
+
+    beforeEach(() => {
+      d1 = new Driver("d1", "Driver 1", "Ace");
+      d2 = new Driver("d2", "Driver 2", "Deuce");
+      d10 = new Driver("d10", "Driver 10", "Ten");
+      d100 = new Driver("d100", "Driver 100", "Cent");
+      component.allDrivers = [d1, d2, d10, d100];
+      component.unselectedParticipants = [d10, d1, d100, d2];
+      component.selectedParticipants = [];
+      component.availableSearchQuery = "";
+      component.racingSearchQuery = "";
+      component.availableActiveIndex = 0;
+      component.racingActiveIndex = 0;
+      fixture.detectChanges();
+    });
+
+    it("should prioritize exact match in filteredAvailableParticipants", () => {
+      component.availableSearchQuery = "Driver 1";
+      const filtered = component.filteredAvailableParticipants;
+      expect(filtered.length).toBe(3); // Driver 1, Driver 10, Driver 100
+      expect(filtered[0]).toBe(d1); // Exact match "Driver 1" is prioritized first!
+    });
+
+    it("should prioritize exact nickname match in filteredAvailableParticipants", () => {
+      component.availableSearchQuery = "Ace";
+      const filtered = component.filteredAvailableParticipants;
+      expect(filtered[0]).toBe(d1);
+    });
+
+    it("should prioritize prefix match over substring match", () => {
+      const mid = new Driver("d_mid", "Other Driver 1", "Mid");
+      component.unselectedParticipants = [mid, d10, d1];
+      component.availableSearchQuery = "Driver 1";
+      const filtered = component.filteredAvailableParticipants;
+      expect(filtered[0]).toBe(d1); // Exact
+      expect(filtered[1]).toBe(d10); // Starts with "Driver 1"
+      expect(filtered[2]).toBe(mid); // Contains "Driver 1" in middle
+    });
+
+    it("should handle empty or whitespace query gracefully", () => {
+      component.availableSearchQuery = "   ";
+      expect(component.filteredAvailableParticipants).toEqual(
+        component.unselectedParticipants,
+      );
+    });
+
+    it("should reset active index when search query changes", () => {
+      component.availableActiveIndex = 2;
+      component.onAvailableSearchQueryChange();
+      expect(component.availableActiveIndex).toBe(0);
+
+      component.racingActiveIndex = 3;
+      component.onRacingSearchQueryChange();
+      expect(component.racingActiveIndex).toBe(0);
+    });
+
+    it("should navigate available items using ArrowDown and ArrowUp", () => {
+      component.availableSearchQuery = "Driver";
+      const list = component.filteredAvailableParticipants;
+      expect(list.length).toBe(4);
+
+      const downEvent = new KeyboardEvent("keydown", { key: "ArrowDown" });
+      spyOn(downEvent, "preventDefault");
+      component.onAvailableSearchKeydown(downEvent);
+      expect(downEvent.preventDefault).toHaveBeenCalled();
+      expect(component.availableActiveIndex).toBe(1);
+
+      component.onAvailableSearchKeydown(downEvent);
+      expect(component.availableActiveIndex).toBe(2);
+
+      component.onAvailableSearchKeydown(downEvent);
+      expect(component.availableActiveIndex).toBe(3);
+
+      // Clamped at end
+      component.onAvailableSearchKeydown(downEvent);
+      expect(component.availableActiveIndex).toBe(3);
+
+      const upEvent = new KeyboardEvent("keydown", { key: "ArrowUp" });
+      spyOn(upEvent, "preventDefault");
+      component.onAvailableSearchKeydown(upEvent);
+      expect(upEvent.preventDefault).toHaveBeenCalled();
+      expect(component.availableActiveIndex).toBe(2);
+
+      component.onAvailableSearchKeydown(upEvent);
+      component.onAvailableSearchKeydown(upEvent);
+      expect(component.availableActiveIndex).toBe(0);
+
+      // Clamped at 0
+      component.onAvailableSearchKeydown(upEvent);
+      expect(component.availableActiveIndex).toBe(0);
+    });
+
+    it("should clear available search on Escape", () => {
+      component.availableSearchQuery = "Driver 1";
+      component.availableActiveIndex = 2;
+
+      const escEvent = new KeyboardEvent("keydown", { key: "Escape" });
+      spyOn(escEvent, "preventDefault");
+      component.onAvailableSearchKeydown(escEvent);
+
+      expect(escEvent.preventDefault).toHaveBeenCalled();
+      expect(component.availableSearchQuery).toBe("");
+      expect(component.availableActiveIndex).toBe(0);
+    });
+
+    it("should add ONLY the active driver on Enter without Shift/Ctrl", fakeAsync(() => {
+      component.availableSearchQuery = "Driver 1";
+      expect(component.filteredAvailableParticipants[0]).toBe(d1);
+
+      const enterEvent = new KeyboardEvent("keydown", {
+        key: "Enter",
+        shiftKey: false,
+        ctrlKey: false,
+      });
+      spyOn(enterEvent, "preventDefault");
+      component.onAvailableSearchKeydown(enterEvent);
+      tick(50);
+
+      expect(enterEvent.preventDefault).toHaveBeenCalled();
+      expect(component.selectedParticipants).toEqual([d1]);
+      expect(component.selectedParticipants).not.toContain(d10);
+      expect(component.selectedParticipants).not.toContain(d100);
+    }));
+
+    it("should add all filtered drivers on Shift+Enter or Ctrl+Enter", fakeAsync(() => {
+      component.availableSearchQuery = "Driver 1";
+      expect(component.filteredAvailableParticipants.length).toBe(3);
+
+      const shiftEnter = new KeyboardEvent("keydown", {
+        key: "Enter",
+        shiftKey: true,
+      });
+      spyOn(shiftEnter, "preventDefault");
+      component.onAvailableSearchKeydown(shiftEnter);
+      tick(50);
+
+      expect(shiftEnter.preventDefault).toHaveBeenCalled();
+      expect(component.selectedParticipants.length).toBe(3);
+      expect(component.selectedParticipants).toContain(d1);
+      expect(component.selectedParticipants).toContain(d10);
+      expect(component.selectedParticipants).toContain(d100);
+    }));
+
+    it("should navigate and remove racing drivers using keyboard", fakeAsync(() => {
+      component.selectedParticipants = [d1, d2, d10];
+      component.racingSearchQuery = "Driver";
+      fixture.detectChanges();
+
+      const downEvent = new KeyboardEvent("keydown", { key: "ArrowDown" });
+      component.onRacingSearchKeydown(downEvent);
+      expect(component.racingActiveIndex).toBe(1);
+
+      // Enter removes active participant (d2)
+      const enterEvent = new KeyboardEvent("keydown", { key: "Enter" });
+      component.onRacingSearchKeydown(enterEvent);
+      tick(50);
+
+      expect(component.selectedParticipants).toEqual([d1, d10]);
+      expect(component.selectedParticipants).not.toContain(d2);
+
+      // Escape clears racing query
+      const escEvent = new KeyboardEvent("keydown", { key: "Escape" });
+      component.onRacingSearchKeydown(escEvent);
+      expect(component.racingSearchQuery).toBe("");
+      expect(component.racingActiveIndex).toBe(0);
+    }));
+
+    it("should bulk remove racing drivers on Shift+Enter", fakeAsync(() => {
+      component.selectedParticipants = [d1, d2, d10];
+      component.racingSearchQuery = "Driver 1";
+      fixture.detectChanges();
+
+      const shiftEnter = new KeyboardEvent("keydown", {
+        key: "Enter",
+        shiftKey: true,
+      });
+      component.onRacingSearchKeydown(shiftEnter);
+      tick(50);
+
+      expect(component.selectedParticipants).toEqual([d2]);
+    }));
+
+    it("should do nothing when adding/removing from empty filtered list", () => {
+      component.availableSearchQuery = "NonExistentDriver";
+      expect(component.filteredAvailableParticipants.length).toBe(0);
+
+      component.addActiveAvailableParticipant();
+      expect(component.selectedParticipants.length).toBe(0);
+
+      component.removeActiveRacingParticipant();
+      expect(component.selectedParticipants.length).toBe(0);
     });
   });
 });
