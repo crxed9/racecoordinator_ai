@@ -180,7 +180,31 @@ describe("ui-editor-io.helper", () => {
       executeTemplateFileSelected(event, settings, () => {
         expect(settings.customExportTemplateBase64).toBeDefined();
         expect(settings.customExportTemplateBase64).toContain("data:");
+        expect(settings.customExportTemplateName).toBe("template.xlsx");
+        expect(settings.customExportTemplatePath).toBe("template.xlsx");
         expect(input.value).toBe("");
+        done();
+      });
+    });
+
+    it("should extract full path when file.path is available (desktop runtimes)", (done) => {
+      const file = new File(["test-xlsx-content"], "custom_report.xlsx", {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      (file as any).path = "/Users/test/Documents/custom_report.xlsx";
+      const input = {
+        files: [file],
+        value: "C:\\fakepath\\custom_report.xlsx",
+      };
+
+      const event = { target: input } as unknown as Event;
+      const settings = new Settings();
+
+      executeTemplateFileSelected(event, settings, () => {
+        expect(settings.customExportTemplateName).toBe("custom_report.xlsx");
+        expect(settings.customExportTemplatePath).toBe(
+          "/Users/test/Documents/custom_report.xlsx",
+        );
         done();
       });
     });

@@ -1,9 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, ViewEncapsulation } from "@angular/core";
+import { Component, inject, input, ViewEncapsulation } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { of } from "rxjs";
 import { Role } from "@app/models/role";
 import { AbsoluteWidgetNode } from "@app/models/settings";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { AuthService } from "@app/services/auth.service";
+import { NavigationService } from "@app/services/navigation.service";
 
 @Component({
   standalone: true,
@@ -17,6 +20,12 @@ export class RacedayActionButtonComponent {
   widget = input.required<AbsoluteWidgetNode>();
   parent = input.required<any>();
 
+  private navigationService = inject(NavigationService, { optional: true });
+
+  public canGoBack = toSignal(this.navigationService?.canGoBack$ || of(false), {
+    initialValue: this.navigationService?.canGoBack?.() ?? false,
+  });
+
   constructor(public authService: AuthService) {}
 
   get isActionDisabled(): boolean {
@@ -25,6 +34,10 @@ export class RacedayActionButtonComponent {
       this.parent().isUIEditorMode()
     ) {
       return false;
+    }
+
+    if (this.widget().widgetType === "action-back") {
+      return !this.canGoBack();
     }
 
     if (this.authService.currentRole === Role.VIEWER) {

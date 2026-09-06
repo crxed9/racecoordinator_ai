@@ -156,4 +156,39 @@ describe("SettingsService", () => {
     });
     service.saveSettings(settings);
   });
+
+  it("should backfill custom template filename if base64 template exists without filename", () => {
+    const legacySettings = {
+      language: "en",
+      customExportTemplateBase64:
+        "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,ABC",
+    };
+    localStorage.setItem(
+      "racecoordinator_settings",
+      JSON.stringify(legacySettings),
+    );
+
+    const retrieved = service.getSettings();
+    expect(retrieved.customExportTemplateName).toBe(
+      "custom_export_template.xlsx",
+    );
+    expect(retrieved.customExportTemplatePath).toBe(
+      "custom_export_template.xlsx",
+    );
+  });
+
+  it("should preserve custom template filename and path if already present", () => {
+    const settings = {
+      language: "en",
+      customExportTemplateBase64:
+        "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,ABC",
+      customExportTemplateName: "my_results.xlsx",
+      customExportTemplatePath: "/docs/my_results.xlsx",
+    };
+    localStorage.setItem("racecoordinator_settings", JSON.stringify(settings));
+
+    const retrieved = service.getSettings();
+    expect(retrieved.customExportTemplateName).toBe("my_results.xlsx");
+    expect(retrieved.customExportTemplatePath).toBe("/docs/my_results.xlsx");
+  });
 });

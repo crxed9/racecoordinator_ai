@@ -220,6 +220,12 @@ export function executeTemplateFileSelected(
     reader.onload = () => {
       if (editingSettings) {
         editingSettings.customExportTemplateBase64 = reader.result as string;
+        const fullPath =
+          (file as any).path || (file as any).webkitRelativePath || file.name;
+        const fileName =
+          file.name || (fullPath ? fullPath.replace(/^.*[\\/]/, "") : "");
+        editingSettings.customExportTemplateName = fileName;
+        editingSettings.customExportTemplatePath = fullPath;
         onLoaded();
       }
     };

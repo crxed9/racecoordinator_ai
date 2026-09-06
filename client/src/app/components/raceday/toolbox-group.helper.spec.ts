@@ -232,4 +232,107 @@ describe("ToolboxGroupHelper", () => {
     const standings = rc.subgroups.find((s) => s.id === "standings-heats");
     expect(standings?.expanded).toBeFalse();
   });
+
+  it("should sort widgets alphabetically in each folder when translated", () => {
+    const used = new Set<string>();
+    const customWidgets: CustomWidgetDefinition[] = [];
+
+    const mockTranslations: Record<string, string> = {
+      UE_WIDGET_TYPE_ACTION_START_RESUME: "Start/Resume Heat",
+      UE_WIDGET_TYPE_ACTION_PAUSE: "Pause Heat",
+      UE_WIDGET_TYPE_ACTION_BACK: "Back",
+      UE_WIDGET_TYPE_ACTION_ADD_LAP: "Add Laps/Sections",
+      UE_WIDGET_TYPE_TIMER: "Timer",
+      UE_WIDGET_TYPE_FLAG: "Race State",
+      UE_WIDGET_TYPE_EVENT_NAME: "Event Name",
+      UE_WIDGET_TYPE_HEAT_INFO: "Heat Info",
+      UE_WIDGET_TYPE_RACE_NAME: "Race Name",
+      UE_WIDGET_TYPE_SEASON_NAME: "Season Name",
+      UE_WIDGET_TYPE_TRACK_NAME: "Track Name",
+    };
+
+    const translate = (key: string) => mockTranslations[key] || key;
+
+    const groups = ToolboxGroupHelper.buildToolboxGroups(
+      used,
+      customWidgets,
+      "",
+      new Map(),
+      new Map(),
+      translate,
+    );
+
+    const rc = groups[0];
+    for (const sg of rc.subgroups) {
+      const labels = sg.widgets.map((w) => translate(w.labelKey));
+      const sortedLabels = [...labels].sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" }),
+      );
+      expect(labels).toEqual(sortedLabels);
+    }
+
+    const titlesSg = rc.subgroups.find((s) => s.id === "titles-info");
+    const titleLabels = titlesSg?.widgets.map((w) => translate(w.labelKey));
+    expect(titleLabels).toEqual([
+      "Event Name",
+      "Heat Info",
+      "Race Name",
+      "Race State",
+      "Season Name",
+      "Timer",
+      "Track Name",
+    ]);
+  });
+
+  it("should sort custom widgets alphabetically in folders and root", () => {
+    const used = new Set<string>();
+    const customWidgets: CustomWidgetDefinition[] = [
+      {
+        folderName: "cw-z",
+        group: "custom-pack",
+        subgroup: "telemetry",
+        manifest: { id: "cw-z", name: "Zebra Meter" },
+      },
+      {
+        folderName: "cw-a",
+        group: "custom-pack",
+        subgroup: "telemetry",
+        manifest: { id: "cw-a", name: "Alpha Meter" },
+      },
+      {
+        folderName: "cw-m",
+        group: "custom-pack",
+        subgroup: "telemetry",
+        manifest: { id: "cw-m", name: "Middle Gauge" },
+      },
+      {
+        folderName: "root-b",
+        group: "custom-pack",
+        manifest: { id: "root-b", name: "Beta Root" },
+      },
+      {
+        folderName: "root-a",
+        group: "custom-pack",
+        manifest: { id: "root-a", name: "Alpha Root" },
+      },
+    ];
+
+    const groups = ToolboxGroupHelper.buildToolboxGroups(used, customWidgets);
+    const customPack = groups.find((g) => g.id === "custom-pack");
+    expect(customPack).toBeDefined();
+
+    expect(customPack?.rootWidgets.map((w) => w.labelKey)).toEqual([
+      "Alpha Root",
+      "Beta Root",
+    ]);
+
+    const telemetrySg = customPack?.subgroups.find(
+      (s) => s.id === "custom-pack:telemetry",
+    );
+    expect(telemetrySg?.widgets.map((w) => w.labelKey)).toEqual([
+      "Alpha Meter",
+      "Middle Gauge",
+      "Zebra Meter",
+    ]);
+  });
 });

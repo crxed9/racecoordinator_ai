@@ -3142,6 +3142,21 @@ describe("DefaultRacedayComponent", () => {
       expect(component.showRaceHistoryDialog).toBeTrue();
     });
 
+    it("should handle BACK action in file menu respecting isBackDisabled", () => {
+      spyOn(window.history, "back");
+      const navService = (component as any).navigationService;
+      spyOn(navService, "canGoBack").and.returnValue(false);
+
+      expect(component.isBackDisabled).toBeTrue();
+      component.onFileMenuSelect("BACK");
+      expect(window.history.back).not.toHaveBeenCalled();
+
+      navService.canGoBack.and.returnValue(true);
+      expect(component.isBackDisabled).toBeFalse();
+      component.onFileMenuSelect("BACK");
+      expect(window.history.back).toHaveBeenCalled();
+    });
+
     it("should open disallow lap records dialog when DISALLOW_LAP_RECORDS is selected in menu", () => {
       component.onMenuSelect("DISALLOW_LAP_RECORDS");
       expect(component.showDisallowLapRecordsDialog).toBeTrue();

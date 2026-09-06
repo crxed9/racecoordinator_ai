@@ -5,6 +5,7 @@ import { DataService } from "@app/data.service";
 import { Role } from "@app/models/role";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { AuthService } from "@app/services/auth.service";
+import { NavigationService } from "@app/services/navigation.service";
 import { TranslationService } from "@app/services/translation.service";
 import { mockTranslationService } from "@app/testing/unit-test-mocks";
 
@@ -17,11 +18,20 @@ describe("RacedayMenuBarComponent", () => {
   let harness: RacedayMenuBarHarness;
   let mockAuthService: any;
   let mockDataService: any;
+  let mockNavService: any;
+  let canGoBackSubject: BehaviorSubject<boolean>;
   let roleSubject: BehaviorSubject<Role>;
 
   beforeEach(async () => {
     mockTranslationService.translate.and.callFake((key: string) => key);
     roleSubject = new BehaviorSubject<Role>(Role.DIRECTOR);
+    canGoBackSubject = new BehaviorSubject<boolean>(false);
+
+    mockNavService = {
+      canGoBack$: canGoBackSubject.asObservable(),
+      canGoBack: () => canGoBackSubject.value,
+      goBack: jasmine.createSpy("goBack"),
+    };
 
     mockDataService = {
       getSystemStateValue: jasmine
@@ -50,6 +60,7 @@ describe("RacedayMenuBarComponent", () => {
         { provide: AuthService, useValue: mockAuthService },
         { provide: TranslationService, useValue: mockTranslationService },
         { provide: DataService, useValue: mockDataService },
+        { provide: NavigationService, useValue: mockNavService },
       ],
     }).compileComponents();
 
@@ -385,6 +396,56 @@ describe("RacedayMenuBarComponent", () => {
       );
       expect(component.isWindowsMenuOpen).toBeFalse();
       expect(component.isThemesOpen).toBeFalse();
+    });
+  });
+
+  describe("Back Menu Option", () => {
+    it("should disable Back menu item when canGoBack is false", () => {
+      canGoBackSubject.next(false);
+      component.isFileMenuOpen = true;
+      fixture.detectChanges();
+
+      const backItem = Array.from(
+        fixture.nativeElement.querySelectorAll(".menu-item"),
+      ).find((el: any) =>
+        el.textContent.includes("RD_MENU_BACK"),
+      ) as HTMLElement;
+
+      expect(backItem).toBeTruthy();
+      expect(backItem.classList.contains("disabled")).toBeTrue();
+      expect(component.isBackActionDisabled()).toBeTrue();
+
+      spyOn(component.fileMenuSelect, "emit");
+      component.onFileMenuSelect("BACK");
+      expect(component.fileMenuSelect.emit).not.toHaveBeenCalled();
+    });
+
+    it("should enable Back menu item when canGoBack is true", () => {
+      canGoBackSubject.next(true);
+      component.isFileMenuOpen = true;
+      fixture.detectChanges();
+
+      const backItem = Array.from(
+        fixture.nativeElement.querySelectorAll(".menu-item"),
+      ).find((el: any) =>
+        el.textContent.includes("RD_MENU_BACK"),
+      ) as HTMLElement;
+
+      expect(backItem).toBeTruthy();
+      expect(backItem.classList.contains("disabled")).toBeFalse();
+      expect(component.isBackActionDisabled()).toBeFalse();
+
+      spyOn(component.fileMenuSelect, "emit");
+      component.onFileMenuSelect("BACK");
+      expect(component.fileMenuSelect.emit).toHaveBeenCalledWith("BACK");
+    });
+
+    it("should allow overriding isBackDisabled via input", () => {
+      canGoBackSubject.next(false);
+      fixture.componentRef.setInput("isBackDisabled", false);
+      fixture.detectChanges();
+
+      expect(component.isBackActionDisabled()).toBeFalse();
     });
   });
 });

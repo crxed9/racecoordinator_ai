@@ -10,6 +10,8 @@ import {
   output,
   ViewEncapsulation,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { of } from "rxjs";
 import { LanguageSelectorComponent } from "@app/components/shared/language-selector/language-selector.component";
 import { UpdateSelectorComponent } from "@app/components/shared/update-selector/update-selector.component";
 import { DataService } from "@app/data.service";
@@ -18,6 +20,7 @@ import { Theme } from "@app/models/theme";
 import { Track } from "@app/models/track";
 import { TranslatePipe } from "@app/pipes/translate.pipe";
 import { AuthService } from "@app/services/auth.service";
+import { NavigationService } from "@app/services/navigation.service";
 import { ThemeService } from "@app/services/theme.service";
 
 @Component({
@@ -52,6 +55,19 @@ export class RacedayMenuBarComponent implements OnInit, OnDestroy {
   isAddLapDisabled = input<boolean>(false);
   isModifyDisabled = input<boolean>(false);
   isDisallowLapRecordsDisabled = input<boolean>(false);
+  isBackDisabled = input<boolean | undefined>(undefined);
+
+  private navigationService = inject(NavigationService, { optional: true });
+  public canGoBack = toSignal(this.navigationService?.canGoBack$ || of(false), {
+    initialValue: this.navigationService?.canGoBack?.() ?? false,
+  });
+  public isBackActionDisabled = computed(() => {
+    const override = this.isBackDisabled();
+    if (override !== undefined) {
+      return override;
+    }
+    return !this.canGoBack();
+  });
 
   startResumeShortcut = input<string>("");
   pauseShortcut = input<string>("");
@@ -275,6 +291,7 @@ export class RacedayMenuBarComponent implements OnInit, OnDestroy {
   }
 
   onFileMenuSelect(action: string) {
+    if (action === "BACK" && this.isBackActionDisabled()) return;
     this.fileMenuSelect.emit(action);
     this.closeAll();
   }

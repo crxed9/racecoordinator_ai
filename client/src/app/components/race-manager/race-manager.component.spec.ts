@@ -602,5 +602,125 @@ describe("RaceManagerComponent", () => {
         expect(component.getThemeDisplay({})).toBe("UE_LABEL_DEFAULT_THEME");
       });
     });
+
+    describe("race summary details", () => {
+      it("should correctly evaluate isHandsFree", () => {
+        expect(component.isHandsFree(undefined)).toBeFalse();
+        expect(component.isHandsFree(null)).toBeFalse();
+        expect(component.isHandsFree({} as any)).toBeFalse();
+        expect(
+          component.isHandsFree({
+            auto_advance_time: 10,
+            auto_start_time: 0,
+          } as any),
+        ).toBeFalse();
+        expect(
+          component.isHandsFree({
+            auto_advance_time: 0,
+            auto_start_time: 5,
+          } as any),
+        ).toBeFalse();
+        expect(
+          component.isHandsFree({
+            auto_advance_time: 10,
+            auto_start_time: 5,
+          } as any),
+        ).toBeTrue();
+      });
+
+      it("should correctly evaluate hasWarmup", () => {
+        expect(component.hasWarmup(undefined)).toBeFalse();
+        expect(component.hasWarmup(null)).toBeFalse();
+        expect(component.hasWarmup({} as any)).toBeFalse();
+        expect(
+          component.hasWarmup({
+            auto_advance_warmup_time: 0,
+            auto_start_warmup_time: 0,
+          } as any),
+        ).toBeFalse();
+        expect(
+          component.hasWarmup({
+            auto_advance_warmup_time: 3,
+            auto_start_warmup_time: 0,
+          } as any),
+        ).toBeTrue();
+        expect(
+          component.hasWarmup({
+            auto_advance_warmup_time: 0,
+            auto_start_warmup_time: 2,
+          } as any),
+        ).toBeTrue();
+        expect(
+          component.hasWarmup({
+            auto_advance_warmup_time: 3,
+            auto_start_warmup_time: 2,
+          } as any),
+        ).toBeTrue();
+      });
+
+      it("should render 9 summary items including hands free and warmup time", () => {
+        component.selectedRace = {
+          name: "Test Race",
+          auto_advance_time: 10,
+          auto_start_time: 5,
+          auto_advance_warmup_time: 3,
+          auto_start_warmup_time: 0,
+        };
+        component.isSummaryExpanded = true;
+        fixture.detectChanges();
+
+        const summaryGrid = fixture.nativeElement.querySelector(
+          "#summary-general .summary-grid",
+        );
+        expect(summaryGrid).toBeTruthy();
+
+        const items = summaryGrid.querySelectorAll(".summary-item");
+        expect(items.length).toBe(9);
+
+        const labels = Array.from(items).map((item: any) =>
+          item.querySelector(".summary-label")?.textContent?.trim(),
+        );
+        expect(labels[0]).toBe("RM_LABEL_HEAT_RANKING:");
+        expect(labels[1]).toBe("RM_LABEL_FINISH_METHOD:");
+        expect(labels[2]).toBe("RM_LABEL_HEAT_ROTATION:");
+        expect(labels[3]).toBe("RM_LABEL_OVERALL_RANKING:");
+        expect(labels[4]).toBe("RM_LABEL_FINISH_VALUE:");
+        expect(labels[5]).toBe("RM_LABEL_FUEL_RACE:");
+        expect(labels[6]).toBe("RM_LABEL_HANDS_FREE:");
+        expect(labels[7]).toBe("RM_LABEL_WARMUP_TIME:");
+        expect(labels[8]).toBe("RM_LABEL_THEME:");
+
+        let handsFreeVal = items[6]
+          .querySelector(".summary-value")
+          ?.textContent?.trim();
+        let warmupVal = items[7]
+          .querySelector(".summary-value")
+          ?.textContent?.trim();
+        expect(handsFreeVal).toBe("GEN_YES");
+        expect(warmupVal).toBe("GEN_YES");
+
+        // Set to inactive
+        component.selectedRace = {
+          name: "Inactive Race",
+          auto_advance_time: 0,
+          auto_start_time: 0,
+          auto_advance_warmup_time: 0,
+          auto_start_warmup_time: 0,
+        };
+        fixture.detectChanges();
+
+        const updatedItems = fixture.nativeElement.querySelectorAll(
+          "#summary-general .summary-item",
+        );
+        handsFreeVal = updatedItems[6]
+          .querySelector(".summary-value")
+          ?.textContent?.trim();
+        warmupVal = updatedItems[7]
+          .querySelector(".summary-value")
+          ?.textContent?.trim();
+        expect(handsFreeVal).toBe("GEN_NO");
+        expect(warmupVal).toBe("GEN_NO");
+      });
+    });
   });
 });

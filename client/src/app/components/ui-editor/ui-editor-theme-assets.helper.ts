@@ -207,6 +207,8 @@ export function resolveThemeAsset(
 export function handleClearCustomTemplate(comp: any): void {
   if (comp.editingSettings) {
     delete comp.editingSettings.customExportTemplateBase64;
+    delete comp.editingSettings.customExportTemplateName;
+    delete comp.editingSettings.customExportTemplatePath;
     comp.captureState();
     comp.cdr.markForCheck();
   }

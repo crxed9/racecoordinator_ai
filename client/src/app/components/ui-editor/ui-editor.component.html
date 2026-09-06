@@ -1198,11 +1198,29 @@
                     id="help-export-template"
                   >
                     <label>{{ "UE_LABEL_EXPORT_TEMPLATE" | translate }}</label>
-                    <div class="directory-info">
+                    <div
+                      class="directory-info"
+                      [title]="
+                        editingSettings.customExportTemplateBase64
+                          ? editingSettings.customExportTemplatePath ||
+                            editingSettings.customExportTemplateName ||
+                            'custom_export_template.xlsx'
+                          : ''
+                      "
+                    >
                       @if (editingSettings.customExportTemplateBase64) {
-                        <span class="directory-path">{{
-                          "UE_TEMPLATE_CUSTOM_UPLOADED" | translate
-                        }}</span>
+                        <span
+                          class="directory-path"
+                          [title]="
+                            editingSettings.customExportTemplatePath ||
+                            editingSettings.customExportTemplateName ||
+                            'custom_export_template.xlsx'
+                          "
+                          >{{
+                            editingSettings.customExportTemplateName ||
+                              "custom_export_template.xlsx"
+                          }}</span
+                        >
                       }
                       @if (!editingSettings.customExportTemplateBase64) {
                         <span class="directory-path placeholder">{{
