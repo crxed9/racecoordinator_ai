@@ -183,6 +183,33 @@ describe("LaneViewInspectorComponent", () => {
     expect(component.getColumnLabel("unknown")).toBe("unknown");
   });
 
+  it("should return correct column label for analysis columns in availableColumns", () => {
+    fixture.componentRef.setInput("availableColumns", [
+      { key: "standardDeviation", label: "RD_COL_STD_DEV" },
+      { key: "consistencyScore", label: "RD_COL_CONSISTENCY" },
+      { key: "averageTop5", label: "RD_COL_AVG_TOP_5" },
+      { key: "averageTop10", label: "RD_COL_AVG_TOP_10" },
+      { key: "averageTop15", label: "RD_COL_AVG_TOP_15" },
+      { key: "top2Consecutive", label: "RD_COL_TOP_2_CONSECUTIVE" },
+      { key: "top3Consecutive", label: "RD_COL_TOP_3_CONSECUTIVE" },
+    ]);
+    expect(component.getColumnLabel("standardDeviation")).toBe(
+      "RD_COL_STD_DEV",
+    );
+    expect(component.getColumnLabel("consistencyScore")).toBe(
+      "RD_COL_CONSISTENCY",
+    );
+    expect(component.getColumnLabel("averageTop5")).toBe("RD_COL_AVG_TOP_5");
+    expect(component.getColumnLabel("averageTop10")).toBe("RD_COL_AVG_TOP_10");
+    expect(component.getColumnLabel("averageTop15")).toBe("RD_COL_AVG_TOP_15");
+    expect(component.getColumnLabel("top2Consecutive")).toBe(
+      "RD_COL_TOP_2_CONSECUTIVE",
+    );
+    expect(component.getColumnLabel("top3Consecutive")).toBe(
+      "RD_COL_TOP_3_CONSECUTIVE",
+    );
+  });
+
   it("should handle drag drop reordering", () => {
     const event = {
       previousIndex: 0,

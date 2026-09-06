@@ -241,6 +241,90 @@ describe("RacedayLayoutUtils", () => {
         new ColumnDefinition("SEGMENT", "segmentTime", 200, false, "middle", 0),
       ),
     ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "STD_DEV",
+          "standardDeviation",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "AVG_TOP_5",
+          "averageTop5",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "AVG_TOP_10",
+          "averageTop10",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "AVG_TOP_15",
+          "averageTop15",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "TOP_2_CONSECUTIVE",
+          "top2Consecutive",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "TOP_3_CONSECUTIVE",
+          "top3Consecutive",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      RacedayLayoutUtils.isLapTimeColumn(
+        new ColumnDefinition(
+          "CONSISTENCY",
+          "consistencyScore",
+          200,
+          false,
+          "middle",
+          0,
+        ),
+      ),
+    ).toBe(false);
     expect(RacedayLayoutUtils.isLapTimeColumn(null as any)).toBe(false);
   });
 
@@ -325,6 +409,27 @@ describe("RacedayLayoutUtils", () => {
     expect(
       RacedayLayoutUtils.getLabelKeyForColumn("ghostPacingLeaderBest"),
     ).toBe("RD_COL_GHOST_PACING");
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("standardDeviation")).toBe(
+      "RD_COL_STD_DEV",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("consistencyScore")).toBe(
+      "RD_COL_CONSISTENCY",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("averageTop5")).toBe(
+      "RD_COL_AVG_TOP_5",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("averageTop10")).toBe(
+      "RD_COL_AVG_TOP_10",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("averageTop15")).toBe(
+      "RD_COL_AVG_TOP_15",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("top2Consecutive")).toBe(
+      "RD_COL_TOP_2_CONSECUTIVE",
+    );
+    expect(RacedayLayoutUtils.getLabelKeyForColumn("top3Consecutive")).toBe(
+      "RD_COL_TOP_3_CONSECUTIVE",
+    );
     expect(
       RacedayLayoutUtils.getLabelKeyForColumn("imageset_fuel-gauge-builtin"),
     ).toBe("RD_COL_FUEL_GAUGE");
@@ -449,6 +554,28 @@ describe("RacedayLayoutUtils", () => {
         RacedayLayoutUtils.getDefaultColumnWidth("ghostPacingLeaderBest"),
       ).toBe(330);
       expect(RacedayLayoutUtils.getDefaultColumnWidth("bestRaceLapTime")).toBe(
+        330,
+      );
+    });
+
+    it("should return correct default width for driver analysis columns", () => {
+      expect(
+        RacedayLayoutUtils.getDefaultColumnWidth("standardDeviation"),
+      ).toBe(330);
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("consistencyScore")).toBe(
+        330,
+      );
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("averageTop5")).toBe(330);
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("averageTop10")).toBe(
+        330,
+      );
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("averageTop15")).toBe(
+        330,
+      );
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("top2Consecutive")).toBe(
+        330,
+      );
+      expect(RacedayLayoutUtils.getDefaultColumnWidth("top3Consecutive")).toBe(
         330,
       );
     });

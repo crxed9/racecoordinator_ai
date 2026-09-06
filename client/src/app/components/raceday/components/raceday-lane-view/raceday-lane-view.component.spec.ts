@@ -844,4 +844,43 @@ describe("RacedayLaneViewComponent", () => {
     expect(dataSpan).toBeTruthy();
     expect(dataSpan.style.whiteSpace).toBe("nowrap");
   });
+
+  it("should render driver analysis columns and format their values", () => {
+    mockParent.columns = [
+      {
+        propertyName: "standardDeviation",
+        labelKey: "RD_COL_STD_DEV",
+      },
+      {
+        propertyName: "consistencyScore",
+        labelKey: "RD_COL_CONSISTENCY",
+      },
+      {
+        propertyName: "averageTop5",
+        labelKey: "RD_COL_AVG_TOP_5",
+      },
+    ];
+    mockParent.formatColumnValue = (_hd: any, _col: any, prop: string) => {
+      if (prop === "standardDeviation") return "0.145";
+      if (prop === "consistencyScore") return "97.8%";
+      if (prop === "averageTop5") return "5.120";
+      return "";
+    };
+    mockParent.isNameProperty = () => false;
+    fixture.detectChanges();
+
+    const headerCells = fixture.nativeElement.querySelectorAll(".header-cell");
+    expect(headerCells.length).toBe(3);
+    expect(headerCells[0].textContent.trim()).toBe("RD_COL_STD_DEV");
+    expect(headerCells[1].textContent.trim()).toBe("RD_COL_CONSISTENCY");
+    expect(headerCells[2].textContent.trim()).toBe("RD_COL_AVG_TOP_5");
+
+    const firstRowCells = fixture.nativeElement.querySelectorAll(
+      ".table-row:first-of-type .body-cell",
+    );
+    expect(firstRowCells.length).toBe(3);
+    expect(firstRowCells[0].textContent.trim()).toBe("0.145");
+    expect(firstRowCells[1].textContent.trim()).toBe("97.8%");
+    expect(firstRowCells[2].textContent.trim()).toBe("5.120");
+  });
 });
