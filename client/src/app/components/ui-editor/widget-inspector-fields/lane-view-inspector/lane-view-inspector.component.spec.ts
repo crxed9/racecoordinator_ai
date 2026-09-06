@@ -183,6 +183,33 @@ describe("LaneViewInspectorComponent", () => {
     expect(component.getColumnLabel("unknown")).toBe("unknown");
   });
 
+  it("should return correct column label for analysis columns in availableColumns", () => {
+    fixture.componentRef.setInput("availableColumns", [
+      { key: "standardDeviation", label: "RD_COL_STD_DEV" },
+      { key: "consistencyScore", label: "RD_COL_CONSISTENCY" },
+      { key: "averageTop5", label: "RD_COL_AVG_TOP_5" },
+      { key: "averageTop10", label: "RD_COL_AVG_TOP_10" },
+      { key: "averageTop15", label: "RD_COL_AVG_TOP_15" },
+      { key: "top2Consecutive", label: "RD_COL_TOP_2_CONSECUTIVE" },
+      { key: "top3Consecutive", label: "RD_COL_TOP_3_CONSECUTIVE" },
+    ]);
+    expect(component.getColumnLabel("standardDeviation")).toBe(
+      "RD_COL_STD_DEV",
+    );
+    expect(component.getColumnLabel("consistencyScore")).toBe(
+      "RD_COL_CONSISTENCY",
+    );
+    expect(component.getColumnLabel("averageTop5")).toBe("RD_COL_AVG_TOP_5");
+    expect(component.getColumnLabel("averageTop10")).toBe("RD_COL_AVG_TOP_10");
+    expect(component.getColumnLabel("averageTop15")).toBe("RD_COL_AVG_TOP_15");
+    expect(component.getColumnLabel("top2Consecutive")).toBe(
+      "RD_COL_TOP_2_CONSECUTIVE",
+    );
+    expect(component.getColumnLabel("top3Consecutive")).toBe(
+      "RD_COL_TOP_3_CONSECUTIVE",
+    );
+  });
+
   it("should handle drag drop reordering", () => {
     const event = {
       previousIndex: 0,
@@ -367,5 +394,172 @@ describe("LaneViewInspectorComponent", () => {
       "#help-raceday-highlight",
     );
     expect(highlightSection).toBeTruthy();
+  });
+
+  describe("Column Grouping & Folder Treatment", () => {
+    beforeEach(() => {
+      fixture.componentRef.setInput("availableColumns", [
+        { key: "driver.name", label: "RD_COL_NAME" },
+        { key: "lapCount", label: "RD_COL_LAP" },
+        { key: "lastLapTime", label: "RD_COL_LAP_TIME" },
+        { key: "standardDeviation", label: "RD_COL_STD_DEV" },
+        { key: "gapLeader", label: "UI_EDITOR_COL_GAP_LEADER" },
+        { key: "ghostPacing", label: "RD_COL_GHOST_PACING_LANE_RECORD" },
+        { key: "participant.fuelLevel", label: "RD_COL_FUEL_LEVEL" },
+        { key: "winProbability", label: "RD_COL_WIN_PROB" },
+        { key: "qrCode", label: "RD_COL_LANE_QR" },
+      ]);
+      // current columns have col1, col2, so all above availableColumns are unused
+      fixture.detectChanges();
+    });
+
+    it("should return column groups with count badges for unused columns", () => {
+      const groups = component.getColumnGroups();
+      expect(groups.length).toBe(9);
+      expect(groups.map((g) => g.id)).toEqual([
+        "driver-team",
+        "laps-standings",
+        "lap-times",
+        "analysis",
+        "gaps",
+        "pacing",
+        "telemetry",
+        "predictions",
+        "media-custom",
+      ]);
+      expect(groups[0].columns.length).toBe(1);
+      expect(groups[0].columns[0].key).toBe("driver.name");
+      expect(groups[3].columns[0].key).toBe("standardDeviation");
+    });
+
+    it("should toggle column group expansion", () => {
+      expect(
+        component.columnGroupExpandedStates.get("analysis"),
+      ).toBeUndefined();
+      component.toggleColumnGroup("analysis");
+      expect(component.columnGroupExpandedStates.get("analysis")).toBeFalse();
+
+      component.toggleColumnGroup("analysis");
+      expect(component.columnGroupExpandedStates.get("analysis")).toBeTrue();
+    });
+
+    it("should filter groups and columns by search term", () => {
+      component.columnSearchTerm = "pacing";
+      fixture.detectChanges();
+
+      const groups = component.getColumnGroups();
+      expect(groups.length).toBe(1);
+      expect(groups[0].id).toBe("pacing");
+      expect(groups[0].columns[0].key).toBe("ghostPacing");
+      expect(groups[0].expanded).toBeTrue();
+    });
+
+    it("should clear column search", () => {
+      component.columnSearchTerm = "test";
+      component.clearColumnSearch();
+      expect(component.columnSearchTerm).toBe("");
+    });
+
+    it("should render folder headers and toggle expansion in DOM", () => {
+      const headers = fixture.nativeElement.querySelectorAll(
+        ".toolbox-group-header",
+      );
+      expect(headers.length).toBe(9);
+
+      const firstHeader = headers[0] as HTMLElement;
+      expect(firstHeader.classList.contains("expanded")).toBeTrue();
+      const folderIcon = firstHeader.querySelector(".toolbox-folder-icon");
+      expect(folderIcon?.textContent?.trim()).toBe("folder_open");
+
+      // Click to collapse
+      firstHeader.click();
+      fixture.detectChanges();
+
+      expect(firstHeader.classList.contains("expanded")).toBeFalse();
+      expect(folderIcon?.textContent?.trim()).toBe("folder");
+    });
+
+    it("should display no matches message when search yields no columns", () => {
+      component.columnSearchTerm = "nonexistent_term_xyz";
+      fixture.detectChanges();
+
+      const emptyMsg = fixture.nativeElement.querySelector(".toolbox-subtitle");
+      expect(emptyMsg).toBeTruthy();
+      const headers = fixture.nativeElement.querySelectorAll(
+        ".toolbox-group-header",
+      );
+      expect(headers.length).toBe(0);
+    });
+  });
+
+  describe("Manage Columns Row Layout", () => {
+    it("should render each column item with header input, width wrapper, and delete button on the same row", () => {
+      const items = fixture.nativeElement.querySelectorAll(
+        ".inspector-column-item",
+      );
+      expect(items.length).toBe(2);
+
+      const firstItem = items[0] as HTMLElement;
+      const colRow = firstItem.querySelector(".col-row");
+      expect(colRow).toBeTruthy();
+
+      const headerInput = colRow?.querySelector(
+        ".col-header-input",
+      ) as HTMLInputElement;
+      expect(headerInput).toBeTruthy();
+
+      const widthWrapper = colRow?.querySelector(".col-width-wrapper");
+      expect(widthWrapper).toBeTruthy();
+
+      const widthInput = widthWrapper?.querySelector(
+        ".col-width-input",
+      ) as HTMLInputElement;
+      expect(widthInput).toBeTruthy();
+
+      const deleteBtn = colRow?.querySelector(
+        ".delete-btn",
+      ) as HTMLButtonElement;
+      expect(deleteBtn).toBeTruthy();
+    });
+
+    it("should invoke deleteColumn when clicking the row delete button", () => {
+      spyOn(component, "deleteColumn").and.callThrough();
+      const firstDeleteBtn = fixture.nativeElement.querySelector(
+        ".inspector-column-item .delete-btn",
+      ) as HTMLElement;
+      expect(firstDeleteBtn).toBeTruthy();
+
+      firstDeleteBtn.click();
+      expect(component.deleteColumn).toHaveBeenCalledWith("col1");
+    });
+
+    it("should update column width when typing in the width input", () => {
+      spyOn(component, "setColumnWidth").and.callThrough();
+      const firstWidthInput = fixture.nativeElement.querySelector(
+        ".inspector-column-item .col-width-input",
+      ) as HTMLInputElement;
+      expect(firstWidthInput).toBeTruthy();
+
+      firstWidthInput.value = "1250";
+      firstWidthInput.dispatchEvent(new Event("input"));
+      fixture.detectChanges();
+
+      expect(component.setColumnWidth).toHaveBeenCalledWith("col1", 1250);
+    });
+
+    it("should render drag handle to the left of the header input without overlapping", () => {
+      const firstItem = fixture.nativeElement.querySelector(
+        ".inspector-column-item",
+      ) as HTMLElement;
+      const dragHandle = firstItem.querySelector(
+        ".col-drag-handle",
+      ) as HTMLElement;
+      const colInfo = firstItem.querySelector(".col-info") as HTMLElement;
+      expect(dragHandle).toBeTruthy();
+      expect(colInfo).toBeTruthy();
+
+      // drag handle precedes col-info in DOM and acts as sibling in flex layout
+      expect(dragHandle.nextElementSibling).toBe(colInfo);
+    });
   });
 });

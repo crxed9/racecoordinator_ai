@@ -191,7 +191,13 @@ export class RacedayLayoutUtils {
       baseKey === "averageLapTime" ||
       baseKey === "medianLapTime" ||
       baseKey === "recordLapTime" ||
-      baseKey === "segmentTime"
+      baseKey === "segmentTime" ||
+      baseKey === "standardDeviation" ||
+      baseKey === "averageTop5" ||
+      baseKey === "averageTop10" ||
+      baseKey === "averageTop15" ||
+      baseKey === "top2Consecutive" ||
+      baseKey === "top3Consecutive"
     );
   }
 
@@ -260,6 +266,13 @@ export class RacedayLayoutUtils {
       bestLapTime: "RD_COL_BEST_LAP",
       bestRaceLapTime: "RD_COL_BEST_RACE_LAP_TIME",
       recordLapTime: "RD_COL_RECORD_LAP_TIME",
+      standardDeviation: "RD_COL_STD_DEV",
+      consistencyScore: "RD_COL_CONSISTENCY",
+      averageTop5: "RD_COL_AVG_TOP_5",
+      averageTop10: "RD_COL_AVG_TOP_10",
+      averageTop15: "RD_COL_AVG_TOP_15",
+      top2Consecutive: "RD_COL_TOP_2_CONSECUTIVE",
+      top3Consecutive: "RD_COL_TOP_3_CONSECUTIVE",
       totalTime: "RD_COL_TOTAL_TIME",
       gapLeader: "RD_COL_GAP_LEADER",
       gapPosition: "RD_COL_GAP_POSITION",
@@ -356,6 +369,13 @@ export class RacedayLayoutUtils {
       bestLapTime: 330,
       bestRaceLapTime: 330,
       recordLapTime: 330,
+      standardDeviation: 330,
+      consistencyScore: 330,
+      averageTop5: 330,
+      averageTop10: 330,
+      averageTop15: 330,
+      top2Consecutive: 330,
+      top3Consecutive: 330,
       totalTime: 330,
       gapLeader: 330,
       gapPosition: 330,

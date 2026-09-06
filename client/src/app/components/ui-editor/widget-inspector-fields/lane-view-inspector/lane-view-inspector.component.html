@@ -284,61 +284,38 @@
         <span class="material-icons col-drag-handle" cdkDragHandle
           >drag_indicator</span
         >
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            padding-right: 8px;
-          "
-        >
-          <span
-            class="col-label"
-            [title]="getColumnLabel(col) | translate"
-            style="font-size: 11px; color: #888"
-            >{{ getColumnLabel(col) | translate }}</span
-          >
-          <input
-            type="text"
-            class="inspector-input"
-            style="width: 100%; margin-top: 2px"
-            [placeholder]="getColumnLabel(col) | translate"
-            [ngModel]="getCustomLabel(col)"
-            (ngModelChange)="setCustomLabel(col, $event)"
-          />
-        </div>
-
-        <div
-          class="col-actions"
-          style="display: flex; gap: 6px; align-items: center; margin-top: 4px"
-        >
-          <div class="col-width-wrapper">
+        <div class="col-info">
+          <span class="col-label" [title]="getColumnLabel(col) | translate">{{
+            getColumnLabel(col) | translate
+          }}</span>
+          <div class="col-row">
             <input
-              type="number"
-              min="0"
-              class="inspector-input col-width-input"
-              [placeholder]="'0'"
-              [ngModel]="getColumnWidth(col)"
-              (ngModelChange)="setColumnWidth(col, $event)"
-              [title]="'UE_INSPECTOR_LANE_VIEW_COLUMN_WIDTH' | translate"
+              type="text"
+              class="inspector-input col-header-input"
+              [placeholder]="getColumnLabel(col) | translate"
+              [ngModel]="getCustomLabel(col)"
+              (ngModelChange)="setCustomLabel(col, $event)"
             />
-            <span class="col-width-unit">px</span>
+            <div class="col-width-wrapper">
+              <input
+                type="number"
+                min="0"
+                class="inspector-input col-width-input"
+                [placeholder]="'0'"
+                [ngModel]="getColumnWidth(col)"
+                (ngModelChange)="setColumnWidth(col, $event)"
+                [title]="'UE_INSPECTOR_LANE_VIEW_COLUMN_WIDTH' | translate"
+              />
+              <span class="col-width-unit">px</span>
+            </div>
+            <button
+              class="icon-btn delete-btn"
+              (click)="deleteColumn(col)"
+              title="Remove Column"
+            >
+              <span class="material-icons">delete</span>
+            </button>
           </div>
-          <button
-            class="icon-btn delete-btn"
-            style="
-              color: #ef4444;
-              background: none;
-              border: none;
-              cursor: pointer;
-              padding: 4px;
-              display: flex;
-            "
-            (click)="deleteColumn(col)"
-            title="Remove Column"
-          >
-            <span class="material-icons" style="font-size: 18px">delete</span>
-          </button>
         </div>
       </div>
     }
@@ -355,54 +332,95 @@
       >
         {{ "UE_HINT_DRAG_COLUMNS_DOCK" | translate }}
       </div>
-      <div
-        class="toolbox-widget-list"
-        style="
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          padding: 4px;
-          background: #eee;
-          border-radius: 4px;
-        "
-      >
-        @for (col of unusedColumns; track col.key) {
-          <div
-            class="toolbox-widget-item"
-            draggable="true"
-            (dragstart)="onDragStart($event, col)"
-            [title]="col.label | translate"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              padding: 4px 8px;
-              background: #fff;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              cursor: grab;
-            "
+
+      <div class="toolbox-search-wrapper" style="margin-bottom: 8px">
+        <input
+          type="text"
+          class="inspector-input toolbox-search-input"
+          [class.has-value]="!!columnSearchTerm"
+          [placeholder]="'UE_TOOLBOX_COLUMNS_SEARCH_PLACEHOLDER' | translate"
+          [(ngModel)]="columnSearchTerm"
+        />
+        @if (columnSearchTerm) {
+          <button
+            type="button"
+            class="toolbox-search-clear"
+            (click)="clearColumnSearch()"
+            title="Clear"
           >
-            <span
-              class="material-icons drag-indicator-icon"
-              style="font-size: 16px; color: #999"
-              >drag_indicator</span
+            ✕
+          </button>
+        }
+      </div>
+
+      @if (getColumnGroups().length === 0) {
+        <div
+          class="toolbox-subtitle"
+          style="
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+            text-align: center;
+            padding: 12px 4px;
+          "
+        >
+          {{ "UE_TOOLBOX_COLUMNS_NO_MATCHES" | translate }}
+        </div>
+      }
+
+      <div class="toolbox-widget-list" style="padding: 0">
+        @for (group of getColumnGroups(); track group.id) {
+          <div class="toolbox-group-section">
+            <div
+              class="toolbox-group-header"
+              (click)="toggleColumnGroup(group.id)"
+              [class.expanded]="group.expanded"
             >
-            <span
-              class="material-icons toolbox-widget-icon"
-              style="font-size: 16px; color: #666"
-              >view_column</span
-            >
-            <span
-              class="toolbox-widget-label"
-              style="
-                font-size: 12px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              "
-              >{{ col.label | translate }}</span
-            >
+              <span class="material-icons toolbox-folder-icon">
+                {{ group.expanded ? "folder_open" : "folder" }}
+              </span>
+              <span class="toolbox-group-title">
+                {{ group.nameKey | translate }}
+              </span>
+              <span class="toolbox-group-badge">{{
+                group.columns.length
+              }}</span>
+            </div>
+
+            @if (group.expanded) {
+              <div class="toolbox-group-content">
+                @for (col of group.columns; track col.key) {
+                  <div
+                    class="toolbox-widget-item"
+                    draggable="true"
+                    (dragstart)="onDragStart($event, col)"
+                    [title]="col.label | translate"
+                    style="cursor: grab"
+                  >
+                    <span
+                      class="material-icons drag-indicator-icon"
+                      style="font-size: 16px; color: #999"
+                      >drag_indicator</span
+                    >
+                    <span
+                      class="material-icons toolbox-widget-icon"
+                      style="font-size: 16px; color: #666"
+                      >view_column</span
+                    >
+                    <span
+                      class="toolbox-widget-label"
+                      style="
+                        font-size: 12px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                      "
+                      >{{ col.label | translate }}</span
+                    >
+                  </div>
+                }
+              </div>
+            }
           </div>
         }
       </div>

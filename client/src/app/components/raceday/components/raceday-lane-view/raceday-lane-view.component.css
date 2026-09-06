@@ -551,7 +551,7 @@
   border-radius: 2px;
 }
 
-.col-drag-handle {
+app-raceday-lane-view .col-drag-handle {
   font-size: 0.7em;
   opacity: 0.7;
   cursor: grab;

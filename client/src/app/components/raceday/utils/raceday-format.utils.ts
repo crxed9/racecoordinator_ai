@@ -120,9 +120,18 @@ export class RacedayFormatUtils {
         baseKey === "gapLeader" ||
         baseKey === "gapPosition" ||
         baseKey === "gapLeaderF1" ||
-        baseKey === "gapPositionF1"
+        baseKey === "gapPositionF1" ||
+        baseKey === "standardDeviation" ||
+        baseKey === "averageTop5" ||
+        baseKey === "averageTop10" ||
+        baseKey === "averageTop15" ||
+        baseKey === "top2Consecutive" ||
+        baseKey === "top3Consecutive"
       ) {
         return timePlaceholder;
+      }
+      if (baseKey === "consistencyScore") {
+        return "--.-%";
       }
       if (
         isInset &&
@@ -182,9 +191,24 @@ export class RacedayFormatUtils {
     } else if (
       baseKey.includes("LapTime") ||
       baseKey === "reactionTime" ||
-      baseKey === "totalTime"
+      baseKey === "totalTime" ||
+      baseKey === "standardDeviation" ||
+      baseKey === "averageTop5" ||
+      baseKey === "averageTop10" ||
+      baseKey === "averageTop15" ||
+      baseKey === "top2Consecutive" ||
+      baseKey === "top3Consecutive"
     ) {
-      return value > 0 ? value.toFixed(timeDecimals) : timePlaceholder;
+      const isStdDev = baseKey === "standardDeviation";
+      const isValid =
+        value !== null &&
+        value !== undefined &&
+        (isStdDev ? value >= 0 : value > 0);
+      return isValid ? value.toFixed(timeDecimals) : timePlaceholder;
+    } else if (baseKey === "consistencyScore") {
+      if (RacedayFormatUtils.isEmptyDriver(hd)) return "--.-%";
+      if (value === null || value === undefined) return "--.-%";
+      return value.toFixed(1) + "%";
     } else if (baseKey === "gapLeader" || baseKey === "gapPosition") {
       if (value === 0) return timePlaceholder;
       const sign = value > 0 ? "+" : "";
