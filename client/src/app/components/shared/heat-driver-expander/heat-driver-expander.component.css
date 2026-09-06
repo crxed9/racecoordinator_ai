@@ -677,9 +677,14 @@
   overflow-x: auto;
 }
 
+.analysis-table-wrapper .results-table {
+  min-width: auto;
+  width: 100%;
+}
+
 .analysis-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(130px, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .analysis-row {

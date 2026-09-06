@@ -137,6 +137,28 @@ describe("HeatDriverExpanderComponent Analysis Section", () => {
     expect(analysisCells.length).toBe(7);
   });
 
+  it("should render Analysis table with 7 header cells matching 7 body cells", () => {
+    component.heatData = createMockHeatData([5.0, 4.8, 5.2]);
+    component.isExpanded = true;
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const headerCells = compiled.querySelectorAll(
+      ".analysis-section .results-table-header.analysis-grid .header-cell",
+    );
+    expect(headerCells.length).toBe(7);
+
+    const bodyCells = compiled.querySelectorAll(
+      ".analysis-section .analysis-row.analysis-grid .body-cell",
+    );
+    expect(bodyCells.length).toBe(7);
+
+    const table = compiled.querySelector(
+      ".analysis-table-wrapper .results-table",
+    ) as HTMLElement;
+    expect(table).not.toBeNull();
+  });
+
   it("should render custom group name on group badge when isGroupRace is true", () => {
     component.heatData = createMockHeatData([5.0]);
     component.heatData.heat.group = 1;

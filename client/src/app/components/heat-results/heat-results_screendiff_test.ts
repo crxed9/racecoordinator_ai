@@ -65,6 +65,93 @@ test.describe("Heat Results Visuals", () => {
     });
   });
 
+  test("should render expanded heat driver card with lap charts and analysis section", async ({
+    page,
+  }) => {
+    const mockData = HeatResultsHelper.createMockHeatData();
+    await HeatResultsHelper.injectMockRaceData(page, mockData);
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/heat-results"),
+    );
+
+    const harness = new HeatResultsHarnessE2e(page.locator("app-heat-results"));
+    const expander = harness.getHeatDriverExpander(0);
+
+    await expect(expander).toBeVisible();
+    await expect(expander.locator(".analysis-grid").first()).toBeVisible();
+
+    await page.mouse.move(0, 0);
+
+    await expect(expander).toHaveScreenshot(
+      "heat-results-driver-expander.png",
+      {
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+
+  test("should render collapsed heat driver card when header is toggled", async ({
+    page,
+  }) => {
+    const mockData = HeatResultsHelper.createMockHeatData();
+    await HeatResultsHelper.injectMockRaceData(page, mockData);
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/heat-results"),
+    );
+
+    const harness = new HeatResultsHarnessE2e(page.locator("app-heat-results"));
+    const expander = harness.getHeatDriverExpander(0);
+
+    await expect(expander).toBeVisible();
+
+    await harness.toggleHeatDriverExpander(0);
+    await expect(expander.locator(".heat-card-content")).not.toBeVisible();
+
+    await page.mouse.move(0, 0);
+
+    await expect(expander).toHaveScreenshot(
+      "heat-results-driver-collapsed.png",
+      {
+        maxDiffPixelRatio: 0.05,
+      },
+    );
+  });
+
+  test("should render heat results in print layout with background graphics", async ({
+    page,
+  }) => {
+    const mockData = HeatResultsHelper.createMockHeatData();
+    await HeatResultsHelper.injectMockRaceData(page, mockData);
+
+    await TestSetupHelper.waitForLocalization(
+      page,
+      "en",
+      page.goto("/heat-results"),
+    );
+
+    await expect(
+      page.locator("app-heat-driver-expander").first(),
+    ).toBeVisible();
+
+    await page.emulateMedia({ media: "print" });
+    await page.evaluate(() => {
+      document.body.classList.add("print-full-scroll");
+    });
+
+    await page.mouse.move(0, 0);
+
+    await expect(page).toHaveScreenshot("heat-results-print-layout.png", {
+      maxDiffPixelRatio: 0.05,
+      fullPage: true,
+    });
+  });
+
   test("should render heat results in print layout without background graphics", async ({
     page,
   }) => {
@@ -86,6 +173,8 @@ test.describe("Heat Results Visuals", () => {
       document.body.classList.add("print-full-scroll");
       document.body.classList.add("print-no-background");
     });
+
+    await page.mouse.move(0, 0);
 
     await expect(page).toHaveScreenshot("heat-results-no-background.png", {
       maxDiffPixelRatio: 0.05,
